@@ -30,7 +30,7 @@ var builder =
 						.WithDisaggregation(
 							new DisaggregationQueryBuilder().WithAllFields()),
 					"b420001d-189b-44c0-a3d5-d62452bfdd42")
-				.WithEnergyStatements("2016-06", "2016-10"));
+				.WithEnergyStatements ("2016-06", "2016-10"));
 
 var query = builder.Build(Formatting.Indented);
 ```

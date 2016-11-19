@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -13,6 +14,11 @@ namespace GraphQlClientGenerator
 {
     public class GraphQlGenerator
     {
+        private const string GraphQlTypeKindObject = "OBJECT";
+        private const string GraphQlTypeKindEnum = "ENUM";
+        private const string GraphQlTypeKindScalar = "SCALAR";
+        private const string GraphQlTypeKindList = "LIST";
+
         private static readonly JsonSerializerSettings SerializerSettings =
             new JsonSerializerSettings
             {
@@ -40,224 +46,14 @@ namespace GraphQlClientGenerator
 
         public static void GenerateQueryBuilder(GraphQlSchema schema, StringBuilder builder)
         {
-            builder.AppendLine(
-                @"#region base classes
-public class FieldMetadata
-{
-    public string Name { get; set; }
-    public bool IsComplex { get; set; }
-    public Type QueryBuilderType { get; set; }
-}
-
-public enum Formatting
-{
-    None,
-    Indented
-}
-
-public abstract class GraphQlQueryBuilder
-{
-    private const int IndentationSize = 2;
-
-    private static readonly IList<FieldMetadata> EmptyFieldCollection = new List<FieldMetadata>();
-
-    private readonly Dictionary<string, GraphQlFieldCriteria> _fieldCriteria = new Dictionary<string, GraphQlFieldCriteria>();
-
-    protected virtual IList<FieldMetadata> AllFields { get; } = EmptyFieldCollection;
-
-    public void Clear()
-    {
-        _fieldCriteria.Clear();
-    }
-
-    public void IncludeAllFields()
-    {
-        IncludeFields(AllFields);
-    }
-
-    public string Build(Formatting formatting = Formatting.Indented)
-    {
-        return Build(formatting, 1);
-    }
-
-    protected string Build(Formatting formatting, int level)
-    {
-        var builder = new StringBuilder();
-        builder.Append(""{"");
-        
-        if (formatting == Formatting.Indented)
-            builder.AppendLine();
-
-        var index = 0;
-        foreach (var criteria in _fieldCriteria.Values)
-        {
-            builder.Append(criteria.Build(formatting, level));
-            if (formatting == Formatting.Indented)
-                builder.AppendLine();
-            else if (++index < _fieldCriteria.Count)
-                builder.Append("","");
-        }
-
-        if (formatting == Formatting.Indented)
-            builder.Append(GetIndentation(level - 1));
-        
-        builder.Append(""}"");
-        return builder.ToString();
-    }
-
-    protected void IncludeScalarField(string fieldName, IDictionary<string, object> args)
-    {
-        _fieldCriteria[fieldName] = new GraphQlScalarFieldCriteria(fieldName, args);
-    }
-
-    protected void IncludeObjectField(string fieldName, GraphQlQueryBuilder objectFieldQueryBuilder, IDictionary<string, object> args)
-    {
-        _fieldCriteria[fieldName] = new GraphQlObjectFieldCriteria(fieldName, objectFieldQueryBuilder, args);
-    }
-
-    protected void IncludeFields(IEnumerable<FieldMetadata> fields)
-    {
-        foreach (var field in fields)
-        {
-            if (field.QueryBuilderType == null)
-                IncludeScalarField(field.Name, null);
-            else
-            {
-                var queryBuilder = (GraphQlQueryBuilder)Activator.CreateInstance(field.QueryBuilderType);
-                queryBuilder.IncludeAllFields();
-                IncludeObjectField(field.Name, queryBuilder, null);
-            }
-        }
-    }
-
-    private static string GetIndentation(int level)
-    {
-        return new String(' ', level * IndentationSize);
-    }
-
-    private abstract class GraphQlFieldCriteria
-    {
-        public readonly string FieldName;
-        public readonly IDictionary<string, object> Args;
-
-        protected GraphQlFieldCriteria(string fieldName, IDictionary<string, object> args)
-        {
-            FieldName = fieldName;
-            Args = args;
-        }
-
-        public abstract string Build(Formatting formatting, int level);
-
-        protected string BuildArgumentClause(Formatting formatting)
-        {
-            var separator = formatting == Formatting.Indented ? "" "" : null;
-            return
-                Args?.Count > 0
-                    ? $""({String.Join($"",{separator}"", Args.Select(kvp => $""{kvp.Key}:{separator}{BuildArgumentValue(kvp.Value)}""))}){separator}""
-                    : String.Empty;
-        }
-
-        private string BuildArgumentValue(object value)
-        {
-            if (value is Enum)
-                return ConvertEnumToString((Enum)value);
-
-            var argumentValue = Convert.ToString(value, CultureInfo.InvariantCulture);
-            return value is String ? $""\""{argumentValue}\"""" : argumentValue;
-        }
-
-        private static string ConvertEnumToString(Enum @enum)
-        {
-            var enumMember =
-                @enum.GetType()
-                    .GetTypeInfo()
-                    .GetMembers()
-                    .Single(m => String.Equals(m.Name, @enum.ToString()));
-
-            var enumMemberAttribute = (EnumMemberAttribute)enumMember.GetCustomAttribute(typeof(EnumMemberAttribute));
-
-            return enumMemberAttribute == null
-                ? @enum.ToString()
-                : enumMemberAttribute.Value;
-        }
-    }
-
-    private class GraphQlScalarFieldCriteria : GraphQlFieldCriteria
-    {
-        public GraphQlScalarFieldCriteria(string fieldName, IDictionary<string, object> args) : base(fieldName, args)
-        {
-        }
-
-        public override string Build(Formatting formatting, int level)
-        {
-            var builder = new StringBuilder();
-            if (formatting == Formatting.Indented)
-                builder.Append(GetIndentation(level));
-
-            builder.Append(FieldName);
-            builder.Append(BuildArgumentClause(formatting));
-            return builder.ToString();
-        }
-    }
-
-    private class GraphQlObjectFieldCriteria : GraphQlFieldCriteria
-    {
-        private readonly GraphQlQueryBuilder _objectQueryBuilder;
-
-        public GraphQlObjectFieldCriteria(string fieldName, GraphQlQueryBuilder objectQueryBuilder, IDictionary<string, object> args) : base(fieldName, args)
-        {
-            _objectQueryBuilder = objectQueryBuilder;
-        }
-
-        public override string Build(Formatting formatting, int level)
-        {
-            var builder = new StringBuilder();
-            var fieldName = FieldName;
-            if (formatting == Formatting.Indented)
-                fieldName = $""{GetIndentation(level)}{FieldName} "";
-
-            builder.Append(fieldName);
-            builder.Append(BuildArgumentClause(formatting));
-            builder.Append(_objectQueryBuilder.Build(formatting, level + 1));
-            return builder.ToString();
-        }
-    }
-}
-
-public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder where TQueryBuilder : GraphQlQueryBuilder<TQueryBuilder>
-{
-    public TQueryBuilder WithAllFields()
-    {
-        IncludeAllFields();
-        return (TQueryBuilder)this;
-    }
-
-    public TQueryBuilder WithAllScalarFields()
-    {
-        IncludeFields(AllFields.Where(f => !f.IsComplex));
-        return (TQueryBuilder)this;
-    }
-
-    protected TQueryBuilder WithScalarField(string fieldName, IDictionary<string, object> args = null)
-    {
-        IncludeScalarField(fieldName, args);
-        return (TQueryBuilder)this;
-    }
-
-    protected TQueryBuilder WithObjectField(string fieldName, GraphQlQueryBuilder queryBuilder, IDictionary<string, object> args = null)
-    {
-        IncludeObjectField(fieldName, queryBuilder, args);
-        return (TQueryBuilder)this;
-    }
-}
-#endregion
-");
+            using (var reader = new StreamReader(typeof(GraphQlGenerator).Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses")))
+                builder.AppendLine(reader.ReadToEnd());
 
             builder.AppendLine("#region builder classes");
 
             GenerarateEnums(schema, builder);
 
-            var complexTypes = schema.Types.Where(t => t.Kind == "OBJECT" && !t.Name.StartsWith("__")).ToArray();
+            var complexTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKindObject && !t.Name.StartsWith("__")).ToArray();
             for (var i = 0; i < complexTypes.Length; i++)
             {
                 var type = complexTypes[i];
@@ -274,7 +70,7 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
         {
             builder.AppendLine("#region data classes");
 
-            var objectTypes = schema.Types.Where(t => t.Kind == "OBJECT" && !t.Name.StartsWith("__")).ToArray();
+            var objectTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKindObject && !t.Name.StartsWith("__")).ToArray();
             for (var i = 0; i < objectTypes.Length; i++)
             {
                 var type = objectTypes[i];
@@ -300,20 +96,20 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
                 string propertyType;
                 switch (field.Type.Kind)
                 {
-                    case "OBJECT":
+                    case GraphQlTypeKindObject:
                         propertyType = field.Type.Name;
                         break;
-                    case "ENUM":
+                    case GraphQlTypeKindEnum:
                         propertyType = $"{field.Type.Name}?";
                         break;
-                    case "LIST":
+                    case GraphQlTypeKindList:
                         var itemType = field.Type.OfType.Name;
                         if (itemType == "DynamicType")
                             itemType = "object";
 
                         propertyType = $"ICollection<{itemType}>";
                         break;
-                    case "SCALAR":
+                    case GraphQlTypeKindScalar:
                         switch (field.Type.Name)
                         {
                             case "DynamicType":
@@ -369,8 +165,8 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
             {
                 var comma = i == fields.Length - 1 ? null : ",";
                 var field = fields[i];
-                var isList = field.Type.Kind == "LIST";
-                var isComplex = isList || field.Type.Name == "DynamicType" || field.Type.Kind == "OBJECT";
+                var isList = field.Type.Kind == GraphQlTypeKindList;
+                var isComplex = isList || field.Type.Name == "DynamicType" || field.Type.Kind == GraphQlTypeKindObject;
                 var fieldTypeName = isList ? field.Type.OfType.Name : field.Type.Name;
 
                 builder.Append($"            new FieldMetadata {{ Name = \"{field.Name}\"");
@@ -394,12 +190,12 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
             for (var i = 0; i < fields.Length; i++)
             {
                 var field = fields[i];
-                var fieldTypeName = field.Type.Kind == "LIST" ? field.Type.OfType.Name : field.Type.Name;
+                var fieldTypeName = field.Type.Kind == GraphQlTypeKindList ? field.Type.OfType.Name : field.Type.Name;
 
-                var args = field.Args?.Where(a => a.Type.Kind == "SCALAR" || a.Type.Kind == "ENUM").ToArray() ?? new GraphQlArgument[0];
-                var methodParameters = String.Join(", ", args.Select(a => $"{(a.Type.Kind == "ENUM" ? $"{a.Type.Name}?" : ScalarToNetType(a.Type.Name))} {a.Name} = null"));
+                var args = field.Args?.Where(a => a.Type.Kind == GraphQlTypeKindScalar || a.Type.Kind == GraphQlTypeKindEnum).ToArray() ?? new GraphQlArgument[0];
+                var methodParameters = String.Join(", ", args.Select(a => $"{(a.Type.Kind == GraphQlTypeKindEnum ? $"{a.Type.Name}?" : ScalarToNetType(a.Type.Name))} {a.Name} = null"));
 
-                if (field.Type.Kind == "SCALAR" || field.Type.Kind == "ENUM" || fieldTypeName == "DynamicType")
+                if (field.Type.Kind == GraphQlTypeKindScalar || field.Type.Kind == GraphQlTypeKindEnum || fieldTypeName == "DynamicType")
                 {
                     builder.AppendLine($"    public {type.Name}QueryBuilder With{NamingHelper.CapitalizeFirst(field.Name)}({methodParameters})");
                     builder.AppendLine("    {");
@@ -463,7 +259,7 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
 
         private static void GenerarateEnums(GraphQlSchema schema, StringBuilder builder)
         {
-            foreach (var type in schema.Types.Where(t => t.Kind == "ENUM" && !t.Name.StartsWith("__")))
+            foreach (var type in schema.Types.Where(t => t.Kind == GraphQlTypeKindEnum && !t.Name.StartsWith("__")))
             {
                 GenerateEnum(type, builder);
                 builder.AppendLine();
