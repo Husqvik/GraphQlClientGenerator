@@ -76,6 +76,8 @@ namespace GraphQlClientGenerator
                 var type = objectTypes[i];
                 GenerateDataClass(type, builder);
 
+                builder.AppendLine();
+
                 if (i < objectTypes.Length - 1)
                     builder.AppendLine();
             }
