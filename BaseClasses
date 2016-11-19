@@ -45,14 +45,19 @@ public abstract class GraphQlQueryBuilder
         if (formatting == Formatting.Indented)
             builder.AppendLine();
 
-        var index = 0;
+        var separator = String.Empty;
         foreach (var criteria in _fieldCriteria.Values)
         {
-            builder.Append(criteria.Build(formatting, level));
+            var fieldCriteria = criteria.Build(formatting, level);
             if (formatting == Formatting.Indented)
-                builder.AppendLine();
-            else if (++index < _fieldCriteria.Count)
-                builder.Append(",");
+                builder.AppendLine(fieldCriteria);
+            else if (!String.IsNullOrEmpty(fieldCriteria))
+            {
+                builder.Append(separator);
+                builder.Append(fieldCriteria);
+            }
+            
+            separator = ",";
         }
 
         if (formatting == Formatting.Indented)
@@ -168,6 +173,9 @@ public abstract class GraphQlQueryBuilder
 
         public override string Build(Formatting formatting, int level)
         {
+            if (_objectQueryBuilder._fieldCriteria.Count == 0)
+                return String.Empty;
+
             var builder = new StringBuilder();
             var fieldName = FieldName;
             if (formatting == Formatting.Indented)
