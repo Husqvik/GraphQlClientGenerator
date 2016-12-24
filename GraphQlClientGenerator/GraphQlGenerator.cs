@@ -12,14 +12,14 @@ using Newtonsoft.Json.Serialization;
 
 namespace GraphQlClientGenerator
 {
-    public class GraphQlGenerator
+    public static class GraphQlGenerator
     {
         private const string GraphQlTypeKindObject = "OBJECT";
         private const string GraphQlTypeKindEnum = "ENUM";
         private const string GraphQlTypeKindScalar = "SCALAR";
         private const string GraphQlTypeKindList = "LIST";
 
-        private static readonly JsonSerializerSettings SerializerSettings =
+        internal static readonly JsonSerializerSettings SerializerSettings =
             new JsonSerializerSettings
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
@@ -287,6 +287,11 @@ namespace GraphQlClientGenerator
             }
 
             builder.AppendLine("}");
+        }
+
+        private static bool IsObjectScalar(string graphQlTypeName)
+        {
+            return String.Equals(ScalarToNetType(graphQlTypeName), "object");
         }
 
         private static string ScalarToNetType(string graphQlTypeName)

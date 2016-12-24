@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("GraphQlClientGenerator")]
+[assembly: AssemblyTitle("GraphQlClientGenerator.Test")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("GraphQlClientGenerator")]
+[assembly: AssemblyProduct("GraphQlClientGenerator.Test")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("b8a8bcc0-50ec-4c09-b5e5-848cb21119fc")]
+[assembly: Guid("18b9e5f7-d56a-450b-ab4f-4f2ed2343d62")]
 
 // Version information for an assembly consists of the following four values:
 //
