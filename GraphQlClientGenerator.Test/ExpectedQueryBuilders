@@ -1002,7 +1002,7 @@ public class DeviceQueryBuilder : GraphQlQueryBuilder<DeviceQueryBuilder>
             new FieldMetadata { Name = "isBatteryLow" },
             new FieldMetadata { Name = "isSignalLow" },
             new FieldMetadata { Name = "isAlive" },
-            new FieldMetadata { Name = "capabilities", IsComplex = true, QueryBuilderType = typeof(StringQueryBuilder) },
+            new FieldMetadata { Name = "capabilities", IsComplex = true },
             new FieldMetadata { Name = "properties", IsComplex = true }
         };
 
@@ -1046,9 +1046,9 @@ public class DeviceQueryBuilder : GraphQlQueryBuilder<DeviceQueryBuilder>
         return WithScalarField("isAlive");
     }
 
-    public DeviceQueryBuilder WithCapabilities(StringQueryBuilder stringQueryBuilder)
+    public DeviceQueryBuilder WithCapabilities()
     {
-        return WithObjectField("capabilities", stringQueryBuilder);
+        return WithScalarField("capabilities");
     }
 
     public DeviceQueryBuilder WithProperties()
