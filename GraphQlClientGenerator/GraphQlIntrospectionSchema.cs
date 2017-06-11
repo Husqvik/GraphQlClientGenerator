@@ -16,10 +16,10 @@ namespace GraphQlClientGenerator
 
     public class GraphQlSchema
     {
-        public GraphQlQueryType QueryType { get; set; }
+        public GraphQlRequestType QueryType { get; set; }
         public ICollection<GraphQlType> Types { get; set; }
         public ICollection<GraphQlDirective> Directives { get; set; }
-        public object MutationType { get; set; }
+        public GraphQlRequestType MutationType { get; set; }
         public object SubscriptionType { get; set; }
     }
 
@@ -31,7 +31,7 @@ namespace GraphQlClientGenerator
         public ICollection<GraphQlArgument> Args { get; set; }
     }
 
-    public class GraphQlQueryType
+    public class GraphQlRequestType
     {
         public string Name { get; set; }
     }
