@@ -162,7 +162,7 @@ public class Device
     public bool? IsBatteryLow { get; set; }
     public bool? IsSignalLow { get; set; }
     public bool? IsAlive { get; set; }
-    public ICollection<String> Capabilities { get; set; }
+    public ICollection<string> Capabilities { get; set; }
     public object Properties { get; set; }
 }
 

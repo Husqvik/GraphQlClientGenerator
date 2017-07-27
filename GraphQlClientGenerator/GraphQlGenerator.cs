@@ -105,9 +105,10 @@ namespace GraphQlClientGenerator
                         propertyType = $"{field.Type.Name}?";
                         break;
                     case GraphQlTypeKindList:
-                        var itemType = field.Type.OfType.Name;
-                        if (IsObjectScalar(field.Type.OfType))
-                            itemType = "object";
+                        var itemType = IsObjectScalar(field.Type.OfType) ? "object" : field.Type.OfType.Name;
+                        var suggestedNetType = ScalarToNetType(field.Type.OfType.Name).TrimEnd('?');
+                        if (!String.Equals(suggestedNetType, "object"))
+                            itemType = suggestedNetType;
 
                         propertyType = $"ICollection<{itemType}>";
                         break;
