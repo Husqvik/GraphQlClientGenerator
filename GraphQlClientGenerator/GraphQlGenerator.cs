@@ -45,7 +45,7 @@ namespace GraphQlClientGenerator
             }
         }
 
-        public static void GenerateQueryBuilder(GraphQlSchema schema, StringBuilder builder, string builderClassPostfix = null)
+        public static void GenerateQueryBuilder(GraphQlSchema schema, StringBuilder builder)
         {
             using (var reader = new StreamReader(typeof(GraphQlGenerator).Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses")))
                 builder.AppendLine(reader.ReadToEnd());
@@ -58,7 +58,7 @@ namespace GraphQlClientGenerator
             for (var i = 0; i < complexTypes.Length; i++)
             {
                 var type = complexTypes[i];
-                GenerateTypeQueryBuilder(type, builder, builderClassPostfix);
+                GenerateTypeQueryBuilder(type, builder);
 
                 if (i < complexTypes.Length - 1)
                     builder.AppendLine();
@@ -67,7 +67,7 @@ namespace GraphQlClientGenerator
             builder.Append("#endregion");
         }
 
-        public static void GenerateDataClasses(GraphQlSchema schema, StringBuilder builder, string builderClassPostfix = null)
+        public static void GenerateDataClasses(GraphQlSchema schema, StringBuilder builder)
         {
             builder.AppendLine("#region data classes");
 
@@ -75,7 +75,7 @@ namespace GraphQlClientGenerator
             for (var i = 0; i < objectTypes.Length; i++)
             {
                 var type = objectTypes[i];
-                GenerateDataClass(type, builder, builderClassPostfix);
+                GenerateDataClass(type, builder);
 
                 builder.AppendLine();
 
@@ -86,9 +86,9 @@ namespace GraphQlClientGenerator
             builder.Append("#endregion");
         }
 
-        private static void GenerateDataClass(GraphQlType type, StringBuilder builder, string builderClassPostfix)
+        private static void GenerateDataClass(GraphQlType type, StringBuilder builder)
         {
-            var className = $"{type.Name}{builderClassPostfix}";
+            var className = $"{type.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
             ValidateClassName(className);
 
             builder.Append("public class ");
@@ -103,13 +103,13 @@ namespace GraphQlClientGenerator
                 switch (field.Type.Kind)
                 {
                     case GraphQlTypeKindObject:
-                        propertyType = $"{field.Type.Name}{builderClassPostfix}";
+                        propertyType = $"{field.Type.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
                         break;
                     case GraphQlTypeKindEnum:
                         propertyType = $"{field.Type.Name}?";
                         break;
                     case GraphQlTypeKindList:
-                        var itemType = IsObjectScalar(field.Type.OfType) ? "object" : $"{field.Type.OfType.Name}{builderClassPostfix}";
+                        var itemType = IsObjectScalar(field.Type.OfType) ? "object" : $"{field.Type.OfType.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
                         var suggestedNetType = ScalarToNetType(field.Type.OfType.Name).TrimEnd('?');
                         if (!String.Equals(suggestedNetType, "object"))
                             itemType = suggestedNetType;
@@ -155,9 +155,9 @@ namespace GraphQlClientGenerator
             builder.Append("}");
         }
 
-        private static void GenerateTypeQueryBuilder(GraphQlType type, StringBuilder builder, string builderClassPostfix)
+        private static void GenerateTypeQueryBuilder(GraphQlType type, StringBuilder builder)
         {
-            var className = $"{type.Name}QueryBuilder{builderClassPostfix}";
+            var className = $"{type.Name}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix}";
             ValidateClassName(className);
 
             builder.AppendLine($"public class {className} : GraphQlQueryBuilder<{className}>");
@@ -184,7 +184,7 @@ namespace GraphQlClientGenerator
                     var fieldType = isList ? field.Type.OfType : field.Type;
                     if (fieldType.Kind != GraphQlTypeKindScalar)
                     {
-                        builder.Append($", QueryBuilderType = typeof({fieldType.Name}QueryBuilder{builderClassPostfix})");
+                        builder.Append($", QueryBuilderType = typeof({fieldType.Name}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix})");
                     }
                 }
 
@@ -201,26 +201,36 @@ namespace GraphQlClientGenerator
 
                 var args = field.Args?.Where(a => a.Type.Kind == GraphQlTypeKindScalar || a.Type.Kind == GraphQlTypeKindEnum).ToArray() ?? new GraphQlArgument[0];
                 var methodParameters = String.Join(", ", args.Select(a => $"{(a.Type.Kind == GraphQlTypeKindEnum ? $"{a.Type.Name}?" : ScalarToNetType(a.Type.Name))} {a.Name} = null"));
+                var requiresFullBody = GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.Compatible || args.Any();
+                var returnPrefix = requiresFullBody ? "        return " :  String.Empty;
 
                 if (field.Type.Kind == GraphQlTypeKindScalar || field.Type.Kind == GraphQlTypeKindEnum || fieldType.Kind == GraphQlTypeKindScalar)
                 {
-                    builder.AppendLine($"    public {className} With{NamingHelper.CapitalizeFirst(field.Name)}({methodParameters})");
-                    builder.AppendLine("    {");
+                    builder.Append($"    public {className} With{NamingHelper.CapitalizeFirst(field.Name)}({methodParameters})");
 
-                    AppendArgumentDictionary(builder, args);
+                    if (requiresFullBody)
+                    {
+                        builder.AppendLine();
+                        builder.AppendLine("    {");
+                        AppendArgumentDictionary(builder, args);
+                    }
+                    else
+                        builder.Append(" => ");
 
-                    builder.Append($"        return WithScalarField(\"{field.Name}\"");
+                    builder.Append($"{returnPrefix}WithScalarField(\"{field.Name}\"");
 
                     if (args.Length > 0)
                         builder.Append(", args");
 
                     builder.AppendLine(");");
-                    builder.AppendLine("    }");
+
+                    if (requiresFullBody)
+                        builder.AppendLine("    }");
                 }
                 else
                 {
                     var builderParameterName = NamingHelper.LowerFirst(fieldType.Name);
-                    builder.Append($"    public {className} With{NamingHelper.CapitalizeFirst(field.Name)}({fieldType.Name}QueryBuilder{builderClassPostfix} {builderParameterName}QueryBuilder");
+                    builder.Append($"    public {className} With{NamingHelper.CapitalizeFirst(field.Name)}({fieldType.Name}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix} {builderParameterName}QueryBuilder");
 
                     if (args.Length > 0)
                     {
@@ -228,18 +238,27 @@ namespace GraphQlClientGenerator
                         builder.Append(methodParameters);
                     }
 
-                    builder.AppendLine(")");
-                    builder.AppendLine("    {");
+                    builder.Append(")");
+
+                    if (requiresFullBody)
+                    {
+                        builder.AppendLine();
+                        builder.AppendLine("    {");
+                    }
+                    else
+                        builder.Append(" => ");
 
                     AppendArgumentDictionary(builder, args);
 
-                    builder.Append($"        return WithObjectField(\"{field.Name}\", {builderParameterName}QueryBuilder");
+                    builder.Append($"{returnPrefix}WithObjectField(\"{field.Name}\", {builderParameterName}QueryBuilder");
 
                     if (args.Length > 0)
                         builder.Append(", args");
 
                     builder.AppendLine(");");
-                    builder.AppendLine("    }");
+
+                    if (requiresFullBody)
+                        builder.AppendLine("    }");
                 }
 
                 if (i < fields.Length - 1)
@@ -300,10 +319,8 @@ namespace GraphQlClientGenerator
             builder.AppendLine("}");
         }
 
-        private static bool IsObjectScalar(GraphQlTypeBase graphQlType)
-        {
-            return graphQlType.Kind == GraphQlTypeKindScalar && String.Equals(ScalarToNetType(graphQlType.Name), "object");
-        }
+        private static bool IsObjectScalar(GraphQlTypeBase graphQlType) =>
+            graphQlType.Kind == GraphQlTypeKindScalar && String.Equals(ScalarToNetType(graphQlType.Name), "object");
 
         private static string ScalarToNetType(string graphQlTypeName)
         {
