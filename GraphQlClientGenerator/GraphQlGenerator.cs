@@ -19,6 +19,10 @@ namespace GraphQlClientGenerator
         private const string GraphQlTypeKindEnum = "ENUM";
         private const string GraphQlTypeKindScalar = "SCALAR";
         private const string GraphQlTypeKindList = "LIST";
+        private const string GraphQlTypeKindNonNull = "NON_NULL";
+        private const string GraphQlTypeKindInputObject = "INPUT_OBJECT";
+        private const string GraphQlTypeKindUnion = "UNION";
+        private const string GraphQlTypeKindInterface = "INTERFACE";
 
         internal static readonly JsonSerializerSettings SerializerSettings =
             new JsonSerializerSettings
@@ -100,24 +104,25 @@ namespace GraphQlClientGenerator
                 var propertyName = NamingHelper.CapitalizeFirst(field.Name);
 
                 string propertyType;
-                switch (field.Type.Kind)
+                var fieldType = UnwrapNonNull(field.Type);
+                switch (fieldType.Kind)
                 {
                     case GraphQlTypeKindObject:
-                        propertyType = $"{field.Type.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
+                        propertyType = $"{fieldType.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
                         break;
                     case GraphQlTypeKindEnum:
-                        propertyType = $"{field.Type.Name}?";
+                        propertyType = $"{fieldType.Name}?";
                         break;
                     case GraphQlTypeKindList:
-                        var itemType = IsObjectScalar(field.Type.OfType) ? "object" : $"{field.Type.OfType.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
-                        var suggestedNetType = ScalarToNetType(field.Type.OfType.Name).TrimEnd('?');
+                        var itemType = IsObjectScalar(fieldType.OfType) ? "object" : $"{UnwrapNonNull(fieldType.OfType).Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
+                        var suggestedNetType = ScalarToNetType(UnwrapNonNull(fieldType.OfType).Name).TrimEnd('?');
                         if (!String.Equals(suggestedNetType, "object"))
                             itemType = suggestedNetType;
 
                         propertyType = $"ICollection<{itemType}>";
                         break;
                     case GraphQlTypeKindScalar:
-                        switch (field.Type.Name)
+                        switch (fieldType.Name)
                         {
                             case "Int":
                                 propertyType = "int?";
@@ -172,8 +177,9 @@ namespace GraphQlClientGenerator
             {
                 var comma = i == fields.Length - 1 ? null : ",";
                 var field = fields[i];
-                var isList = field.Type.Kind == GraphQlTypeKindList;
-                var isComplex = isList || IsObjectScalar(field.Type) || field.Type.Kind == GraphQlTypeKindObject;
+                var fieldType = UnwrapNonNull(field.Type);
+                var isList = fieldType.Kind == GraphQlTypeKindList;
+                var isComplex = isList || IsObjectScalar(fieldType) || fieldType.Kind == GraphQlTypeKindObject;
 
                 builder.Append($"            new FieldMetadata {{ Name = \"{field.Name}\"");
 
@@ -181,7 +187,7 @@ namespace GraphQlClientGenerator
                 {
                     builder.Append(", IsComplex = true");
 
-                    var fieldType = isList ? field.Type.OfType : field.Type;
+                    fieldType = isList ? UnwrapNonNull(fieldType.OfType) : fieldType;
                     if (fieldType.Kind != GraphQlTypeKindScalar)
                     {
                         builder.Append($", QueryBuilderType = typeof({fieldType.Name}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix})");
@@ -197,14 +203,17 @@ namespace GraphQlClientGenerator
             for (var i = 0; i < fields.Length; i++)
             {
                 var field = fields[i];
-                var fieldType = field.Type.Kind == GraphQlTypeKindList ? field.Type.OfType : field.Type;
+                var fieldType = UnwrapNonNull(field.Type);
+                if (fieldType.Kind == GraphQlTypeKindList)
+                    fieldType = fieldType.OfType;
+                fieldType = UnwrapNonNull(fieldType);
 
-                var args = field.Args?.Where(a => a.Type.Kind == GraphQlTypeKindScalar || a.Type.Kind == GraphQlTypeKindEnum).ToArray() ?? new GraphQlArgument[0];
-                var methodParameters = String.Join(", ", args.Select(a => $"{(a.Type.Kind == GraphQlTypeKindEnum ? $"{a.Type.Name}?" : ScalarToNetType(a.Type.Name))} {a.Name} = null"));
+                var args = field.Args?.Where(a => UnwrapNonNull(a.Type).Kind == GraphQlTypeKindScalar || UnwrapNonNull(a.Type).Kind == GraphQlTypeKindEnum).ToArray() ?? new GraphQlArgument[0];
+                var methodParameters = String.Join(", ", args.Select(a => $"{(UnwrapNonNull(a.Type).Kind == GraphQlTypeKindEnum ? $"{UnwrapNonNull(a.Type).Name}?" : ScalarToNetType(UnwrapNonNull(a.Type).Name))} {a.Name} = null"));
                 var requiresFullBody = GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.Compatible || args.Any();
                 var returnPrefix = requiresFullBody ? "        return " :  String.Empty;
 
-                if (field.Type.Kind == GraphQlTypeKindScalar || field.Type.Kind == GraphQlTypeKindEnum || fieldType.Kind == GraphQlTypeKindScalar)
+                if (fieldType.Kind == GraphQlTypeKindScalar || fieldType.Kind == GraphQlTypeKindEnum || fieldType.Kind == GraphQlTypeKindScalar)
                 {
                     builder.Append($"    public {className} With{NamingHelper.CapitalizeFirst(field.Name)}({methodParameters})");
 
@@ -229,6 +238,9 @@ namespace GraphQlClientGenerator
                 }
                 else
                 {
+                    if (String.IsNullOrEmpty(fieldType.Name))
+                        throw new InvalidOperationException($"Field '{field.Name}' type name not resolved. ");
+
                     var builderParameterName = NamingHelper.LowerFirst(fieldType.Name);
                     builder.Append($"    public {className} With{NamingHelper.CapitalizeFirst(field.Name)}({fieldType.Name}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix} {builderParameterName}QueryBuilder");
 
@@ -319,8 +331,14 @@ namespace GraphQlClientGenerator
             builder.AppendLine("}");
         }
 
-        private static bool IsObjectScalar(GraphQlTypeBase graphQlType) =>
-            graphQlType.Kind == GraphQlTypeKindScalar && String.Equals(ScalarToNetType(graphQlType.Name), "object");
+        private static bool IsObjectScalar(GraphQlFieldType graphQlType)
+        {
+            graphQlType = UnwrapNonNull(graphQlType);
+            return graphQlType.Kind == GraphQlTypeKindScalar && String.Equals(ScalarToNetType(graphQlType.Name), "object");
+        }
+
+        private static GraphQlFieldType UnwrapNonNull(GraphQlFieldType graphQlType) =>
+            graphQlType.Kind == GraphQlTypeKindNonNull ? graphQlType.OfType : graphQlType;
 
         private static string ScalarToNetType(string graphQlTypeName)
         {
