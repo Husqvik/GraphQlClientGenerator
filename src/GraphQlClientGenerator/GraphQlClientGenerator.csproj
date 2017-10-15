@@ -25,6 +25,7 @@
       <NuspecProperties>$(NuspecProperties);id=$(AssemblyName)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);configuration=$(Configuration)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);version=$(PackageVersion)</NuspecProperties>
+      <NuspecProperties>$(NuspecProperties);title=$(AssemblyTitle)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);description=$(Description)</NuspecProperties>
       <NuspecProperties>$(NuspecProperties);authors=$(Authors)</NuspecProperties>
     </PropertyGroup>
