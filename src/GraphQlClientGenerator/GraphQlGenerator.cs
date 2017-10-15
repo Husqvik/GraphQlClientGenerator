@@ -1,10 +1,10 @@
 ﻿using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -51,7 +51,7 @@ namespace GraphQlClientGenerator
 
         public static void GenerateQueryBuilder(GraphQlSchema schema, StringBuilder builder)
         {
-            using (var reader = new StreamReader(typeof(GraphQlGenerator).Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses")))
+            using (var reader = new StreamReader(typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses")))
                 builder.AppendLine(reader.ReadToEnd());
 
             builder.AppendLine("#region builder classes");
@@ -282,7 +282,7 @@ namespace GraphQlClientGenerator
 
         private static void ValidateClassName(string className)
         {
-            if (!CodeGenerator.IsValidLanguageIndependentIdentifier(className))
+            if (!CSharpHelper.IsValidIdentifier(className))
                 throw new InvalidOperationException($"Resulting class name '{className}' is not valid. ");
         }
 

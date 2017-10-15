@@ -10,10 +10,12 @@ namespace GraphQlClientGenerator.Test
     {
         private static readonly GraphQlSchema TestSchema;
 
-        static GraphQlGeneratorTest()
-        {
-            TestSchema = JsonConvert.DeserializeObject<GraphQlResult>(GetTestResource("TestSchema"), GraphQlGenerator.SerializerSettings).Data.Schema;
-        }
+        static GraphQlGeneratorTest() =>
+            TestSchema =
+                JsonConvert.DeserializeObject<GraphQlResult>(
+                        GetTestResource("TestSchema"),
+                        GraphQlGenerator.SerializerSettings)
+                    .Data.Schema;
 
         [Fact]
         public void GenerateQueryBuilder()

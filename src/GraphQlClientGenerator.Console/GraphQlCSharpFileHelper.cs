@@ -3,40 +3,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace GraphQlClientGenerator
+namespace GraphQlClientGenerator.Console
 {
-    public class Program
+    internal static class GraphQlCSharpFileHelper
     {
-        public static void Main(string[] args)
-        {
-            if (args.Length < 4)
-            {
-                Console.WriteLine("GraphQL C# client generator");
-                Console.WriteLine();
-                Console.WriteLine("Usage: ");
-                Console.WriteLine("GraphQlClientGenerator <GraphQlServiceUrl> <AccessToken> <TargetNamespace> <TargetFileName> <Namespace>");
-                return;
-            }
-
-            var url = args[0];
-            var token = args[1];
-            var targetFileName = args[2];
-            var @namespace = args[3];
-
-            try
-            {
-                GenerateGraphQlClient(url, token, targetFileName, @namespace);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine($"Error occured: {exception.Message}");
-                return;
-            }
-
-            Console.WriteLine($"File {targetFileName} generated successfully. ");
-        }
-
-        private static void GenerateGraphQlClient(string url, string token, string targetFileName, string @namespace)
+        public static void GenerateGraphQlClient(string url, string token, string targetFileName, string @namespace)
         {
             var schema = GraphQlGenerator.RetrieveSchema(url, token).Result;
 

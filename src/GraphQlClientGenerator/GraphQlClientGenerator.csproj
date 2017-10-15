@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyTitle>GraphQL C# Client Generator</AssemblyTitle>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Net.Http" Version="4.*" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="BaseClasses" />
+  </ItemGroup>
+
+</Project>

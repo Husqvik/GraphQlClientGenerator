@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.*" />
+    <PackageReference Include="Shouldly" Version="2.*" />
+    <PackageReference Include="xunit" Version="2.*" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="ExpectedDataClasses" />
+    <EmbeddedResource Include="ExpectedQueryBuilders" />
+    <EmbeddedResource Include="TestSchema" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\GraphQlClientGenerator\GraphQlClientGenerator.csproj" />
+  </ItemGroup>
+
+</Project>
