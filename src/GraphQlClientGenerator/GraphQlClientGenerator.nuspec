@@ -4,15 +4,20 @@
     <id>$id$</id>
     <version>$version$</version>
     <title>$title$</title>
-    <authors>$author$</authors>
-    <owners>$author$</owners>
-    <licenseUrl>https://raw.githubusercontent.com/Husqvik/GraphQlClientGenerator/master/Licence.md</licenseUrl>
-    <projectUrl>https://github.com/Husqvik/GraphQlClientGenerator</projectUrl>
-    <iconUrl>https://upload.wikimedia.org/wikipedia/commons/1/17/GraphQL_Logo.svg</iconUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
+    <authors>$authors$</authors>
+    <owners>$authors$</owners>
+    <licenseUrl>https://raw.githubusercontent.com/Husqvik/GraphQlClientGenerator/master/License.md</licenseUrl>
+    <projectUrl>https://github.com/Husqvik/GraphQlClientGenerator</projectUrl>
+    <iconUrl>https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/GraphQL_Logo.svg/1024px-GraphQL_Logo.svg.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <releaseNotes>Initial release</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>GraphGL C# Client</tags>
   </metadata>
+
+  <files>
+    <file src="bin\$configuration$\netstandard1.3\GraphQlClientGenerator.*" target="lib\netstandard1.3" />
+    <file src="bin\$configuration$\net45\GraphQlClientGenerator.*" target="lib\net45" />
+  </files>
 </package>
