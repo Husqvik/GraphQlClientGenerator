@@ -15,6 +15,7 @@
     <releaseNotes>Initial release</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>GraphGL C# Client</tags>
+    <repository type="git" url="https://github.com/Husqvik/GraphQlClientGenerator" />
 
     <dependencies>
       <group targetFramework=".NETFramework4.5">
@@ -30,7 +31,7 @@
   </metadata>
 
   <files>
-    <file src="bin\$configuration$\netstandard1.3\$id$.*" target="lib\netstandard1.3" />
+    <file src="bin\$configuration$\netstandard1.3\$id$.dll" target="lib\netstandard1.3" />
     <file src="bin\$configuration$\net45\$id$.*" target="lib\net45" />
   </files>
 </package>
