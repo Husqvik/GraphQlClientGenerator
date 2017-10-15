@@ -41,9 +41,7 @@ namespace GraphQlClientGenerator.Console
                         .Select(l => $"    {l}");
 
                 foreach (var line in indentedLines)
-                {
                     writer.WriteLine(line);
-                }
 
                 writer.WriteLine("}");
             }

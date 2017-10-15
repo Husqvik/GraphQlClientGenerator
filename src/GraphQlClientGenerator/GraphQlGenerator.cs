@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Reflection;
 using System.Text;
@@ -33,19 +32,25 @@ namespace GraphQlClientGenerator
 
         public static async Task<GraphQlSchema> RetrieveSchema(string url, string token)
         {
-            using (var client = new HttpClient { BaseAddress = new Uri(url) })
+            using (var client = new HttpClient())
             {
-                var response =
+                string content;
+
+                using (var response =
                     await client.PostAsync(
                         $"{url}/gql?token={token}",
-                        new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json")
-                    );
+                        new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json")))
+                {
+                    content =
+                        response.Content == null
+                            ? "(no content)"
+                            : await response.Content.ReadAsStringAsync();
 
-                var jsonResult = await response.Content.ReadAsStringAsync();
-                if (response.StatusCode != HttpStatusCode.OK)
-                    throw new InvalidOperationException(jsonResult);
+                    if (response.IsSuccessStatusCode)
+                        throw new InvalidOperationException($"Status code: {response.StatusCode}; content: {content}");
+                }
 
-                return JsonConvert.DeserializeObject<GraphQlResult>(jsonResult, SerializerSettings).Data.Schema;
+                return JsonConvert.DeserializeObject<GraphQlResult>(content, SerializerSettings).Data.Schema;
             }
         }
 
