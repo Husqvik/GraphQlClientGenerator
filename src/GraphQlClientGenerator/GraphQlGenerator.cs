@@ -46,7 +46,7 @@ namespace GraphQlClientGenerator
                             ? "(no content)"
                             : await response.Content.ReadAsStringAsync();
 
-                    if (response.IsSuccessStatusCode)
+                    if (!response.IsSuccessStatusCode)
                         throw new InvalidOperationException($"Status code: {response.StatusCode}; content: {content}");
                 }
 
@@ -73,7 +73,7 @@ namespace GraphQlClientGenerator
                     builder.AppendLine();
             }
 
-            builder.Append("#endregion");
+            builder.AppendLine("#endregion");
         }
 
         public static void GenerateDataClasses(GraphQlSchema schema, StringBuilder builder)
@@ -92,7 +92,7 @@ namespace GraphQlClientGenerator
                     builder.AppendLine();
             }
 
-            builder.Append("#endregion");
+            builder.AppendLine("#endregion");
         }
 
         private static void GenerateDataClass(GraphQlType type, StringBuilder builder)

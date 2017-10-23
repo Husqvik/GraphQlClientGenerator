@@ -14,23 +14,23 @@ Query builder usage
 -------------
 ```
 var builder =
-	new QueryQueryBuilder()
-		.WithMe(
-			new MeQueryBuilder()
-				.WithAllScalarFields()
-				.WithHome(
-					new HomeQueryBuilder()
-						.WithAllScalarFields()
-						.WithSubscription(
-							new SubscriptionQueryBuilder()
-								.WithStatus()
-								.WithValidFrom())
-						.WithSignupStatus(
-							new SignupStatusQueryBuilder().WithAllFields())
-						.WithDisaggregation(
-							new DisaggregationQueryBuilder().WithAllFields()),
-					"b420001d-189b-44c0-a3d5-d62452bfdd42")
-				.WithEnergyStatements ("2016-06", "2016-10"));
+  new QueryQueryBuilder()
+    .WithMe(
+      new MeQueryBuilder()
+        .WithAllScalarFields()
+        .WithHome(
+          new HomeQueryBuilder()
+            .WithAllScalarFields()
+            .WithSubscription(
+              new SubscriptionQueryBuilder()
+                .WithStatus()
+                .WithValidFrom())
+            .WithSignupStatus(
+              new SignupStatusQueryBuilder().WithAllFields())
+            .WithDisaggregation(
+              new DisaggregationQueryBuilder().WithAllFields()),
+          "b420001d-189b-44c0-a3d5-d62452bfdd42")
+        .WithEnergyStatements ("2016-06", "2016-10"));
 
 var query = builder.Build(Formatting.Indented);
 ```

@@ -8,14 +8,15 @@ namespace GraphQlClientGenerator.Test
 {
     public class GraphQlGeneratorTest
     {
-        private static readonly GraphQlSchema TestSchema;
+        private static readonly GraphQlSchema TestSchema = DeserializeTestSchema("TestSchema");
 
-        static GraphQlGeneratorTest() =>
-            TestSchema =
-                JsonConvert.DeserializeObject<GraphQlResult>(
-                        GetTestResource("TestSchema"),
-                        GraphQlGenerator.SerializerSettings)
-                    .Data.Schema;
+        private static GraphQlSchema DeserializeTestSchema(string resourceName) =>
+            JsonConvert.DeserializeObject<GraphQlResult>(
+                    GetTestResource(resourceName),
+                    GraphQlGenerator.SerializerSettings)
+                .Data.Schema;
+
+        public GraphQlGeneratorTest() => GraphQlGeneratorConfiguration.Reset();
 
         [Fact]
         public void GenerateQueryBuilder()
@@ -35,6 +36,21 @@ namespace GraphQlClientGenerator.Test
 
             var expectedDataClasses = GetTestResource("ExpectedDataClasses");
             stringBuilder.ToString().ShouldBe(expectedDataClasses);
+        }
+
+        [Fact]
+        public void NewCSharpSyntaxWithClassPostfix()
+        {
+            GraphQlGeneratorConfiguration.CSharpVersion = CSharpVersion.Newest;
+            GraphQlGeneratorConfiguration.ClassPostfix = "V1";
+            var schema = DeserializeTestSchema("TestSchema2");
+
+            var stringBuilder = new StringBuilder();
+            GraphQlGenerator.GenerateQueryBuilder(schema, stringBuilder);
+            GraphQlGenerator.GenerateDataClasses(schema, stringBuilder);
+
+            var expectedOutput = GetTestResource("ExpectedNewCSharpSyntaxWithClassPostfix");
+            stringBuilder.ToString().ShouldBe(expectedOutput);
         }
 
         private static string GetTestResource(string name)

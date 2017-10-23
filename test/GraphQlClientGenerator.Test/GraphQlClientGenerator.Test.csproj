@@ -15,8 +15,10 @@
 
   <ItemGroup>
     <EmbeddedResource Include="ExpectedDataClasses" />
+    <EmbeddedResource Include="ExpectedNewCSharpSyntaxWithClassPostfix" />
     <EmbeddedResource Include="ExpectedQueryBuilders" />
     <EmbeddedResource Include="TestSchema" />
+    <EmbeddedResource Include="TestSchema2" />
   </ItemGroup>
 
   <ItemGroup>
