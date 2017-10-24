@@ -133,11 +133,7 @@ namespace GraphQlClientGenerator
                                 propertyType = "int?";
                                 break;
                             case "String":
-                                propertyType = "string";
-                                if (propertyName == "From" || propertyName == "ValidFrom" || propertyName == "CreatedAt" ||
-                                    propertyName == "To" || propertyName == "ValidTo" || propertyName == "ModifiedAt" || propertyName.EndsWith("Timestamp"))
-                                    propertyType = "DateTimeOffset?";
-
+                                propertyType = GraphQlGeneratorConfiguration.CustomScalarFieldMapping(field);
                                 break;
                             case "Float":
                                 propertyType = "decimal?";
