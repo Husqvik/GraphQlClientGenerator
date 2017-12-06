@@ -8,6 +8,8 @@ namespace GraphQlClientGenerator
 
         public static string ClassPostfix { get; set; }
 
+        public static bool GenerateComments { get; set; }
+
         public static Func<GraphQlField, string> CustomScalarFieldMapping { get; set; } = DefaultScalarFieldMapping;
 
         public static void Reset()

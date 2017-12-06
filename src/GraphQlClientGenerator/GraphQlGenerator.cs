@@ -155,6 +155,13 @@ namespace GraphQlClientGenerator
                         break;
                 }
 
+                if (GraphQlGeneratorConfiguration.GenerateComments && !String.IsNullOrWhiteSpace(field.Description))
+                {
+                    builder.AppendLine("    /// <summary>");
+                    builder.AppendLine($"    /// {field.Description}");
+                    builder.AppendLine("    /// </summary>");
+                }
+
                 builder.AppendLine($"    public {propertyType} {propertyName} {{ get; set; }}");
             }
 
