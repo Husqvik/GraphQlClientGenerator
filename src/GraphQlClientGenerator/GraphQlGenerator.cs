@@ -352,7 +352,7 @@ namespace GraphQlClientGenerator
             for (var i = 0; i < enumValues.Count; i++)
             {
                 var enumValue = enumValues[i];
-                builder.Append($"    [EnumMember(Value=\"{enumValue.Name}\")] {NamingHelper.CapitalizeFirst(enumValue.Name)}");
+                builder.Append($"    [EnumMember(Value=\"{enumValue.Name}\")] {NamingHelper.ToNetEnumName(enumValue.Name)}");
 
                 if (i < enumValues.Count - 1)
                     builder.Append(",");
