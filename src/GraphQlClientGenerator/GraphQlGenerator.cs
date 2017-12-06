@@ -217,7 +217,12 @@ namespace GraphQlClientGenerator
                 fieldType = UnwrapNonNull(fieldType);
 
                 var args = field.Args?.Where(a => UnwrapNonNull(a.Type).Kind == GraphQlTypeKindScalar || UnwrapNonNull(a.Type).Kind == GraphQlTypeKindEnum).ToArray() ?? new GraphQlArgument[0];
-                var methodParameters = String.Join(", ", args.Select(a => $"{(UnwrapNonNull(a.Type).Kind == GraphQlTypeKindEnum ? $"{UnwrapNonNull(a.Type).Name}?" : ScalarToNetType(UnwrapNonNull(a.Type).Name))} {a.Name} = null"));
+                var methodParameters =
+                    String.Join(
+                        ", ",
+                        args.OrderByDescending(a => a.Type.Kind == GraphQlTypeKindNonNull)
+                        .Select(BuildMethodParameterDefinition));
+
                 var requiresFullBody = GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.Compatible || args.Any();
                 var returnPrefix = requiresFullBody ? "        return " :  String.Empty;
 
@@ -288,6 +293,20 @@ namespace GraphQlClientGenerator
             builder.AppendLine("}");
         }
 
+        private static string BuildMethodParameterDefinition(GraphQlArgument argument)
+        {
+            var isNotNull = argument.Type.Kind == GraphQlTypeKindNonNull;
+            var argumentNetType = UnwrapNonNull(argument.Type).Kind == GraphQlTypeKindEnum ? $"{UnwrapNonNull(argument.Type).Name}?" : ScalarToNetType(UnwrapNonNull(argument.Type).Name);
+            if (isNotNull)
+                argumentNetType = argumentNetType.TrimEnd('?');
+
+            var argumentDefinition = $"{argumentNetType} {argument.Name}";
+            if (!isNotNull)
+                argumentDefinition = $"{argumentDefinition} = null";
+
+            return argumentDefinition;
+        }
+
         private static void ValidateClassName(string className)
         {
             if (!CSharpHelper.IsValidIdentifier(className))
@@ -303,9 +322,14 @@ namespace GraphQlClientGenerator
 
             foreach (var arg in args)
             {
-                builder.AppendLine($"        if ({arg.Name} != null)");
-                builder.AppendLine($"            args.Add(\"{arg.Name}\", {arg.Name});");
-                builder.AppendLine();
+                if (arg.Type.Kind == GraphQlTypeKindNonNull)
+                    builder.AppendLine($"        args.Add(\"{arg.Name}\", {arg.Name});");
+                else
+                {
+                    builder.AppendLine($"        if ({arg.Name} != null)");
+                    builder.AppendLine($"            args.Add(\"{arg.Name}\", {arg.Name});");
+                    builder.AppendLine();
+                }
             }
         }
 
