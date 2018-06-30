@@ -14,14 +14,14 @@ namespace GraphQlClientGenerator
 {
     public static class GraphQlGenerator
     {
-        private const string GraphQlTypeKindObject = "OBJECT";
-        private const string GraphQlTypeKindEnum = "ENUM";
-        private const string GraphQlTypeKindScalar = "SCALAR";
-        private const string GraphQlTypeKindList = "LIST";
-        private const string GraphQlTypeKindNonNull = "NON_NULL";
-        private const string GraphQlTypeKindInputObject = "INPUT_OBJECT";
-        private const string GraphQlTypeKindUnion = "UNION";
-        private const string GraphQlTypeKindInterface = "INTERFACE";
+        public const string GraphQlTypeKindObject = "OBJECT";
+        public const string GraphQlTypeKindEnum = "ENUM";
+        public const string GraphQlTypeKindScalar = "SCALAR";
+        public const string GraphQlTypeKindList = "LIST";
+        public const string GraphQlTypeKindNonNull = "NON_NULL";
+        public const string GraphQlTypeKindInputObject = "INPUT_OBJECT";
+        public const string GraphQlTypeKindUnion = "UNION";
+        public const string GraphQlTypeKindInterface = "INTERFACE";
 
         internal static readonly JsonSerializerSettings SerializerSettings =
             new JsonSerializerSettings
@@ -30,7 +30,7 @@ namespace GraphQlClientGenerator
                 Converters = { new StringEnumConverter() }
             };
 
-        public static async Task<GraphQlSchema> RetrieveSchema(string url, string token)
+        public static async Task<GraphQlSchema> RetrieveSchema(string url)
         {
             using (var client = new HttpClient())
             {
@@ -38,7 +38,7 @@ namespace GraphQlClientGenerator
 
                 using (var response =
                     await client.PostAsync(
-                        $"{url}/gql?token={token}",
+                        $"{url}",
                         new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json")))
                 {
                     content =
@@ -95,7 +95,7 @@ namespace GraphQlClientGenerator
             builder.AppendLine("#endregion");
         }
 
-        private static void GenerateDataClass(GraphQlType type, StringBuilder builder)
+        public static void GenerateDataClass(GraphQlType type, StringBuilder builder)
         {
             var className = $"{type.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
             ValidateClassName(className);

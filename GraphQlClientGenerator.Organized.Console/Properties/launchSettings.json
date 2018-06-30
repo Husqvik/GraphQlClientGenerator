@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GraphQlClientGenerator.Organized": {
+      "commandName": "Project",
+      "commandLineArgs": "-u http://bk-qaycsa-1003/v2/graphql -n Agoda.Supply.Api.Client.GraphQl -o c:\\pradeep\\SmapiClient"
+    }
+  }
+}

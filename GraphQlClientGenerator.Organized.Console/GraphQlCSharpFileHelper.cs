@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace GraphQlClientGenerator.Console
+namespace GraphQlClientGenerator.Organized
 {
     internal static class GraphQlCSharpFileHelper
     {

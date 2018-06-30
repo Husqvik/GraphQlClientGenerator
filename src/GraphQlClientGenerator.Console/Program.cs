@@ -6,20 +6,20 @@ namespace GraphQlClientGenerator.Console
     {
         public static void Main(string[] args)
         {
-            if (args.Length < 4)
+            if (args.Length < 3)
             {
                 PrintHelp();
                 return;
             }
 
             var url = args[0];
-            var token = args[1];
-            var targetFileName = args[2];
-            var @namespace = args[3];
+            //var token = args[1];
+            var targetFileName = args[1];
+            var @namespace = args[2];
 
             try
             {
-                GraphQlCSharpFileHelper.GenerateGraphQlClient(url, token, targetFileName, @namespace);
+                GraphQlCSharpFileHelper.GenerateGraphQlClient(url, targetFileName, @namespace);
                 System.Console.WriteLine($"File {targetFileName} generated successfully. ");
             }
             catch (Exception exception)
