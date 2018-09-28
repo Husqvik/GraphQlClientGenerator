@@ -53,6 +53,22 @@ namespace GraphQlClientGenerator.Test
             stringBuilder.ToString().ShouldBe(expectedOutput);
         }
 
+        [Fact]
+        public void DeprecatedAttributes()
+        {
+            GraphQlGeneratorConfiguration.CSharpVersion = CSharpVersion.Newest;
+            GraphQlGeneratorConfiguration.GenerateComments = true;
+            GraphQlGeneratorConfiguration.IncludeDeprecatedFields = true;
+            var schema = DeserializeTestSchema("TestSchemaWithDeprecatedFields");
+
+            var stringBuilder = new StringBuilder();
+            GraphQlGenerator.GenerateDataClasses(schema, stringBuilder);
+
+            var expectedOutput = GetTestResource("ExpectedDeprecatedAttributes");
+            File.WriteAllText(@"D:\ExpectedDeprecatedAttributes", stringBuilder.ToString());
+            stringBuilder.ToString().ShouldBe(expectedOutput);
+        }
+
         private static string GetTestResource(string name)
         {
             using (var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream($"GraphQlClientGenerator.Test.{name}")))

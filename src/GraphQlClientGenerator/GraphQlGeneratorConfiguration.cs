@@ -10,6 +10,8 @@ namespace GraphQlClientGenerator
 
         public static bool GenerateComments { get; set; }
 
+        public static bool IncludeDeprecatedFields { get; set; }
+
         public static Func<GraphQlField, string> CustomScalarFieldMapping { get; set; } = DefaultScalarFieldMapping;
 
         public static void Reset()
@@ -17,6 +19,8 @@ namespace GraphQlClientGenerator
             ClassPostfix = null;
             CSharpVersion = CSharpVersion.Compatible;
             CustomScalarFieldMapping = DefaultScalarFieldMapping;
+            GenerateComments = false;
+            IncludeDeprecatedFields = false;
         }
 
         private static string DefaultScalarFieldMapping(GraphQlField field)

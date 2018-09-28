@@ -106,6 +106,9 @@ namespace GraphQlClientGenerator
 
             foreach (var field in type.Fields)
             {
+                if (field.IsDeprecated && !GraphQlGeneratorConfiguration.IncludeDeprecatedFields)
+                    continue;
+
                 var propertyName = NamingHelper.CapitalizeFirst(field.Name);
 
                 string propertyType;
@@ -160,6 +163,12 @@ namespace GraphQlClientGenerator
                     builder.AppendLine("    /// <summary>");
                     builder.AppendLine($"    /// {field.Description}");
                     builder.AppendLine("    /// </summary>");
+                }
+
+                if (field.IsDeprecated)
+                {
+                    var deprecationReason = String.IsNullOrWhiteSpace(field.DeprecationReason) ? null : $"(\"{field.DeprecationReason.Replace("\\", "\\\\").Replace("\"", "\\\"")}\")";
+                    builder.AppendLine($"    [Obsolete{deprecationReason}]");
                 }
 
                 builder.AppendLine($"    public {propertyType} {propertyName} {{ get; set; }}");

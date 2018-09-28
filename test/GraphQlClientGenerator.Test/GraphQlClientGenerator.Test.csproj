@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
@@ -16,8 +16,10 @@
   <ItemGroup>
     <EmbeddedResource Include="ExpectedDataClasses" />
     <EmbeddedResource Include="ExpectedNewCSharpSyntaxWithClassPostfix" />
+    <EmbeddedResource Include="ExpectedDeprecatedAttributes" />
     <EmbeddedResource Include="ExpectedQueryBuilders" />
     <EmbeddedResource Include="TestSchema" />
+    <EmbeddedResource Include="TestSchemaWithDeprecatedFields" />
     <EmbeddedResource Include="TestSchema2" />
   </ItemGroup>
 
