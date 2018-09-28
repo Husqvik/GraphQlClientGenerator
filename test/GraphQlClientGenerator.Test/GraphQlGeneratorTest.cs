@@ -65,7 +65,6 @@ namespace GraphQlClientGenerator.Test
             GraphQlGenerator.GenerateDataClasses(schema, stringBuilder);
 
             var expectedOutput = GetTestResource("ExpectedDeprecatedAttributes");
-            File.WriteAllText(@"D:\ExpectedDeprecatedAttributes", stringBuilder.ToString());
             stringBuilder.ToString().ShouldBe(expectedOutput);
         }
 
