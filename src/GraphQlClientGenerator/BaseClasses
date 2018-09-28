@@ -125,7 +125,7 @@ public abstract class GraphQlQueryBuilder
                 return ConvertEnumToString((Enum)value);
 
             var argumentValue = Convert.ToString(value, CultureInfo.InvariantCulture);
-            return value is String ? $"\"{argumentValue}\"" : argumentValue;
+            return value is String || value is Guid ? $"\"{argumentValue}\"" : argumentValue;
         }
 
         private static string ConvertEnumToString(Enum @enum)
