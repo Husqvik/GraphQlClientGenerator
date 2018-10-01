@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace GraphQlClientGenerator
+﻿namespace GraphQlClientGenerator
 {
+    public delegate string GetCustomScalarFieldTypeDelegate(GraphQlType type, GraphQlField field);
+
     public static class GraphQlGeneratorConfiguration
     {
         public static CSharpVersion CSharpVersion { get; set; }
@@ -12,18 +12,18 @@ namespace GraphQlClientGenerator
 
         public static bool IncludeDeprecatedFields { get; set; }
 
-        public static Func<GraphQlField, string> CustomScalarFieldMapping { get; set; } = DefaultScalarFieldMapping;
+        public static GetCustomScalarFieldTypeDelegate CustomScalarFieldTypeMapping { get; set; } = DefaultScalarFieldTypeMapping;
 
         public static void Reset()
         {
             ClassPostfix = null;
             CSharpVersion = CSharpVersion.Compatible;
-            CustomScalarFieldMapping = DefaultScalarFieldMapping;
+            CustomScalarFieldTypeMapping = DefaultScalarFieldTypeMapping;
             GenerateComments = false;
             IncludeDeprecatedFields = false;
         }
 
-        private static string DefaultScalarFieldMapping(GraphQlField field)
+        public static string DefaultScalarFieldTypeMapping(GraphQlType type, GraphQlField field)
         {
             var propertyName = NamingHelper.CapitalizeFirst(field.Name);
             if (propertyName == "From" || propertyName == "ValidFrom" || propertyName == "CreatedAt" ||

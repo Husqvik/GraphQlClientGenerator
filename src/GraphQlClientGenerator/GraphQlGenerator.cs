@@ -136,7 +136,7 @@ namespace GraphQlClientGenerator
                                 propertyType = "int?";
                                 break;
                             case "String":
-                                propertyType = GraphQlGeneratorConfiguration.CustomScalarFieldMapping(field);
+                                propertyType = GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(type, field);
                                 break;
                             case "Float":
                                 propertyType = "decimal?";
