@@ -21,7 +21,7 @@ namespace GraphQlClientGenerator
         public ICollection<GraphQlType> Types { get; set; }
         public ICollection<GraphQlDirective> Directives { get; set; }
         public GraphQlRequestType MutationType { get; set; }
-        public object SubscriptionType { get; set; }
+        public GraphQlRequestType SubscriptionType { get; set; }
     }
 
     public class GraphQlDirective
@@ -41,14 +41,10 @@ namespace GraphQlClientGenerator
     {
         public string Description { get; set; }
         public ICollection<GraphQlField> Fields { get; set; }
-        public ICollection<GraphQlField> InputFields { get; set; }
-        public ICollection<GraphQlInterface> Interfaces { get; set; }
+        public ICollection<GraphQlArgument> InputFields { get; set; }
+        public ICollection<GraphQlFieldType> Interfaces { get; set; }
         public ICollection<GraphQlEnumValue> EnumValues { get; set; }
         public ICollection<GraphQlFieldType> PossibleTypes { get; set; }
-    }
-
-    public class GraphQlInterface
-    {
     }
 
     public class GraphQlEnumValue
