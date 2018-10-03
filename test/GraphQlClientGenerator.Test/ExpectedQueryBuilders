@@ -1,4 +1,4 @@
-﻿#region base classes
+#region base classes
 public class FieldMetadata
 {
     public string Name { get; set; }
@@ -334,7 +334,7 @@ public class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
         return WithObjectField("feed", feedQueryBuilder);
     }
 
-    public MeQueryBuilder WithEnergyStatements(string from = null, string to = null)
+    public MeQueryBuilder WithEnergyStatements(DateTimeOffset? from = null, DateTimeOffset? to = null)
     {
         var args = new Dictionary<string, object>();
         if (from != null)
@@ -392,7 +392,7 @@ public class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return WithObjectField("subscription", subscriptionQueryBuilder);
     }
 
-    public HomeQueryBuilder WithConsumptionMonths(ConsumptionMonthQueryBuilder consumptionMonthQueryBuilder, string from = null)
+    public HomeQueryBuilder WithConsumptionMonths(ConsumptionMonthQueryBuilder consumptionMonthQueryBuilder, DateTimeOffset? from = null)
     {
         var args = new Dictionary<string, object>();
         if (from != null)
@@ -401,7 +401,7 @@ public class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return WithObjectField("consumptionMonths", consumptionMonthQueryBuilder, args);
     }
 
-    public HomeQueryBuilder WithConsumption(ConsumptionQueryBuilder consumptionQueryBuilder, string from = null, string to = null)
+    public HomeQueryBuilder WithConsumption(ConsumptionQueryBuilder consumptionQueryBuilder, DateTimeOffset? from = null, DateTimeOffset? to = null)
     {
         var args = new Dictionary<string, object>();
         if (from != null)
@@ -418,7 +418,7 @@ public class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return WithObjectField("preLiveComparison", preLiveComparisonQueryBuilder);
     }
 
-    public HomeQueryBuilder WithComparisons(ComparisonQueryBuilder comparisonQueryBuilder, string from = null, string to = null, Resolution? resolution = null)
+    public HomeQueryBuilder WithComparisons(ComparisonQueryBuilder comparisonQueryBuilder, DateTimeOffset? from = null, DateTimeOffset? to = null, Resolution? resolution = null)
     {
         var args = new Dictionary<string, object>();
         if (from != null)
@@ -453,7 +453,7 @@ public class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return WithScalarField("thermostat");
     }
 
-    public HomeQueryBuilder WithTemperatures(string from = null, string to = null, string resolution = null)
+    public HomeQueryBuilder WithTemperatures(DateTimeOffset? from = null, DateTimeOffset? to = null, string resolution = null)
     {
         var args = new Dictionary<string, object>();
         if (from != null)
@@ -537,7 +537,7 @@ public class SubscriptionQueryBuilder : GraphQlQueryBuilder<SubscriptionQueryBui
         return WithScalarField("billingRegionId");
     }
 
-    public SubscriptionQueryBuilder WithEnergyStatements(string from = null, string to = null)
+    public SubscriptionQueryBuilder WithEnergyStatements(DateTimeOffset? from = null, DateTimeOffset? to = null)
     {
         var args = new Dictionary<string, object>();
         if (from != null)

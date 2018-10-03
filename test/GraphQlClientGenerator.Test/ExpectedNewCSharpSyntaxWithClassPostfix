@@ -1,4 +1,4 @@
-﻿#region base classes
+#region base classes
 public class FieldMetadata
 {
     public string Name { get; set; }
@@ -430,7 +430,7 @@ public class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1>
         return WithObjectField("consumptionMonths", consumptionMonthQueryBuilder, args);
     }
 
-    public HomeQueryBuilderV1 WithConsumption(ConsumptionQueryBuilderV1 consumptionQueryBuilder, string from = null, string to = null, bool? useDemoData = null)
+    public HomeQueryBuilderV1 WithConsumption(ConsumptionQueryBuilderV1 consumptionQueryBuilder, DateTimeOffset? from = null, DateTimeOffset? to = null, bool? useDemoData = null)
     {
         var args = new Dictionary<string, object>();
         if (from != null)
@@ -447,7 +447,7 @@ public class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1>
 
     public HomeQueryBuilderV1 WithPreLiveComparison(PreLiveComparisonQueryBuilderV1 preLiveComparisonQueryBuilder) => WithObjectField("preLiveComparison", preLiveComparisonQueryBuilder);
 
-    public HomeQueryBuilderV1 WithComparisons(ComparisonQueryBuilderV1 comparisonQueryBuilder, string from = null, string to = null, Resolution? resolution = null, bool? useDemoData = null)
+    public HomeQueryBuilderV1 WithComparisons(ComparisonQueryBuilderV1 comparisonQueryBuilder, DateTimeOffset? from = null, DateTimeOffset? to = null, Resolution? resolution = null, bool? useDemoData = null)
     {
         var args = new Dictionary<string, object>();
         if (from != null)
@@ -469,7 +469,7 @@ public class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1>
 
     public HomeQueryBuilderV1 WithProfileQuestions(HomeProfileQuestionQueryBuilderV1 homeProfileQuestionQueryBuilder) => WithObjectField("profileQuestions", homeProfileQuestionQueryBuilder);
 
-    public HomeQueryBuilderV1 WithTemperatures(string from = null, string to = null, string resolution = null, bool? useDemoData = null)
+    public HomeQueryBuilderV1 WithTemperatures(DateTimeOffset? from = null, DateTimeOffset? to = null, string resolution = null, bool? useDemoData = null)
     {
         var args = new Dictionary<string, object>();
         if (from != null)
@@ -519,7 +519,7 @@ public class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1>
 
     public HomeQueryBuilderV1 WithProductionMonths(ProductionMonthQueryBuilderV1 productionMonthQueryBuilder) => WithObjectField("productionMonths", productionMonthQueryBuilder);
 
-    public HomeQueryBuilderV1 WithProduction(ProductionQueryBuilderV1 productionQueryBuilder, string from = null, string to = null)
+    public HomeQueryBuilderV1 WithProduction(ProductionQueryBuilderV1 productionQueryBuilder, DateTimeOffset? from = null, DateTimeOffset? to = null)
     {
         var args = new Dictionary<string, object>();
         if (from != null)

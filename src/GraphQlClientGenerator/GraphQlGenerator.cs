@@ -123,7 +123,7 @@ namespace GraphQlClientGenerator
                         break;
                     case GraphQlTypeKindList:
                         var itemType = IsObjectScalar(fieldType.OfType) ? "object" : $"{UnwrapNonNull(fieldType.OfType).Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
-                        var suggestedNetType = ScalarToNetType(UnwrapNonNull(fieldType.OfType).Name).TrimEnd('?');
+                        var suggestedNetType = ScalarToNetType(type, field.Name, UnwrapNonNull(fieldType.OfType)).TrimEnd('?');
                         if (!String.Equals(suggestedNetType, "object"))
                             itemType = suggestedNetType;
 
@@ -136,7 +136,7 @@ namespace GraphQlClientGenerator
                                 propertyType = "int?";
                                 break;
                             case "String":
-                                propertyType = GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(type, field);
+                                propertyType = GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(type, field.Name);
                                 break;
                             case "Float":
                                 propertyType = "decimal?";
@@ -230,7 +230,7 @@ namespace GraphQlClientGenerator
                     String.Join(
                         ", ",
                         args.OrderByDescending(a => a.Type.Kind == GraphQlTypeKindNonNull)
-                        .Select(BuildMethodParameterDefinition));
+                        .Select(a => BuildMethodParameterDefinition(type, a)));
 
                 var requiresFullBody = GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.Compatible || args.Any();
                 var returnPrefix = requiresFullBody ? "        return " :  String.Empty;
@@ -302,10 +302,10 @@ namespace GraphQlClientGenerator
             builder.AppendLine("}");
         }
 
-        private static string BuildMethodParameterDefinition(GraphQlArgument argument)
+        private static string BuildMethodParameterDefinition(GraphQlType baseType, GraphQlArgument argument)
         {
             var isNotNull = argument.Type.Kind == GraphQlTypeKindNonNull;
-            var argumentNetType = UnwrapNonNull(argument.Type).Kind == GraphQlTypeKindEnum ? $"{UnwrapNonNull(argument.Type).Name}?" : ScalarToNetType(UnwrapNonNull(argument.Type).Name);
+            var argumentNetType = UnwrapNonNull(argument.Type).Kind == GraphQlTypeKindEnum ? $"{UnwrapNonNull(argument.Type).Name}?" : ScalarToNetType(baseType, argument.Name, UnwrapNonNull(argument.Type));
             if (isNotNull)
                 argumentNetType = argumentNetType.TrimEnd('?');
 
@@ -375,25 +375,25 @@ namespace GraphQlClientGenerator
         private static bool IsObjectScalar(GraphQlFieldType graphQlType)
         {
             graphQlType = UnwrapNonNull(graphQlType);
-            return graphQlType.Kind == GraphQlTypeKindScalar && String.Equals(ScalarToNetType(graphQlType.Name), "object");
+            return graphQlType.Kind == GraphQlTypeKindScalar && !graphQlType.IsScalar;
         }
 
         private static GraphQlFieldType UnwrapNonNull(GraphQlFieldType graphQlType) =>
             graphQlType.Kind == GraphQlTypeKindNonNull ? graphQlType.OfType : graphQlType;
 
-        private static string ScalarToNetType(string graphQlTypeName)
+        private static string ScalarToNetType(GraphQlType baseType, string valueName, GraphQlTypeBase valueType)
         {
-            switch (graphQlTypeName)
+            switch (valueType.Name)
             {
-                case "Int":
+                case GraphQlTypeBase.GraphQlTypeScalarInteger:
                     return "int?";
-                case "String":
-                    return "string";
-                case "Float":
+                case GraphQlTypeBase.GraphQlTypeScalarString:
+                    return GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueName);
+                case GraphQlTypeBase.GraphQlTypeScalarFloat:
                     return "decimal?";
-                case "Boolean":
+                case GraphQlTypeBase.GraphQlTypeScalarBoolean:
                     return "bool?";
-                case "ID":
+                case GraphQlTypeBase.GraphQlTypeScalarId:
                     return "Guid?";
                 default:
                     return "object";
