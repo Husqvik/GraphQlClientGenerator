@@ -1893,7 +1893,14 @@ public class MeMutationQueryBuilderV1 : GraphQlQueryBuilder<MeMutationQueryBuild
         return WithObjectField("home", homeMutationQueryBuilder, args);
     }
 
-    public MeMutationQueryBuilderV1 WithUpdateAppState(GQLMutationGeneralResponseQueryBuilderV1 gQLMutationGeneralResponseQueryBuilder) => WithObjectField("updateAppState", gQLMutationGeneralResponseQueryBuilder);
+    public MeMutationQueryBuilderV1 WithUpdateAppState(GQLMutationGeneralResponseQueryBuilderV1 gQLMutationGeneralResponseQueryBuilder, AppStateMutationV1 state = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (state != null)
+            args.Add("state", state);
+
+        return WithObjectField("updateAppState", gQLMutationGeneralResponseQueryBuilder, args);
+    }
 }
 
 public class HomeMutationQueryBuilderV1 : GraphQlQueryBuilder<HomeMutationQueryBuilderV1>

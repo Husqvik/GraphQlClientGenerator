@@ -61,7 +61,7 @@ namespace GraphQlClientGenerator
 
             builder.AppendLine("#region builder classes");
 
-            GenerarateEnums(schema, builder);
+            GenerateEnums(schema, builder);
 
             var complexTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKindObject && !t.Name.StartsWith("__")).ToArray();
             for (var i = 0; i < complexTypes.Length; i++)
@@ -262,12 +262,13 @@ namespace GraphQlClientGenerator
                     fieldType = fieldType.OfType;
                 fieldType = UnwrapNonNull(fieldType);
 
-                var args = field.Args?.Where(a => UnwrapNonNull(a.Type).Kind == GraphQlTypeKindScalar || UnwrapNonNull(a.Type).Kind == GraphQlTypeKindEnum).ToArray() ?? new GraphQlArgument[0];
+                var args = field.Args?.Where(a => UnwrapNonNull(a.Type).Kind == GraphQlTypeKindScalar || UnwrapNonNull(a.Type).Kind == GraphQlTypeKindEnum || UnwrapNonNull(a.Type).Kind == GraphQlTypeKindInputObject).ToArray() ?? new GraphQlArgument[0];
                 var methodParameters =
                     String.Join(
                         ", ",
-                        args.OrderByDescending(a => a.Type.Kind == GraphQlTypeKindNonNull)
-                        .Select(a => BuildMethodParameterDefinition(type, a)));
+                        args
+                            .OrderByDescending(a => a.Type.Kind == GraphQlTypeKindNonNull)
+                            .Select(a => BuildMethodParameterDefinition(type, a)));
 
                 var requiresFullBody = GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.Compatible || args.Any();
                 var returnPrefix = requiresFullBody ? "        return " :  String.Empty;
@@ -342,9 +343,13 @@ namespace GraphQlClientGenerator
         private static string BuildMethodParameterDefinition(GraphQlType baseType, GraphQlArgument argument)
         {
             var isNotNull = argument.Type.Kind == GraphQlTypeKindNonNull;
-            var argumentNetType = UnwrapNonNull(argument.Type).Kind == GraphQlTypeKindEnum ? $"{UnwrapNonNull(argument.Type).Name}?" : ScalarToNetType(baseType, argument.Name, UnwrapNonNull(argument.Type));
+            var unwrappedType = UnwrapNonNull(argument.Type);
+            var argumentNetType = unwrappedType.Kind == GraphQlTypeKindEnum ? $"{unwrappedType.Name}?" : ScalarToNetType(baseType, argument.Name, unwrappedType);
             if (isNotNull)
                 argumentNetType = argumentNetType.TrimEnd('?');
+
+            if (unwrappedType.Kind == GraphQlTypeKindInputObject)
+                argumentNetType = $"{unwrappedType.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
 
             var argumentDefinition = $"{argumentNetType} {argument.Name}";
             if (!isNotNull)
@@ -379,7 +384,7 @@ namespace GraphQlClientGenerator
             }
         }
 
-        private static void GenerarateEnums(GraphQlSchema schema, StringBuilder builder)
+        private static void GenerateEnums(GraphQlSchema schema, StringBuilder builder)
         {
             foreach (var type in schema.Types.Where(t => t.Kind == GraphQlTypeKindEnum && !t.Name.StartsWith("__")))
             {
