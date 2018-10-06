@@ -47,10 +47,14 @@ namespace GraphQlClientGenerator
         public ICollection<GraphQlFieldType> PossibleTypes { get; set; }
     }
 
-    public class GraphQlEnumValue
+    public abstract class GraphQlValueBase
     {
         public string Name { get; set; }
         public string Description { get; set; }
+    }
+
+    public class GraphQlEnumValue : GraphQlValueBase
+    {
         public bool IsDeprecated { get; set; }
         public string DeprecationReason { get; set; }
     }
@@ -61,10 +65,8 @@ namespace GraphQlClientGenerator
         public GraphQlFieldType Type { get; set; }
     }
 
-    public class GraphQlArgument
+    public class GraphQlArgument : GraphQlValueBase
     {
-        public string Name { get; set; }
-        public string Description { get; set; }
         public GraphQlFieldType Type { get; set; }
         public object DefaultValue { get; set; }
     }
