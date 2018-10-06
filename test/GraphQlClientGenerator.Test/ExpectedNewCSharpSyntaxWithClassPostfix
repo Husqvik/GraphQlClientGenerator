@@ -89,6 +89,7 @@ public abstract class GraphQlMutationInput
             builder.Append(GraphQlQueryHelper.GetIndentation(level - 1, indentationSize));
 
         builder.Append("}");
+
         return builder.ToString();
     }
 
