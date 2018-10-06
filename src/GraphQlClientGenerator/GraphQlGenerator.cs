@@ -78,103 +78,140 @@ namespace GraphQlClientGenerator
 
         public static void GenerateDataClasses(GraphQlSchema schema, StringBuilder builder)
         {
-            builder.AppendLine("#region data classes");
-
             var objectTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKindObject && !t.Name.StartsWith("__")).ToArray();
-            for (var i = 0; i < objectTypes.Length; i++)
+            var hasObjectType = objectTypes.Any();
+            if (hasObjectType)
             {
-                var type = objectTypes[i];
-                GenerateDataClass(type, builder);
+                builder.AppendLine("#region data classes");
 
-                builder.AppendLine();
+                for (var i = 0; i < objectTypes.Length; i++)
+                {
+                    var type = objectTypes[i];
+                    GenerateDataClass(type.Name, builder, () => GenerateDataClassBody(type, builder));
 
-                if (i < objectTypes.Length - 1)
                     builder.AppendLine();
+
+                    if (i < objectTypes.Length - 1)
+                        builder.AppendLine();
+                }
+
+                builder.AppendLine("#endregion");
             }
 
-            builder.AppendLine("#endregion");
+            var inputTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKindInputObject && !t.Name.StartsWith("__")).ToArray();
+            if (inputTypes.Any())
+            {
+                if (hasObjectType)
+                    builder.AppendLine();
+
+                builder.AppendLine("#region input classes");
+
+                for (var i = 0; i < inputTypes.Length; i++)
+                {
+                    var type = inputTypes[i];
+                    GenerateDataClass(type.Name, builder, () => GenerateInputDataClassBody(type, builder));
+
+                    builder.AppendLine();
+
+                    if (i < inputTypes.Length - 1)
+                        builder.AppendLine();
+                }
+
+                builder.AppendLine("#endregion");
+            }
         }
 
-        private static void GenerateDataClass(GraphQlType type, StringBuilder builder)
+        private static void GenerateDataClassBody(GraphQlType type, StringBuilder builder)
         {
-            var className = $"{type.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
+            foreach (var field in type.Fields.Where(f => !f.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields))
+                GenerateDataProperty(type, field, field.IsDeprecated, field.DeprecationReason, builder);
+        }
+
+        private static void GenerateInputDataClassBody(GraphQlType type, StringBuilder builder)
+        {
+            foreach (var field in type.InputFields)
+                GenerateDataProperty(type, field, false, null, builder);
+        }
+
+        private static void GenerateDataClass(string typeName, StringBuilder builder, Action generateClassBody)
+        {
+            var className = $"{typeName}{GraphQlGeneratorConfiguration.ClassPostfix}";
             ValidateClassName(className);
 
             builder.Append("public class ");
             builder.AppendLine(className);
             builder.AppendLine("{");
 
-            foreach (var field in type.Fields)
-            {
-                if (field.IsDeprecated && !GraphQlGeneratorConfiguration.IncludeDeprecatedFields)
-                    continue;
-
-                var propertyName = NamingHelper.CapitalizeFirst(field.Name);
-
-                string propertyType;
-                var fieldType = UnwrapNonNull(field.Type);
-                switch (fieldType.Kind)
-                {
-                    case GraphQlTypeKindObject:
-                        propertyType = $"{fieldType.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
-                        break;
-                    case GraphQlTypeKindEnum:
-                        propertyType = $"{fieldType.Name}?";
-                        break;
-                    case GraphQlTypeKindList:
-                        var itemType = IsObjectScalar(fieldType.OfType) ? "object" : $"{UnwrapNonNull(fieldType.OfType).Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
-                        var suggestedNetType = ScalarToNetType(type, field.Name, UnwrapNonNull(fieldType.OfType)).TrimEnd('?');
-                        if (!String.Equals(suggestedNetType, "object"))
-                            itemType = suggestedNetType;
-
-                        propertyType = $"ICollection<{itemType}>";
-                        break;
-                    case GraphQlTypeKindScalar:
-                        switch (fieldType.Name)
-                        {
-                            case "Int":
-                                propertyType = "int?";
-                                break;
-                            case "String":
-                                propertyType = GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(type, field.Name);
-                                break;
-                            case "Float":
-                                propertyType = "decimal?";
-                                break;
-                            case "Boolean":
-                                propertyType = "bool?";
-                                break;
-                            case "ID":
-                                propertyType = "Guid?";
-                                break;
-                            default:
-                                propertyType = "object";
-                                break;
-                        }
-
-                        break;
-                    default:
-                        propertyType = "string";
-                        break;
-                }
-
-                if (GraphQlGeneratorConfiguration.GenerateComments && !String.IsNullOrWhiteSpace(field.Description))
-                {
-                    builder.AppendLine("    /// <summary>");
-                    builder.AppendLine($"    /// {field.Description}");
-                    builder.AppendLine("    /// </summary>");
-                }
-
-                if (field.IsDeprecated)
-                {
-                    var deprecationReason = String.IsNullOrWhiteSpace(field.DeprecationReason) ? null : $"(\"{field.DeprecationReason.Replace("\\", "\\\\").Replace("\"", "\\\"")}\")";
-                    builder.AppendLine($"    [Obsolete{deprecationReason}]");
-                }
-
-                builder.AppendLine($"    public {propertyType} {propertyName} {{ get; set; }}");
-            }
+            generateClassBody();
 
             builder.Append("}");
+        }
+
+        private static void GenerateDataProperty(GraphQlType baseType, IGraphQlMember member, bool isDeprecated, string deprecationReason, StringBuilder builder)
+        {
+            var propertyName = NamingHelper.CapitalizeFirst(member.Name);
+
+            string propertyType;
+            var fieldType = UnwrapNonNull(member.Type);
+            switch (fieldType.Kind)
+            {
+                case GraphQlTypeKindObject:
+                    propertyType = $"{fieldType.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
+                    break;
+                case GraphQlTypeKindEnum:
+                    propertyType = $"{fieldType.Name}?";
+                    break;
+                case GraphQlTypeKindList:
+                    var itemType = IsObjectScalar(fieldType.OfType) ? "object" : $"{UnwrapNonNull(fieldType.OfType).Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
+                    var suggestedNetType = ScalarToNetType(baseType, member.Name, UnwrapNonNull(fieldType.OfType)).TrimEnd('?');
+                    if (!String.Equals(suggestedNetType, "object"))
+                        itemType = suggestedNetType;
+
+                    propertyType = $"ICollection<{itemType}>";
+                    break;
+                case GraphQlTypeKindScalar:
+                    switch (fieldType.Name)
+                    {
+                        case "Int":
+                            propertyType = "int?";
+                            break;
+                        case "String":
+                            propertyType = GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, member.Name);
+                            break;
+                        case "Float":
+                            propertyType = "decimal?";
+                            break;
+                        case "Boolean":
+                            propertyType = "bool?";
+                            break;
+                        case "ID":
+                            propertyType = "Guid?";
+                            break;
+                        default:
+                            propertyType = "object";
+                            break;
+                    }
+
+                    break;
+                default:
+                    propertyType = "string";
+                    break;
+            }
+
+            if (GraphQlGeneratorConfiguration.GenerateComments && !String.IsNullOrWhiteSpace(member.Description))
+            {
+                builder.AppendLine("    /// <summary>");
+                builder.AppendLine($"    /// {member.Description}");
+                builder.AppendLine("    /// </summary>");
+            }
+
+            if (isDeprecated)
+            {
+                deprecationReason = String.IsNullOrWhiteSpace(deprecationReason) ? null : $"(\"{deprecationReason.Replace("\\", "\\\\").Replace("\"", "\\\"")}\")";
+                builder.AppendLine($"    [Obsolete{deprecationReason}]");
+            }
+
+            builder.AppendLine($"    public {propertyType} {propertyName} {{ get; set; }}");
         }
 
         private static void GenerateTypeQueryBuilder(GraphQlType type, StringBuilder builder)

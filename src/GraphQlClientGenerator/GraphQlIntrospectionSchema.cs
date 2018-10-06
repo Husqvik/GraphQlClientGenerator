@@ -59,13 +59,13 @@ namespace GraphQlClientGenerator
         public string DeprecationReason { get; set; }
     }
 
-    public class GraphQlField : GraphQlEnumValue
+    public class GraphQlField : GraphQlEnumValue, IGraphQlMember
     {
         public ICollection<GraphQlArgument> Args { get; set; }
         public GraphQlFieldType Type { get; set; }
     }
 
-    public class GraphQlArgument : GraphQlValueBase
+    public class GraphQlArgument : GraphQlValueBase, IGraphQlMember
     {
         public GraphQlFieldType Type { get; set; }
         public object DefaultValue { get; set; }
@@ -90,5 +90,12 @@ namespace GraphQlClientGenerator
         public bool IsScalar =>
             String.Equals(Name, GraphQlTypeScalarBoolean) || String.Equals(Name, GraphQlTypeScalarFloat) || String.Equals(Name, GraphQlTypeScalarId) ||
             String.Equals(Name, GraphQlTypeScalarInteger) || String.Equals(Name, GraphQlTypeScalarString);
+    }
+
+    public interface IGraphQlMember
+    {
+        string Name { get; }
+        string Description { get; }
+        GraphQlFieldType Type { get; }
     }
 }

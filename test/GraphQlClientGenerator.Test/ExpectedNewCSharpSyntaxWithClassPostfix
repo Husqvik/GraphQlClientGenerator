@@ -2691,3 +2691,29 @@ public class GQLMutationGeneralResponseV1
     public GQLMutationErrorV1 Error { get; set; }
 }
 #endregion
+
+#region input classes
+public class HomeProfileQuestionAnswerV1
+{
+    public string PropertyName { get; set; }
+    public object Value { get; set; }
+}
+
+public class AppStateMutationV1
+{
+    public string Journey { get; set; }
+    public ICollection<AppStateFronScreenMutationV1> FrontScreens { get; set; }
+}
+
+public class AppStateJourneyMutationV1
+{
+    public bool? HasVisitedPairDevices { get; set; }
+}
+
+public class AppStateFronScreenMutationV1
+{
+    public string HomeId { get; set; }
+    public ICollection<string> Bubbles { get; set; }
+    public ICollection<string> BubblesSortOrder { get; set; }
+}
+#endregion
