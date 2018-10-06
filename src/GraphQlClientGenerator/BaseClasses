@@ -18,6 +18,81 @@ internal static class GraphQlQueryHelper
     {
         return new String(' ', level * indentationSize);
     }
+
+    public static string BuildArgumentValue(object value, Formatting formatting, int level, byte indentationSize)
+    {
+        if (value is Enum @enum)
+            return ConvertEnumToString(@enum);
+
+        if (value is GraphQlMutationInput mutationInput)
+            return mutationInput.Build(formatting, level + 2, indentationSize);
+
+        var argumentValue = Convert.ToString(value, CultureInfo.InvariantCulture);
+        return value is String || value is Guid ? $"\"{argumentValue}\"" : argumentValue;
+    }
+
+    private static string ConvertEnumToString(Enum @enum)
+    {
+        var enumMember =
+            @enum.GetType()
+                .GetTypeInfo()
+                .GetMembers()
+                .Single(m => String.Equals(m.Name, @enum.ToString()));
+
+        var enumMemberAttribute = (EnumMemberAttribute)enumMember.GetCustomAttribute(typeof(EnumMemberAttribute));
+
+        return enumMemberAttribute == null
+            ? @enum.ToString()
+            : enumMemberAttribute.Value;
+    }
+}
+
+public struct InputPropertyInfo
+{
+    public string Name { get; set; }
+    public object Value { get; set; }
+}
+
+public abstract class GraphQlMutationInput
+{
+    internal string Build(Formatting formatting, int level, byte indentationSize)
+    {
+        var builder = new StringBuilder();
+        builder.Append("{");
+
+        var isIndentedFormatting = formatting == Formatting.Indented;
+        string valueSeparator;
+        if (isIndentedFormatting)
+        {
+            builder.AppendLine();
+            valueSeparator = ": ";
+        }
+        else
+            valueSeparator = ":";
+
+        var separator = String.Empty;
+        foreach (var propertyValue in GetPropertyValues().Where(p => p.Value != null))
+        {
+            var value = GraphQlQueryHelper.BuildArgumentValue(propertyValue.Value, formatting, level, indentationSize);
+            builder.Append(isIndentedFormatting ? GraphQlQueryHelper.GetIndentation(level, indentationSize) : separator);
+            builder.Append(propertyValue.Name);
+            builder.Append(valueSeparator);
+            builder.Append(value);
+
+            separator = ",";
+
+            if (isIndentedFormatting)
+                builder.AppendLine();
+        }
+
+        if (isIndentedFormatting)
+            builder.Append(GraphQlQueryHelper.GetIndentation(level - 1, indentationSize));
+
+        builder.Append("}");
+        return builder.ToString();
+    }
+
+    protected abstract IEnumerable<InputPropertyInfo> GetPropertyValues();
 }
 
 public abstract class GraphQlQueryBuilder
@@ -48,14 +123,15 @@ public abstract class GraphQlQueryBuilder
         var builder = new StringBuilder();
         builder.Append("{");
         
-        if (formatting == Formatting.Indented)
+        var isIndentedFormatting = formatting == Formatting.Indented;
+        if (isIndentedFormatting)
             builder.AppendLine();
 
         var separator = String.Empty;
         foreach (var criteria in _fieldCriteria.Values)
         {
             var fieldCriteria = criteria.Build(formatting, level, indentationSize);
-            if (formatting == Formatting.Indented)
+            if (isIndentedFormatting)
                 builder.AppendLine(fieldCriteria);
             else if (!String.IsNullOrEmpty(fieldCriteria))
             {
@@ -66,7 +142,7 @@ public abstract class GraphQlQueryBuilder
             separator = ",";
         }
 
-        if (formatting == Formatting.Indented)
+        if (isIndentedFormatting)
             builder.Append(GraphQlQueryHelper.GetIndentation(level - 1, indentationSize));
         
         builder.Append("}");
@@ -111,37 +187,13 @@ public abstract class GraphQlQueryBuilder
 
         public abstract string Build(Formatting formatting, int level, byte indentationSize);
 
-        protected string BuildArgumentClause(Formatting formatting)
+        protected string BuildArgumentClause(Formatting formatting, int level, byte indentationSize)
         {
             var separator = formatting == Formatting.Indented ? " " : null;
             return
                 Args?.Count > 0
-                    ? $"({String.Join($",{separator}", Args.Select(kvp => $"{kvp.Key}:{separator}{BuildArgumentValue(kvp.Value)}"))}){separator}"
+                    ? $"({String.Join($",{separator}", Args.Select(kvp => $"{kvp.Key}:{separator}{GraphQlQueryHelper.BuildArgumentValue(kvp.Value, formatting, level, indentationSize)}"))}){separator}"
                     : String.Empty;
-        }
-
-        private string BuildArgumentValue(object value)
-        {
-            if (value is Enum)
-                return ConvertEnumToString((Enum)value);
-
-            var argumentValue = Convert.ToString(value, CultureInfo.InvariantCulture);
-            return value is String || value is Guid ? $"\"{argumentValue}\"" : argumentValue;
-        }
-
-        private static string ConvertEnumToString(Enum @enum)
-        {
-            var enumMember =
-                @enum.GetType()
-                    .GetTypeInfo()
-                    .GetMembers()
-                    .Single(m => String.Equals(m.Name, @enum.ToString()));
-
-            var enumMemberAttribute = (EnumMemberAttribute)enumMember.GetCustomAttribute(typeof(EnumMemberAttribute));
-
-            return enumMemberAttribute == null
-                ? @enum.ToString()
-                : enumMemberAttribute.Value;
         }
     }
 
@@ -158,7 +210,7 @@ public abstract class GraphQlQueryBuilder
                 builder.Append(GraphQlQueryHelper.GetIndentation(level, indentationSize));
 
             builder.Append(FieldName);
-            builder.Append(BuildArgumentClause(formatting));
+            builder.Append(BuildArgumentClause(formatting, level, indentationSize));
             return builder.ToString();
         }
     }
@@ -183,7 +235,7 @@ public abstract class GraphQlQueryBuilder
                 fieldName = $"{GraphQlQueryHelper.GetIndentation(level, indentationSize)}{FieldName} ";
 
             builder.Append(fieldName);
-            builder.Append(BuildArgumentClause(formatting));
+            builder.Append(BuildArgumentClause(formatting, level, indentationSize));
             builder.Append(_objectQueryBuilder.Build(formatting, level + 1, indentationSize));
             return builder.ToString();
         }

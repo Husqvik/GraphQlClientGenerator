@@ -87,7 +87,7 @@ namespace GraphQlClientGenerator
                 for (var i = 0; i < objectTypes.Length; i++)
                 {
                     var type = objectTypes[i];
-                    GenerateDataClass(type.Name, builder, () => GenerateDataClassBody(type, builder));
+                    GenerateDataClass(type.Name, null, builder, () => GenerateDataClassBody(type, builder));
 
                     builder.AppendLine();
 
@@ -109,7 +109,7 @@ namespace GraphQlClientGenerator
                 for (var i = 0; i < inputTypes.Length; i++)
                 {
                     var type = inputTypes[i];
-                    GenerateDataClass(type.Name, builder, () => GenerateInputDataClassBody(type, builder));
+                    GenerateDataClass(type.Name, "GraphQlMutationInput", builder, () => GenerateInputDataClassBody(type, builder));
 
                     builder.AppendLine();
 
@@ -131,15 +131,39 @@ namespace GraphQlClientGenerator
         {
             foreach (var field in type.InputFields)
                 GenerateDataProperty(type, field, false, null, builder);
+
+            builder.AppendLine();
+            builder.AppendLine("    protected override IEnumerable<InputPropertyInfo> GetPropertyValues()");
+            builder.AppendLine("    {");
+
+            foreach (var field in type.InputFields)
+            {
+                var propertyName = NamingHelper.CapitalizeFirst(field.Name);
+                builder.Append("        yield return new InputPropertyInfo { Name = \"");
+                builder.Append(field.Name);
+                builder.Append("\", Value = ");
+                builder.Append(propertyName);
+                builder.AppendLine(" };");
+            }
+
+            builder.AppendLine("    }");
         }
 
-        private static void GenerateDataClass(string typeName, StringBuilder builder, Action generateClassBody)
+        private static void GenerateDataClass(string typeName, string baseTypeName, StringBuilder builder, Action generateClassBody)
         {
             var className = $"{typeName}{GraphQlGeneratorConfiguration.ClassPostfix}";
             ValidateClassName(className);
 
             builder.Append("public class ");
-            builder.AppendLine(className);
+            builder.Append(className);
+
+            if (!String.IsNullOrEmpty(baseTypeName))
+            {
+                builder.Append(" : ");
+                builder.Append(baseTypeName);
+            }
+
+            builder.AppendLine();
             builder.AppendLine("{");
 
             generateClassBody();
