@@ -102,7 +102,7 @@ public abstract class GraphQlQueryBuilder
 
     protected virtual string Prefix { get { return null; } }
 
-    protected virtual IList<FieldMetadata> AllFields { get { return Array.Empty<FieldMetadata>(); } }
+    protected abstract IList<FieldMetadata> AllFields { get; }
 
     public void Clear()
     {
