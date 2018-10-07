@@ -114,7 +114,7 @@ public abstract class GraphQlQueryBuilder
         IncludeFields(AllFields);
     }
 
-    public string Build(Formatting formatting = Formatting.Indented, byte indentationSize = 2)
+    public string Build(Formatting formatting = Formatting.None, byte indentationSize = 2)
     {
         return Build(formatting, 1, indentationSize);
     }
@@ -187,13 +187,13 @@ public abstract class GraphQlQueryBuilder
 
     private abstract class GraphQlFieldCriteria
     {
-        public readonly string FieldName;
-        public readonly IDictionary<string, object> Args;
+        protected readonly string FieldName;
+        private readonly IDictionary<string, object> _args;
 
         protected GraphQlFieldCriteria(string fieldName, IDictionary<string, object> args)
         {
             FieldName = fieldName;
-            Args = args;
+            _args = args;
         }
 
         public abstract string Build(Formatting formatting, int level, byte indentationSize);
@@ -202,8 +202,8 @@ public abstract class GraphQlQueryBuilder
         {
             var separator = formatting == Formatting.Indented ? " " : null;
             return
-                Args?.Count > 0
-                    ? $"({String.Join($",{separator}", Args.Select(kvp => $"{kvp.Key}:{separator}{GraphQlQueryHelper.BuildArgumentValue(kvp.Value, formatting, level, indentationSize)}"))}){separator}"
+                _args?.Count > 0
+                    ? $"({String.Join($",{separator}", _args.Select(kvp => $"{kvp.Key}:{separator}{GraphQlQueryHelper.BuildArgumentValue(kvp.Value, formatting, level, indentationSize)}"))}){separator}"
                     : String.Empty;
         }
     }
