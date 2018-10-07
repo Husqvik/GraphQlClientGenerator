@@ -54,14 +54,22 @@ namespace GraphQlClientGenerator
             }
         }
 
+        private static void GenerateSharedTypes(GraphQlSchema schema, StringBuilder builder)
+        {
+            builder.AppendLine("#region shared types");
+            GenerateEnums(schema, builder);
+            builder.AppendLine("#endregion");
+            builder.AppendLine();
+        }
+
         public static void GenerateQueryBuilder(GraphQlSchema schema, StringBuilder builder)
         {
             using (var reader = new StreamReader(typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses")))
                 builder.AppendLine(reader.ReadToEnd());
 
-            builder.AppendLine("#region builder classes");
+            GenerateSharedTypes(schema, builder);
 
-            GenerateEnums(schema, builder);
+            builder.AppendLine("#region builder classes");
 
             var complexTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKindObject && !t.Name.StartsWith("__")).ToArray();
             for (var i = 0; i < complexTypes.Length; i++)

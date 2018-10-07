@@ -281,7 +281,7 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
 }
 #endregion
 
-#region builder classes
+#region shared types
 public enum Avatar
 {
     [EnumMember(Value="floorhouse1")] Floorhouse1,
@@ -306,6 +306,9 @@ public enum Resolution
     [EnumMember(Value="monthly")] Monthly
 }
 
+#endregion
+
+#region builder classes
 public class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
