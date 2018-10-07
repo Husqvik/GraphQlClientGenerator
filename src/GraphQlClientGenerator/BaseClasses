@@ -98,11 +98,11 @@ public abstract class GraphQlMutationInput
 
 public abstract class GraphQlQueryBuilder
 {
-    private static readonly IList<FieldMetadata> EmptyFieldCollection = new List<FieldMetadata>();
-
     private readonly Dictionary<string, GraphQlFieldCriteria> _fieldCriteria = new Dictionary<string, GraphQlFieldCriteria>();
 
-    protected virtual IList<FieldMetadata> AllFields { get; } = EmptyFieldCollection;
+    protected virtual string Prefix { get { return null; } }
+
+    protected virtual IList<FieldMetadata> AllFields { get { return Array.Empty<FieldMetadata>(); } }
 
     public void Clear()
     {
@@ -121,10 +121,20 @@ public abstract class GraphQlQueryBuilder
 
     protected string Build(Formatting formatting, int level, byte indentationSize)
     {
-        var builder = new StringBuilder();
-        builder.Append("{");
-        
         var isIndentedFormatting = formatting == Formatting.Indented;
+
+        var builder = new StringBuilder();
+
+        if (String.IsNullOrEmpty(Prefix))
+        {
+            builder.Append(Prefix);
+
+            if (isIndentedFormatting)
+                builder.Append(" ");
+        }
+
+        builder.Append("{");
+
         if (isIndentedFormatting)
             builder.AppendLine();
 

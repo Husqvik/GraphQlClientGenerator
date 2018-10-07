@@ -98,11 +98,11 @@ public abstract class GraphQlMutationInput
 
 public abstract class GraphQlQueryBuilder
 {
-    private static readonly IList<FieldMetadata> EmptyFieldCollection = new List<FieldMetadata>();
-
     private readonly Dictionary<string, GraphQlFieldCriteria> _fieldCriteria = new Dictionary<string, GraphQlFieldCriteria>();
 
-    protected virtual IList<FieldMetadata> AllFields { get; } = EmptyFieldCollection;
+    protected virtual string Prefix { get { return null; } }
+
+    protected virtual IList<FieldMetadata> AllFields { get { return Array.Empty<FieldMetadata>(); } }
 
     public void Clear()
     {
@@ -121,10 +121,20 @@ public abstract class GraphQlQueryBuilder
 
     protected string Build(Formatting formatting, int level, byte indentationSize)
     {
-        var builder = new StringBuilder();
-        builder.Append("{");
-        
         var isIndentedFormatting = formatting == Formatting.Indented;
+
+        var builder = new StringBuilder();
+
+        if (String.IsNullOrEmpty(Prefix))
+        {
+            builder.Append(Prefix);
+
+            if (isIndentedFormatting)
+                builder.Append(" ");
+        }
+
+        builder.Append("{");
+
         if (isIndentedFormatting)
             builder.AppendLine();
 
@@ -298,11 +308,13 @@ public enum Resolution
 
 public class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "me", IsComplex = true, QueryBuilderType = typeof(MeQueryBuilder) }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public QueryQueryBuilder WithMe(MeQueryBuilder meQueryBuilder)
     {
@@ -312,7 +324,7 @@ public class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
 
 public class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "id" },
@@ -328,6 +340,8 @@ public class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
             new FieldMetadata { Name = "feed", IsComplex = true, QueryBuilderType = typeof(FeedQueryBuilder) },
             new FieldMetadata { Name = "energyStatements", IsComplex = true }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public MeQueryBuilder WithId()
     {
@@ -403,7 +417,7 @@ public class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
 
 public class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "id" },
@@ -425,6 +439,8 @@ public class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
             new FieldMetadata { Name = "weather", IsComplex = true, QueryBuilderType = typeof(WeatherQueryBuilder) },
             new FieldMetadata { Name = "awayMode", IsComplex = true, QueryBuilderType = typeof(AwayModeQueryBuilder) }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public HomeQueryBuilder WithId()
     {
@@ -554,7 +570,7 @@ public class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
 public class SubscriptionQueryBuilder : GraphQlQueryBuilder<SubscriptionQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "id" },
@@ -565,6 +581,8 @@ public class SubscriptionQueryBuilder : GraphQlQueryBuilder<SubscriptionQueryBui
             new FieldMetadata { Name = "energyStatements", IsComplex = true },
             new FieldMetadata { Name = "priceRating", IsComplex = true, QueryBuilderType = typeof(PriceRatingQueryBuilder) }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public SubscriptionQueryBuilder WithId()
     {
@@ -611,13 +629,15 @@ public class SubscriptionQueryBuilder : GraphQlQueryBuilder<SubscriptionQueryBui
 
 public class PriceRatingQueryBuilder : GraphQlQueryBuilder<PriceRatingQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "minPrice" },
             new FieldMetadata { Name = "maxPrice" },
             new FieldMetadata { Name = "entries", IsComplex = true, QueryBuilderType = typeof(PriceRatingEntryQueryBuilder) }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public PriceRatingQueryBuilder WithMinPrice()
     {
@@ -637,7 +657,7 @@ public class PriceRatingQueryBuilder : GraphQlQueryBuilder<PriceRatingQueryBuild
 
 public class PriceRatingEntryQueryBuilder : GraphQlQueryBuilder<PriceRatingEntryQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "time" },
@@ -645,6 +665,8 @@ public class PriceRatingEntryQueryBuilder : GraphQlQueryBuilder<PriceRatingEntry
             new FieldMetadata { Name = "level" },
             new FieldMetadata { Name = "difference" }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public PriceRatingEntryQueryBuilder WithTime()
     {
@@ -669,7 +691,7 @@ public class PriceRatingEntryQueryBuilder : GraphQlQueryBuilder<PriceRatingEntry
 
 public class ConsumptionMonthQueryBuilder : GraphQlQueryBuilder<ConsumptionMonthQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "year" },
@@ -680,6 +702,8 @@ public class ConsumptionMonthQueryBuilder : GraphQlQueryBuilder<ConsumptionMonth
             new FieldMetadata { Name = "kwhEstimate" },
             new FieldMetadata { Name = "costEstimate" }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public ConsumptionMonthQueryBuilder WithYear()
     {
@@ -719,7 +743,7 @@ public class ConsumptionMonthQueryBuilder : GraphQlQueryBuilder<ConsumptionMonth
 
 public class ConsumptionQueryBuilder : GraphQlQueryBuilder<ConsumptionQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "annualValues", IsComplex = true },
@@ -734,6 +758,8 @@ public class ConsumptionQueryBuilder : GraphQlQueryBuilder<ConsumptionQueryBuild
             new FieldMetadata { Name = "latestTransactionTimestamp" },
             new FieldMetadata { Name = "timeZone" }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public ConsumptionQueryBuilder WithAnnualValues()
     {
@@ -793,7 +819,7 @@ public class ConsumptionQueryBuilder : GraphQlQueryBuilder<ConsumptionQueryBuild
 
 public class PreLiveComparisonQueryBuilder : GraphQlQueryBuilder<PreLiveComparisonQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "homeId" },
@@ -801,6 +827,8 @@ public class PreLiveComparisonQueryBuilder : GraphQlQueryBuilder<PreLiveComparis
             new FieldMetadata { Name = "previousYear", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilder) },
             new FieldMetadata { Name = "previousYearMonths", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilder) }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public PreLiveComparisonQueryBuilder WithHomeId()
     {
@@ -825,7 +853,7 @@ public class PreLiveComparisonQueryBuilder : GraphQlQueryBuilder<PreLiveComparis
 
 public class ComparisonQueryBuilder : GraphQlQueryBuilder<ComparisonQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "year" },
@@ -837,6 +865,8 @@ public class ComparisonQueryBuilder : GraphQlQueryBuilder<ComparisonQueryBuilder
             new FieldMetadata { Name = "average", IsComplex = true, QueryBuilderType = typeof(ComparisonDataQueryBuilder) },
             new FieldMetadata { Name = "efficient", IsComplex = true, QueryBuilderType = typeof(ComparisonDataQueryBuilder) }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public ComparisonQueryBuilder WithYear()
     {
@@ -881,12 +911,14 @@ public class ComparisonQueryBuilder : GraphQlQueryBuilder<ComparisonQueryBuilder
 
 public class ComparisonDataQueryBuilder : GraphQlQueryBuilder<ComparisonDataQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "cost" },
             new FieldMetadata { Name = "consumption" }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public ComparisonDataQueryBuilder WithCost()
     {
@@ -901,13 +933,15 @@ public class ComparisonDataQueryBuilder : GraphQlQueryBuilder<ComparisonDataQuer
 
 public class SignupStatusQueryBuilder : GraphQlQueryBuilder<SignupStatusQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "feedStep", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilder) },
             new FieldMetadata { Name = "avatarStep", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilder) },
             new FieldMetadata { Name = "steps", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilder) }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public SignupStatusQueryBuilder WithFeedStep(ProcessStepQueryBuilder processStepQueryBuilder)
     {
@@ -927,7 +961,7 @@ public class SignupStatusQueryBuilder : GraphQlQueryBuilder<SignupStatusQueryBui
 
 public class ProcessStepQueryBuilder : GraphQlQueryBuilder<ProcessStepQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "timestamp" },
@@ -935,6 +969,8 @@ public class ProcessStepQueryBuilder : GraphQlQueryBuilder<ProcessStepQueryBuild
             new FieldMetadata { Name = "title" },
             new FieldMetadata { Name = "description" }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public ProcessStepQueryBuilder WithTimestamp()
     {
@@ -959,7 +995,7 @@ public class ProcessStepQueryBuilder : GraphQlQueryBuilder<ProcessStepQueryBuild
 
 public class DisaggregationQueryBuilder : GraphQlQueryBuilder<DisaggregationQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "year" },
@@ -976,6 +1012,8 @@ public class DisaggregationQueryBuilder : GraphQlQueryBuilder<DisaggregationQuer
             new FieldMetadata { Name = "currency" },
             new FieldMetadata { Name = "isValid" }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public DisaggregationQueryBuilder WithYear()
     {
@@ -1045,7 +1083,7 @@ public class DisaggregationQueryBuilder : GraphQlQueryBuilder<DisaggregationQuer
 
 public class DeviceQueryBuilder : GraphQlQueryBuilder<DeviceQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "deviceId" },
@@ -1059,6 +1097,8 @@ public class DeviceQueryBuilder : GraphQlQueryBuilder<DeviceQueryBuilder>
             new FieldMetadata { Name = "capabilities", IsComplex = true },
             new FieldMetadata { Name = "properties", IsComplex = true }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public DeviceQueryBuilder WithDeviceId()
     {
@@ -1113,7 +1153,7 @@ public class DeviceQueryBuilder : GraphQlQueryBuilder<DeviceQueryBuilder>
 
 public class WeatherQueryBuilder : GraphQlQueryBuilder<WeatherQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "temperature" },
@@ -1121,6 +1161,8 @@ public class WeatherQueryBuilder : GraphQlQueryBuilder<WeatherQueryBuilder>
             new FieldMetadata { Name = "summary" },
             new FieldMetadata { Name = "type" }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public WeatherQueryBuilder WithTemperature()
     {
@@ -1145,12 +1187,14 @@ public class WeatherQueryBuilder : GraphQlQueryBuilder<WeatherQueryBuilder>
 
 public class AwayModeQueryBuilder : GraphQlQueryBuilder<AwayModeQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "isSupported" },
             new FieldMetadata { Name = "settings", IsComplex = true, QueryBuilderType = typeof(AwayModeSettingsQueryBuilder) }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public AwayModeQueryBuilder WithIsSupported()
     {
@@ -1165,12 +1209,14 @@ public class AwayModeQueryBuilder : GraphQlQueryBuilder<AwayModeQueryBuilder>
 
 public class AwayModeSettingsQueryBuilder : GraphQlQueryBuilder<AwayModeSettingsQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "from" },
             new FieldMetadata { Name = "to" }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public AwayModeSettingsQueryBuilder WithFrom()
     {
@@ -1185,13 +1231,15 @@ public class AwayModeSettingsQueryBuilder : GraphQlQueryBuilder<AwayModeSettings
 
 public class FeedQueryBuilder : GraphQlQueryBuilder<FeedQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "numberOfItems" },
             new FieldMetadata { Name = "items", IsComplex = true, QueryBuilderType = typeof(FeedItemQueryBuilder) },
             new FieldMetadata { Name = "pushNotifications", IsComplex = true, QueryBuilderType = typeof(PushNotificationQueryBuilder) }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public FeedQueryBuilder WithNumberOfItems()
     {
@@ -1218,7 +1266,7 @@ public class FeedQueryBuilder : GraphQlQueryBuilder<FeedQueryBuilder>
 
 public class FeedItemQueryBuilder : GraphQlQueryBuilder<FeedItemQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "id" },
@@ -1228,6 +1276,8 @@ public class FeedItemQueryBuilder : GraphQlQueryBuilder<FeedItemQueryBuilder>
             new FieldMetadata { Name = "createdAt" },
             new FieldMetadata { Name = "modifiedAt" }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public FeedItemQueryBuilder WithId()
     {
@@ -1262,13 +1312,15 @@ public class FeedItemQueryBuilder : GraphQlQueryBuilder<FeedItemQueryBuilder>
 
 public class PushNotificationQueryBuilder : GraphQlQueryBuilder<PushNotificationQueryBuilder>
 {
-    protected override IList<FieldMetadata> AllFields { get; } =
+    private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
             new FieldMetadata { Name = "id" },
             new FieldMetadata { Name = "link" },
             new FieldMetadata { Name = "text" }
         };
+
+    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
 
     public PushNotificationQueryBuilder WithId()
     {

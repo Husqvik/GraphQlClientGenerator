@@ -67,7 +67,16 @@ namespace GraphQlClientGenerator
             for (var i = 0; i < complexTypes.Length; i++)
             {
                 var type = complexTypes[i];
-                GenerateTypeQueryBuilder(type, builder);
+
+                string queryPrefix;
+                if (String.Equals(type.Name, schema.MutationType?.Name))
+                    queryPrefix = "mutation";
+                else if (String.Equals(type.Name, schema.SubscriptionType?.Name))
+                    queryPrefix = "subscription";
+                else
+                    queryPrefix = null;
+
+                GenerateTypeQueryBuilder(type, queryPrefix, builder);
 
                 if (i < complexTypes.Length - 1)
                     builder.AppendLine();
@@ -238,7 +247,7 @@ namespace GraphQlClientGenerator
             builder.AppendLine($"    public {propertyType} {propertyName} {{ get; set; }}");
         }
 
-        private static void GenerateTypeQueryBuilder(GraphQlType type, StringBuilder builder)
+        private static void GenerateTypeQueryBuilder(GraphQlType type, string queryPrefix, StringBuilder builder)
         {
             var className = $"{type.Name}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix}";
             ValidateClassName(className);
@@ -246,11 +255,11 @@ namespace GraphQlClientGenerator
             builder.AppendLine($"public class {className} : GraphQlQueryBuilder<{className}>");
             builder.AppendLine("{");
 
-            var fields = type.Fields.ToArray();
-            builder.AppendLine("    protected override IList<FieldMetadata> AllFields { get; } =");
+            builder.AppendLine("    private static readonly FieldMetadata[] AllFieldMetadata =");
             builder.AppendLine("        new []");
             builder.AppendLine("        {");
 
+            var fields = type.Fields.ToArray();
             for (var i = 0; i < fields.Length; i++)
             {
                 var comma = i == fields.Length - 1 ? null : ",";
@@ -277,6 +286,11 @@ namespace GraphQlClientGenerator
 
             builder.AppendLine("        };");
             builder.AppendLine();
+
+            if (!String.IsNullOrEmpty(queryPrefix))
+                WriteOverrideProperty("string", "Prefix", $"\"{queryPrefix}\"", builder);
+
+            WriteOverrideProperty("IList<FieldMetadata>", "AllFields", "AllFieldMetadata", builder);
 
             for (var i = 0; i < fields.Length; i++)
             {
@@ -362,6 +376,30 @@ namespace GraphQlClientGenerator
             }
 
             builder.AppendLine("}");
+        }
+
+        private static void WriteOverrideProperty(string propertyType, string propertyName, string propertyValue, StringBuilder builder)
+        {
+            builder.Append("    protected override ");
+            builder.Append(propertyType);
+            builder.Append(" ");
+            builder.Append(propertyName);
+            builder.Append(" { get");
+
+            if (GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.Compatible)
+            {
+                builder.Append(" { return");
+                builder.Append(propertyValue);
+                builder.AppendLine("; } } ");
+            }
+            else
+            {
+                builder.Append("; } = ");
+                builder.Append(propertyValue);
+                builder.AppendLine(";");
+            }
+
+            builder.AppendLine();
         }
 
         private static string BuildMethodParameterDefinition(GraphQlType baseType, GraphQlArgument argument)
