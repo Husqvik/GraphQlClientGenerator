@@ -108,7 +108,7 @@ var mutation =
 			new HomeQueryBuilder().WithAllScalarFields(),
 			new UpdateHomeInput { HomeId = Guid.Empty, AppNickname = "My nickname", Type = HomeType.House, NumberOfResidents = 4, Size = 160, AppAvatar = HomeAvatar.Floorhouse1, PrimaryHeatingSource = HeatingSource.Electricity }
 		)
-	.Build(Tibber.Sdk.Formatting.Indented, 2);
+	.Build(Formatting.Indented, 2);
 ```
 result:
 ```
