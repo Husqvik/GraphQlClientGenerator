@@ -10,6 +10,24 @@ Generator app usage
 
 `GraphQlClientGenerator <GraphQlServiceUrl> <AccessToken> <TargetNamespace> <TargetFileName> <Namespace>`
 
+Nuget package
+-------------
+Installation:
+```
+Install-Package GraphQlClientGenerator -Version 0.1.3
+```
+
+Code example for class generation:
+```
+var schema = await GraphQlGenerator.RetrieveSchema(Url, token);
+
+var builder = new StringBuilder();
+GraphQlGenerator.GenerateQueryBuilder(schema, builder);
+GraphQlGenerator.GenerateDataClasses(schema, builder);
+	
+var generatedClasses = builder.ToString();
+```
+
 Query builder usage
 -------------
 ```
@@ -77,6 +95,42 @@ results into
       }
     }
     energyStatements(from: "2016-06", to: "2016-10") 
+  }
+}
+```
+
+Mutation
+-------------
+```
+var mutation =
+	new RootMutationQueryBuilder()
+		.WithUpdateHome(
+			new HomeQueryBuilder().WithAllScalarFields(),
+			new UpdateHomeInput { HomeId = Guid.Empty, AppNickname = "My nickname", Type = HomeType.House, NumberOfResidents = 4, Size = 160, AppAvatar = HomeAvatar.Floorhouse1, PrimaryHeatingSource = HeatingSource.Electricity }
+		)
+	.Build(Tibber.Sdk.Formatting.Indented, 2);
+```
+result:
+```
+mutation {
+  updateHome (input: {
+      homeId: "00000000-0000-0000-0000-000000000000"
+      appNickname: "My nickname"
+      appAvatar: FLOORHOUSE1
+      size: 160
+      type: HOUSE
+      numberOfResidents: 4
+      primaryHeatingSource: ELECTRICITY
+    }) {
+    id
+    timeZone
+    appNickname
+    appAvatar
+    size
+    type
+    numberOfResidents
+    primaryHeatingSource
+    hasVentilationSystem
   }
 }
 ```
