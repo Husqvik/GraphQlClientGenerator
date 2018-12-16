@@ -2,14 +2,15 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace GraphQlClientGenerator.Console
 {
     internal static class GraphQlCSharpFileHelper
     {
-        public static void GenerateGraphQlClient(string url, string token, string targetFileName, string @namespace)
+        public static async Task GenerateGraphQlClient(string url, string targetFileName, string @namespace)
         {
-            var schema = GraphQlGenerator.RetrieveSchema(url, token).Result;
+            var schema = await GraphQlGenerator.RetrieveSchema(url);
 
             var builder = new StringBuilder();
 

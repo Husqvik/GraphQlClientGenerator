@@ -30,7 +30,7 @@ namespace GraphQlClientGenerator
                 Converters = { new StringEnumConverter() }
             };
 
-        public static async Task<GraphQlSchema> RetrieveSchema(string url, string token)
+        public static async Task<GraphQlSchema> RetrieveSchema(string url)
         {
             using (var client = new HttpClient())
             {
@@ -38,7 +38,7 @@ namespace GraphQlClientGenerator
 
                 using (var response =
                     await client.PostAsync(
-                        $"{url}/gql?token={token}",
+                        url,
                         new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json")))
                 {
                     content =
@@ -47,7 +47,7 @@ namespace GraphQlClientGenerator
                             : await response.Content.ReadAsStringAsync();
 
                     if (!response.IsSuccessStatusCode)
-                        throw new InvalidOperationException($"Status code: {response.StatusCode}; content: {content}");
+                        throw new InvalidOperationException($"Status code: {(int)response.StatusCode} ({response.StatusCode}); content: {content}");
                 }
 
                 return JsonConvert.DeserializeObject<GraphQlResult>(content, SerializerSettings).Data.Schema;
