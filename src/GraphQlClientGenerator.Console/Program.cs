@@ -33,7 +33,7 @@ namespace GraphQlClientGenerator.Console
             System.Console.WriteLine("GraphQL C# client generator");
             System.Console.WriteLine();
             System.Console.WriteLine("Usage: ");
-            System.Console.WriteLine("GraphQlClientGenerator <GraphQlServiceUrl> <AccessToken> <TargetNamespace> <TargetFileName> <Namespace>");
+            System.Console.WriteLine("GraphQlClientGenerator <GraphQlServiceUrl> <TargetFileName> <TargetNamespace>");
         }
     }
 }
