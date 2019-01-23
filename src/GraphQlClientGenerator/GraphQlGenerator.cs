@@ -155,7 +155,7 @@ namespace GraphQlClientGenerator
 
             foreach (var field in type.InputFields)
             {
-                var propertyName = NamingHelper.CapitalizeFirst(field.Name);
+                var propertyName = NamingHelper.ToPascalCase(field.Name);
                 builder.Append("        yield return new InputPropertyInfo { Name = \"");
                 builder.Append(field.Name);
                 builder.Append("\", Value = ");
@@ -321,7 +321,7 @@ namespace GraphQlClientGenerator
 
                 if (fieldType.Kind == GraphQlTypeKindScalar || fieldType.Kind == GraphQlTypeKindEnum || fieldType.Kind == GraphQlTypeKindScalar)
                 {
-                    builder.Append($"    public {className} With{NamingHelper.CapitalizeFirst(field.Name)}({methodParameters})");
+                    builder.Append($"    public {className} With{NamingHelper.ToPascalCase(field.Name)}({methodParameters})");
 
                     if (requiresFullBody)
                     {
@@ -348,7 +348,7 @@ namespace GraphQlClientGenerator
                         throw new InvalidOperationException($"Field '{field.Name}' type name not resolved. ");
 
                     var builderParameterName = NamingHelper.LowerFirst(fieldType.Name);
-                    builder.Append($"    public {className} With{NamingHelper.CapitalizeFirst(field.Name)}({fieldType.Name}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix} {builderParameterName}QueryBuilder");
+                    builder.Append($"    public {className} With{NamingHelper.ToPascalCase(field.Name)}({fieldType.Name}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix} {builderParameterName}QueryBuilder");
 
                     if (args.Length > 0)
                     {

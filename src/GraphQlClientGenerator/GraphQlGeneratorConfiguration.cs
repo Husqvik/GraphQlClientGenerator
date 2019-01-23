@@ -25,7 +25,7 @@
 
         public static string DefaultScalarFieldTypeMapping(GraphQlType baseType, string valueName)
         {
-            var propertyName = NamingHelper.CapitalizeFirst(valueName);
+            var propertyName = NamingHelper.ToPascalCase(valueName);
             if (propertyName == "From" || propertyName == "ValidFrom" || propertyName == "CreatedAt" ||
                 propertyName == "To" || propertyName == "ValidTo" || propertyName == "ModifiedAt" || propertyName.EndsWith("Timestamp"))
                 return "DateTimeOffset?";
