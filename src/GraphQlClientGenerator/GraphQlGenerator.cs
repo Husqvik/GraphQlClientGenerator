@@ -396,7 +396,7 @@ namespace GraphQlClientGenerator
 
             if (GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.Compatible)
             {
-                builder.Append(" { return");
+                builder.Append(" { return ");
                 builder.Append(propertyValue);
                 builder.AppendLine("; } } ");
             }
