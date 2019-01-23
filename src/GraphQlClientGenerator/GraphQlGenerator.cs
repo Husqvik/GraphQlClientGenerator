@@ -190,7 +190,7 @@ namespace GraphQlClientGenerator
 
         private static void GenerateDataProperty(GraphQlType baseType, IGraphQlMember member, bool isDeprecated, string deprecationReason, StringBuilder builder)
         {
-            var propertyName = NamingHelper.CapitalizeFirst(member.Name);
+            var propertyName = NamingHelper.ToPascalCase(member.Name);
 
             string propertyType;
             var fieldType = UnwrapNonNull(member.Type);
