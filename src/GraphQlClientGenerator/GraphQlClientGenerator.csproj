@@ -16,7 +16,7 @@
     <RepositoryUrl>https://github.com/Husqvik/GraphQlClientGenerator</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>GraphGL C# Client</PackageTags>
-    <PackageReleaseNotes>support for mutations</PackageReleaseNotes>
+    <PackageReleaseNotes>update JSON.NET reference; improved GraphQL -> C# naming</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
