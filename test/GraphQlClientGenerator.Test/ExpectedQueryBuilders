@@ -317,7 +317,7 @@ public class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
             new FieldMetadata { Name = "me", IsComplex = true, QueryBuilderType = typeof(MeQueryBuilder) }
         };
 
-    protected override IList<FieldMetadata> AllFields { get { returnAllFieldMetadata; } } 
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public QueryQueryBuilder WithMe(MeQueryBuilder meQueryBuilder)
     {
