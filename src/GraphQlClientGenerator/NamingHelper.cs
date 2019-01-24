@@ -7,12 +7,6 @@ namespace GraphQlClientGenerator
 {
     internal static class NamingHelper
     {
-        public static string CapitalizeFirst(string value)
-        {
-            var firstLetter = value[0];
-            return value.Remove(0, 1).Insert(0, firstLetter.ToString().ToUpperInvariant());
-        }
-
         public static string LowerFirst(string value)
         {
             var firstLetter = value[0];
@@ -47,34 +41,29 @@ namespace GraphQlClientGenerator
              * "INVALID VALUE AND _2THINGS"   "InvalidValueAnd2Things"
              */
             
-            var invalidCharsRgx = new Regex("[^_a-zA-Z0-9]");
+            var invalidCharsRegex = new Regex("[^_a-zA-Z0-9]");
             var whiteSpace = new Regex(@"(?<=\s)");
             var startsWithLowerCaseChar = new Regex("^[a-z]");
             var firstCharFollowedByUpperCasesOnly = new Regex("(?<=[A-Z])[A-Z0-9]+$");
             var lowerCaseNextToNumber = new Regex("(?<=[0-9])[a-z]");
             var upperCaseInside = new Regex("(?<=[A-Z])[A-Z]+?((?=[A-Z][a-z])|(?=[0-9]))");
-            
-            var pascalCase = invalidCharsRgx
-                                     
-                             // Replaces white spaces with underscore, then replace all invalid chars with an empty string.
-                            .Replace(whiteSpace.Replace(value, "_"), string.Empty)
-                             
-                             // Split by underscores.
-                            .Split(new[] {'_'}, StringSplitOptions.RemoveEmptyEntries)
-                             
-                             // Set first letter to uppercase.
-                            .Select(w => startsWithLowerCaseChar.Replace(w, m => m.Value.ToUpper()))
-                             
-                             // Replace second and all following upper case letters to lower if there is no next lower (ABC -> Abc).
-                            .Select(w => firstCharFollowedByUpperCasesOnly.Replace(w, m => m.Value.ToLower()))
-                             
-                             // Set upper case the first lower case following a number (Ab9cd -> Ab9Cd).
-                            .Select(w => lowerCaseNextToNumber.Replace(w, m => m.Value.ToUpper()))
-                             
-                             // Lower second and next upper case letters except the last if it follows by any lower (ABcDEf -> AbcDef).
-                            .Select(w => upperCaseInside.Replace(w, m => m.Value.ToLower()));
 
-            return string.Concat(pascalCase);
+            var pascalCase =
+                invalidCharsRegex
+                    // Replaces white spaces with underscore, then replace all invalid chars with an empty string.
+                    .Replace(whiteSpace.Replace(value, "_"), string.Empty)
+                    // Split by underscores.
+                    .Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries)
+                    // Set first letter to uppercase.
+                    .Select(w => startsWithLowerCaseChar.Replace(w, m => m.Value.ToUpper()))
+                    // Replace second and all following upper case letters to lower if there is no next lower (ABC -> Abc).
+                    .Select(w => firstCharFollowedByUpperCasesOnly.Replace(w, m => m.Value.ToLower()))
+                    // Set upper case the first lower case following a number (Ab9cd -> Ab9Cd).
+                    .Select(w => lowerCaseNextToNumber.Replace(w, m => m.Value.ToUpper()))
+                    // Lower second and next upper case letters except the last if it follows by any lower (ABcDEf -> AbcDef).
+                    .Select(w => upperCaseInside.Replace(w, m => m.Value.ToLower()));
+
+            return String.Concat(pascalCase);
         }
 
         public static string ToNetEnumName(string name)

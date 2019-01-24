@@ -1880,7 +1880,7 @@ public class ProductionValueQueryBuilderV1 : GraphQlQueryBuilder<ProductionValue
 
     public ProductionValueQueryBuilderV1 WithUnitPrice() => WithScalarField("unitPrice");
 
-    public ProductionValueQueryBuilderV1 WithUnitPriceVAT() => WithScalarField("unitPriceVAT");
+    public ProductionValueQueryBuilderV1 WithUnitPriceVat() => WithScalarField("unitPriceVAT");
 
     public ProductionValueQueryBuilderV1 WithConsumption() => WithScalarField("consumption");
 
@@ -2796,7 +2796,7 @@ public class ProductionValueV1
     public DateTimeOffset? From { get; set; }
     public DateTimeOffset? To { get; set; }
     public decimal? UnitPrice { get; set; }
-    public decimal? UnitPriceVAT { get; set; }
+    public decimal? UnitPriceVat { get; set; }
     public decimal? Consumption { get; set; }
     public string ConsumptionUnit { get; set; }
     public decimal? TotalCost { get; set; }
