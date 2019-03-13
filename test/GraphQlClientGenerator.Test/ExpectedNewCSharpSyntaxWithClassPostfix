@@ -125,7 +125,7 @@ public abstract class GraphQlQueryBuilder
 
         var builder = new StringBuilder();
 
-        if (String.IsNullOrEmpty(Prefix))
+        if (!String.IsNullOrEmpty(Prefix))
         {
             builder.Append(Prefix);
 
