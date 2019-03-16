@@ -14,7 +14,7 @@ Nuget package
 -------------
 Installation:
 ```
-Install-Package GraphQlClientGenerator -Version 0.1.3
+Install-Package GraphQlClientGenerator -Version 0.1.6
 ```
 
 Code example for class generation:

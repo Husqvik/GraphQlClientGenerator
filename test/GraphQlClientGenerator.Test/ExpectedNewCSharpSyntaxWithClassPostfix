@@ -28,7 +28,33 @@ internal static class GraphQlQueryHelper
             return mutationInput.Build(formatting, level + 2, indentationSize);
 
         var argumentValue = Convert.ToString(value, CultureInfo.InvariantCulture);
-        return value is String || value is Guid ? $"\"{argumentValue}\"" : argumentValue;
+        if (value is String || value is Guid)
+            return $"\"{argumentValue}\"";
+
+        if (value is IEnumerable enumerable)
+        {
+            var builder = new StringBuilder();
+            builder.Append("[");
+            var delimiter = String.Empty;
+            foreach (var item in enumerable)
+            {
+                builder.Append(delimiter);
+
+                if (formatting == Formatting.Indented)
+                {
+                    builder.AppendLine();
+                    builder.Append(GraphQlQueryHelper.GetIndentation(level + 1, indentationSize));
+                }
+
+                builder.Append(BuildArgumentValue(item, formatting, level, indentationSize));
+                delimiter = ",";
+            }
+
+            builder.Append("]");
+            return builder.ToString();
+        }
+
+        return argumentValue;
     }
 
     private static string ConvertEnumToString(Enum @enum)
@@ -2148,7 +2174,14 @@ public class HomeMutationQueryBuilderV1 : GraphQlQueryBuilder<HomeMutationQueryB
         return WithObjectField("pairDeviceWithCredentials", pairDeviceResultQueryBuilder, args);
     }
 
-    public HomeMutationQueryBuilderV1 WithAnswerProfileQuestions(HomeProfileQuestionQueryBuilderV1 homeProfileQuestionQueryBuilder) => WithObjectField("answerProfileQuestions", homeProfileQuestionQueryBuilder);
+    public HomeMutationQueryBuilderV1 WithAnswerProfileQuestions(HomeProfileQuestionQueryBuilderV1 homeProfileQuestionQueryBuilder, IEnumerable<HomeProfileQuestionAnswerV1> answers = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (answers != null)
+            args.Add("answers", answers);
+
+        return WithObjectField("answerProfileQuestions", homeProfileQuestionQueryBuilder, args);
+    }
 
     public HomeMutationQueryBuilderV1 WithSendMeterReading(GQLMutationGeneralResponseQueryBuilderV1 gQLMutationGeneralResponseQueryBuilder, int? meterReading = null)
     {

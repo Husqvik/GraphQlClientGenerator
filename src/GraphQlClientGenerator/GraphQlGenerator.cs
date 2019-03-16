@@ -308,7 +308,23 @@ namespace GraphQlClientGenerator
                     fieldType = fieldType.OfType;
                 fieldType = UnwrapNonNull(fieldType);
 
-                var args = field.Args?.Where(a => UnwrapNonNull(a.Type).Kind == GraphQlTypeKindScalar || UnwrapNonNull(a.Type).Kind == GraphQlTypeKindEnum || UnwrapNonNull(a.Type).Kind == GraphQlTypeKindInputObject).ToArray() ?? new GraphQlArgument[0];
+                bool IsCompatibleArgument(GraphQlFieldType argumentType)
+                {
+                    argumentType = UnwrapNonNull(argumentType);
+                    switch (argumentType.Kind)
+                    {
+                        case GraphQlTypeKindScalar:
+                        case GraphQlTypeKindEnum:
+                        case GraphQlTypeKindInputObject:
+                            return true;
+                        case GraphQlTypeKindList:
+                            return IsCompatibleArgument(argumentType.OfType);
+                        default:
+                            return false;
+                    }
+                }
+
+                var args = field.Args?.Where(a => IsCompatibleArgument(a.Type)).ToArray() ?? new GraphQlArgument[0];
                 var methodParameters =
                     String.Join(
                         ", ",
@@ -412,17 +428,28 @@ namespace GraphQlClientGenerator
 
         private static string BuildMethodParameterDefinition(GraphQlType baseType, GraphQlArgument argument)
         {
-            var isNotNull = argument.Type.Kind == GraphQlTypeKindNonNull;
+            var isArgumentNotNull = argument.Type.Kind == GraphQlTypeKindNonNull;
+            var isTypeNotNull = isArgumentNotNull;
             var unwrappedType = UnwrapNonNull(argument.Type);
+            var isCollection = unwrappedType.Kind == GraphQlTypeKindList;
+            if (isCollection)
+            {
+                isTypeNotNull = unwrappedType.OfType.Kind == GraphQlTypeKindNonNull;
+                unwrappedType = UnwrapNonNull(unwrappedType.OfType);
+            }
+
             var argumentNetType = unwrappedType.Kind == GraphQlTypeKindEnum ? $"{unwrappedType.Name}?" : ScalarToNetType(baseType, argument.Name, unwrappedType);
-            if (isNotNull)
+            if (isTypeNotNull)
                 argumentNetType = argumentNetType.TrimEnd('?');
 
             if (unwrappedType.Kind == GraphQlTypeKindInputObject)
                 argumentNetType = $"{unwrappedType.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
 
+            if (isCollection)
+                argumentNetType = $"IEnumerable<{argumentNetType}>";
+
             var argumentDefinition = $"{argumentNetType} {argument.Name}";
-            if (!isNotNull)
+            if (!isArgumentNotNull)
                 argumentDefinition = $"{argumentDefinition} = null";
 
             return argumentDefinition;

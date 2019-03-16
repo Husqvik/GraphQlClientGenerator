@@ -28,7 +28,33 @@ internal static class GraphQlQueryHelper
             return mutationInput.Build(formatting, level + 2, indentationSize);
 
         var argumentValue = Convert.ToString(value, CultureInfo.InvariantCulture);
-        return value is String || value is Guid ? $"\"{argumentValue}\"" : argumentValue;
+        if (value is String || value is Guid)
+            return $"\"{argumentValue}\"";
+
+        if (value is IEnumerable enumerable)
+        {
+            var builder = new StringBuilder();
+            builder.Append("[");
+            var delimiter = String.Empty;
+            foreach (var item in enumerable)
+            {
+                builder.Append(delimiter);
+
+                if (formatting == Formatting.Indented)
+                {
+                    builder.AppendLine();
+                    builder.Append(GraphQlQueryHelper.GetIndentation(level + 1, indentationSize));
+                }
+
+                builder.Append(BuildArgumentValue(item, formatting, level, indentationSize));
+                delimiter = ",";
+            }
+
+            builder.Append("]");
+            return builder.ToString();
+        }
+
+        return argumentValue;
     }
 
     private static string ConvertEnumToString(Enum @enum)
