@@ -34,24 +34,28 @@ namespace GraphQlClientGenerator
         {
             using (var client = new HttpClient())
             {
-                string content;
-
-                using (var response =
-                    await client.PostAsync(
-                        url,
-                        new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json")))
-                {
-                    content =
-                        response.Content == null
-                            ? "(no content)"
-                            : await response.Content.ReadAsStringAsync();
-
-                    if (!response.IsSuccessStatusCode)
-                        throw new InvalidOperationException($"Status code: {(int)response.StatusCode} ({response.StatusCode}); content: {content}");
-                }
-
-                return JsonConvert.DeserializeObject<GraphQlResult>(content, SerializerSettings).Data.Schema;
+                return await RetrieveSchema(client, url);
             }
+        }
+        public static async Task<GraphQlSchema> RetrieveSchema(HttpClient client, string url)
+        {
+            string content;
+
+            using (var response =
+                await client.PostAsync(
+                    url,
+                    new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json")))
+            {
+                content =
+                    response.Content == null
+                        ? "(no content)"
+                        : await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                    throw new InvalidOperationException($"Status code: {(int)response.StatusCode} ({response.StatusCode}); content: {content}");
+            }
+
+            return JsonConvert.DeserializeObject<GraphQlResult>(content, SerializerSettings).Data.Schema;
         }
 
         private static void GenerateSharedTypes(GraphQlSchema schema, StringBuilder builder)
