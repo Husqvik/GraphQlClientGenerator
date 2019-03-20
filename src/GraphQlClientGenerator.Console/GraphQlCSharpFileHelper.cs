@@ -24,6 +24,7 @@ namespace GraphQlClientGenerator.Console
             using (var writer = File.CreateText(targetFileName))
             {
                 writer.WriteLine("using System;");
+                writer.WriteLine("using System.Collections;");
                 writer.WriteLine("using System.Collections.Generic;");
                 writer.WriteLine("using System.Globalization;");
                 writer.WriteLine("using System.Linq;");

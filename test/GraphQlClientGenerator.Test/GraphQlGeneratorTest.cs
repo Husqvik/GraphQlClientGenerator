@@ -1,8 +1,15 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Newtonsoft.Json;
 using Shouldly;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace GraphQlClientGenerator.Test
 {
@@ -10,13 +17,19 @@ namespace GraphQlClientGenerator.Test
     {
         private static readonly GraphQlSchema TestSchema = DeserializeTestSchema("TestSchema");
 
+        private readonly ITestOutputHelper _outputHelper;
+
         private static GraphQlSchema DeserializeTestSchema(string resourceName) =>
             JsonConvert.DeserializeObject<GraphQlResult>(
                     GetTestResource(resourceName),
                     GraphQlGenerator.SerializerSettings)
                 .Data.Schema;
 
-        public GraphQlGeneratorTest() => GraphQlGeneratorConfiguration.Reset();
+        public GraphQlGeneratorTest(ITestOutputHelper outputHelper)
+        {
+            _outputHelper = outputHelper;
+            GraphQlGeneratorConfiguration.Reset();
+        }
 
         [Fact]
         public void GenerateQueryBuilder()
@@ -50,7 +63,51 @@ namespace GraphQlClientGenerator.Test
             GraphQlGenerator.GenerateDataClasses(schema, stringBuilder);
 
             var expectedOutput = GetTestResource("ExpectedNewCSharpSyntaxWithClassPostfix");
-            stringBuilder.ToString().ShouldBe(expectedOutput);
+            var generatedSourceCode = stringBuilder.ToString();
+            generatedSourceCode.ShouldBe(expectedOutput);
+
+            var syntaxTree =
+                SyntaxFactory.ParseSyntaxTree(
+                    $@"using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text;
+
+namespace GraphQLTestAssembly
+{{
+{generatedSourceCode}
+}}",
+                    CSharpParseOptions.Default.WithLanguageVersion(Enum.GetValues(typeof(LanguageVersion)).Cast<LanguageVersion>().Max()));
+
+            var compilationOptions =
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+                    .WithPlatform(Platform.AnyCpu)
+                    .WithOverflowChecks(true)
+                    .WithOptimizationLevel(OptimizationLevel.Release);
+
+            var systemReference = MetadataReference.CreateFromFile(typeof(DateTimeOffset).Assembly.Location);
+            var runtimeReference = MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location);
+            var netStandardReference = MetadataReference.CreateFromFile(Assembly.Load("netstandard").Location);
+            var linqReference = MetadataReference.CreateFromFile(Assembly.Load("System.Linq").Location);
+            var runtimeSerializationReference = MetadataReference.CreateFromFile(typeof(EnumMemberAttribute).Assembly.Location);
+
+            var compilation =
+                CSharpCompilation.Create(
+                    "GraphQLTestAssembly",
+                    new [] { syntaxTree },
+                    new [] { systemReference, runtimeSerializationReference, runtimeReference, linqReference, netStandardReference }, compilationOptions);
+
+            var assemblyFileName = Path.GetTempFileName();
+            var result = compilation.Emit(assemblyFileName);
+            var errorReport = String.Join(Environment.NewLine, result.Diagnostics.Select(l => l.ToString()));
+            errorReport.ShouldBeNullOrEmpty();
+
+            Assembly.LoadFrom(assemblyFileName);
+            Type.GetType("GraphQLTestAssembly.GraphQlQueryBuilder,GraphQLTestAssembly").ShouldNotBeNull();
         }
 
         [Fact]

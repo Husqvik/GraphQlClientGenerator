@@ -43,7 +43,7 @@ internal static class GraphQlQueryHelper
                 if (formatting == Formatting.Indented)
                 {
                     builder.AppendLine();
-                    builder.Append(GraphQlQueryHelper.GetIndentation(level + 1, indentationSize));
+                    builder.Append(GetIndentation(level + 1, indentationSize));
                 }
 
                 builder.Append(BuildArgumentValue(item, formatting, level, indentationSize));
@@ -59,11 +59,9 @@ internal static class GraphQlQueryHelper
 
     private static string ConvertEnumToString(Enum @enum)
     {
-        var enumMember =
-            @enum.GetType()
-                .GetTypeInfo()
-                .GetMembers()
-                .Single(m => String.Equals(m.Name, @enum.ToString()));
+        var enumMember = @enum.GetType().GetTypeInfo().GetField(@enum.ToString());
+            if (enumMember == null)
+                throw new InvalidOperationException("enum member resolution failed");
 
         var enumMemberAttribute = (EnumMemberAttribute)enumMember.GetCustomAttribute(typeof(EnumMemberAttribute));
 
