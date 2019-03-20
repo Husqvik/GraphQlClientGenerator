@@ -23,6 +23,17 @@ namespace GraphQlClientGenerator
         private const string GraphQlTypeKindUnion = "UNION";
         private const string GraphQlTypeKindInterface = "INTERFACE";
 
+        public const string RequiredNamespaces =
+            @"using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text;
+";
+
         internal static readonly JsonSerializerSettings SerializerSettings =
             new JsonSerializerSettings
             {

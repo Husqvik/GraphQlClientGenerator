@@ -68,14 +68,7 @@ namespace GraphQlClientGenerator.Test
 
             var syntaxTree =
                 SyntaxFactory.ParseSyntaxTree(
-                    $@"using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Text;
+                    $@"{GraphQlGenerator.RequiredNamespaces}
 
 namespace GraphQLTestAssembly
 {{
