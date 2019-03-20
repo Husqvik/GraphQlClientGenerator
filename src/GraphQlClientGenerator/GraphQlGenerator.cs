@@ -228,7 +228,7 @@ using System.Text;
                             propertyType = "int?";
                             break;
                         case "String":
-                            propertyType = GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, member.Name);
+                            propertyType = GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, fieldType, member.Name);
                             break;
                         case "Float":
                             propertyType = "decimal?";
@@ -240,7 +240,7 @@ using System.Text;
                             propertyType = "Guid?";
                             break;
                         default:
-                            propertyType = "object";
+                            propertyType = GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, fieldType, member.Name);
                             break;
                     }
 
@@ -538,7 +538,7 @@ using System.Text;
                 case GraphQlTypeBase.GraphQlTypeScalarInteger:
                     return "int?";
                 case GraphQlTypeBase.GraphQlTypeScalarString:
-                    return GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueName);
+                    return GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName);
                 case GraphQlTypeBase.GraphQlTypeScalarFloat:
                     return "decimal?";
                 case GraphQlTypeBase.GraphQlTypeScalarBoolean:
@@ -546,7 +546,7 @@ using System.Text;
                 case GraphQlTypeBase.GraphQlTypeScalarId:
                     return "Guid?";
                 default:
-                    return "object";
+                    return GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName);
             }
         }
     }

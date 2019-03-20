@@ -1,6 +1,6 @@
 ﻿namespace GraphQlClientGenerator
 {
-    public delegate string GetCustomScalarFieldTypeDelegate(GraphQlType baseType, string valueName);
+    public delegate string GetCustomScalarFieldTypeDelegate(GraphQlType baseType, GraphQlTypeBase valueType, string valueName);
 
     public static class GraphQlGeneratorConfiguration
     {
@@ -23,14 +23,14 @@
             IncludeDeprecatedFields = false;
         }
 
-        public static string DefaultScalarFieldTypeMapping(GraphQlType baseType, string valueName)
+        public static string DefaultScalarFieldTypeMapping(GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
         {
-            var propertyName = NamingHelper.ToPascalCase(valueName);
-            if (propertyName == "From" || propertyName == "ValidFrom" || propertyName == "CreatedAt" ||
-                propertyName == "To" || propertyName == "ValidTo" || propertyName == "ModifiedAt" || propertyName.EndsWith("Timestamp"))
+            valueName = NamingHelper.ToPascalCase(valueName);
+            if (valueName == "From" || valueName == "ValidFrom" || valueName == "CreatedAt" ||
+                valueName == "To" || valueName == "ValidTo" || valueName == "ModifiedAt" || valueName.EndsWith("Timestamp"))
                 return "DateTimeOffset?";
 
-            return "string";
+            return valueType.Name == GraphQlTypeBase.GraphQlTypeScalarString ? "string" : "object";
         }
     }
 
