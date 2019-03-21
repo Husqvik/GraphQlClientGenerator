@@ -27,6 +27,7 @@ namespace GraphQlClientGenerator
             @"using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -254,7 +255,7 @@ using System.Text;
 
             if (isDeprecated)
             {
-                deprecationReason = String.IsNullOrWhiteSpace(deprecationReason) ? null : $"(\"{deprecationReason.Replace("\\", "\\\\").Replace("\"", "\\\"")}\")";
+                deprecationReason = String.IsNullOrWhiteSpace(deprecationReason) ? null : $"(@\"{deprecationReason.Replace("\"", "\"\"")}\")";
                 builder.AppendLine($"    [Obsolete{deprecationReason}]");
             }
 
@@ -520,12 +521,18 @@ using System.Text;
 
         private static void GenerateCodeComments(StringBuilder builder, string description)
         {
-            if (!GraphQlGeneratorConfiguration.GenerateComments || String.IsNullOrWhiteSpace(description))
+            if (String.IsNullOrWhiteSpace(description))
                 return;
 
-            builder.AppendLine("    /// <summary>");
-            builder.AppendLine($"    /// {description}");
-            builder.AppendLine("    /// </summary>");
+            if (GraphQlGeneratorConfiguration.CommentGeneration.HasFlag(CommentGenerationOption.CodeSummary))
+            {
+                builder.AppendLine("    /// <summary>");
+                builder.AppendLine($"    /// {description}");
+                builder.AppendLine("    /// </summary>");
+            }
+
+            if (GraphQlGeneratorConfiguration.CommentGeneration.HasFlag(CommentGenerationOption.DescriptionAttribute))
+                builder.AppendLine($"    [Description(@\"{description.Replace("\"", "\"\"")}\")]");
         }
 
         private static bool IsObjectScalar(GraphQlFieldType graphQlType)

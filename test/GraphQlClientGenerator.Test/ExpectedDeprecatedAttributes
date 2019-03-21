@@ -10,15 +10,18 @@ public class Me
     /// <summary>
     /// customer's first name
     /// </summary>
+    [Description(@"customer's first name")]
     public string FirstName { get; set; }
     /// <summary>
     /// customer's last name
     /// </summary>
+    [Description(@"customer's last name")]
     public string LastName { get; set; }
     /// <summary>
     /// customer's full name
     /// </summary>
-    [Obsolete("use 'firstName' and 'lastName' fields; escaping test: \"\\{}")]
+    [Description(@"customer's full name")]
+    [Obsolete(@"use 'firstName' and 'lastName' fields; escaping test: ""\{}")]
     public string FullName { get; set; }
     public string Ssn { get; set; }
     public string Email { get; set; }

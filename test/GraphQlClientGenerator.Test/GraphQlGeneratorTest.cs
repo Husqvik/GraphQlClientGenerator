@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -87,16 +88,17 @@ namespace GraphQLTestAssembly
             var netStandardReference = MetadataReference.CreateFromFile(Assembly.Load("netstandard").Location);
             var linqReference = MetadataReference.CreateFromFile(Assembly.Load("System.Linq").Location);
             var runtimeSerializationReference = MetadataReference.CreateFromFile(typeof(EnumMemberAttribute).Assembly.Location);
+            var componentModelReference = MetadataReference.CreateFromFile(typeof(DescriptionAttribute).Assembly.Location);
 
             var compilation =
                 CSharpCompilation.Create(
                     "GraphQLTestAssembly",
                     new [] { syntaxTree },
-                    new [] { systemReference, runtimeSerializationReference, runtimeReference, linqReference, netStandardReference }, compilationOptions);
+                    new [] { systemReference, runtimeSerializationReference, componentModelReference, runtimeReference, linqReference, netStandardReference }, compilationOptions);
 
             var assemblyFileName = Path.GetTempFileName();
             var result = compilation.Emit(assemblyFileName);
-            var errorReport = String.Join(Environment.NewLine, result.Diagnostics.Select(l => l.ToString()));
+            var errorReport = String.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity != DiagnosticSeverity.Hidden).Select(l => $"[{l.Severity}] {l.ToString()}"));
             errorReport.ShouldBeNullOrEmpty();
 
             Assembly.LoadFrom(assemblyFileName);
@@ -107,13 +109,12 @@ namespace GraphQLTestAssembly
         public void DeprecatedAttributes()
         {
             GraphQlGeneratorConfiguration.CSharpVersion = CSharpVersion.Newest;
-            GraphQlGeneratorConfiguration.GenerateComments = true;
+            GraphQlGeneratorConfiguration.CommentGeneration = CommentGenerationOption.CodeSummary | CommentGenerationOption.DescriptionAttribute;
             GraphQlGeneratorConfiguration.IncludeDeprecatedFields = true;
             var schema = DeserializeTestSchema("TestSchemaWithDeprecatedFields");
 
             var stringBuilder = new StringBuilder();
             GraphQlGenerator.GenerateDataClasses(schema, stringBuilder);
-
             var expectedOutput = GetTestResource("ExpectedDeprecatedAttributes");
             stringBuilder.ToString().ShouldBe(expectedOutput);
         }

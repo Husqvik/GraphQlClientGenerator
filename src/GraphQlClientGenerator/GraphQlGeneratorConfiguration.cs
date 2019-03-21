@@ -1,4 +1,6 @@
-﻿namespace GraphQlClientGenerator
+﻿using System;
+
+namespace GraphQlClientGenerator
 {
     public delegate string GetCustomScalarFieldTypeDelegate(GraphQlType baseType, GraphQlTypeBase valueType, string valueName);
 
@@ -8,7 +10,7 @@
 
         public static string ClassPostfix { get; set; }
 
-        public static bool GenerateComments { get; set; }
+        public static CommentGenerationOption CommentGeneration { get; set; }
 
         public static bool IncludeDeprecatedFields { get; set; }
 
@@ -19,7 +21,7 @@
             ClassPostfix = null;
             CSharpVersion = CSharpVersion.Compatible;
             CustomScalarFieldTypeMapping = DefaultScalarFieldTypeMapping;
-            GenerateComments = false;
+            CommentGeneration = CommentGenerationOption.Disabled;
             IncludeDeprecatedFields = false;
         }
 
@@ -38,5 +40,13 @@
     {
         Compatible,
         Newest
+    }
+
+    [Flags]
+    public enum CommentGenerationOption
+    {
+        Disabled = 0,
+        CodeSummary = 1,
+        DescriptionAttribute = 2
     }
 }
