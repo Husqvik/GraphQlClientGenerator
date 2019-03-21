@@ -250,12 +250,7 @@ using System.Text;
                     break;
             }
 
-            if (GraphQlGeneratorConfiguration.GenerateComments && !String.IsNullOrWhiteSpace(member.Description))
-            {
-                builder.AppendLine("    /// <summary>");
-                builder.AppendLine($"    /// {member.Description}");
-                builder.AppendLine("    /// </summary>");
-            }
+            GenerateCodeComments(builder, member.Description);
 
             if (isDeprecated)
             {
@@ -511,6 +506,7 @@ using System.Text;
             for (var i = 0; i < enumValues.Count; i++)
             {
                 var enumValue = enumValues[i];
+                GenerateCodeComments(builder, enumValue.Description);
                 builder.Append($"    [EnumMember(Value=\"{enumValue.Name}\")] {NamingHelper.ToNetEnumName(enumValue.Name)}");
 
                 if (i < enumValues.Count - 1)
@@ -520,6 +516,16 @@ using System.Text;
             }
 
             builder.AppendLine("}");
+        }
+
+        private static void GenerateCodeComments(StringBuilder builder, string description)
+        {
+            if (!GraphQlGeneratorConfiguration.GenerateComments || String.IsNullOrWhiteSpace(description))
+                return;
+
+            builder.AppendLine("    /// <summary>");
+            builder.AppendLine($"    /// {description}");
+            builder.AppendLine("    /// </summary>");
         }
 
         private static bool IsObjectScalar(GraphQlFieldType graphQlType)
