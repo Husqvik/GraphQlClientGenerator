@@ -24,6 +24,9 @@ internal static class GraphQlQueryHelper
         if (value is Enum @enum)
             return ConvertEnumToString(@enum);
 
+        if (value is bool @bool)
+            return @bool ? "true" : "false";
+
         if (value is GraphQlMutationInput mutationInput)
             return mutationInput.Build(formatting, level + 2, indentationSize);
 
