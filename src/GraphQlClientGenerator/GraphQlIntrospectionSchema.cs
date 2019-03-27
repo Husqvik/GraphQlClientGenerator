@@ -82,6 +82,7 @@ namespace GraphQlClientGenerator
         public const string GraphQlTypeScalarFloat = "Float";
         public const string GraphQlTypeScalarId = "ID";
         public const string GraphQlTypeScalarInteger = "Int";
+        public const string GraphQlTypeScalarByte = "Byte";
         public const string GraphQlTypeScalarString = "String";
         public const string GraphQlTypeScalarDateTime = "DateTime";
 

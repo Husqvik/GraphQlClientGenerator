@@ -228,6 +228,9 @@ using System.Text;
                         case "Int":
                             propertyType = "int?";
                             break;
+                        case "Byte":
+                            propertyType = "byte?";
+                            break;
                         case "String":
                             propertyType = GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, fieldType, member.Name);
                             break;
@@ -553,6 +556,8 @@ using System.Text;
             {
                 case GraphQlTypeBase.GraphQlTypeScalarInteger:
                     return "int?";
+                case GraphQlTypeBase.GraphQlTypeScalarByte:
+                    return "byte?";
                 case GraphQlTypeBase.GraphQlTypeScalarString:
                     return GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName);
                 case GraphQlTypeBase.GraphQlTypeScalarFloat:
