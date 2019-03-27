@@ -134,3 +134,44 @@ mutation {
   }
 }
 ```
+
+Custom scalar types
+-------------
+This ensures that generated properties of a class are not `object`
+
+```
+GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping =
+	(baseType, valueType, valueName) =>
+	{
+		// DateTime and Byte
+		switch (valueType.Name)
+                    {
+                        case "Byte":
+                            return "byte?";
+                        case "DateTime":
+                            return "DateTime?";
+                    }
+		
+		// fallback - not needed if you cover all possible cases or you are ok with object type			
+		return GraphQlGeneratorConfiguration.DefaultScalarFieldTypeMapping(baseType, valueType, valueName);
+	};
+```
+
+Example generated class:
+```
+public class OrderType
+{
+    public DateTime? CreatedDateTimeUtc { get; set; }
+    public byte? SomeSmallNumber { get; set; }
+}
+```
+
+vs 
+
+```
+public class OrderType
+{
+    public object CreatedDateTimeUtc { get; set; }
+    public object SomeSmallNumber { get; set; }
+}
+```
