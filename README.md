@@ -137,7 +137,7 @@ mutation {
 
 Custom scalar types
 -------------
-This ensures that generated properties of a class are not `object`
+GraphQL supports custom scalar types. By default these are mapped to `object` type. To ensure appropriate .NET types are generated for data class properties custom mapping function can be used:
 
 ```
 GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping =
@@ -159,7 +159,7 @@ GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping =
 	};
 ```
 
-Example generated class:
+Generated class example:
 ```
 public class OrderType
 {
