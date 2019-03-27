@@ -240,6 +240,9 @@ using System.Text;
                         case "ID":
                             propertyType = "Guid?";
                             break;
+                        case "DateTime":
+                            propertyType = "DateTime?";
+                            break;
                         default:
                             propertyType = GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, fieldType, member.Name);
                             break;
@@ -558,6 +561,8 @@ using System.Text;
                     return "bool?";
                 case GraphQlTypeBase.GraphQlTypeScalarId:
                     return "Guid?";
+                case GraphQlTypeBase.GraphQlTypeScalarDateTime:
+                    return "DateTime?";
                 default:
                     return GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName);
             }
