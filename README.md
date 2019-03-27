@@ -143,16 +143,18 @@ This ensures that generated properties of a class are not `object`
 GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping =
 	(baseType, valueType, valueName) =>
 	{
+		valueType = valueType is GraphQlFieldType fieldType ? fieldType.UnwrapIfNonNull() : valueType;
+
 		// DateTime and Byte
 		switch (valueType.Name)
-                    {
-                        case "Byte":
-                            return "byte?";
-                        case "DateTime":
-                            return "DateTime?";
-                    }
-		
-		// fallback - not needed if you cover all possible cases or you are ok with object type			
+		{
+			case "Byte":
+				return "byte?";
+			case "DateTime":
+				return "DateTime?";
+		}
+
+		// fallback - not needed if you cover all possible cases or you are ok with object type	
 		return GraphQlGeneratorConfiguration.DefaultScalarFieldTypeMapping(baseType, valueType, valueName);
 	};
 ```
@@ -166,7 +168,7 @@ public class OrderType
 }
 ```
 
-vs 
+vs.
 
 ```
 public class OrderType
