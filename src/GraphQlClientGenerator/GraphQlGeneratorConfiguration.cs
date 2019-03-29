@@ -14,6 +14,8 @@ namespace GraphQlClientGenerator
 
         public static bool IncludeDeprecatedFields { get; set; }
 
+        public static FloatType FloatType { get; set; }
+
         public static GetCustomScalarFieldTypeDelegate CustomScalarFieldTypeMapping { get; set; } = DefaultScalarFieldTypeMapping;
 
         public static void Reset()
@@ -40,6 +42,13 @@ namespace GraphQlClientGenerator
     {
         Compatible,
         Newest
+    }
+
+    public enum FloatType
+    {
+        Decimal,
+        Float,
+        Double
     }
 
     [Flags]

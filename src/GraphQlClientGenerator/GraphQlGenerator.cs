@@ -225,19 +225,19 @@ using System.Text;
                 case GraphQlTypeKindScalar:
                     switch (fieldType.Name)
                     {
-                        case "Int":
+                        case GraphQlTypeBase.GraphQlTypeScalarInteger:
                             propertyType = "int?";
                             break;
-                        case "String":
+                        case GraphQlTypeBase.GraphQlTypeScalarString:
                             propertyType = GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, fieldType, member.Name);
                             break;
-                        case "Float":
-                            propertyType = "decimal?";
+                        case GraphQlTypeBase.GraphQlTypeScalarFloat:
+                            propertyType = GetFloatNetType();
                             break;
-                        case "Boolean":
+                        case GraphQlTypeBase.GraphQlTypeScalarBoolean:
                             propertyType = "bool?";
                             break;
-                        case "ID":
+                        case GraphQlTypeBase.GraphQlTypeScalarId:
                             propertyType = "Guid?";
                             break;
                         default:
@@ -260,6 +260,17 @@ using System.Text;
             }
 
             builder.AppendLine($"    public {propertyType} {propertyName} {{ get; set; }}");
+        }
+
+        private static string GetFloatNetType()
+        {
+            switch (GraphQlGeneratorConfiguration.FloatType)
+            {
+                case FloatType.Decimal: return "decimal?";
+                case FloatType.Float: return "float?";
+                case FloatType.Double: return "double?";
+                default: throw new InvalidOperationException($"'{GraphQlGeneratorConfiguration.FloatType}' not supported");
+            }
         }
 
         private static void GenerateTypeQueryBuilder(GraphQlType type, string queryPrefix, StringBuilder builder)
@@ -550,7 +561,7 @@ using System.Text;
                 case GraphQlTypeBase.GraphQlTypeScalarString:
                     return GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName);
                 case GraphQlTypeBase.GraphQlTypeScalarFloat:
-                    return "decimal?";
+                    return GetFloatNetType();
                 case GraphQlTypeBase.GraphQlTypeScalarBoolean:
                     return "bool?";
                 case GraphQlTypeBase.GraphQlTypeScalarId:
