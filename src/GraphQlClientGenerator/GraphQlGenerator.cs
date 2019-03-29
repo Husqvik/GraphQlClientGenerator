@@ -215,9 +215,9 @@ using System.Text;
                     propertyType = $"{fieldType.Name}?";
                     break;
                 case GraphQlTypeKindList:
-                    var itemType = IsObjectScalar(fieldType.OfType) ? "object" : $"{fieldType.OfType.UnwrapIfNonNull().Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
+                    var itemType = IsUnknownObjectScalar(baseType, member.Name, fieldType.OfType) ? "object" : $"{fieldType.OfType.UnwrapIfNonNull().Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
                     var suggestedNetType = ScalarToNetType(baseType, member.Name, fieldType.OfType.UnwrapIfNonNull()).TrimEnd('?');
-                    if (!String.Equals(suggestedNetType, "object"))
+                    if (!String.Equals(suggestedNetType, "object") && !suggestedNetType.TrimEnd().EndsWith("System.Object"))
                         itemType = suggestedNetType;
 
                     propertyType = $"ICollection<{itemType}>";
@@ -229,7 +229,7 @@ using System.Text;
                             propertyType = "int?";
                             break;
                         case GraphQlTypeBase.GraphQlTypeScalarString:
-                            propertyType = GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, fieldType, member.Name);
+                            propertyType = GetCustomScalarType(baseType, fieldType, member.Name);
                             break;
                         case GraphQlTypeBase.GraphQlTypeScalarFloat:
                             propertyType = GetFloatNetType();
@@ -241,7 +241,7 @@ using System.Text;
                             propertyType = "Guid?";
                             break;
                         default:
-                            propertyType = GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, fieldType, member.Name);
+                            propertyType = GetCustomScalarType(baseType, fieldType, member.Name);
                             break;
                     }
 
@@ -292,7 +292,8 @@ using System.Text;
                 var field = fields[i];
                 var fieldType = field.Type.UnwrapIfNonNull();
                 var isList = fieldType.Kind == GraphQlTypeKindList;
-                var isComplex = isList || IsObjectScalar(fieldType) || fieldType.Kind == GraphQlTypeKindObject;
+                var treatUnknownObjectAsComplex = IsUnknownObjectScalar(type, field.Name, fieldType) && !GraphQlGeneratorConfiguration.TreatUnknownObjectAsScalar;
+                var isComplex = isList || treatUnknownObjectAsComplex || fieldType.Kind == GraphQlTypeKindObject;
 
                 builder.Append($"            new FieldMetadata {{ Name = \"{field.Name}\"");
 
@@ -546,10 +547,15 @@ using System.Text;
                 builder.AppendLine($"    [Description(@\"{description.Replace("\"", "\"\"")}\")]");
         }
 
-        private static bool IsObjectScalar(GraphQlFieldType graphQlType)
+        private static bool IsUnknownObjectScalar(GraphQlType baseType, string valueName, GraphQlFieldType fieldType)
         {
-            graphQlType = graphQlType.UnwrapIfNonNull();
-            return graphQlType.Kind == GraphQlTypeKindScalar && !graphQlType.IsScalar;
+            fieldType = fieldType.UnwrapIfNonNull();
+
+            if (fieldType.Kind != GraphQlTypeKindScalar)
+                return false;
+
+            var netType = ScalarToNetType(baseType, valueName, fieldType);
+            return netType == "object" || netType.TrimEnd().EndsWith("System.Object");
         }
 
         private static string ScalarToNetType(GraphQlType baseType, string valueName, GraphQlTypeBase valueType)
@@ -559,7 +565,7 @@ using System.Text;
                 case GraphQlTypeBase.GraphQlTypeScalarInteger:
                     return "int?";
                 case GraphQlTypeBase.GraphQlTypeScalarString:
-                    return GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName);
+                    return GetCustomScalarType(baseType, valueType, valueName);
                 case GraphQlTypeBase.GraphQlTypeScalarFloat:
                     return GetFloatNetType();
                 case GraphQlTypeBase.GraphQlTypeScalarBoolean:
@@ -567,8 +573,20 @@ using System.Text;
                 case GraphQlTypeBase.GraphQlTypeScalarId:
                     return "Guid?";
                 default:
-                    return GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName);
+                    return GetCustomScalarType(baseType, valueType, valueName);
             }
+        }
+
+        private static string GetCustomScalarType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
+        {
+            if (GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping == null)
+                throw new InvalidOperationException($"'{nameof(GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping)}' missing");
+
+            var netType = GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName);
+            if (String.IsNullOrWhiteSpace(netType))
+                throw new InvalidOperationException($".NET type for '{baseType.Name}.{valueName}' ({valueType.Name}) cannot be resolved. Please check {nameof(GraphQlGeneratorConfiguration)}.{nameof(GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping)} implementation. ");
+
+            return netType;
         }
     }
 }

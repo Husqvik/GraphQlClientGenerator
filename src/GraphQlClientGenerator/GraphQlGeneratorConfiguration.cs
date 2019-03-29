@@ -14,8 +14,16 @@ namespace GraphQlClientGenerator
 
         public static bool IncludeDeprecatedFields { get; set; }
 
+        /// <summary>
+        /// Determines whether unknown type scalar fields will be automatically requested when <code>WithAllScalarFields</code> issued.
+        /// </summary>
+        public static bool TreatUnknownObjectAsScalar { get; set; }
+
         public static FloatType FloatType { get; set; }
 
+        /// <summary>
+        /// This property is used for mapping GraphQL scalar type into specific .NET type. By default any custom GraphQL scalar type is mapped into <see cref="System.Object"/>.
+        /// </summary>
         public static GetCustomScalarFieldTypeDelegate CustomScalarFieldTypeMapping { get; set; } = DefaultScalarFieldTypeMapping;
 
         public static void Reset()
@@ -25,6 +33,8 @@ namespace GraphQlClientGenerator
             CustomScalarFieldTypeMapping = DefaultScalarFieldTypeMapping;
             CommentGeneration = CommentGenerationOption.Disabled;
             IncludeDeprecatedFields = false;
+            FloatType = FloatType.Decimal;
+            TreatUnknownObjectAsScalar = false;
         }
 
         public static string DefaultScalarFieldTypeMapping(GraphQlType baseType, GraphQlTypeBase valueType, string valueName)

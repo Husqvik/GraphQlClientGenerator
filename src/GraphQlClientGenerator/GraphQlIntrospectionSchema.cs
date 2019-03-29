@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace GraphQlClientGenerator
@@ -86,10 +85,6 @@ namespace GraphQlClientGenerator
 
         public string Kind { get; set; }
         public string Name { get; set; }
-
-        public bool IsScalar =>
-            String.Equals(Name, GraphQlTypeScalarBoolean) || String.Equals(Name, GraphQlTypeScalarFloat) || String.Equals(Name, GraphQlTypeScalarId) ||
-            String.Equals(Name, GraphQlTypeScalarInteger) || String.Equals(Name, GraphQlTypeScalarString);
     }
 
     public interface IGraphQlMember
