@@ -15,6 +15,7 @@ namespace GraphQlClientGenerator
 {
     public static class GraphQlGenerator
     {
+        internal const string HttpClientUserAgent = "GraphQlClientGenerator";
         internal const string GraphQlTypeKindObject = "OBJECT";
         internal const string GraphQlTypeKindEnum = "ENUM";
         internal const string GraphQlTypeKindScalar = "SCALAR";
@@ -49,7 +50,7 @@ using System.Text;
             {
                 string content;
 
-                client.DefaultRequestHeaders.Add("User-Agent", "GraphQlClientGenerator");
+                client.DefaultRequestHeaders.Add("User-Agent", HttpClientUserAgent);
 
                 if (!string.IsNullOrWhiteSpace(token))
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
