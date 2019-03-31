@@ -8,9 +8,9 @@ namespace GraphQlClientGenerator.Console
 {
     internal static class GraphQlCSharpFileHelper
     {
-        public static async Task GenerateGraphQlClient(string url, string targetFileName, string @namespace)
+        public static async Task GenerateGraphQlClient(string url, string targetFileName, string @namespace, string token = "")
         {
-            var schema = await GraphQlGenerator.RetrieveSchema(url);
+            var schema = await GraphQlGenerator.RetrieveSchema(url, token);
 
             var builder = new StringBuilder();
 

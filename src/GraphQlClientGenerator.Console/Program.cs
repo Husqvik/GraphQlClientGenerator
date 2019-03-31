@@ -16,10 +16,14 @@ namespace GraphQlClientGenerator.Console
             var url = args[0];
             var targetFileName = args[1];
             var @namespace = args[2];
+            string token = "";
+
+            if (args.Length > 3)
+                token = args[3];
 
             try
             {
-                await GraphQlCSharpFileHelper.GenerateGraphQlClient(url, targetFileName, @namespace);
+                await GraphQlCSharpFileHelper.GenerateGraphQlClient(url, targetFileName, @namespace, token);
                 System.Console.WriteLine($"File {targetFileName} generated successfully. ");
             }
             catch (Exception exception)
@@ -33,7 +37,7 @@ namespace GraphQlClientGenerator.Console
             System.Console.WriteLine("GraphQL C# client generator");
             System.Console.WriteLine();
             System.Console.WriteLine("Usage: ");
-            System.Console.WriteLine("GraphQlClientGenerator <GraphQlServiceUrl> <TargetFileName> <TargetNamespace>");
+            System.Console.WriteLine("GraphQlClientGenerator <GraphQlServiceUrl> <TargetFileName> <TargetNamespace> <OptionalToken>");
         }
     }
 }

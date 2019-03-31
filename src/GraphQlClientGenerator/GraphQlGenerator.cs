@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,11 +43,16 @@ using System.Text;
                 Converters = { new StringEnumConverter() }
             };
 
-        public static async Task<GraphQlSchema> RetrieveSchema(string url)
+        public static async Task<GraphQlSchema> RetrieveSchema(string url, string token = "")
         {
             using (var client = new HttpClient())
             {
                 string content;
+
+                client.DefaultRequestHeaders.Add("User-Agent", "GraphQlClientGenerator");
+
+                if (!string.IsNullOrWhiteSpace(token))
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
                 using (var response =
                     await client.PostAsync(
