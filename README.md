@@ -1,4 +1,4 @@
-GraphQL C# client generator
+GraphQL C# client generator [![NuGet Badge](https://buildstats.info/nuget/GraphQlClientGenerator?includePreReleases=true)](https://www.nuget.org/packages/GraphQlClientGenerator)
 =======================
 
 This simple console app generates C# GraphQL query builder and data classes for simple, compiler checked, usage of GraphQL API.
