@@ -27,8 +27,8 @@ internal static class GraphQlQueryHelper
         if (value is bool @bool)
             return @bool ? "true" : "false";
 
-        if (value is GraphQlMutationInput mutationInput)
-            return mutationInput.Build(formatting, level + 2, indentationSize);
+        if (value is IGraphQlInputObject inputObject)
+            return BuildInputObject(inputObject, formatting, level + 2, indentationSize);
 
         var argumentValue = Convert.ToString(value, CultureInfo.InvariantCulture);
         if (value is String || value is Guid)
@@ -60,6 +60,44 @@ internal static class GraphQlQueryHelper
         return argumentValue;
     }
 
+    public static string BuildInputObject(IGraphQlInputObject inputObject, Formatting formatting, int level, byte indentationSize)
+    {
+        var builder = new StringBuilder();
+        builder.Append("{");
+
+        var isIndentedFormatting = formatting == Formatting.Indented;
+        string valueSeparator;
+        if (isIndentedFormatting)
+        {
+            builder.AppendLine();
+            valueSeparator = ": ";
+        }
+        else
+            valueSeparator = ":";
+
+        var separator = String.Empty;
+        foreach (var propertyValue in inputObject.GetPropertyValues().Where(p => p.Value != null))
+        {
+            var value = BuildArgumentValue(propertyValue.Value, formatting, level, indentationSize);
+            builder.Append(isIndentedFormatting ? GetIndentation(level, indentationSize) : separator);
+            builder.Append(propertyValue.Name);
+            builder.Append(valueSeparator);
+            builder.Append(value);
+
+            separator = ",";
+
+            if (isIndentedFormatting)
+                builder.AppendLine();
+        }
+
+        if (isIndentedFormatting)
+            builder.Append(GetIndentation(level - 1, indentationSize));
+
+        builder.Append("}");
+
+        return builder.ToString();
+    }
+
     private static string ConvertEnumToString(Enum @enum)
     {
         var enumMember = @enum.GetType().GetTypeInfo().GetField(@enum.ToString());
@@ -80,47 +118,9 @@ public struct InputPropertyInfo
     public object Value { get; set; }
 }
 
-public abstract class GraphQlMutationInput
+internal interface IGraphQlInputObject
 {
-    internal string Build(Formatting formatting, int level, byte indentationSize)
-    {
-        var builder = new StringBuilder();
-        builder.Append("{");
-
-        var isIndentedFormatting = formatting == Formatting.Indented;
-        string valueSeparator;
-        if (isIndentedFormatting)
-        {
-            builder.AppendLine();
-            valueSeparator = ": ";
-        }
-        else
-            valueSeparator = ":";
-
-        var separator = String.Empty;
-        foreach (var propertyValue in GetPropertyValues().Where(p => p.Value != null))
-        {
-            var value = GraphQlQueryHelper.BuildArgumentValue(propertyValue.Value, formatting, level, indentationSize);
-            builder.Append(isIndentedFormatting ? GraphQlQueryHelper.GetIndentation(level, indentationSize) : separator);
-            builder.Append(propertyValue.Name);
-            builder.Append(valueSeparator);
-            builder.Append(value);
-
-            separator = ",";
-
-            if (isIndentedFormatting)
-                builder.AppendLine();
-        }
-
-        if (isIndentedFormatting)
-            builder.Append(GraphQlQueryHelper.GetIndentation(level - 1, indentationSize));
-
-        builder.Append("}");
-
-        return builder.ToString();
-    }
-
-    protected abstract IEnumerable<InputPropertyInfo> GetPropertyValues();
+    IEnumerable<InputPropertyInfo> GetPropertyValues();
 }
 
 public abstract class GraphQlQueryBuilder
