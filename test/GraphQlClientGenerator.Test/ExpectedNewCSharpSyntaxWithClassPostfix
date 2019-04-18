@@ -2951,7 +2951,7 @@ public class HomeProfileQuestionAnswerV1 : GraphQlMutationInput
 
 public class AppStateMutationV1 : GraphQlMutationInput
 {
-    public string Journey { get; set; }
+    public AppStateJourneyMutationV1 Journey { get; set; }
     public ICollection<AppStateFronScreenMutationV1> FrontScreens { get; set; }
 
     protected override IEnumerable<InputPropertyInfo> GetPropertyValues()
