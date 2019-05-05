@@ -112,40 +112,49 @@ using System.Text;
             builder.AppendLine("#endregion");
         }
 
+        private static void FindAllReferencedObjectTypes(GraphQlSchema schema, GraphQlType type, ISet<string> objectTypes)
+        {
+            foreach (var member in (IEnumerable<IGraphQlMember>)type.InputFields ?? type.Fields)
+            {
+                var unwrappedType = member.Type.UnwrapIfNonNull();
+                GraphQlType memberType;
+                switch (unwrappedType.Kind)
+                {
+                    case GraphQlTypeKindObject:
+                        objectTypes.Add(unwrappedType.Name);
+                        memberType = schema.Types.Single(t => t.Name == unwrappedType.Name);
+                        FindAllReferencedObjectTypes(schema, memberType, objectTypes);
+                        break;
+
+                    case GraphQlTypeKindList:
+                        var itemType = unwrappedType.OfType.UnwrapIfNonNull();
+                        if (itemType.Kind == GraphQlTypeKindObject)
+                        {
+                            memberType = schema.Types.Single(t => t.Name == itemType.Name);
+                            FindAllReferencedObjectTypes(schema, memberType, objectTypes);
+                        }
+
+                        break;
+                }
+            }
+        }
+
         public static void GenerateDataClasses(GraphQlSchema schema, StringBuilder builder)
         {
-            var objectTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKindObject && !t.Name.StartsWith("__")).ToArray();
-            var hasObjectType = objectTypes.Any();
-            if (hasObjectType)
-            {
-                builder.AppendLine("#region data classes");
-
-                for (var i = 0; i < objectTypes.Length; i++)
-                {
-                    var type = objectTypes[i];
-                    GenerateDataClass(type.Name, null, builder, () => GenerateDataClassBody(type, builder));
-
-                    builder.AppendLine();
-
-                    if (i < objectTypes.Length - 1)
-                        builder.AppendLine();
-                }
-
-                builder.AppendLine("#endregion");
-            }
-
             var inputTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKindInputObject && !t.Name.StartsWith("__")).ToArray();
-            if (inputTypes.Any())
-            {
-                if (hasObjectType)
-                    builder.AppendLine();
+            var hasInputType = inputTypes.Any();
+            var referencedObjectTypes = new HashSet<string>();
 
+            if (hasInputType)
+            {
+                builder.AppendLine();
                 builder.AppendLine("#region input classes");
 
                 for (var i = 0; i < inputTypes.Length; i++)
                 {
                     var type = inputTypes[i];
-                    GenerateDataClass(type.Name, "GraphQlMutationInput", builder, () => GenerateInputDataClassBody(type, builder));
+                    FindAllReferencedObjectTypes(schema, type, referencedObjectTypes);
+                    GenerateDataClass(type.Name, "IGraphQlInputObject", builder, () => GenerateInputDataClassBody(type, type.InputFields.Cast<IGraphQlMember>().ToArray(), builder));
 
                     builder.AppendLine();
 
@@ -155,28 +164,57 @@ using System.Text;
 
                 builder.AppendLine("#endregion");
             }
+
+            var objectTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKindObject && !t.Name.StartsWith("__")).ToArray();
+            if (!objectTypes.Any())
+                return;
+
+            if (hasInputType)
+                builder.AppendLine();
+
+            builder.AppendLine("#region data classes");
+
+            for (var i = 0; i < objectTypes.Length; i++)
+            {
+                var type = objectTypes[i];
+                var hasInputReference = referencedObjectTypes.Contains(type.Name);
+                GenerateDataClass(
+                    type.Name,
+                    hasInputReference ? "IGraphQlInputObject" : null,
+                    builder,
+                    () =>
+                    {
+                        var fieldsToGenerate = type.Fields.Where(f => !f.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields).ToArray();
+                        if (hasInputReference)
+                            GenerateInputDataClassBody(type, fieldsToGenerate, builder);
+                        else
+                            foreach (var field in fieldsToGenerate)
+                                GenerateDataProperty(type, field, field.IsDeprecated, field.DeprecationReason, builder);
+                    });
+
+                builder.AppendLine();
+
+                if (i < objectTypes.Length - 1)
+                    builder.AppendLine();
+            }
+
+            builder.AppendLine("#endregion");
         }
 
-        private static void GenerateDataClassBody(GraphQlType type, StringBuilder builder)
+        private static void GenerateInputDataClassBody(GraphQlType type, ICollection<IGraphQlMember> members, StringBuilder builder)
         {
-            foreach (var field in type.Fields.Where(f => !f.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields))
-                GenerateDataProperty(type, field, field.IsDeprecated, field.DeprecationReason, builder);
-        }
-
-        private static void GenerateInputDataClassBody(GraphQlType type, StringBuilder builder)
-        {
-            foreach (var field in type.InputFields)
-                GenerateDataProperty(type, field, false, null, builder);
+            foreach (var member in members)
+                GenerateDataProperty(type, member, false, null, builder);
 
             builder.AppendLine();
-            builder.AppendLine("    protected override IEnumerable<InputPropertyInfo> GetPropertyValues()");
+            builder.AppendLine("    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()");
             builder.AppendLine("    {");
 
-            foreach (var field in type.InputFields)
+            foreach (var member in members)
             {
-                var propertyName = NamingHelper.ToPascalCase(field.Name);
+                var propertyName = NamingHelper.ToPascalCase(member.Name);
                 builder.Append("        yield return new InputPropertyInfo { Name = \"");
-                builder.Append(field.Name);
+                builder.Append(member.Name);
                 builder.Append("\", Value = ");
                 builder.Append(propertyName);
                 builder.AppendLine(" };");
@@ -216,6 +254,7 @@ using System.Text;
             switch (fieldType.Kind)
             {
                 case GraphQlTypeKindObject:
+                case GraphQlTypeKindInputObject:
                     propertyType = $"{fieldType.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
                     break;
                 case GraphQlTypeKindEnum:

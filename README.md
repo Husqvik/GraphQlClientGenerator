@@ -1,4 +1,4 @@
-GraphQL C# client generator
+GraphQL C# client generator [![NuGet Badge](https://buildstats.info/nuget/GraphQlClientGenerator?includePreReleases=true)](https://www.nuget.org/packages/GraphQlClientGenerator)
 =======================
 
 This simple console app generates C# GraphQL query builder and data classes for simple, compiler checked, usage of GraphQL API.
@@ -18,7 +18,7 @@ Install-Package GraphQlClientGenerator
 ```
 
 Code example for class generation:
-```
+```csharp
 var schema = await GraphQlGenerator.RetrieveSchema(Url, token);
 
 var builder = new StringBuilder();
@@ -30,7 +30,7 @@ var generatedClasses = builder.ToString();
 
 Query builder usage
 -------------
-```
+```csharp
 var builder =
   new QueryQueryBuilder()
     .WithMe(
@@ -101,7 +101,7 @@ results into
 
 Mutation
 -------------
-```
+```csharp
 var mutation =
 	new RootMutationQueryBuilder()
 		.WithUpdateHome(
@@ -139,7 +139,7 @@ Custom scalar types
 -------------
 GraphQL supports custom scalar types. By default these are mapped to `object` type. To ensure appropriate .NET types are generated for data class properties custom mapping function can be used:
 
-```
+```csharp
 GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping =
 	(baseType, valueType, valueName) =>
 	{
@@ -160,7 +160,7 @@ GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping =
 ```
 
 Generated class example:
-```
+```csharp
 public class OrderType
 {
     public DateTime? CreatedDateTimeUtc { get; set; }
@@ -170,7 +170,7 @@ public class OrderType
 
 vs.
 
-```
+```csharp
 public class OrderType
 {
     public object CreatedDateTimeUtc { get; set; }
