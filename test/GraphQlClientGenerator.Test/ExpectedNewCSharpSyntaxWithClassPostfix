@@ -332,7 +332,7 @@ public enum Resolution
 public class QueryQueryBuilderV1 : GraphQlQueryBuilder<QueryQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "me", IsComplex = true, QueryBuilderType = typeof(MeQueryBuilderV1) }
         };
@@ -345,7 +345,7 @@ public class QueryQueryBuilderV1 : GraphQlQueryBuilder<QueryQueryBuilderV1>
 public class MeQueryBuilderV1 : GraphQlQueryBuilder<MeQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "id" },
             new FieldMetadata { Name = "firstName" },
@@ -410,7 +410,7 @@ public class MeQueryBuilderV1 : GraphQlQueryBuilder<MeQueryBuilderV1>
 public class GreetingQueryBuilderV1 : GraphQlQueryBuilder<GreetingQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "title" },
             new FieldMetadata { Name = "description" },
@@ -432,7 +432,7 @@ public class GreetingQueryBuilderV1 : GraphQlQueryBuilder<GreetingQueryBuilderV1
 public class AppStateQueryBuilderV1 : GraphQlQueryBuilder<AppStateQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "journey", IsComplex = true, QueryBuilderType = typeof(AppStateJourneyQueryBuilderV1) },
             new FieldMetadata { Name = "frontScreens", IsComplex = true, QueryBuilderType = typeof(AppStateFronScreenQueryBuilderV1) }
@@ -448,7 +448,7 @@ public class AppStateQueryBuilderV1 : GraphQlQueryBuilder<AppStateQueryBuilderV1
 public class AppStateJourneyQueryBuilderV1 : GraphQlQueryBuilder<AppStateJourneyQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "hasVisitedPairDevices" }
         };
@@ -461,7 +461,7 @@ public class AppStateJourneyQueryBuilderV1 : GraphQlQueryBuilder<AppStateJourney
 public class AppStateFronScreenQueryBuilderV1 : GraphQlQueryBuilder<AppStateFronScreenQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "homeId" },
             new FieldMetadata { Name = "bubbles", IsComplex = true },
@@ -480,7 +480,7 @@ public class AppStateFronScreenQueryBuilderV1 : GraphQlQueryBuilder<AppStateFron
 public class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "id" },
             new FieldMetadata { Name = "avatar" },
@@ -643,7 +643,7 @@ public class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1>
 public class AddressQueryBuilderV1 : GraphQlQueryBuilder<AddressQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "address1" },
             new FieldMetadata { Name = "address2" },
@@ -683,7 +683,7 @@ public class AddressQueryBuilderV1 : GraphQlQueryBuilder<AddressQueryBuilderV1>
 public class SubscriptionQueryBuilderV1 : GraphQlQueryBuilder<SubscriptionQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "id" },
             new FieldMetadata { Name = "walletId" },
@@ -720,7 +720,7 @@ public class SubscriptionQueryBuilderV1 : GraphQlQueryBuilder<SubscriptionQueryB
 public class PriceRatingRootQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingRootQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "isAvailable" },
             new FieldMetadata { Name = "useTotalIsConfigurable" },
@@ -751,7 +751,7 @@ public class PriceRatingRootQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingRoot
 public class PriceRatingQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "minEnergy" },
             new FieldMetadata { Name = "maxEnergy" },
@@ -782,7 +782,7 @@ public class PriceRatingQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingQueryBui
 public class PriceRatingColorOffsetQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingColorOffsetQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "fullGreenPercent" },
             new FieldMetadata { Name = "fullYellowPercent" },
@@ -801,7 +801,7 @@ public class PriceRatingColorOffsetQueryBuilderV1 : GraphQlQueryBuilder<PriceRat
 public class PriceRatingEntryQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingEntryQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "time" },
             new FieldMetadata { Name = "energy" },
@@ -823,7 +823,7 @@ public class PriceRatingEntryQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingEnt
 public class InvoiceQueryBuilderV1 : GraphQlQueryBuilder<InvoiceQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "id" },
             new FieldMetadata { Name = "no" },
@@ -905,7 +905,7 @@ public class InvoiceQueryBuilderV1 : GraphQlQueryBuilder<InvoiceQueryBuilderV1>
 public class InvoicePaymentQueryBuilderV1 : GraphQlQueryBuilder<InvoicePaymentQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "status" },
             new FieldMetadata { Name = "method" },
@@ -930,7 +930,7 @@ public class InvoicePaymentQueryBuilderV1 : GraphQlQueryBuilder<InvoicePaymentQu
 public class CreditCardQueryBuilderV1 : GraphQlQueryBuilder<CreditCardQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "brand" },
             new FieldMetadata { Name = "last4" }
@@ -946,7 +946,7 @@ public class CreditCardQueryBuilderV1 : GraphQlQueryBuilder<CreditCardQueryBuild
 public class InvoiceSectionQueryBuilderV1 : GraphQlQueryBuilder<InvoiceSectionQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "type" },
             new FieldMetadata { Name = "text" },
@@ -992,7 +992,7 @@ public class InvoiceSectionQueryBuilderV1 : GraphQlQueryBuilder<InvoiceSectionQu
 public class EnergyDealQueryBuilderV1 : GraphQlQueryBuilder<EnergyDealQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "currentProducer", IsComplex = true, QueryBuilderType = typeof(ProducerQueryBuilderV1) }
         };
@@ -1005,7 +1005,7 @@ public class EnergyDealQueryBuilderV1 : GraphQlQueryBuilder<EnergyDealQueryBuild
 public class ProducerQueryBuilderV1 : GraphQlQueryBuilder<ProducerQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "id" },
             new FieldMetadata { Name = "name" },
@@ -1033,7 +1033,7 @@ public class ProducerQueryBuilderV1 : GraphQlQueryBuilder<ProducerQueryBuilderV1
 public class ProducerBulletQueryBuilderV1 : GraphQlQueryBuilder<ProducerBulletQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "title" },
             new FieldMetadata { Name = "description" },
@@ -1052,7 +1052,7 @@ public class ProducerBulletQueryBuilderV1 : GraphQlQueryBuilder<ProducerBulletQu
 public class ConsumptionMonthQueryBuilderV1 : GraphQlQueryBuilder<ConsumptionMonthQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "year" },
             new FieldMetadata { Name = "month" },
@@ -1086,7 +1086,7 @@ public class ConsumptionMonthQueryBuilderV1 : GraphQlQueryBuilder<ConsumptionMon
 public class ConsumptionQueryBuilderV1 : GraphQlQueryBuilder<ConsumptionQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "annualValues", IsComplex = true },
             new FieldMetadata { Name = "monthlyValues", IsComplex = true },
@@ -1129,7 +1129,7 @@ public class ConsumptionQueryBuilderV1 : GraphQlQueryBuilder<ConsumptionQueryBui
 public class PreLiveComparisonQueryBuilderV1 : GraphQlQueryBuilder<PreLiveComparisonQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "homeId" },
             new FieldMetadata { Name = "basedOnActuals" },
@@ -1151,7 +1151,7 @@ public class PreLiveComparisonQueryBuilderV1 : GraphQlQueryBuilder<PreLiveCompar
 public class ComparisonQueryBuilderV1 : GraphQlQueryBuilder<ComparisonQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "year" },
             new FieldMetadata { Name = "month" },
@@ -1185,7 +1185,7 @@ public class ComparisonQueryBuilderV1 : GraphQlQueryBuilder<ComparisonQueryBuild
 public class ComparisonDataQueryBuilderV1 : GraphQlQueryBuilder<ComparisonDataQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "cost" },
             new FieldMetadata { Name = "consumption" }
@@ -1201,7 +1201,7 @@ public class ComparisonDataQueryBuilderV1 : GraphQlQueryBuilder<ComparisonDataQu
 public class HomeProfileQuestionQueryBuilderV1 : GraphQlQueryBuilder<HomeProfileQuestionQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "id" },
             new FieldMetadata { Name = "title" },
@@ -1241,7 +1241,7 @@ public class HomeProfileQuestionQueryBuilderV1 : GraphQlQueryBuilder<HomeProfile
 public class HomeProfileQuestionInputQueryBuilderV1 : GraphQlQueryBuilder<HomeProfileQuestionInputQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "type" },
             new FieldMetadata { Name = "options", IsComplex = true }
@@ -1257,7 +1257,7 @@ public class HomeProfileQuestionInputQueryBuilderV1 : GraphQlQueryBuilder<HomePr
 public class SignupStatusQueryBuilderV1 : GraphQlQueryBuilder<SignupStatusQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "feedStep", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilderV1) },
             new FieldMetadata { Name = "avatarStep", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilderV1) },
@@ -1276,7 +1276,7 @@ public class SignupStatusQueryBuilderV1 : GraphQlQueryBuilder<SignupStatusQueryB
 public class ProcessStepQueryBuilderV1 : GraphQlQueryBuilder<ProcessStepQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "timestamp" },
             new FieldMetadata { Name = "isComplete" },
@@ -1298,7 +1298,7 @@ public class ProcessStepQueryBuilderV1 : GraphQlQueryBuilder<ProcessStepQueryBui
 public class DisaggregationQueryBuilderV1 : GraphQlQueryBuilder<DisaggregationQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "year" },
             new FieldMetadata { Name = "month" },
@@ -1353,7 +1353,7 @@ public class DisaggregationQueryBuilderV1 : GraphQlQueryBuilder<DisaggregationQu
 public class WeatherQueryBuilderV1 : GraphQlQueryBuilder<WeatherQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "minTemperature" },
             new FieldMetadata { Name = "maxTemperature" },
@@ -1372,7 +1372,7 @@ public class WeatherQueryBuilderV1 : GraphQlQueryBuilder<WeatherQueryBuilderV1>
 public class WeatherEntryQueryBuilderV1 : GraphQlQueryBuilder<WeatherEntryQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "time" },
             new FieldMetadata { Name = "temperature" },
@@ -1406,7 +1406,7 @@ public class WeatherEntryQueryBuilderV1 : GraphQlQueryBuilder<WeatherEntryQueryB
 public class AwayModeQueryBuilderV1 : GraphQlQueryBuilder<AwayModeQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "isSupported" },
             new FieldMetadata { Name = "settings", IsComplex = true, QueryBuilderType = typeof(AwayModeSettingsQueryBuilderV1) }
@@ -1422,7 +1422,7 @@ public class AwayModeQueryBuilderV1 : GraphQlQueryBuilder<AwayModeQueryBuilderV1
 public class AwayModeSettingsQueryBuilderV1 : GraphQlQueryBuilder<AwayModeSettingsQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "from" },
             new FieldMetadata { Name = "to" }
@@ -1438,7 +1438,7 @@ public class AwayModeSettingsQueryBuilderV1 : GraphQlQueryBuilder<AwayModeSettin
 public class DayNightScheduleQueryBuilderV1 : GraphQlQueryBuilder<DayNightScheduleQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "isSupported" },
             new FieldMetadata { Name = "day", IsComplex = true, QueryBuilderType = typeof(DayNightScheduleSettingsQueryBuilderV1) },
@@ -1457,7 +1457,7 @@ public class DayNightScheduleQueryBuilderV1 : GraphQlQueryBuilder<DayNightSchedu
 public class DayNightScheduleSettingsQueryBuilderV1 : GraphQlQueryBuilder<DayNightScheduleSettingsQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "isEnabled" },
             new FieldMetadata { Name = "localTimeFrom" },
@@ -1479,7 +1479,7 @@ public class DayNightScheduleSettingsQueryBuilderV1 : GraphQlQueryBuilder<DayNig
 public class ReportRootQueryBuilderV1 : GraphQlQueryBuilder<ReportRootQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "reports", IsComplex = true, QueryBuilderType = typeof(ReportQueryBuilderV1) }
         };
@@ -1492,7 +1492,7 @@ public class ReportRootQueryBuilderV1 : GraphQlQueryBuilder<ReportRootQueryBuild
 public class ReportQueryBuilderV1 : GraphQlQueryBuilder<ReportQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "avatar" },
             new FieldMetadata { Name = "title" },
@@ -1520,7 +1520,7 @@ public class ReportQueryBuilderV1 : GraphQlQueryBuilder<ReportQueryBuilderV1>
 public class ReportCellQueryBuilderV1 : GraphQlQueryBuilder<ReportCellQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "type" },
             new FieldMetadata { Name = "style" },
@@ -1554,7 +1554,7 @@ public class ReportCellQueryBuilderV1 : GraphQlQueryBuilder<ReportCellQueryBuild
 public class ThermostatQueryBuilderV1 : GraphQlQueryBuilder<ThermostatQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "id" },
             new FieldMetadata { Name = "name" },
@@ -1594,7 +1594,7 @@ public class ThermostatQueryBuilderV1 : GraphQlQueryBuilder<ThermostatQueryBuild
 public class ThermostatStateQueryBuilderV1 : GraphQlQueryBuilder<ThermostatStateQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "mode" },
             new FieldMetadata { Name = "comfortTemperature" },
@@ -1616,7 +1616,7 @@ public class ThermostatStateQueryBuilderV1 : GraphQlQueryBuilder<ThermostatState
 public class ThermostatMeasurementsQueryBuilderV1 : GraphQlQueryBuilder<ThermostatMeasurementsQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "temperature" },
             new FieldMetadata { Name = "timestamp" },
@@ -1635,7 +1635,7 @@ public class ThermostatMeasurementsQueryBuilderV1 : GraphQlQueryBuilder<Thermost
 public class ThermostatMeasurementQueryBuilderV1 : GraphQlQueryBuilder<ThermostatMeasurementQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "label" },
             new FieldMetadata { Name = "description" },
@@ -1675,7 +1675,7 @@ public class ThermostatMeasurementQueryBuilderV1 : GraphQlQueryBuilder<Thermosta
 public class ThermostatCapabilityQueryBuilderV1 : GraphQlQueryBuilder<ThermostatCapabilityQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "name" },
             new FieldMetadata { Name = "type" },
@@ -1694,7 +1694,7 @@ public class ThermostatCapabilityQueryBuilderV1 : GraphQlQueryBuilder<Thermostat
 public class ThermostatModeQueryBuilderV1 : GraphQlQueryBuilder<ThermostatModeQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "name" },
             new FieldMetadata { Name = "capabilities", IsComplex = true }
@@ -1710,7 +1710,7 @@ public class ThermostatModeQueryBuilderV1 : GraphQlQueryBuilder<ThermostatModeQu
 public class SensorQueryBuilderV1 : GraphQlQueryBuilder<SensorQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "id" },
             new FieldMetadata { Name = "idDeprecated" },
@@ -1732,7 +1732,7 @@ public class SensorQueryBuilderV1 : GraphQlQueryBuilder<SensorQueryBuilderV1>
 public class SensorHistoryQueryBuilderV1 : GraphQlQueryBuilder<SensorHistoryQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "sensorId" },
             new FieldMetadata { Name = "description" },
@@ -1751,7 +1751,7 @@ public class SensorHistoryQueryBuilderV1 : GraphQlQueryBuilder<SensorHistoryQuer
 public class SensorHistoryValueQueryBuilderV1 : GraphQlQueryBuilder<SensorHistoryValueQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "timestamp" },
             new FieldMetadata { Name = "value" },
@@ -1770,7 +1770,7 @@ public class SensorHistoryValueQueryBuilderV1 : GraphQlQueryBuilder<SensorHistor
 public class PairableDeviceQueryBuilderV1 : GraphQlQueryBuilder<PairableDeviceQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "type" },
             new FieldMetadata { Name = "oauth", IsComplex = true, QueryBuilderType = typeof(PairableDeviceOAuthQueryBuilderV1) },
@@ -1789,7 +1789,7 @@ public class PairableDeviceQueryBuilderV1 : GraphQlQueryBuilder<PairableDeviceQu
 public class PairableDeviceOAuthQueryBuilderV1 : GraphQlQueryBuilder<PairableDeviceOAuthQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "url" },
             new FieldMetadata { Name = "redirectUriStartsWith" }
@@ -1805,7 +1805,7 @@ public class PairableDeviceOAuthQueryBuilderV1 : GraphQlQueryBuilder<PairableDev
 public class ProductionMonthQueryBuilderV1 : GraphQlQueryBuilder<ProductionMonthQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "year" },
             new FieldMetadata { Name = "month" },
@@ -1842,7 +1842,7 @@ public class ProductionMonthQueryBuilderV1 : GraphQlQueryBuilder<ProductionMonth
 public class ProductionQueryBuilderV1 : GraphQlQueryBuilder<ProductionQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "annualValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilderV1) },
             new FieldMetadata { Name = "monthlyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilderV1) },
@@ -1885,7 +1885,7 @@ public class ProductionQueryBuilderV1 : GraphQlQueryBuilder<ProductionQueryBuild
 public class ProductionValueQueryBuilderV1 : GraphQlQueryBuilder<ProductionValueQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "from" },
             new FieldMetadata { Name = "to" },
@@ -1925,7 +1925,7 @@ public class ProductionValueQueryBuilderV1 : GraphQlQueryBuilder<ProductionValue
 public class FeedQueryBuilderV1 : GraphQlQueryBuilder<FeedQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "numberOfItems" },
             new FieldMetadata { Name = "items", IsComplex = true, QueryBuilderType = typeof(FeedItemQueryBuilderV1) },
@@ -1954,7 +1954,7 @@ public class FeedQueryBuilderV1 : GraphQlQueryBuilder<FeedQueryBuilderV1>
 public class FeedItemQueryBuilderV1 : GraphQlQueryBuilder<FeedItemQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "id" },
             new FieldMetadata { Name = "messageTypeId" },
@@ -1982,7 +1982,7 @@ public class FeedItemQueryBuilderV1 : GraphQlQueryBuilder<FeedItemQueryBuilderV1
 public class PushNotificationQueryBuilderV1 : GraphQlQueryBuilder<PushNotificationQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "id" },
             new FieldMetadata { Name = "link" },
@@ -2001,7 +2001,7 @@ public class PushNotificationQueryBuilderV1 : GraphQlQueryBuilder<PushNotificati
 public class WalletQueryBuilderV1 : GraphQlQueryBuilder<WalletQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "id" },
             new FieldMetadata { Name = "paymentMethods", IsComplex = true, QueryBuilderType = typeof(PaymentMethodQueryBuilderV1) },
@@ -2020,7 +2020,7 @@ public class WalletQueryBuilderV1 : GraphQlQueryBuilder<WalletQueryBuilderV1>
 public class PaymentMethodQueryBuilderV1 : GraphQlQueryBuilder<PaymentMethodQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "method" },
             new FieldMetadata { Name = "status" },
@@ -2039,7 +2039,7 @@ public class PaymentMethodQueryBuilderV1 : GraphQlQueryBuilder<PaymentMethodQuer
 public class AboutQueryBuilderV1 : GraphQlQueryBuilder<AboutQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "items", IsComplex = true, QueryBuilderType = typeof(AboutItemQueryBuilderV1) }
         };
@@ -2052,7 +2052,7 @@ public class AboutQueryBuilderV1 : GraphQlQueryBuilder<AboutQueryBuilderV1>
 public class AboutItemQueryBuilderV1 : GraphQlQueryBuilder<AboutItemQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "label" },
             new FieldMetadata { Name = "url" }
@@ -2068,7 +2068,7 @@ public class AboutItemQueryBuilderV1 : GraphQlQueryBuilder<AboutItemQueryBuilder
 public class MutationQueryBuilderV1 : GraphQlQueryBuilder<MutationQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "me", IsComplex = true, QueryBuilderType = typeof(MeMutationQueryBuilderV1) }
         };
@@ -2083,7 +2083,7 @@ public class MutationQueryBuilderV1 : GraphQlQueryBuilder<MutationQueryBuilderV1
 public class MeMutationQueryBuilderV1 : GraphQlQueryBuilder<MeMutationQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "update", IsComplex = true, QueryBuilderType = typeof(MeQueryBuilderV1) },
             new FieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(HomeMutationQueryBuilderV1) },
@@ -2126,7 +2126,7 @@ public class MeMutationQueryBuilderV1 : GraphQlQueryBuilder<MeMutationQueryBuild
 public class HomeMutationQueryBuilderV1 : GraphQlQueryBuilder<HomeMutationQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "thermostat", IsComplex = true, QueryBuilderType = typeof(ThermostatMutationQueryBuilderV1) },
             new FieldMetadata { Name = "pairDeviceWithOAuth", IsComplex = true, QueryBuilderType = typeof(PairDeviceResultQueryBuilderV1) },
@@ -2214,7 +2214,7 @@ public class HomeMutationQueryBuilderV1 : GraphQlQueryBuilder<HomeMutationQueryB
 public class ThermostatMutationQueryBuilderV1 : GraphQlQueryBuilder<ThermostatMutationQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "setState" },
             new FieldMetadata { Name = "setName" }
@@ -2253,7 +2253,7 @@ public class ThermostatMutationQueryBuilderV1 : GraphQlQueryBuilder<ThermostatMu
 public class PairDeviceResultQueryBuilderV1 : GraphQlQueryBuilder<PairDeviceResultQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "thermostats", IsComplex = true, QueryBuilderType = typeof(ThermostatQueryBuilderV1) },
             new FieldMetadata { Name = "sensors", IsComplex = true, QueryBuilderType = typeof(SensorQueryBuilderV1) },
@@ -2272,7 +2272,7 @@ public class PairDeviceResultQueryBuilderV1 : GraphQlQueryBuilder<PairDeviceResu
 public class GQLMutationErrorQueryBuilderV1 : GraphQlQueryBuilder<GQLMutationErrorQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "statusCode" },
             new FieldMetadata { Name = "message" }
@@ -2288,7 +2288,7 @@ public class GQLMutationErrorQueryBuilderV1 : GraphQlQueryBuilder<GQLMutationErr
 public class GQLMutationGeneralResponseQueryBuilderV1 : GraphQlQueryBuilder<GQLMutationGeneralResponseQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        new []
+        new FieldMetadata[]
         {
             new FieldMetadata { Name = "error", IsComplex = true, QueryBuilderType = typeof(GQLMutationErrorQueryBuilderV1) }
         };
