@@ -83,7 +83,10 @@ using System.Text;
 
             builder.AppendLine("#region builder classes");
 
-            var complexTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKindObject && !t.Name.StartsWith("__")).ToArray();
+            var complexTypes = schema.Types
+                .Where(t => (t.Kind == GraphQlTypeKindObject || t.Kind == GraphQlTypeKindInterface || t.Kind == GraphQlTypeKindUnion) && !t.Name.StartsWith("__"))
+                .ToArray();
+
             for (var i = 0; i < complexTypes.Length; i++)
             {
                 var type = complexTypes[i];
@@ -114,6 +117,8 @@ using System.Text;
                 switch (unwrappedType.Kind)
                 {
                     case GraphQlTypeKindObject:
+                    case GraphQlTypeKindInterface:
+                    case GraphQlTypeKindUnion:
                         objectTypes.Add(unwrappedType.Name);
                         memberType = schema.Types.Single(t => t.Name == unwrappedType.Name);
                         FindAllReferencedObjectTypes(schema, memberType, objectTypes);
@@ -121,7 +126,7 @@ using System.Text;
 
                     case GraphQlTypeKindList:
                         var itemType = unwrappedType.OfType.UnwrapIfNonNull();
-                        if (itemType.Kind == GraphQlTypeKindObject)
+                        if (itemType.Kind == GraphQlTypeKindObject || itemType.Kind == GraphQlTypeKindInterface || itemType.Kind == GraphQlTypeKindUnion)
                         {
                             memberType = schema.Types.Single(t => t.Name == itemType.Name);
                             FindAllReferencedObjectTypes(schema, memberType, objectTypes);
@@ -158,7 +163,8 @@ using System.Text;
                 builder.AppendLine("#endregion");
             }
 
-            var objectTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKindObject && !t.Name.StartsWith("__")).ToArray();
+            var objectTypes = schema.Types
+                .Where(t => (t.Kind == GraphQlTypeKindObject || t.Kind == GraphQlTypeKindInterface || t.Kind == GraphQlTypeKindUnion) && !t.Name.StartsWith("__")).ToArray();
             if (!objectTypes.Any())
                 return;
 
@@ -177,10 +183,10 @@ using System.Text;
                     builder,
                     () =>
                     {
-                        var fieldsToGenerate = type.Fields.Where(f => !f.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields).ToArray();
+                        var fieldsToGenerate = type.Fields?.Where(f => !f.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields).ToArray();
                         if (hasInputReference)
                             GenerateInputDataClassBody(type, fieldsToGenerate, builder);
-                        else
+                        else if (fieldsToGenerate != null)
                             foreach (var field in fieldsToGenerate)
                                 GenerateDataProperty(type, field, field.IsDeprecated, field.DeprecationReason, builder);
                     });
@@ -247,6 +253,8 @@ using System.Text;
             switch (fieldType.Kind)
             {
                 case GraphQlTypeKindObject:
+                case GraphQlTypeKindInterface:
+                case GraphQlTypeKindUnion:
                 case GraphQlTypeKindInputObject:
                     propertyType = $"{fieldType.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
                     break;
@@ -312,6 +320,22 @@ using System.Text;
             }
         }
 
+        private static bool IsCompatibleArgument(GraphQlFieldType argumentType)
+        {
+            argumentType = argumentType.UnwrapIfNonNull();
+            switch (argumentType.Kind)
+            {
+                case GraphQlTypeKindScalar:
+                case GraphQlTypeKindEnum:
+                case GraphQlTypeKindInputObject:
+                    return true;
+                case GraphQlTypeKindList:
+                    return IsCompatibleArgument(argumentType.OfType);
+                default:
+                    return false;
+            }
+        }
+
         private static void GenerateTypeQueryBuilder(GraphQlType type, string queryPrefix, StringBuilder builder)
         {
             var className = $"{type.Name}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix}";
@@ -321,18 +345,18 @@ using System.Text;
             builder.AppendLine("{");
 
             builder.AppendLine("    private static readonly FieldMetadata[] AllFieldMetadata =");
-            builder.AppendLine("        new []");
+            builder.AppendLine("        new FieldMetadata[]");
             builder.AppendLine("        {");
 
-            var fields = type.Fields.ToArray();
-            for (var i = 0; i < fields.Length; i++)
+            var fields = type.Fields?.ToArray();
+            for (var i = 0; i < fields?.Length; i++)
             {
                 var comma = i == fields.Length - 1 ? null : ",";
                 var field = fields[i];
                 var fieldType = field.Type.UnwrapIfNonNull();
                 var isList = fieldType.Kind == GraphQlTypeKindList;
                 var treatUnknownObjectAsComplex = IsUnknownObjectScalar(type, field.Name, fieldType) && !GraphQlGeneratorConfiguration.TreatUnknownObjectAsScalar;
-                var isComplex = isList || treatUnknownObjectAsComplex || fieldType.Kind == GraphQlTypeKindObject;
+                var isComplex = isList || treatUnknownObjectAsComplex || fieldType.Kind == GraphQlTypeKindObject || fieldType.Kind == GraphQlTypeKindInterface || fieldType.Kind == GraphQlTypeKindUnion;
 
                 builder.Append($"            new FieldMetadata {{ Name = \"{field.Name}\"");
 
@@ -353,12 +377,12 @@ using System.Text;
             builder.AppendLine("        };");
             builder.AppendLine();
 
-            if (!String.IsNullOrEmpty(queryPrefix))
+            if (!string.IsNullOrEmpty(queryPrefix))
                 WriteOverrideProperty("string", "Prefix", $"\"{queryPrefix}\"", builder);
 
             WriteOverrideProperty("IList<FieldMetadata>", "AllFields", "AllFieldMetadata", builder);
 
-            for (var i = 0; i < fields.Length; i++)
+            for (var i = 0; i < fields?.Length; i++)
             {
                 var field = fields[i];
                 var fieldType = field.Type.UnwrapIfNonNull();
@@ -366,32 +390,16 @@ using System.Text;
                     fieldType = fieldType.OfType;
                 fieldType = fieldType.UnwrapIfNonNull();
 
-                bool IsCompatibleArgument(GraphQlFieldType argumentType)
-                {
-                    argumentType = argumentType.UnwrapIfNonNull();
-                    switch (argumentType.Kind)
-                    {
-                        case GraphQlTypeKindScalar:
-                        case GraphQlTypeKindEnum:
-                        case GraphQlTypeKindInputObject:
-                            return true;
-                        case GraphQlTypeKindList:
-                            return IsCompatibleArgument(argumentType.OfType);
-                        default:
-                            return false;
-                    }
-                }
-
                 var args = field.Args?.Where(a => IsCompatibleArgument(a.Type)).ToArray() ?? new GraphQlArgument[0];
                 var methodParameters =
-                    String.Join(
+                    string.Join(
                         ", ",
                         args
                             .OrderByDescending(a => a.Type.Kind == GraphQlTypeKindNonNull)
                             .Select(a => BuildMethodParameterDefinition(type, a)));
 
                 var requiresFullBody = GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.Compatible || args.Any();
-                var returnPrefix = requiresFullBody ? "        return " :  String.Empty;
+                var returnPrefix = requiresFullBody ? "        return " : String.Empty;
 
                 if (fieldType.Kind == GraphQlTypeKindScalar || fieldType.Kind == GraphQlTypeKindEnum || fieldType.Kind == GraphQlTypeKindScalar)
                 {
