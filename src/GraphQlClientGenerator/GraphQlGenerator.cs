@@ -174,19 +174,32 @@ using System.Text;
             {
                 var type = complexTypes[i];
                 var hasInputReference = referencedObjectTypes.Contains(type.Name);
-                GenerateDataClass(
-                    type.Name,
-                    hasInputReference ? "IGraphQlInputObject" : null,
-                    builder,
-                    () =>
-                    {
-                        var fieldsToGenerate = type.Fields?.Where(f => !f.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields).ToArray();
-                        if (hasInputReference)
-                            GenerateInputDataClassBody(type, fieldsToGenerate, builder);
-                        else if (fieldsToGenerate != null)
-                            foreach (var field in fieldsToGenerate)
-                                GenerateDataProperty(type, field, field.IsDeprecated, field.DeprecationReason, builder);
-                    });
+                var isInterface = type.Kind == GraphQlTypeKindInterface;
+
+                void GenerateBody(bool isInterfaceMember)
+                {
+                    var fieldsToGenerate = type.Fields?.Where(f => !f.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields).ToArray();
+                    if (hasInputReference)
+                        GenerateInputDataClassBody(type, fieldsToGenerate, builder);
+                    else if (fieldsToGenerate != null)
+                        foreach (var field in fieldsToGenerate)
+                            GenerateDataProperty(type, field, isInterfaceMember, field.IsDeprecated, field.DeprecationReason, builder);
+                }
+
+                var interfacesToImplement = new List<string>();
+                if (isInterface)
+                {
+                    interfacesToImplement.Add(GenerateInterface($"I{type.Name}", builder, () => GenerateBody(true)));
+                    builder.AppendLine();
+                    builder.AppendLine();
+                }
+                else if (type.Interfaces?.Count > 0)
+                    interfacesToImplement.AddRange(type.Interfaces.Select(x => $"I{x.Name}{GraphQlGeneratorConfiguration.ClassPostfix}"));
+
+                if (hasInputReference)
+                    interfacesToImplement.Add("IGraphQlInputObject");
+
+                GenerateDataClass(type.Name, String.Join(", ", interfacesToImplement), builder, () => GenerateBody(false));
 
                 builder.AppendLine();
 
@@ -200,7 +213,7 @@ using System.Text;
         private static void GenerateInputDataClassBody(GraphQlType type, ICollection<IGraphQlMember> members, StringBuilder builder)
         {
             foreach (var member in members)
-                GenerateDataProperty(type, member, false, null, builder);
+                GenerateDataProperty(type, member, false, false, null, builder);
 
             builder.AppendLine();
             builder.AppendLine("    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()");
@@ -219,13 +232,21 @@ using System.Text;
             builder.AppendLine("    }");
         }
 
-        private static void GenerateDataClass(string typeName, string baseTypeName, StringBuilder builder, Action generateClassBody)
-        {
-            var className = $"{typeName}{GraphQlGeneratorConfiguration.ClassPostfix}";
-            ValidateClassName(className);
+        private static string GenerateInterface(string interfaceName, StringBuilder builder, Action generateInterfaceBody) =>
+            GenerateFileMember("interface", interfaceName, null, builder, generateInterfaceBody);
 
-            builder.Append("public class ");
-            builder.Append(className);
+        private static string GenerateDataClass(string typeName, string baseTypeName, StringBuilder builder, Action generateClassBody) =>
+            GenerateFileMember("class", typeName, baseTypeName, builder, generateClassBody);
+
+        private static string GenerateFileMember(string memberType, string typeName, string baseTypeName, StringBuilder builder, Action generateFileMemberBody)
+        {
+            var memberName = $"{typeName}{GraphQlGeneratorConfiguration.ClassPostfix}";
+            ValidateClassName(memberName);
+
+            builder.Append("public ");
+            builder.Append(memberType);
+            builder.Append(" ");
+            builder.Append(memberName);
 
             if (!String.IsNullOrEmpty(baseTypeName))
             {
@@ -236,12 +257,14 @@ using System.Text;
             builder.AppendLine();
             builder.AppendLine("{");
 
-            generateClassBody();
+            generateFileMemberBody();
 
             builder.Append("}");
+
+            return memberName;
         }
 
-        private static void GenerateDataProperty(GraphQlType baseType, IGraphQlMember member, bool isDeprecated, string deprecationReason, StringBuilder builder)
+        private static void GenerateDataProperty(GraphQlType baseType, IGraphQlMember member, bool isInterfaceMember, bool isDeprecated, string deprecationReason, StringBuilder builder)
         {
             var propertyName = NamingHelper.ToPascalCase(member.Name);
 
@@ -303,7 +326,7 @@ using System.Text;
                 builder.AppendLine($"    [Obsolete{deprecationReason}]");
             }
 
-            builder.AppendLine($"    public {propertyType} {propertyName} {{ get; set; }}");
+            builder.AppendLine($"    {(isInterfaceMember ? null : "public ")}{propertyType} {propertyName} {{ get; set; }}");
         }
 
         private static string GetFloatNetType()

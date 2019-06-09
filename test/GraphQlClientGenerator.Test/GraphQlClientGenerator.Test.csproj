@@ -19,12 +19,14 @@
 
   <ItemGroup>
     <EmbeddedResource Include="ExpectedDataClasses" />
+    <EmbeddedResource Include="ExpectedDataClassesWithInterfaces" />
     <EmbeddedResource Include="ExpectedNewCSharpSyntaxWithClassPostfix" />
     <EmbeddedResource Include="ExpectedDeprecatedAttributes" />
     <EmbeddedResource Include="ExpectedQueryBuilders" />
     <EmbeddedResource Include="TestSchema" />
-    <EmbeddedResource Include="TestSchemaWithDeprecatedFields" />
     <EmbeddedResource Include="TestSchema2" />
+    <EmbeddedResource Include="TestSchema3" />
+    <EmbeddedResource Include="TestSchemaWithDeprecatedFields" />
   </ItemGroup>
 
   <ItemGroup>
