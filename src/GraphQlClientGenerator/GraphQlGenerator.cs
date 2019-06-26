@@ -292,6 +292,9 @@ using System.Text;
                 case GraphQlTypeKindScalar:
                     switch (fieldType.Name)
                     {
+                        case GraphQlTypeBase.GraphQlTypesScalarDecimal:
+                            propertyType = "decimal?";
+                            break;
                         case GraphQlTypeBase.GraphQlTypeScalarInteger:
                             propertyType = "int?";
                             break;
