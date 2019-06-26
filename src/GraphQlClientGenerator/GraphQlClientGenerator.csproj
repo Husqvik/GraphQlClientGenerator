@@ -5,7 +5,7 @@
     <Description>A simple strongly typed C# GraphQL client generator. </Description>
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
-    <VersionPrefix>0.1.12</VersionPrefix>
+    <VersionPrefix>0.1.13</VersionPrefix>
     <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <Copyright>Copyright 2017-2019</Copyright>
@@ -16,7 +16,7 @@
     <RepositoryUrl>https://github.com/Husqvik/GraphQlClientGenerator</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>GraphGL C# Client</PackageTags>
-    <PackageReleaseNotes>support for interfaces and unions</PackageReleaseNotes>
+    <PackageReleaseNotes>fixed and improved built-in NET types - GraphQL value conversion</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
