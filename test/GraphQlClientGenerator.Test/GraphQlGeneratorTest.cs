@@ -53,6 +53,16 @@ namespace GraphQlClientGenerator.Test
         }
 
         [Fact]
+        public void GenerateDataClassesWithInterfaces()
+        {
+            var stringBuilder = new StringBuilder();
+            GraphQlGenerator.GenerateDataClasses(DeserializeTestSchema("TestSchema3"), stringBuilder);
+
+            var expectedDataClasses = GetTestResource("ExpectedDataClassesWithInterfaces");
+            stringBuilder.ToString().ShouldBe(expectedDataClasses);
+        }
+
+        [Fact]
         public void NewCSharpSyntaxWithClassPostfix()
         {
             GraphQlGeneratorConfiguration.CSharpVersion = CSharpVersion.Newest;

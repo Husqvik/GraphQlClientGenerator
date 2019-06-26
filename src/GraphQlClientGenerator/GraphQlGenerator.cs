@@ -73,6 +73,9 @@ using System.Text;
             }
         }
 
+        private static bool IsComplexType(string graphQlTypeKind) =>
+            graphQlTypeKind == GraphQlTypeKindObject || graphQlTypeKind == GraphQlTypeKindInterface || graphQlTypeKind == GraphQlTypeKindUnion;
+
         private static void GenerateSharedTypes(GraphQlSchema schema, StringBuilder builder)
         {
             builder.AppendLine("#region shared types");
@@ -90,7 +93,7 @@ using System.Text;
 
             builder.AppendLine("#region builder classes");
 
-            var complexTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKindObject && !t.Name.StartsWith("__")).ToArray();
+            var complexTypes = schema.Types.Where(t => IsComplexType(t.Kind) && !t.Name.StartsWith("__")).ToArray();
             for (var i = 0; i < complexTypes.Length; i++)
             {
                 var type = complexTypes[i];
@@ -128,7 +131,7 @@ using System.Text;
 
                     case GraphQlTypeKindList:
                         var itemType = unwrappedType.OfType.UnwrapIfNonNull();
-                        if (itemType.Kind == GraphQlTypeKindObject)
+                        if (IsComplexType(itemType.Kind))
                         {
                             memberType = schema.Types.Single(t => t.Name == itemType.Name);
                             FindAllReferencedObjectTypes(schema, memberType, objectTypes);
@@ -165,8 +168,8 @@ using System.Text;
                 builder.AppendLine("#endregion");
             }
 
-            var objectTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKindObject && !t.Name.StartsWith("__")).ToArray();
-            if (!objectTypes.Any())
+            var complexTypes = schema.Types.Where(t => IsComplexType(t.Kind) && !t.Name.StartsWith("__")).ToArray();
+            if (!complexTypes.Any())
                 return;
 
             if (hasInputType)
@@ -174,27 +177,40 @@ using System.Text;
 
             builder.AppendLine("#region data classes");
 
-            for (var i = 0; i < objectTypes.Length; i++)
+            for (var i = 0; i < complexTypes.Length; i++)
             {
-                var type = objectTypes[i];
+                var type = complexTypes[i];
                 var hasInputReference = referencedObjectTypes.Contains(type.Name);
-                GenerateDataClass(
-                    type.Name,
-                    hasInputReference ? "IGraphQlInputObject" : null,
-                    builder,
-                    () =>
-                    {
-                        var fieldsToGenerate = type.Fields.Where(f => !f.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields).ToArray();
-                        if (hasInputReference)
-                            GenerateInputDataClassBody(type, fieldsToGenerate, builder);
-                        else
-                            foreach (var field in fieldsToGenerate)
-                                GenerateDataProperty(type, field, field.IsDeprecated, field.DeprecationReason, builder);
-                    });
+                var isInterface = type.Kind == GraphQlTypeKindInterface;
+
+                void GenerateBody(bool isInterfaceMember)
+                {
+                    var fieldsToGenerate = type.Fields?.Where(f => !f.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields).ToArray();
+                    if (hasInputReference)
+                        GenerateInputDataClassBody(type, fieldsToGenerate, builder);
+                    else if (fieldsToGenerate != null)
+                        foreach (var field in fieldsToGenerate)
+                            GenerateDataProperty(type, field, isInterfaceMember, field.IsDeprecated, field.DeprecationReason, builder);
+                }
+
+                var interfacesToImplement = new List<string>();
+                if (isInterface)
+                {
+                    interfacesToImplement.Add(GenerateInterface($"I{type.Name}", builder, () => GenerateBody(true)));
+                    builder.AppendLine();
+                    builder.AppendLine();
+                }
+                else if (type.Interfaces?.Count > 0)
+                    interfacesToImplement.AddRange(type.Interfaces.Select(x => $"I{x.Name}{GraphQlGeneratorConfiguration.ClassPostfix}"));
+
+                if (hasInputReference)
+                    interfacesToImplement.Add("IGraphQlInputObject");
+
+                GenerateDataClass(type.Name, String.Join(", ", interfacesToImplement), builder, () => GenerateBody(false));
 
                 builder.AppendLine();
 
-                if (i < objectTypes.Length - 1)
+                if (i < complexTypes.Length - 1)
                     builder.AppendLine();
             }
 
@@ -204,7 +220,7 @@ using System.Text;
         private static void GenerateInputDataClassBody(GraphQlType type, ICollection<IGraphQlMember> members, StringBuilder builder)
         {
             foreach (var member in members)
-                GenerateDataProperty(type, member, false, null, builder);
+                GenerateDataProperty(type, member, false, false, null, builder);
 
             builder.AppendLine();
             builder.AppendLine("    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()");
@@ -223,13 +239,21 @@ using System.Text;
             builder.AppendLine("    }");
         }
 
-        private static void GenerateDataClass(string typeName, string baseTypeName, StringBuilder builder, Action generateClassBody)
-        {
-            var className = $"{typeName}{GraphQlGeneratorConfiguration.ClassPostfix}";
-            ValidateClassName(className);
+        private static string GenerateInterface(string interfaceName, StringBuilder builder, Action generateInterfaceBody) =>
+            GenerateFileMember("interface", interfaceName, null, builder, generateInterfaceBody);
 
-            builder.Append("public class ");
-            builder.Append(className);
+        private static string GenerateDataClass(string typeName, string baseTypeName, StringBuilder builder, Action generateClassBody) =>
+            GenerateFileMember("class", typeName, baseTypeName, builder, generateClassBody);
+
+        private static string GenerateFileMember(string memberType, string typeName, string baseTypeName, StringBuilder builder, Action generateFileMemberBody)
+        {
+            var memberName = $"{typeName}{GraphQlGeneratorConfiguration.ClassPostfix}";
+            ValidateClassName(memberName);
+
+            builder.Append("public ");
+            builder.Append(memberType);
+            builder.Append(" ");
+            builder.Append(memberName);
 
             if (!String.IsNullOrEmpty(baseTypeName))
             {
@@ -240,12 +264,14 @@ using System.Text;
             builder.AppendLine();
             builder.AppendLine("{");
 
-            generateClassBody();
+            generateFileMemberBody();
 
             builder.Append("}");
+
+            return memberName;
         }
 
-        private static void GenerateDataProperty(GraphQlType baseType, IGraphQlMember member, bool isDeprecated, string deprecationReason, StringBuilder builder)
+        private static void GenerateDataProperty(GraphQlType baseType, IGraphQlMember member, bool isInterfaceMember, bool isDeprecated, string deprecationReason, StringBuilder builder)
         {
             var propertyName = NamingHelper.ToPascalCase(member.Name);
 
@@ -254,6 +280,8 @@ using System.Text;
             switch (fieldType.Kind)
             {
                 case GraphQlTypeKindObject:
+                case GraphQlTypeKindInterface:
+                case GraphQlTypeKindUnion:
                 case GraphQlTypeKindInputObject:
                     propertyType = $"{fieldType.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
                     break;
@@ -305,7 +333,7 @@ using System.Text;
                 builder.AppendLine($"    [Obsolete{deprecationReason}]");
             }
 
-            builder.AppendLine($"    public {propertyType} {propertyName} {{ get; set; }}");
+            builder.AppendLine($"    {(isInterfaceMember ? null : "public ")}{propertyType} {propertyName} {{ get; set; }}");
         }
 
         private static string GetFloatNetType()
@@ -331,15 +359,15 @@ using System.Text;
             builder.AppendLine("        new []");
             builder.AppendLine("        {");
 
-            var fields = type.Fields.ToArray();
-            for (var i = 0; i < fields.Length; i++)
+            var fields = type.Fields?.ToArray();
+            for (var i = 0; i < fields?.Length; i++)
             {
                 var comma = i == fields.Length - 1 ? null : ",";
                 var field = fields[i];
                 var fieldType = field.Type.UnwrapIfNonNull();
                 var isList = fieldType.Kind == GraphQlTypeKindList;
                 var treatUnknownObjectAsComplex = IsUnknownObjectScalar(type, field.Name, fieldType) && !GraphQlGeneratorConfiguration.TreatUnknownObjectAsScalar;
-                var isComplex = isList || treatUnknownObjectAsComplex || fieldType.Kind == GraphQlTypeKindObject;
+                var isComplex = isList || treatUnknownObjectAsComplex || IsComplexType(fieldType.Kind);
 
                 builder.Append($"            new FieldMetadata {{ Name = \"{field.Name}\"");
 
@@ -365,7 +393,7 @@ using System.Text;
 
             WriteOverrideProperty("IList<FieldMetadata>", "AllFields", "AllFieldMetadata", builder);
 
-            for (var i = 0; i < fields.Length; i++)
+            for (var i = 0; i < fields?.Length; i++)
             {
                 var field = fields[i];
                 var fieldType = field.Type.UnwrapIfNonNull();
@@ -398,7 +426,7 @@ using System.Text;
                             .Select(a => BuildMethodParameterDefinition(type, a)));
 
                 var requiresFullBody = GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.Compatible || args.Any();
-                var returnPrefix = requiresFullBody ? "        return " :  String.Empty;
+                var returnPrefix = requiresFullBody ? "        return " : String.Empty;
 
                 if (fieldType.Kind == GraphQlTypeKindScalar || fieldType.Kind == GraphQlTypeKindEnum || fieldType.Kind == GraphQlTypeKindScalar)
                 {
