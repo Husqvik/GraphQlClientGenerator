@@ -47,7 +47,6 @@ namespace GraphQlClientGenerator.Test
         {
             var stringBuilder = new StringBuilder();
             GraphQlGenerator.GenerateDataClasses(TestSchema, stringBuilder);
-
             var expectedDataClasses = GetTestResource("ExpectedDataClasses");
             stringBuilder.ToString().ShouldBe(expectedDataClasses);
         }
@@ -57,7 +56,6 @@ namespace GraphQlClientGenerator.Test
         {
             var stringBuilder = new StringBuilder();
             GraphQlGenerator.GenerateDataClasses(DeserializeTestSchema("TestSchema3"), stringBuilder);
-
             var expectedDataClasses = GetTestResource("ExpectedDataClassesWithInterfaces");
             stringBuilder.ToString().ShouldBe(expectedDataClasses);
         }
@@ -108,7 +106,7 @@ namespace GraphQLTestAssembly
 
             var assemblyFileName = Path.GetTempFileName();
             var result = compilation.Emit(assemblyFileName);
-            var errorReport = String.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity != DiagnosticSeverity.Hidden).Select(l => $"[{l.Severity}] {l.ToString()}"));
+            var errorReport = string.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity != DiagnosticSeverity.Hidden).Select(l => $"[{l.Severity}] {l.ToString()}"));
             errorReport.ShouldBeNullOrEmpty();
 
             Assembly.LoadFrom(assemblyFileName);

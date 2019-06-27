@@ -2,9 +2,9 @@
 #region input classes
 public class MeterReadingInput : IGraphQlInputObject
 {
-    public Guid? HomeId { get; set; }
+    public string HomeId { get; set; }
     public string Time { get; set; }
-    public int? Reading { get; set; }
+    public long? Reading { get; set; }
 
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
@@ -16,15 +16,15 @@ public class MeterReadingInput : IGraphQlInputObject
 
 public class UpdateHomeInput : IGraphQlInputObject
 {
-    public Guid? HomeId { get; set; }
+    public string HomeId { get; set; }
     public string AppNickname { get; set; }
     public HomeAvatar? AppAvatar { get; set; }
-    public int? Size { get; set; }
+    public long? Size { get; set; }
     public HomeType? Type { get; set; }
-    public int? NumberOfResidents { get; set; }
+    public long? NumberOfResidents { get; set; }
     public HeatingSource? PrimaryHeatingSource { get; set; }
     public bool? HasVentilationSystem { get; set; }
-    public int? MainFuseSize { get; set; }
+    public long? MainFuseSize { get; set; }
 
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
@@ -72,16 +72,16 @@ public class Viewer
 
 public class Home
 {
-    public Guid? Id { get; set; }
+    public string Id { get; set; }
     public string TimeZone { get; set; }
     public string AppNickname { get; set; }
     public HomeAvatar? AppAvatar { get; set; }
-    public int? Size { get; set; }
+    public long? Size { get; set; }
     public HomeType? Type { get; set; }
-    public int? NumberOfResidents { get; set; }
+    public long? NumberOfResidents { get; set; }
     public HeatingSource? PrimaryHeatingSource { get; set; }
     public bool? HasVentilationSystem { get; set; }
-    public int? MainFuseSize { get; set; }
+    public long? MainFuseSize { get; set; }
     public Address Address { get; set; }
     public LegalEntity Owner { get; set; }
     public MeteringPointData MeteringPointData { get; set; }
@@ -106,7 +106,7 @@ public class Address
 
 public class LegalEntity
 {
-    public Guid? Id { get; set; }
+    public string Id { get; set; }
     public string FirstName { get; set; }
     public bool? IsCompany { get; set; }
     public string Name { get; set; }
@@ -133,12 +133,12 @@ public class MeteringPointData
     public string ProductionEan { get; set; }
     public string EnergyTaxType { get; set; }
     public string VatType { get; set; }
-    public int? EstimatedAnnualConsumption { get; set; }
+    public long? EstimatedAnnualConsumption { get; set; }
 }
 
 public class Subscription
 {
-    public Guid? Id { get; set; }
+    public string Id { get; set; }
     public LegalEntity Subscriber { get; set; }
     public DateTimeOffset? ValidFrom { get; set; }
     public DateTimeOffset? ValidTo { get; set; }
@@ -179,7 +179,7 @@ public class SubscriptionPriceConnectionPageInfo : IPageInfo
     public string StartCursor { get; set; }
     public string Resolution { get; set; }
     public string Currency { get; set; }
-    public int? Count { get; set; }
+    public long? Count { get; set; }
     public string Precision { get; set; }
     public decimal? MinEnergy { get; set; }
     public decimal? MinTotal { get; set; }
@@ -222,11 +222,11 @@ public class HomeConsumptionPageInfo : IPageInfo
     public bool? HasNextPage { get; set; }
     public bool? HasPreviousPage { get; set; }
     public string StartCursor { get; set; }
-    public int? Count { get; set; }
+    public long? Count { get; set; }
     public string Currency { get; set; }
     public decimal? TotalCost { get; set; }
     public decimal? TotalConsumption { get; set; }
-    public int? Filtered { get; set; }
+    public long? Filtered { get; set; }
 }
 
 public class Consumption
@@ -260,11 +260,11 @@ public class HomeProductionPageInfo : IPageInfo
     public bool? HasNextPage { get; set; }
     public bool? HasPreviousPage { get; set; }
     public string StartCursor { get; set; }
-    public int? Count { get; set; }
+    public long? Count { get; set; }
     public string Currency { get; set; }
     public decimal? TotalProfit { get; set; }
     public decimal? TotalProduction { get; set; }
-    public int? Filtered { get; set; }
+    public long? Filtered { get; set; }
 }
 
 public class Production
@@ -299,15 +299,15 @@ public class RootMutation
 
 public class MeterReadingResponse
 {
-    public Guid? HomeId { get; set; }
+    public string HomeId { get; set; }
     public string Time { get; set; }
-    public int? Reading { get; set; }
+    public long? Reading { get; set; }
 }
 
 public class PushNotificationResponse
 {
     public bool? Successful { get; set; }
-    public int? PushedToNumberOfDevices { get; set; }
+    public long? PushedToNumberOfDevices { get; set; }
 }
 
 public class RootSubscription

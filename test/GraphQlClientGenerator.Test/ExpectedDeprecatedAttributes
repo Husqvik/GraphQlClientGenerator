@@ -6,7 +6,7 @@ public class Query
 
 public class Me
 {
-    public Guid? Id { get; set; }
+    public string Id { get; set; }
     /// <summary>
     /// customer's first name
     /// </summary>
@@ -36,7 +36,7 @@ public class Me
 
 public class Home
 {
-    public Guid? Id { get; set; }
+    public string Id { get; set; }
     public Avatar? Avatar { get; set; }
     public string TimeZone { get; set; }
     public Subscription Subscription { get; set; }
@@ -58,11 +58,11 @@ public class Home
 
 public class Subscription
 {
-    public Guid? Id { get; set; }
+    public string Id { get; set; }
     public DateTimeOffset? ValidFrom { get; set; }
     public DateTimeOffset? ValidTo { get; set; }
     public string Status { get; set; }
-    public int? BillingRegionId { get; set; }
+    public long? BillingRegionId { get; set; }
     public ICollection<object> EnergyStatements { get; set; }
     public PriceRating PriceRating { get; set; }
 }
@@ -84,8 +84,8 @@ public class PriceRatingEntry
 
 public class ConsumptionMonth
 {
-    public int? Year { get; set; }
-    public int? Month { get; set; }
+    public long? Year { get; set; }
+    public long? Month { get; set; }
     public decimal? Kwh { get; set; }
     public decimal? Cost { get; set; }
     public bool? IsComplete { get; set; }
@@ -118,8 +118,8 @@ public class PreLiveComparison
 
 public class Comparison
 {
-    public int? Year { get; set; }
-    public int? Month { get; set; }
+    public long? Year { get; set; }
+    public long? Month { get; set; }
     public string Resolution { get; set; }
     public string HomeEfficency { get; set; }
     public string HomeEfficencyDescription { get; set; }
@@ -151,16 +151,16 @@ public class ProcessStep
 
 public class Disaggregation
 {
-    public int? Year { get; set; }
-    public int? Month { get; set; }
+    public long? Year { get; set; }
+    public long? Month { get; set; }
     public decimal? FixedConsumptionKwh { get; set; }
-    public int? FixedConsumptionKwhPercent { get; set; }
+    public long? FixedConsumptionKwhPercent { get; set; }
     public decimal? FixedConsumptionCost { get; set; }
     public decimal? HeatingConsumptionKwh { get; set; }
-    public int? HeatingConsumptionKwhPercent { get; set; }
+    public long? HeatingConsumptionKwhPercent { get; set; }
     public decimal? HeatingConsumptionCost { get; set; }
     public decimal? BehaviorConsumptionKwh { get; set; }
-    public int? BehaviorConsumptionKwhPercent { get; set; }
+    public long? BehaviorConsumptionKwhPercent { get; set; }
     public decimal? BehaviorConsumptionCost { get; set; }
     public string Currency { get; set; }
     public bool? IsValid { get; set; }
@@ -202,14 +202,14 @@ public class AwayModeSettings
 
 public class Feed
 {
-    public int? NumberOfItems { get; set; }
+    public long? NumberOfItems { get; set; }
     public ICollection<FeedItem> Items { get; set; }
     public ICollection<PushNotification> PushNotifications { get; set; }
 }
 
 public class FeedItem
 {
-    public int? Id { get; set; }
+    public long? Id { get; set; }
     public string MessageTypeId { get; set; }
     public string Link { get; set; }
     public string Text { get; set; }
@@ -219,7 +219,7 @@ public class FeedItem
 
 public class PushNotification
 {
-    public int? Id { get; set; }
+    public long? Id { get; set; }
     public string Link { get; set; }
     public string Text { get; set; }
 }
