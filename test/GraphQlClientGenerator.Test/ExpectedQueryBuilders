@@ -27,12 +27,17 @@ internal static class GraphQlQueryHelper
         if (value is bool @bool)
             return @bool ? "true" : "false";
 
+        if (value is DateTime dateTime)
+            return $"\"{dateTime.ToString("O")}\"";
+
+        if (value is DateTimeOffset dateTimeOffset)
+            return $"\"{dateTimeOffset.ToString("O")}\"";
+
         if (value is IGraphQlInputObject inputObject)
             return BuildInputObject(inputObject, formatting, level + 2, indentationSize);
 
-        var argumentValue = Convert.ToString(value, CultureInfo.InvariantCulture);
         if (value is String || value is Guid)
-            return $"\"{argumentValue}\"";
+            return $"\"{value}\"";
 
         if (value is IEnumerable enumerable)
         {
@@ -57,7 +62,11 @@ internal static class GraphQlQueryHelper
             return builder.ToString();
         }
 
-        return argumentValue;
+        if (value is IConvertible convertible)
+            return $"\"{convertible.ToString(CultureInfo.InvariantCulture)}\"";
+
+		var argumentValue = Convert.ToString(value, CultureInfo.InvariantCulture);
+        return $"\"{argumentValue}\"";
     }
 
     public static string BuildInputObject(IGraphQlInputObject inputObject, Formatting formatting, int level, byte indentationSize)
