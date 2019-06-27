@@ -22,6 +22,7 @@ namespace GraphQlClientGenerator
         internal const string GraphQlTypeKindInputObject = "INPUT_OBJECT";
         internal const string GraphQlTypeKindUnion = "UNION";
         internal const string GraphQlTypeKindInterface = "INTERFACE";
+        private const string IntrospectionOperation = "IntrospectionQuery";
 
         public const string RequiredNamespaces =
             @"using System;
@@ -51,7 +52,7 @@ using System.Text;
                 using (var response =
                     await client.PostAsync(
                         url,
-                        new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json")))
+                        new StringContent(JsonConvert.SerializeObject(new { OperationNAme = IntrospectionOperation, query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json")))
                 {
                     content =
                         response.Content == null
@@ -293,7 +294,7 @@ using System.Text;
                     switch (fieldType.Name)
                     {
                         case GraphQlTypeBase.GraphQlTypeScalarInteger:
-                            propertyType = "int?";
+                            propertyType = "long?";
                             break;
                         case GraphQlTypeBase.GraphQlTypeScalarString:
                             propertyType = GetCustomScalarType(baseType, fieldType, member.Name);
@@ -305,7 +306,7 @@ using System.Text;
                             propertyType = "bool?";
                             break;
                         case GraphQlTypeBase.GraphQlTypeScalarId:
-                            propertyType = "Guid?";
+                            propertyType = "string";
                             break;
                         default:
                             propertyType = GetCustomScalarType(baseType, fieldType, member.Name);
@@ -322,7 +323,7 @@ using System.Text;
 
             if (isDeprecated)
             {
-                deprecationReason = String.IsNullOrWhiteSpace(deprecationReason) ? null : $"(@\"{deprecationReason.Replace("\"", "\"\"")}\")";
+                deprecationReason = string.IsNullOrWhiteSpace(deprecationReason) ? null : $"(@\"{deprecationReason.Replace("\"", "\"\"")}\")";
                 builder.AppendLine($"    [Obsolete{deprecationReason}]");
             }
 
@@ -349,7 +350,7 @@ using System.Text;
             builder.AppendLine("{");
 
             builder.AppendLine("    private static readonly FieldMetadata[] AllFieldMetadata =");
-            builder.AppendLine("        new []");
+            builder.AppendLine("        new FieldMetadata[]");
             builder.AppendLine("        {");
 
             var fields = type.Fields?.ToArray();
@@ -587,7 +588,7 @@ using System.Text;
             {
                 var enumValue = enumValues[i];
                 GenerateCodeComments(builder, enumValue.Description);
-                builder.Append($"    [EnumMember(Value=\"{enumValue.Name}\")] {NamingHelper.ToNetEnumName(enumValue.Name)}");
+                builder.Append($"    [EnumMember(Value=\"{enumValue.Name}\")] {enumValue.Name}");
 
                 if (i < enumValues.Count - 1)
                     builder.Append(",");
@@ -630,7 +631,7 @@ using System.Text;
             switch (valueType.Name)
             {
                 case GraphQlTypeBase.GraphQlTypeScalarInteger:
-                    return "int?";
+                    return "long?";
                 case GraphQlTypeBase.GraphQlTypeScalarString:
                     return GetCustomScalarType(baseType, valueType, valueName);
                 case GraphQlTypeBase.GraphQlTypeScalarFloat:
@@ -638,7 +639,7 @@ using System.Text;
                 case GraphQlTypeBase.GraphQlTypeScalarBoolean:
                     return "bool?";
                 case GraphQlTypeBase.GraphQlTypeScalarId:
-                    return "Guid?";
+                    return "string";
                 default:
                     return GetCustomScalarType(baseType, valueType, valueName);
             }
