@@ -6,6 +6,9 @@
 [Tt]humbs.db
 *.DS_Store
 
+# FSharp Dotnet Core Symbol cache - created by bug in VSCode extension
+.ionide
+
 config.json
 project.lock.json
 
