@@ -77,42 +77,116 @@ namespace GraphQlClientGenerator.Test
             var generatedSourceCode = stringBuilder.ToString();
             generatedSourceCode.ShouldBe(expectedOutput);
 
-            var syntaxTree =
-                SyntaxFactory.ParseSyntaxTree(
-                    $@"{GraphQlGenerator.RequiredNamespaces}
+            CompileIntoAssembly(generatedSourceCode, "GraphQLTestAssembly");
 
-namespace GraphQLTestAssembly
-{{
-{generatedSourceCode}
-}}",
-                    CSharpParseOptions.Default.WithLanguageVersion(Enum.GetValues(typeof(LanguageVersion)).Cast<LanguageVersion>().Max()));
+            Type.GetType("GraphQLTestAssembly.GraphQlQueryBuilder, GraphQLTestAssembly").ShouldNotBeNull();
+        }
 
-            var compilationOptions =
-                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-                    .WithPlatform(Platform.AnyCpu)
-                    .WithOverflowChecks(true)
-                    .WithOptimizationLevel(OptimizationLevel.Release);
+        [Fact]
+        public void GeneratedQuery()
+        {
+            var schema = DeserializeTestSchema("TestSchema2");
+            var stringBuilder = new StringBuilder();
+            GraphQlGenerator.GenerateQueryBuilder(schema, stringBuilder);
+            GraphQlGenerator.GenerateDataClasses(schema, stringBuilder);
 
-            var systemReference = MetadataReference.CreateFromFile(typeof(DateTimeOffset).Assembly.Location);
-            var runtimeReference = MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location);
-            var netStandardReference = MetadataReference.CreateFromFile(Assembly.Load("netstandard").Location);
-            var linqReference = MetadataReference.CreateFromFile(Assembly.Load("System.Linq").Location);
-            var runtimeSerializationReference = MetadataReference.CreateFromFile(typeof(EnumMemberAttribute).Assembly.Location);
-            var componentModelReference = MetadataReference.CreateFromFile(typeof(DescriptionAttribute).Assembly.Location);
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine(
+                @"public class TestQueryBuilder : GraphQlQueryBuilder<TestQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = ""testField"" }
+        };
 
-            var compilation =
-                CSharpCompilation.Create(
-                    "GraphQLTestAssembly",
-                    new [] { syntaxTree },
-                    new [] { systemReference, runtimeSerializationReference, componentModelReference, runtimeReference, linqReference, netStandardReference }, compilationOptions);
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-            var assemblyFileName = Path.GetTempFileName();
-            var result = compilation.Emit(assemblyFileName);
-            var errorReport = String.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity != DiagnosticSeverity.Hidden).Select(l => $"[{l.Severity}] {l.ToString()}"));
-            errorReport.ShouldBeNullOrEmpty();
+	public TestQueryBuilder WithTestField(short? valueInt16 = null, ushort? valueUInt16 = null, byte? valueByte = null, int? valueInt32 = null, uint? valueUInt32 = null, long? valueInt64 = null, ulong? valueUInt64 = null, float? valueSingle = null, double? valueDouble = null, decimal? valueDecimal = null, DateTime? valueDateTime = null, DateTimeOffset? valueDateTimeOffset = null, Guid? valueGuid = null, string valueString = null)
+	{
+		var args = new Dictionary<string, object>();
+		if (valueInt16 != null)
+			args.Add(""valueInt16"", valueInt16);
 
-            Assembly.LoadFrom(assemblyFileName);
-            Type.GetType("GraphQLTestAssembly.GraphQlQueryBuilder,GraphQLTestAssembly").ShouldNotBeNull();
+		if (valueUInt16 != null)
+			args.Add(""valueUInt16"", valueUInt16);
+
+		if (valueByte != null)
+			args.Add(""valueByte"", valueByte);
+
+		if (valueInt32 != null)
+			args.Add(""valueInt32"", valueInt32);
+
+		if (valueUInt32 != null)
+			args.Add(""valueUInt32"", valueUInt32);
+
+		if (valueInt64 != null)
+			args.Add(""valueInt64"", valueInt64);
+
+		if (valueUInt64 != null)
+			args.Add(""valueUInt64"", valueUInt64);
+
+		if (valueSingle != null)
+			args.Add(""valueSingle"", valueSingle);
+
+		if (valueDouble != null)
+			args.Add(""valueDouble"", valueDouble);
+
+		if (valueDecimal != null)
+			args.Add(""valueDecimal"", valueDecimal);
+
+		if (valueDateTime != null)
+			args.Add(""valueDateTime"", valueDateTime);
+
+		if (valueDateTimeOffset != null)
+			args.Add(""valueDateTimeOffset"", valueDateTimeOffset);
+
+		if (valueGuid != null)
+			args.Add(""valueGuid"", valueGuid);
+
+		if (valueString != null)
+			args.Add(""valueString"", valueString);
+
+		return WithScalarField(""testField"", args);
+	}
+}");
+
+            CompileIntoAssembly(stringBuilder.ToString(), "GeneratedQueryTestAssembly");
+
+            var builderType = Type.GetType("GeneratedQueryTestAssembly.TestQueryBuilder, GeneratedQueryTestAssembly");
+            builderType.ShouldNotBeNull();
+            var formattingType = Type.GetType("GeneratedQueryTestAssembly.Formatting, GeneratedQueryTestAssembly");
+            formattingType.ShouldNotBeNull();
+
+            var builderInstance = Activator.CreateInstance(builderType);
+            builderType
+                .GetMethod("WithTestField", BindingFlags.Instance | BindingFlags.Public)
+                .Invoke(
+                    builderInstance,
+                    new object[]
+                    {
+                        (short)1,
+                        (ushort)2,
+                        (byte)3,
+                        4,
+                        (uint)5,
+                        6L,
+                        (ulong)7,
+                        8.123f,
+                        9.456d,
+                        10.789m,
+                        new DateTime(2019, 6, 30, 0, 27, 47, DateTimeKind.Utc),
+                        new DateTimeOffset(2019, 6, 30, 2, 27, 47, TimeSpan.FromHours(2)),
+                        Guid.Empty,
+                        "string value"
+                    });
+
+            var query =
+                builderType
+                    .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
+                    .Invoke(builderInstance, new [] { Enum.Parse(formattingType, "None"), (byte)2 });
+
+            query.ShouldBe("{testField(valueInt16:1,valueUInt16:2,valueByte:3,valueInt32:4,valueUInt32:5,valueInt64:6,valueUInt64:7,valueSingle:8.123,valueDouble:9.456,valueDecimal:10.789,valueDateTime:\"2019-06-30T00:27:47.0000000Z\",valueDateTimeOffset:\"2019-06-30T02:27:47.0000000+02:00\",valueGuid:\"00000000-0000-0000-0000-000000000000\",valueString:\"string value\")}");
         }
 
         [Fact]
@@ -133,6 +207,45 @@ namespace GraphQLTestAssembly
         {
             using (var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream($"GraphQlClientGenerator.Test.{name}")))
                 return reader.ReadToEnd();
+        }
+
+        private static void CompileIntoAssembly(string sourceCode, string assemblyName)
+        {
+            var syntaxTree =
+                SyntaxFactory.ParseSyntaxTree(
+                    $@"{GraphQlGenerator.RequiredNamespaces}
+
+namespace {assemblyName}
+{{
+{sourceCode}
+}}",
+                    CSharpParseOptions.Default.WithLanguageVersion(Enum.GetValues(typeof(LanguageVersion)).Cast<LanguageVersion>().Max()));
+
+            var compilationOptions =
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+                    .WithPlatform(Platform.AnyCpu)
+                    .WithOverflowChecks(true)
+                    .WithOptimizationLevel(OptimizationLevel.Release);
+
+            var systemReference = MetadataReference.CreateFromFile(typeof(DateTimeOffset).Assembly.Location);
+            var runtimeReference = MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location);
+            var netStandardReference = MetadataReference.CreateFromFile(Assembly.Load("netstandard").Location);
+            var linqReference = MetadataReference.CreateFromFile(Assembly.Load("System.Linq").Location);
+            var runtimeSerializationReference = MetadataReference.CreateFromFile(typeof(EnumMemberAttribute).Assembly.Location);
+            var componentModelReference = MetadataReference.CreateFromFile(typeof(DescriptionAttribute).Assembly.Location);
+
+            var compilation =
+                CSharpCompilation.Create(
+                    assemblyName,
+                    new[] { syntaxTree },
+                    new[] { systemReference, runtimeSerializationReference, componentModelReference, runtimeReference, linqReference, netStandardReference }, compilationOptions);
+
+            var assemblyFileName = Path.GetTempFileName();
+            var result = compilation.Emit(assemblyFileName);
+            var errorReport = String.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity != DiagnosticSeverity.Hidden).Select(l => $"[{l.Severity}] {l.ToString()}"));
+            errorReport.ShouldBeNullOrEmpty();
+
+            Assembly.LoadFrom(assemblyFileName);
         }
     }
 }
