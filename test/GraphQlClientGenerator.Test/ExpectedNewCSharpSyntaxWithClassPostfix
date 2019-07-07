@@ -28,10 +28,10 @@ internal static class GraphQlQueryHelper
             return @bool ? "true" : "false";
 
         if (value is DateTime dateTime)
-            return $"\"{dateTime.ToString("O")}\"";
+            return $"\"{dateTime:O}\"";
 
         if (value is DateTimeOffset dateTimeOffset)
-            return $"\"{dateTimeOffset.ToString("O")}\"";
+            return $"\"{dateTimeOffset:O}\"";
 
         if (value is IGraphQlInputObject inputObject)
             return BuildInputObject(inputObject, formatting, level + 2, indentationSize);
