@@ -23,52 +23,52 @@ internal static class GraphQlQueryHelper
     {
         if (value is Enum @enum)
             return ConvertEnumToString(@enum);
-
+    
         if (value is bool @bool)
             return @bool ? "true" : "false";
-
+    
         if (value is DateTime dateTime)
             return $"\"{dateTime.ToString("O")}\"";
-
+    
         if (value is DateTimeOffset dateTimeOffset)
             return $"\"{dateTimeOffset.ToString("O")}\"";
-
+    
         if (value is IGraphQlInputObject inputObject)
             return BuildInputObject(inputObject, formatting, level + 2, indentationSize);
-
-        if (value is String || value is Guid)
+    
+        if (value is String || value is Guid || value is JValue)
             return $"\"{value}\"";
 
+        if (value is JProperty jProperty)
+        {
+            return $"{jProperty.Name}: {BuildArgumentValue(jProperty.Value, formatting, level, indentationSize)}";
+        }
+
+        if (value is JObject jObject)
+        {
+            var builder = new StringBuilder();
+            builder.Append("{");
+            BuildEnumerableArgument(formatting, level, indentationSize, jObject, builder);
+            builder.Append("}");
+    
+            return builder.ToString();
+        }
+                
         if (value is IEnumerable enumerable)
         {
             var builder = new StringBuilder();
             builder.Append("[");
-            var delimiter = String.Empty;
-            foreach (var item in enumerable)
-            {
-                builder.Append(delimiter);
-
-                if (formatting == Formatting.Indented)
-                {
-                    builder.AppendLine();
-                    builder.Append(GetIndentation(level + 1, indentationSize));
-                }
-
-                builder.Append(BuildArgumentValue(item, formatting, level, indentationSize));
-                delimiter = ",";
-            }
-
+            BuildEnumerableArgument(formatting, level, indentationSize, enumerable, builder);
             builder.Append("]");
+
             return builder.ToString();
         }
 
-		if (value is long longValue)
-            return longValue.ToString(CultureInfo.InvariantCulture);
+        if (value is short || value is ushort || value is byte || value is int || value is uint || value is long || value is ulong || value is float || value is double || value is decimal)
+            return Convert.ToString(value, CultureInfo.InvariantCulture);
 
-        if (value is IConvertible convertible)
-            return $"\"{convertible.ToString(CultureInfo.InvariantCulture)}\"";
+		    var argumentValue = Convert.ToString(value, CultureInfo.InvariantCulture);
 
-		var argumentValue = Convert.ToString(value, CultureInfo.InvariantCulture);
         return $"\"{argumentValue}\"";
     }
 
@@ -108,6 +108,29 @@ internal static class GraphQlQueryHelper
         builder.Append("}");
 
         return builder.ToString();
+    }
+
+	private static void BuildEnumerableArgument(
+        Formatting formatting,
+        int level,
+        byte indentationSize,
+        IEnumerable enumerable,
+        StringBuilder builder)
+    {
+        var delimiter = String.Empty;
+        foreach (var item in enumerable)
+        {
+            builder.Append(delimiter);
+
+            if (formatting == Formatting.Indented)
+            {
+                builder.AppendLine();
+                builder.Append(GetIndentation(level + 1, indentationSize));
+            }
+
+            builder.Append(BuildArgumentValue(item, formatting, level, indentationSize));
+            delimiter = ",";
+        }
     }
 
     private static string ConvertEnumToString(Enum @enum)
