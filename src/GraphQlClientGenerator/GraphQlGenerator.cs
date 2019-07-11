@@ -25,7 +25,8 @@ namespace GraphQlClientGenerator
         private const string IntrospectionOperation = "IntrospectionQuery";
 
         public const string RequiredNamespaces =
-            @"using System;
+            @"using Newtonsoft.Json.Linq;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
