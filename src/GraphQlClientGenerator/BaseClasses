@@ -40,33 +40,36 @@ internal static class GraphQlQueryHelper
             return $"\"{value}\"";
 
         if (value is IEnumerable enumerable)
-        {
-            var builder = new StringBuilder();
-            builder.Append("[");
-            var delimiter = String.Empty;
-            foreach (var item in enumerable)
-            {
-                builder.Append(delimiter);
-
-                if (formatting == Formatting.Indented)
-                {
-                    builder.AppendLine();
-                    builder.Append(GetIndentation(level + 1, indentationSize));
-                }
-
-                builder.Append(BuildArgumentValue(item, formatting, level, indentationSize));
-                delimiter = ",";
-            }
-
-            builder.Append("]");
-            return builder.ToString();
-        }
+            BuildEnumerableArgument(enumerable, formatting, level, indentationSize);
 
         if (value is short || value is ushort || value is byte || value is int || value is uint || value is long || value is ulong || value is float || value is double || value is decimal)
             return Convert.ToString(value, CultureInfo.InvariantCulture);
 
-		var argumentValue = Convert.ToString(value, CultureInfo.InvariantCulture);
+        var argumentValue = Convert.ToString(value, CultureInfo.InvariantCulture);
         return $"\"{argumentValue}\"";
+    }
+
+    private static string BuildEnumerableArgument(IEnumerable enumerable, Formatting formatting, int level, byte indentationSize)
+    {
+        var builder = new StringBuilder();
+        builder.Append("[");
+        var delimiter = String.Empty;
+        foreach (var item in enumerable)
+        {
+            builder.Append(delimiter);
+
+            if (formatting == Formatting.Indented)
+            {
+                builder.AppendLine();
+                builder.Append(GetIndentation(level + 1, indentationSize));
+            }
+
+            builder.Append(BuildArgumentValue(item, formatting, level, indentationSize));
+            delimiter = ",";
+        }
+
+        builder.Append("]");
+        return builder.ToString();
     }
 
     public static string BuildInputObject(IGraphQlInputObject inputObject, Formatting formatting, int level, byte indentationSize)
