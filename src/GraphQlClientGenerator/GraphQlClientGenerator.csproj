@@ -16,8 +16,9 @@
     <RepositoryUrl>https://github.com/Husqvik/GraphQlClientGenerator</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>GraphGL C# Client</PackageTags>
-    <PackageReleaseNotes>Added support for Newtonsoft.Json object as query arguments
-Configurable .NET type for GraphQL integers (Int16, Int32, Int64) and IDs (Guid, String)
+    <PackageReleaseNotes>
+      Added support for Newtonsoft.Json object as query arguments;
+      configurable .NET type for GraphQL integers (Int16, Int32, Int64) and IDs (Guid, String)
     </PackageReleaseNotes>
   </PropertyGroup>
 
