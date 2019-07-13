@@ -111,7 +111,8 @@ namespace GraphQlClientGenerator.Test
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
         {
-            new FieldMetadata { Name = ""testField"" }
+            new FieldMetadata { Name = ""testField"" },
+            new FieldMetadata { Name = ""objectParameter"" }
         };
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
@@ -163,6 +164,15 @@ namespace GraphQlClientGenerator.Test
 
 		return WithScalarField(""testField"", args);
 	}
+
+    public TestQueryBuilder WithObjectParameterField(object objectParameter = null)
+	{
+		var args = new Dictionary<string, object>();
+		if (objectParameter != null)
+			args.Add(""objectParameter"", objectParameter);
+
+        return WithScalarField(""objectParameter"", args);
+    }
 }");
 
             CompileIntoAssembly(stringBuilder.ToString(), "GeneratedQueryTestAssembly");
@@ -195,12 +205,24 @@ namespace GraphQlClientGenerator.Test
                         "string value"
                     });
 
+            builderType
+                .GetMethod("WithObjectParameterField", BindingFlags.Instance | BindingFlags.Public)
+                .Invoke(
+                    builderInstance,
+                    new object[]
+                    {
+                        new []
+                        {
+                            JsonConvert.DeserializeObject("{ \"rootProperty1\": \"root value 1\", \"rootProperty2\": 123.456, \"rootProperty3\": true, \"rootProperty4\": null, \"rootProperty5\": { \"nestedProperty\": 987 } }")
+                        }
+                    });
+
             var query =
                 builderType
                     .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
                     .Invoke(builderInstance, new [] { Enum.Parse(formattingType, "None"), (byte)2 });
 
-            query.ShouldBe("{testField(valueInt16:1,valueUInt16:2,valueByte:3,valueInt32:4,valueUInt32:5,valueInt64:6,valueUInt64:7,valueSingle:8.123,valueDouble:9.456,valueDecimal:10.789,valueDateTime:\"2019-06-30T00:27:47.0000000Z\",valueDateTimeOffset:\"2019-06-30T02:27:47.0000000+02:00\",valueGuid:\"00000000-0000-0000-0000-000000000000\",valueString:\"string value\")}");
+            query.ShouldBe("{testField(valueInt16:1,valueUInt16:2,valueByte:3,valueInt32:4,valueUInt32:5,valueInt64:6,valueUInt64:7,valueSingle:8.123,valueDouble:9.456,valueDecimal:10.789,valueDateTime:\"2019-06-30T00:27:47.0000000Z\",valueDateTimeOffset:\"2019-06-30T02:27:47.0000000+02:00\",valueGuid:\"00000000-0000-0000-0000-000000000000\",valueString:\"string value\"),objectParameter(objectParameter:[{rootProperty1:\"root value 1\",rootProperty2:123.456,rootProperty3:true,rootProperty4:null,rootProperty5:{nestedProperty:987}}])}");
         }
 
         [Fact]
@@ -242,17 +264,36 @@ namespace {assemblyName}
                     .WithOptimizationLevel(OptimizationLevel.Release);
 
             var systemReference = MetadataReference.CreateFromFile(typeof(DateTimeOffset).Assembly.Location);
+            var systemObjectModelReference = MetadataReference.CreateFromFile(Assembly.Load("System.ObjectModel").Location);
+            var systemTextRegularExpressionsReference = MetadataReference.CreateFromFile(Assembly.Load("System.Text.RegularExpressions").Location);
             var runtimeReference = MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location);
             var netStandardReference = MetadataReference.CreateFromFile(Assembly.Load("netstandard").Location);
             var linqReference = MetadataReference.CreateFromFile(Assembly.Load("System.Linq").Location);
+            var linqExpressionsReference = MetadataReference.CreateFromFile(Assembly.Load("System.Linq.Expressions").Location);
+            var jsonNetReference = MetadataReference.CreateFromFile(Assembly.Load("Newtonsoft.Json").Location);
             var runtimeSerializationReference = MetadataReference.CreateFromFile(typeof(EnumMemberAttribute).Assembly.Location);
             var componentModelReference = MetadataReference.CreateFromFile(typeof(DescriptionAttribute).Assembly.Location);
+            var componentModelTypeConverterReference = MetadataReference.CreateFromFile(Assembly.Load("System.ComponentModel.TypeConverter").Location);
 
             var compilation =
                 CSharpCompilation.Create(
                     assemblyName,
                     new[] { syntaxTree },
-                    new[] { systemReference, runtimeSerializationReference, componentModelReference, runtimeReference, linqReference, netStandardReference }, compilationOptions);
+                    new[]
+                    {
+                        systemReference,
+                        runtimeSerializationReference,
+                        systemObjectModelReference,
+                        systemTextRegularExpressionsReference,
+                        componentModelReference,
+                        componentModelTypeConverterReference,
+                        runtimeReference,
+                        jsonNetReference,
+                        linqReference,
+                        linqExpressionsReference,
+                        netStandardReference
+                    },
+                    compilationOptions);
 
             var assemblyFileName = Path.GetTempFileName();
             var result = compilation.Emit(assemblyFileName);

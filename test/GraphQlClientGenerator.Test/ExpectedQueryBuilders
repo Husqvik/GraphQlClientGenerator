@@ -14,6 +14,8 @@ public enum Formatting
 
 internal static class GraphQlQueryHelper
 {
+    private static readonly Regex RegexWhiteSpace = new Regex(@"\s", RegexOptions.Compiled);
+
     public static string GetIndentation(int level, byte indentationSize)
     {
         return new String(' ', level * indentationSize);
@@ -21,6 +23,20 @@ internal static class GraphQlQueryHelper
 
     public static string BuildArgumentValue(object value, Formatting formatting, int level, byte indentationSize)
     {
+        if (value is JValue jValue)
+        {
+            switch (jValue.Type)
+            {
+                case JTokenType.Null: return "null";
+                case JTokenType.Integer:
+                case JTokenType.Float:
+                case JTokenType.Boolean:
+                    return BuildArgumentValue(jValue.Value, formatting, level, indentationSize);
+                default:
+                    return $"\"{jValue.Value}\"";
+            }
+        }
+
         if (value is Enum @enum)
             return ConvertEnumToString(@enum);
 
@@ -39,8 +55,19 @@ internal static class GraphQlQueryHelper
         if (value is String || value is Guid)
             return $"\"{value}\"";
 
+        if (value is JProperty jProperty)
+        {
+            if (RegexWhiteSpace.IsMatch(jProperty.Name))
+			    throw new ArgumentException($"JSON object keys used as GraphQL arguments must not contain whitespace; key: {jProperty.Name}");
+
+            return $"{jProperty.Name}:{(formatting == Formatting.Indented ? " " : null)}{BuildArgumentValue(jProperty.Value, formatting, level, indentationSize)}";
+        }
+
+        if (value is JObject jObject)
+            return BuildEnumerableArgument(jObject, formatting, level + 1, indentationSize, '{', '}');
+
         if (value is IEnumerable enumerable)
-            BuildEnumerableArgument(enumerable, formatting, level, indentationSize);
+            return BuildEnumerableArgument(enumerable, formatting, level, indentationSize, '[', ']');
 
         if (value is short || value is ushort || value is byte || value is int || value is uint || value is long || value is ulong || value is float || value is double || value is decimal)
             return Convert.ToString(value, CultureInfo.InvariantCulture);
@@ -49,10 +76,10 @@ internal static class GraphQlQueryHelper
         return $"\"{argumentValue}\"";
     }
 
-    private static string BuildEnumerableArgument(IEnumerable enumerable, Formatting formatting, int level, byte indentationSize)
+    private static string BuildEnumerableArgument(IEnumerable enumerable, Formatting formatting, int level, byte indentationSize, char openingSymbol, char closingSymbol)
     {
         var builder = new StringBuilder();
-        builder.Append("[");
+        builder.Append(openingSymbol);
         var delimiter = String.Empty;
         foreach (var item in enumerable)
         {
@@ -68,7 +95,7 @@ internal static class GraphQlQueryHelper
             delimiter = ",";
         }
 
-        builder.Append("]");
+        builder.Append(closingSymbol);
         return builder.ToString();
     }
 
