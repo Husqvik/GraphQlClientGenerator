@@ -1,0 +1,212 @@
+﻿#region data classes
+public class Query
+{
+    public Me Me { get; set; }
+}
+
+public class Me
+{
+    public string Id { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string FullName { get; set; }
+    public string Ssn { get; set; }
+    public string Email { get; set; }
+    public string Language { get; set; }
+    public string Tone { get; set; }
+    public Home Home { get; set; }
+    public ICollection<Home> Homes { get; set; }
+    public Feed Feed { get; set; }
+    public ICollection<object> EnergyStatements { get; set; }
+}
+
+public class Home
+{
+    public string Id { get; set; }
+    public Avatar? Avatar { get; set; }
+    public string TimeZone { get; set; }
+    public Subscription Subscription { get; set; }
+    public ICollection<ConsumptionMonth> ConsumptionMonths { get; set; }
+    public Consumption Consumption { get; set; }
+    public PreLiveComparison PreLiveComparison { get; set; }
+    public ICollection<Comparison> Comparisons { get; set; }
+    public Comparison ComparisonCurrentMonth { get; set; }
+    public object Profile { get; set; }
+    public object ProfileQuestions { get; set; }
+    public object Thermostat { get; set; }
+    public ICollection<object> Temperatures { get; set; }
+    public SignupStatus SignupStatus { get; set; }
+    public ICollection<Disaggregation> Disaggregation { get; set; }
+    public ICollection<Device> Devices { get; set; }
+    public Weather Weather { get; set; }
+    public AwayMode AwayMode { get; set; }
+}
+
+public class Subscription
+{
+    public string Id { get; set; }
+    public DateTimeOffset? ValidFrom { get; set; }
+    public DateTimeOffset? ValidTo { get; set; }
+    public string Status { get; set; }
+    public long? BillingRegionId { get; set; }
+    public ICollection<object> EnergyStatements { get; set; }
+    public PriceRating PriceRating { get; set; }
+}
+
+public class PriceRating
+{
+    public double? MinPrice { get; set; }
+    public double? MaxPrice { get; set; }
+    public ICollection<PriceRatingEntry> Entries { get; set; }
+}
+
+public class PriceRatingEntry
+{
+    public string Time { get; set; }
+    public double? Price { get; set; }
+    public PriceLevel? Level { get; set; }
+    public double? Difference { get; set; }
+}
+
+public class ConsumptionMonth
+{
+    public long? Year { get; set; }
+    public long? Month { get; set; }
+    public double? Kwh { get; set; }
+    public double? Cost { get; set; }
+    public bool? IsComplete { get; set; }
+    public double? KwhEstimate { get; set; }
+    public double? CostEstimate { get; set; }
+}
+
+public class Consumption
+{
+    public object AnnualValues { get; set; }
+    public object MonthlyValues { get; set; }
+    public object WeeklyValues { get; set; }
+    public object DailyValues { get; set; }
+    public object HourlyValues { get; set; }
+    public double? TotalConsumption { get; set; }
+    public double? EnergyCost { get; set; }
+    public double? TotalCost { get; set; }
+    public string Currency { get; set; }
+    public DateTimeOffset? LatestTransactionTimestamp { get; set; }
+    public string TimeZone { get; set; }
+}
+
+public class PreLiveComparison
+{
+    public string HomeId { get; set; }
+    public bool? BasedOnActuals { get; set; }
+    public Comparison PreviousYear { get; set; }
+    public ICollection<Comparison> PreviousYearMonths { get; set; }
+}
+
+public class Comparison
+{
+    public long? Year { get; set; }
+    public long? Month { get; set; }
+    public string Resolution { get; set; }
+    public string HomeEfficency { get; set; }
+    public string HomeEfficencyDescription { get; set; }
+    public ComparisonData Home { get; set; }
+    public ComparisonData Average { get; set; }
+    public ComparisonData Efficient { get; set; }
+}
+
+public class ComparisonData
+{
+    public double? Cost { get; set; }
+    public double? Consumption { get; set; }
+}
+
+public class SignupStatus
+{
+    public ProcessStep FeedStep { get; set; }
+    public ProcessStep AvatarStep { get; set; }
+    public ICollection<ProcessStep> Steps { get; set; }
+}
+
+public class ProcessStep
+{
+    public DateTimeOffset? Timestamp { get; set; }
+    public bool? IsComplete { get; set; }
+    public string Title { get; set; }
+    public string Description { get; set; }
+}
+
+public class Disaggregation
+{
+    public long? Year { get; set; }
+    public long? Month { get; set; }
+    public double? FixedConsumptionKwh { get; set; }
+    public long? FixedConsumptionKwhPercent { get; set; }
+    public double? FixedConsumptionCost { get; set; }
+    public double? HeatingConsumptionKwh { get; set; }
+    public long? HeatingConsumptionKwhPercent { get; set; }
+    public double? HeatingConsumptionCost { get; set; }
+    public double? BehaviorConsumptionKwh { get; set; }
+    public long? BehaviorConsumptionKwhPercent { get; set; }
+    public double? BehaviorConsumptionCost { get; set; }
+    public string Currency { get; set; }
+    public bool? IsValid { get; set; }
+}
+
+public class Device
+{
+    public string DeviceId { get; set; }
+    public string Type { get; set; }
+    public bool? IsControllable { get; set; }
+    public string ExternalId { get; set; }
+    public string Name { get; set; }
+    public bool? IsBatteryLow { get; set; }
+    public bool? IsSignalLow { get; set; }
+    public bool? IsAlive { get; set; }
+    public ICollection<string> Capabilities { get; set; }
+    public object Properties { get; set; }
+}
+
+public class Weather
+{
+    public double? Temperature { get; set; }
+    public DateTimeOffset? Timestamp { get; set; }
+    public string Summary { get; set; }
+    public string Type { get; set; }
+}
+
+public class AwayMode
+{
+    public bool? IsSupported { get; set; }
+    public AwayModeSettings Settings { get; set; }
+}
+
+public class AwayModeSettings
+{
+    public DateTimeOffset? From { get; set; }
+    public DateTimeOffset? To { get; set; }
+}
+
+public class Feed
+{
+    public long? NumberOfItems { get; set; }
+    public ICollection<FeedItem> Items { get; set; }
+    public ICollection<PushNotification> PushNotifications { get; set; }
+}
+
+public class FeedItem
+{
+    public long? Id { get; set; }
+    public string MessageTypeId { get; set; }
+    public string Link { get; set; }
+    public string Text { get; set; }
+    public DateTimeOffset? CreatedAt { get; set; }
+    public DateTimeOffset? ModifiedAt { get; set; }
+}
+
+public class PushNotification
+{
+    public long? Id { get; set; }
+    public string Link { get; set; }
+    public string Text { get; set; }
+}
+#endregion

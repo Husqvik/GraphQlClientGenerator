@@ -19,7 +19,11 @@ namespace GraphQlClientGenerator
         /// </summary>
         public static bool TreatUnknownObjectAsScalar { get; set; }
 
+        public static IntegerType IntegerType { get; set; } = IntegerType.Int32;
+
         public static FloatType FloatType { get; set; }
+
+        public static IdType IdType { get; set; } = IdType.Guid;
 
         /// <summary>
         /// This property is used for mapping GraphQL scalar type into specific .NET type. By default any custom GraphQL scalar type is mapped into <see cref="System.Object"/>.
@@ -34,6 +38,8 @@ namespace GraphQlClientGenerator
             CommentGeneration = CommentGenerationOption.Disabled;
             IncludeDeprecatedFields = false;
             FloatType = FloatType.Decimal;
+            IntegerType = IntegerType.Int32;
+            IdType = IdType.Guid;
             TreatUnknownObjectAsScalar = false;
         }
 
@@ -59,6 +65,19 @@ namespace GraphQlClientGenerator
         Decimal,
         Float,
         Double
+    }
+
+    public enum IntegerType
+    {
+        Int16,
+        Int32,
+        Int64
+    }
+
+    public enum IdType
+    {
+        String,
+        Guid
     }
 
     [Flags]

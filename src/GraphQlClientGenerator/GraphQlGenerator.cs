@@ -293,7 +293,7 @@ using System.Text;
                     switch (fieldType.Name)
                     {
                         case GraphQlTypeBase.GraphQlTypeScalarInteger:
-                            propertyType = "int?";
+                            propertyType = GetIntegerNetType();
                             break;
                         case GraphQlTypeBase.GraphQlTypeScalarString:
                             propertyType = GetCustomScalarType(baseType, fieldType, member.Name);
@@ -305,7 +305,7 @@ using System.Text;
                             propertyType = "bool?";
                             break;
                         case GraphQlTypeBase.GraphQlTypeScalarId:
-                            propertyType = "Guid?";
+                            propertyType = GetIdNetType();
                             break;
                         default:
                             propertyType = GetCustomScalarType(baseType, fieldType, member.Name);
@@ -337,6 +337,27 @@ using System.Text;
                 case FloatType.Float: return "float?";
                 case FloatType.Double: return "double?";
                 default: throw new InvalidOperationException($"'{GraphQlGeneratorConfiguration.FloatType}' not supported");
+            }
+        }
+
+        private static string GetIntegerNetType()
+        {
+            switch (GraphQlGeneratorConfiguration.IntegerType)
+            {
+                case IntegerType.Int32: return "int?";
+                case IntegerType.Int16: return "short?";
+                case IntegerType.Int64: return "long?";
+                default: throw new InvalidOperationException($"'{GraphQlGeneratorConfiguration.IntegerType}' not supported");
+            }
+        }
+
+        private static string GetIdNetType()
+        {
+            switch (GraphQlGeneratorConfiguration.IdType)
+            {
+                case IdType.String: return "string";
+                case IdType.Guid: return "Guid?";
+                default: throw new InvalidOperationException($"'{GraphQlGeneratorConfiguration.IdType}' not supported");
             }
         }
 
@@ -630,7 +651,7 @@ using System.Text;
             switch (valueType.Name)
             {
                 case GraphQlTypeBase.GraphQlTypeScalarInteger:
-                    return "int?";
+                    return GetIntegerNetType();
                 case GraphQlTypeBase.GraphQlTypeScalarString:
                     return GetCustomScalarType(baseType, valueType, valueName);
                 case GraphQlTypeBase.GraphQlTypeScalarFloat:
@@ -638,7 +659,7 @@ using System.Text;
                 case GraphQlTypeBase.GraphQlTypeScalarBoolean:
                     return "bool?";
                 case GraphQlTypeBase.GraphQlTypeScalarId:
-                    return "Guid?";
+                    return GetIdNetType();
                 default:
                     return GetCustomScalarType(baseType, valueType, valueName);
             }

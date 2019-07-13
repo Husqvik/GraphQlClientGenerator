@@ -53,6 +53,20 @@ namespace GraphQlClientGenerator.Test
         }
 
         [Fact]
+        public void GenerateDataClassesWithTypeConfiguration()
+        {
+            GraphQlGeneratorConfiguration.IntegerType = IntegerType.Int64;
+            GraphQlGeneratorConfiguration.FloatType = FloatType.Double;
+            GraphQlGeneratorConfiguration.IdType = IdType.String;
+
+            var stringBuilder = new StringBuilder();
+            GraphQlGenerator.GenerateDataClasses(TestSchema, stringBuilder);
+
+            var expectedDataClasses = GetTestResource("ExpectedDataClassesWithTypeConfiguration");
+            stringBuilder.ToString().ShouldBe(expectedDataClasses);
+        }
+
+        [Fact]
         public void GenerateDataClassesWithInterfaces()
         {
             var stringBuilder = new StringBuilder();
