@@ -329,6 +329,12 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
         return (TQueryBuilder)this;
     }
 
+	public TQueryBuilder WithAllGenericFieldTypes()
+    {
+        IncludeFields(AllFields.Where(f => f.QueryBuilderType == null));
+        return (TQueryBuilder)this;
+    }
+
     protected TQueryBuilder WithScalarField(string fieldName, IDictionary<string, object> args = null)
     {
         IncludeScalarField(fieldName, args);
