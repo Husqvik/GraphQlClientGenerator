@@ -307,7 +307,10 @@ using System.Text;
                             propertyType = "bool?";
                             break;
                         case GraphQlTypeBase.GraphQlTypeScalarId:
-                            propertyType = "string";
+                            propertyType = "dynamic";
+                            break;
+                        case GraphQlTypeBase.GraphQlTypeScalarJson:
+                            propertyType = "dynamic";
                             break;
                         default:
                             propertyType = GetCustomScalarType(baseType, fieldType, member.Name);
@@ -640,7 +643,9 @@ using System.Text;
                 case GraphQlTypeBase.GraphQlTypeScalarBoolean:
                     return "bool?";
                 case GraphQlTypeBase.GraphQlTypeScalarId:
-                    return "string";
+                    return "dynamic";
+                case GraphQlTypeBase.GraphQlTypeScalarJson:
+                    return "dynamic";
                 default:
                     return GetCustomScalarType(baseType, valueType, valueName);
             }
