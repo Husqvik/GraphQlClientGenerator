@@ -238,7 +238,7 @@ using Newtonsoft.Json.Linq;
             GenerateFileMember("interface", interfaceName, null, builder, generateInterfaceBody);
 
         private static string GenerateDataClass(string typeName, string baseTypeName, StringBuilder builder, Action generateClassBody) =>
-            GenerateFileMember("class", typeName, baseTypeName, builder, generateClassBody);
+            GenerateFileMember((GraphQlGeneratorConfiguration.GeneratePartialClasses ? "partial " : null) + "class", typeName, baseTypeName, builder, generateClassBody);
 
         private static string GenerateFileMember(string memberType, string typeName, string baseTypeName, StringBuilder builder, Action generateFileMemberBody)
         {
@@ -368,7 +368,7 @@ using Newtonsoft.Json.Linq;
             var className = $"{type.Name}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix}";
             ValidateClassName(className);
 
-            builder.AppendLine($"public class {className} : GraphQlQueryBuilder<{className}>");
+            builder.AppendLine($"public {(GraphQlGeneratorConfiguration.GeneratePartialClasses ? "partial " : null)}class {className} : GraphQlQueryBuilder<{className}>");
             builder.AppendLine("{");
 
             builder.AppendLine("    private static readonly FieldMetadata[] AllFieldMetadata =");

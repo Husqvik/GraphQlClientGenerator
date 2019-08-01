@@ -58,6 +58,7 @@ namespace GraphQlClientGenerator.Test
             GraphQlGeneratorConfiguration.IntegerType = IntegerType.Int64;
             GraphQlGeneratorConfiguration.FloatType = FloatType.Double;
             GraphQlGeneratorConfiguration.IdType = IdType.String;
+            GraphQlGeneratorConfiguration.GeneratePartialClasses = false;
 
             var stringBuilder = new StringBuilder();
             GraphQlGenerator.GenerateDataClasses(TestSchema, stringBuilder);
@@ -232,6 +233,7 @@ namespace GraphQlClientGenerator.Test
             GraphQlGeneratorConfiguration.CSharpVersion = CSharpVersion.Newest;
             GraphQlGeneratorConfiguration.CommentGeneration = CommentGenerationOption.CodeSummary | CommentGenerationOption.DescriptionAttribute;
             GraphQlGeneratorConfiguration.IncludeDeprecatedFields = true;
+            GraphQlGeneratorConfiguration.GeneratePartialClasses = false;
             var schema = DeserializeTestSchema("TestSchemaWithDeprecatedFields");
 
             var stringBuilder = new StringBuilder();

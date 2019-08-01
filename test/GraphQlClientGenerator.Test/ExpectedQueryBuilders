@@ -375,7 +375,7 @@ public enum Resolution
 #endregion
 
 #region builder classes
-public class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
+public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -391,7 +391,7 @@ public class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
     }
 }
 
-public class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
+public partial class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -484,7 +484,7 @@ public class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
     }
 }
 
-public class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
+public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -637,7 +637,7 @@ public class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
     }
 }
 
-public class SubscriptionQueryBuilder : GraphQlQueryBuilder<SubscriptionQueryBuilder>
+public partial class SubscriptionQueryBuilder : GraphQlQueryBuilder<SubscriptionQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -696,7 +696,7 @@ public class SubscriptionQueryBuilder : GraphQlQueryBuilder<SubscriptionQueryBui
     }
 }
 
-public class PriceRatingQueryBuilder : GraphQlQueryBuilder<PriceRatingQueryBuilder>
+public partial class PriceRatingQueryBuilder : GraphQlQueryBuilder<PriceRatingQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -724,7 +724,7 @@ public class PriceRatingQueryBuilder : GraphQlQueryBuilder<PriceRatingQueryBuild
     }
 }
 
-public class PriceRatingEntryQueryBuilder : GraphQlQueryBuilder<PriceRatingEntryQueryBuilder>
+public partial class PriceRatingEntryQueryBuilder : GraphQlQueryBuilder<PriceRatingEntryQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -758,7 +758,7 @@ public class PriceRatingEntryQueryBuilder : GraphQlQueryBuilder<PriceRatingEntry
     }
 }
 
-public class ConsumptionMonthQueryBuilder : GraphQlQueryBuilder<ConsumptionMonthQueryBuilder>
+public partial class ConsumptionMonthQueryBuilder : GraphQlQueryBuilder<ConsumptionMonthQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -810,7 +810,7 @@ public class ConsumptionMonthQueryBuilder : GraphQlQueryBuilder<ConsumptionMonth
     }
 }
 
-public class ConsumptionQueryBuilder : GraphQlQueryBuilder<ConsumptionQueryBuilder>
+public partial class ConsumptionQueryBuilder : GraphQlQueryBuilder<ConsumptionQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -886,7 +886,7 @@ public class ConsumptionQueryBuilder : GraphQlQueryBuilder<ConsumptionQueryBuild
     }
 }
 
-public class PreLiveComparisonQueryBuilder : GraphQlQueryBuilder<PreLiveComparisonQueryBuilder>
+public partial class PreLiveComparisonQueryBuilder : GraphQlQueryBuilder<PreLiveComparisonQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -920,7 +920,7 @@ public class PreLiveComparisonQueryBuilder : GraphQlQueryBuilder<PreLiveComparis
     }
 }
 
-public class ComparisonQueryBuilder : GraphQlQueryBuilder<ComparisonQueryBuilder>
+public partial class ComparisonQueryBuilder : GraphQlQueryBuilder<ComparisonQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -978,7 +978,7 @@ public class ComparisonQueryBuilder : GraphQlQueryBuilder<ComparisonQueryBuilder
     }
 }
 
-public class ComparisonDataQueryBuilder : GraphQlQueryBuilder<ComparisonDataQueryBuilder>
+public partial class ComparisonDataQueryBuilder : GraphQlQueryBuilder<ComparisonDataQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -1000,7 +1000,7 @@ public class ComparisonDataQueryBuilder : GraphQlQueryBuilder<ComparisonDataQuer
     }
 }
 
-public class SignupStatusQueryBuilder : GraphQlQueryBuilder<SignupStatusQueryBuilder>
+public partial class SignupStatusQueryBuilder : GraphQlQueryBuilder<SignupStatusQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -1028,7 +1028,7 @@ public class SignupStatusQueryBuilder : GraphQlQueryBuilder<SignupStatusQueryBui
     }
 }
 
-public class ProcessStepQueryBuilder : GraphQlQueryBuilder<ProcessStepQueryBuilder>
+public partial class ProcessStepQueryBuilder : GraphQlQueryBuilder<ProcessStepQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -1062,7 +1062,7 @@ public class ProcessStepQueryBuilder : GraphQlQueryBuilder<ProcessStepQueryBuild
     }
 }
 
-public class DisaggregationQueryBuilder : GraphQlQueryBuilder<DisaggregationQueryBuilder>
+public partial class DisaggregationQueryBuilder : GraphQlQueryBuilder<DisaggregationQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -1150,7 +1150,7 @@ public class DisaggregationQueryBuilder : GraphQlQueryBuilder<DisaggregationQuer
     }
 }
 
-public class DeviceQueryBuilder : GraphQlQueryBuilder<DeviceQueryBuilder>
+public partial class DeviceQueryBuilder : GraphQlQueryBuilder<DeviceQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -1220,7 +1220,7 @@ public class DeviceQueryBuilder : GraphQlQueryBuilder<DeviceQueryBuilder>
     }
 }
 
-public class WeatherQueryBuilder : GraphQlQueryBuilder<WeatherQueryBuilder>
+public partial class WeatherQueryBuilder : GraphQlQueryBuilder<WeatherQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -1254,7 +1254,7 @@ public class WeatherQueryBuilder : GraphQlQueryBuilder<WeatherQueryBuilder>
     }
 }
 
-public class AwayModeQueryBuilder : GraphQlQueryBuilder<AwayModeQueryBuilder>
+public partial class AwayModeQueryBuilder : GraphQlQueryBuilder<AwayModeQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -1276,7 +1276,7 @@ public class AwayModeQueryBuilder : GraphQlQueryBuilder<AwayModeQueryBuilder>
     }
 }
 
-public class AwayModeSettingsQueryBuilder : GraphQlQueryBuilder<AwayModeSettingsQueryBuilder>
+public partial class AwayModeSettingsQueryBuilder : GraphQlQueryBuilder<AwayModeSettingsQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -1298,7 +1298,7 @@ public class AwayModeSettingsQueryBuilder : GraphQlQueryBuilder<AwayModeSettings
     }
 }
 
-public class FeedQueryBuilder : GraphQlQueryBuilder<FeedQueryBuilder>
+public partial class FeedQueryBuilder : GraphQlQueryBuilder<FeedQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -1333,7 +1333,7 @@ public class FeedQueryBuilder : GraphQlQueryBuilder<FeedQueryBuilder>
     }
 }
 
-public class FeedItemQueryBuilder : GraphQlQueryBuilder<FeedItemQueryBuilder>
+public partial class FeedItemQueryBuilder : GraphQlQueryBuilder<FeedItemQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -1379,7 +1379,7 @@ public class FeedItemQueryBuilder : GraphQlQueryBuilder<FeedItemQueryBuilder>
     }
 }
 
-public class PushNotificationQueryBuilder : GraphQlQueryBuilder<PushNotificationQueryBuilder>
+public partial class PushNotificationQueryBuilder : GraphQlQueryBuilder<PushNotificationQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []

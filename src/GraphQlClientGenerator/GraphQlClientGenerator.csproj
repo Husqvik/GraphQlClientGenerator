@@ -6,7 +6,7 @@
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
     <VersionPrefix>0.2</VersionPrefix>
-    <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard1.3;net452</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <Copyright>Copyright 2017-2019</Copyright>
     <Title>GraphQL C# Client Generator</Title>
@@ -17,8 +17,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>GraphGL C# Client</PackageTags>
     <PackageReleaseNotes>
-      Added support for Newtonsoft.Json object as query arguments;
-      configurable .NET type for GraphQL integers (Int16, Int32, Int64) and IDs (Guid, String)
+      Generate partial classes
     </PackageReleaseNotes>
   </PropertyGroup>
 

@@ -1,6 +1,6 @@
 
 #region input classes
-public class MeterReadingInput : IGraphQlInputObject
+public partial class MeterReadingInput : IGraphQlInputObject
 {
     public Guid? HomeId { get; set; }
     public string Time { get; set; }
@@ -14,7 +14,7 @@ public class MeterReadingInput : IGraphQlInputObject
     }
 }
 
-public class UpdateHomeInput : IGraphQlInputObject
+public partial class UpdateHomeInput : IGraphQlInputObject
 {
     public Guid? HomeId { get; set; }
     public string AppNickname { get; set; }
@@ -40,7 +40,7 @@ public class UpdateHomeInput : IGraphQlInputObject
     }
 }
 
-public class PushNotificationInput : IGraphQlInputObject
+public partial class PushNotificationInput : IGraphQlInputObject
 {
     public string Title { get; set; }
     public string Message { get; set; }
@@ -56,12 +56,12 @@ public class PushNotificationInput : IGraphQlInputObject
 #endregion
 
 #region data classes
-public class Query
+public partial class Query
 {
     public Viewer Viewer { get; set; }
 }
 
-public class Viewer
+public partial class Viewer
 {
     public string Login { get; set; }
     public string Name { get; set; }
@@ -70,7 +70,7 @@ public class Viewer
     public Home Home { get; set; }
 }
 
-public class Home
+public partial class Home
 {
     public Guid? Id { get; set; }
     public string TimeZone { get; set; }
@@ -92,7 +92,7 @@ public class Home
     public HomeFeatures Features { get; set; }
 }
 
-public class Address
+public partial class Address
 {
     public string Address1 { get; set; }
     public string Address2 { get; set; }
@@ -104,7 +104,7 @@ public class Address
     public string Longitude { get; set; }
 }
 
-public class LegalEntity
+public partial class LegalEntity
 {
     public Guid? Id { get; set; }
     public string FirstName { get; set; }
@@ -118,13 +118,13 @@ public class LegalEntity
     public Address Address { get; set; }
 }
 
-public class ContactInfo
+public partial class ContactInfo
 {
     public string Email { get; set; }
     public string Mobile { get; set; }
 }
 
-public class MeteringPointData
+public partial class MeteringPointData
 {
     public string ConsumptionEan { get; set; }
     public string GridCompany { get; set; }
@@ -136,7 +136,7 @@ public class MeteringPointData
     public int? EstimatedAnnualConsumption { get; set; }
 }
 
-public class Subscription
+public partial class Subscription
 {
     public Guid? Id { get; set; }
     public LegalEntity Subscriber { get; set; }
@@ -146,7 +146,7 @@ public class Subscription
     public PriceInfo PriceInfo { get; set; }
 }
 
-public class PriceInfo
+public partial class PriceInfo
 {
     public Price Current { get; set; }
     public ICollection<Price> Today { get; set; }
@@ -154,7 +154,7 @@ public class PriceInfo
     public SubscriptionPriceConnection Range { get; set; }
 }
 
-public class Price
+public partial class Price
 {
     public decimal? Total { get; set; }
     public decimal? Energy { get; set; }
@@ -164,14 +164,14 @@ public class Price
     public PriceLevel? Level { get; set; }
 }
 
-public class SubscriptionPriceConnection
+public partial class SubscriptionPriceConnection
 {
     public SubscriptionPriceConnectionPageInfo PageInfo { get; set; }
     public ICollection<SubscriptionPriceEdge> Edges { get; set; }
     public ICollection<Price> Nodes { get; set; }
 }
 
-public class SubscriptionPriceConnectionPageInfo : IPageInfo
+public partial class SubscriptionPriceConnectionPageInfo : IPageInfo
 {
     public string EndCursor { get; set; }
     public bool? HasNextPage { get; set; }
@@ -195,7 +195,7 @@ public interface IPageInfo
     string StartCursor { get; set; }
 }
 
-public class PageInfo : IPageInfo
+public partial class PageInfo : IPageInfo
 {
     public string EndCursor { get; set; }
     public bool? HasNextPage { get; set; }
@@ -203,20 +203,20 @@ public class PageInfo : IPageInfo
     public string StartCursor { get; set; }
 }
 
-public class SubscriptionPriceEdge
+public partial class SubscriptionPriceEdge
 {
     public string Cursor { get; set; }
     public Price Node { get; set; }
 }
 
-public class HomeConsumptionConnection
+public partial class HomeConsumptionConnection
 {
     public HomeConsumptionPageInfo PageInfo { get; set; }
     public ICollection<Consumption> Nodes { get; set; }
     public ICollection<HomeConsumptionEdge> Edges { get; set; }
 }
 
-public class HomeConsumptionPageInfo : IPageInfo
+public partial class HomeConsumptionPageInfo : IPageInfo
 {
     public string EndCursor { get; set; }
     public bool? HasNextPage { get; set; }
@@ -229,7 +229,7 @@ public class HomeConsumptionPageInfo : IPageInfo
     public int? Filtered { get; set; }
 }
 
-public class Consumption
+public partial class Consumption
 {
     public DateTimeOffset? From { get; set; }
     public DateTimeOffset? To { get; set; }
@@ -241,20 +241,20 @@ public class Consumption
     public string Currency { get; set; }
 }
 
-public class HomeConsumptionEdge
+public partial class HomeConsumptionEdge
 {
     public string Cursor { get; set; }
     public Consumption Node { get; set; }
 }
 
-public class HomeProductionConnection
+public partial class HomeProductionConnection
 {
     public HomeProductionPageInfo PageInfo { get; set; }
     public ICollection<Production> Nodes { get; set; }
     public ICollection<HomeProductionEdge> Edges { get; set; }
 }
 
-public class HomeProductionPageInfo : IPageInfo
+public partial class HomeProductionPageInfo : IPageInfo
 {
     public string EndCursor { get; set; }
     public bool? HasNextPage { get; set; }
@@ -267,7 +267,7 @@ public class HomeProductionPageInfo : IPageInfo
     public int? Filtered { get; set; }
 }
 
-public class Production
+public partial class Production
 {
     public DateTimeOffset? From { get; set; }
     public DateTimeOffset? To { get; set; }
@@ -279,43 +279,43 @@ public class Production
     public string Currency { get; set; }
 }
 
-public class HomeProductionEdge
+public partial class HomeProductionEdge
 {
     public string Cursor { get; set; }
     public Production Node { get; set; }
 }
 
-public class HomeFeatures
+public partial class HomeFeatures
 {
     public bool? RealTimeConsumptionEnabled { get; set; }
 }
 
-public class RootMutation
+public partial class RootMutation
 {
     public MeterReadingResponse SendMeterReading { get; set; }
     public Home UpdateHome { get; set; }
     public PushNotificationResponse SendPushNotification { get; set; }
 }
 
-public class MeterReadingResponse
+public partial class MeterReadingResponse
 {
     public Guid? HomeId { get; set; }
     public string Time { get; set; }
     public int? Reading { get; set; }
 }
 
-public class PushNotificationResponse
+public partial class PushNotificationResponse
 {
     public bool? Successful { get; set; }
     public int? PushedToNumberOfDevices { get; set; }
 }
 
-public class RootSubscription
+public partial class RootSubscription
 {
     public LiveMeasurement LiveMeasurement { get; set; }
 }
 
-public class LiveMeasurement
+public partial class LiveMeasurement
 {
     public DateTimeOffset? Timestamp { get; set; }
     public decimal? Power { get; set; }

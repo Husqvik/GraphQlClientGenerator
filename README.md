@@ -19,7 +19,7 @@ Install-Package GraphQlClientGenerator
 
 Code example for class generation:
 ```csharp
-var schema = await GraphQlGenerator.RetrieveSchema(Url, token);
+var schema = await GraphQlGenerator.RetrieveSchema(Url);
 
 var builder = new StringBuilder();
 GraphQlGenerator.GenerateQueryBuilder(schema, builder);

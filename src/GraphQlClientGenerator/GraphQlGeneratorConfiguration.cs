@@ -14,6 +14,8 @@ namespace GraphQlClientGenerator
 
         public static bool IncludeDeprecatedFields { get; set; }
 
+        public static bool GeneratePartialClasses { get; set; } = true;
+
         /// <summary>
         /// Determines whether unknown type scalar fields will be automatically requested when <code>WithAllScalarFields</code> issued.
         /// </summary>
@@ -41,6 +43,7 @@ namespace GraphQlClientGenerator
             IntegerType = IntegerType.Int32;
             IdType = IdType.Guid;
             TreatUnknownObjectAsScalar = false;
+            GeneratePartialClasses = true;
         }
 
         public static string DefaultScalarFieldTypeMapping(GraphQlType baseType, GraphQlTypeBase valueType, string valueName)

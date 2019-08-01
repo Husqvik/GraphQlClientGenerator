@@ -1,10 +1,10 @@
 ﻿#region data classes
-public class Query
+public partial class Query
 {
     public Me Me { get; set; }
 }
 
-public class Me
+public partial class Me
 {
     public Guid? Id { get; set; }
     public string FirstName { get; set; }
@@ -20,7 +20,7 @@ public class Me
     public ICollection<object> EnergyStatements { get; set; }
 }
 
-public class Home
+public partial class Home
 {
     public Guid? Id { get; set; }
     public Avatar? Avatar { get; set; }
@@ -42,7 +42,7 @@ public class Home
     public AwayMode AwayMode { get; set; }
 }
 
-public class Subscription
+public partial class Subscription
 {
     public Guid? Id { get; set; }
     public DateTimeOffset? ValidFrom { get; set; }
@@ -53,14 +53,14 @@ public class Subscription
     public PriceRating PriceRating { get; set; }
 }
 
-public class PriceRating
+public partial class PriceRating
 {
     public decimal? MinPrice { get; set; }
     public decimal? MaxPrice { get; set; }
     public ICollection<PriceRatingEntry> Entries { get; set; }
 }
 
-public class PriceRatingEntry
+public partial class PriceRatingEntry
 {
     public string Time { get; set; }
     public decimal? Price { get; set; }
@@ -68,7 +68,7 @@ public class PriceRatingEntry
     public decimal? Difference { get; set; }
 }
 
-public class ConsumptionMonth
+public partial class ConsumptionMonth
 {
     public int? Year { get; set; }
     public int? Month { get; set; }
@@ -79,7 +79,7 @@ public class ConsumptionMonth
     public decimal? CostEstimate { get; set; }
 }
 
-public class Consumption
+public partial class Consumption
 {
     public object AnnualValues { get; set; }
     public object MonthlyValues { get; set; }
@@ -94,7 +94,7 @@ public class Consumption
     public string TimeZone { get; set; }
 }
 
-public class PreLiveComparison
+public partial class PreLiveComparison
 {
     public string HomeId { get; set; }
     public bool? BasedOnActuals { get; set; }
@@ -102,7 +102,7 @@ public class PreLiveComparison
     public ICollection<Comparison> PreviousYearMonths { get; set; }
 }
 
-public class Comparison
+public partial class Comparison
 {
     public int? Year { get; set; }
     public int? Month { get; set; }
@@ -114,20 +114,20 @@ public class Comparison
     public ComparisonData Efficient { get; set; }
 }
 
-public class ComparisonData
+public partial class ComparisonData
 {
     public decimal? Cost { get; set; }
     public decimal? Consumption { get; set; }
 }
 
-public class SignupStatus
+public partial class SignupStatus
 {
     public ProcessStep FeedStep { get; set; }
     public ProcessStep AvatarStep { get; set; }
     public ICollection<ProcessStep> Steps { get; set; }
 }
 
-public class ProcessStep
+public partial class ProcessStep
 {
     public DateTimeOffset? Timestamp { get; set; }
     public bool? IsComplete { get; set; }
@@ -135,7 +135,7 @@ public class ProcessStep
     public string Description { get; set; }
 }
 
-public class Disaggregation
+public partial class Disaggregation
 {
     public int? Year { get; set; }
     public int? Month { get; set; }
@@ -152,7 +152,7 @@ public class Disaggregation
     public bool? IsValid { get; set; }
 }
 
-public class Device
+public partial class Device
 {
     public string DeviceId { get; set; }
     public string Type { get; set; }
@@ -166,7 +166,7 @@ public class Device
     public object Properties { get; set; }
 }
 
-public class Weather
+public partial class Weather
 {
     public decimal? Temperature { get; set; }
     public DateTimeOffset? Timestamp { get; set; }
@@ -174,26 +174,26 @@ public class Weather
     public string Type { get; set; }
 }
 
-public class AwayMode
+public partial class AwayMode
 {
     public bool? IsSupported { get; set; }
     public AwayModeSettings Settings { get; set; }
 }
 
-public class AwayModeSettings
+public partial class AwayModeSettings
 {
     public DateTimeOffset? From { get; set; }
     public DateTimeOffset? To { get; set; }
 }
 
-public class Feed
+public partial class Feed
 {
     public int? NumberOfItems { get; set; }
     public ICollection<FeedItem> Items { get; set; }
     public ICollection<PushNotification> PushNotifications { get; set; }
 }
 
-public class FeedItem
+public partial class FeedItem
 {
     public int? Id { get; set; }
     public string MessageTypeId { get; set; }
@@ -203,7 +203,7 @@ public class FeedItem
     public DateTimeOffset? ModifiedAt { get; set; }
 }
 
-public class PushNotification
+public partial class PushNotification
 {
     public int? Id { get; set; }
     public string Link { get; set; }
