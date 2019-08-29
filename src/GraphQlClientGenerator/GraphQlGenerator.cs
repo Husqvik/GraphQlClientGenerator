@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,16 +45,19 @@ using Newtonsoft.Json.Linq;
                 Converters = { new StringEnumConverter() }
             };
 
-        public static async Task<GraphQlSchema> RetrieveSchema(string url)
+        public static async Task<GraphQlSchema> RetrieveSchema(string url, string authToken = null)
         {
             using (var client = new HttpClient())
             {
+                if( !string.IsNullOrEmpty(authToken) )
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
                 string content;
 
                 using (var response =
                     await client.PostAsync(
                         url,
-                        new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json")))
+                        new StringContent(JsonConvert.SerializeObject(new {operationName = "IntrospectionQuery", query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json")))
                 {
                     content =
                         response.Content == null
