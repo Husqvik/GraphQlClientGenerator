@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -79,9 +80,20 @@ using Newtonsoft.Json.Linq;
             builder.AppendLine();
         }
 
+        private static string GetThisFilePath([CallerFilePath] string path = null)
+        {
+            return path;
+        }
+
+
         public static void GenerateQueryBuilder(GraphQlSchema schema, StringBuilder builder)
         {
+#if UNITY_EDITOR
+            var path = Path.GetDirectoryName(GetThisFilePath()) + "\\BaseClasses";
+            using (var reader = new StreamReader(path))
+#else
             using (var reader = new StreamReader(typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses")))
+#endif
                 builder.AppendLine(reader.ReadToEnd());
 
             GenerateSharedTypes(schema, builder);
@@ -372,7 +384,7 @@ using Newtonsoft.Json.Linq;
             builder.AppendLine("{");
 
             builder.AppendLine("    private static readonly FieldMetadata[] AllFieldMetadata =");
-            builder.AppendLine("        new []");
+            builder.AppendLine("        new FieldMetadata[]");
             builder.AppendLine("        {");
 
             var fields = type.Fields?.ToArray();
