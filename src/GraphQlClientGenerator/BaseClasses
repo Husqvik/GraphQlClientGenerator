@@ -170,6 +170,8 @@ public abstract class GraphQlQueryBuilder
 
     protected abstract IList<FieldMetadata> AllFields { get; }
 
+    protected GraphQlQueryBuilder _child;
+
     public void Clear()
     {
         _fieldCriteria.Clear();
@@ -187,6 +189,19 @@ public abstract class GraphQlQueryBuilder
 
     protected string Build(Formatting formatting, int level, byte indentationSize)
     {
+        if (_child != null)
+        {
+            var childType = _child.GetType();
+            var typeName = childType.Name.Substring(0, childType.Name.Length - 12);
+            var childBuilder = new StringBuilder();
+            childBuilder.Append("{__typename\n... on ");
+            childBuilder.Append(typeName);
+            childBuilder.Append(" ");
+            childBuilder.Append(_child.Build(formatting, level, indentationSize));
+            childBuilder.Append(" }");
+            return childBuilder.ToString();
+        }
+
         var isIndentedFormatting = formatting == Formatting.Indented;
 
         var builder = new StringBuilder();
@@ -251,6 +266,11 @@ public abstract class GraphQlQueryBuilder
         }
     }
 
+    protected void IncludeChild(GraphQlQueryBuilder child)
+    {
+        _child = child;
+    }
+
     private abstract class GraphQlFieldCriteria
     {
         protected readonly string FieldName;
@@ -303,7 +323,7 @@ public abstract class GraphQlQueryBuilder
 
         public override string Build(Formatting formatting, int level, byte indentationSize)
         {
-            if (_objectQueryBuilder._fieldCriteria.Count == 0)
+            if (_objectQueryBuilder._fieldCriteria.Count == 0 && _objectQueryBuilder._child == null)
                 return String.Empty;
 
             var builder = new StringBuilder();
@@ -342,6 +362,12 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
     protected TQueryBuilder WithObjectField(string fieldName, GraphQlQueryBuilder queryBuilder, IDictionary<string, object> args = null)
     {
         IncludeObjectField(fieldName, queryBuilder, args);
+        return (TQueryBuilder)this;
+    }
+
+    public TQueryBuilder WithChild(GraphQlQueryBuilder child)
+    {
+        IncludeChild(child);
         return (TQueryBuilder)this;
     }
 }

@@ -275,10 +275,12 @@ using Newtonsoft.Json.Linq;
             switch (fieldType.Kind)
             {
                 case GraphQlTypeKindObject:
-                case GraphQlTypeKindInterface:
                 case GraphQlTypeKindUnion:
                 case GraphQlTypeKindInputObject:
                     propertyType = $"{fieldType.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
+                    break;
+                case GraphQlTypeKindInterface:
+                    propertyType = $"I{fieldType.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
                     break;
                 case GraphQlTypeKindEnum:
                     propertyType = $"{fieldType.Name}?";
