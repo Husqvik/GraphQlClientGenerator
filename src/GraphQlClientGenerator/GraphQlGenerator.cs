@@ -663,6 +663,8 @@ using Newtonsoft.Json.Linq;
                     return GetFloatNetType();
                 case GraphQlTypeBase.GraphQlTypeScalarBoolean:
                     return "bool?";
+                case GraphQlTypeBase.GraphQlTypeScalarDateTime:
+                    return "DateTime?";
                 case GraphQlTypeBase.GraphQlTypeScalarId:
                     return GetIdNetType();
                 default:
