@@ -80,7 +80,8 @@ namespace GraphQlClientGenerator
     public enum IdType
     {
         String,
-        Guid
+        Guid,
+        Object
     }
 
     [Flags]

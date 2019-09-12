@@ -359,6 +359,7 @@ using Newtonsoft.Json.Linq;
             {
                 case IdType.String: return "string";
                 case IdType.Guid: return "Guid?";
+                case IdType.Object: return "object";
                 default: throw new InvalidOperationException($"'{GraphQlGeneratorConfiguration.IdType}' not supported");
             }
         }
