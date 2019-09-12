@@ -404,6 +404,7 @@ public partial class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
             new FieldMetadata { Name = "email" },
             new FieldMetadata { Name = "language" },
             new FieldMetadata { Name = "tone" },
+            new FieldMetadata { Name = "avatars", IsComplex = true },
             new FieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilder) },
             new FieldMetadata { Name = "homes", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilder) },
             new FieldMetadata { Name = "feed", IsComplex = true, QueryBuilderType = typeof(FeedQueryBuilder) },
@@ -450,6 +451,11 @@ public partial class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
     public MeQueryBuilder WithTone()
     {
         return WithScalarField("tone");
+    }
+
+    public MeQueryBuilder WithAvatars()
+    {
+        return WithScalarField("avatars");
     }
 
     public MeQueryBuilder WithHome(HomeQueryBuilder homeQueryBuilder, string id = null)

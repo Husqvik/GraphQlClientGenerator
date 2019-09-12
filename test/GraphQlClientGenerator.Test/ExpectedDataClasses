@@ -1,4 +1,4 @@
-﻿#region data classes
+#region data classes
 public partial class Query
 {
     public Me Me { get; set; }
@@ -14,6 +14,7 @@ public partial class Me
     public string Email { get; set; }
     public string Language { get; set; }
     public string Tone { get; set; }
+    public ICollection<Avatar> Avatars { get; set; }
     public Home Home { get; set; }
     public ICollection<Home> Homes { get; set; }
     public Feed Feed { get; set; }
