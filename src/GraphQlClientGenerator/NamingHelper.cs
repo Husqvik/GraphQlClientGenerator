@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -7,10 +8,99 @@ namespace GraphQlClientGenerator
 {
     internal static class NamingHelper
     {
+        private static HashSet<string> KeyWords = new HashSet<string>() {
+            "abstract",
+            "as",
+            "base",
+            "bool",
+            "break",
+            "byte",
+            "case",
+            "catch",
+            "char",
+            "checked",
+            "class",
+            "const",
+            "continue",
+            "decimal",
+            "default",
+            "delegate",
+            "do",
+            "double",
+            "else",
+            "enum",
+            "event",
+            "explicit",
+            "extern",
+            "false",
+            "finally",
+            "fixed",
+            "float",
+            "for",
+            "foreach",
+            "goto",
+            "if",
+            "implicit",
+            "in",
+            "int",
+            "interface",
+            "internal",
+            "is",
+            "lock",
+            "long",
+            "namespace",
+            "new",
+            "null",
+            "object",
+            "operator",
+            "out",
+            "override",
+            "params",
+            "private",
+            "protected",
+            "public",
+            "readonly",
+            "ref",
+            "return",
+            "sbyte",
+            "sealed",
+            "short",
+            "sizeof",
+            "stackalloc",
+            "static",
+            "string",
+            "struct",
+            "switch",
+            "this",
+            "throw",
+            "true",
+            "try",
+            "typeof",
+            "uint",
+            "ulong",
+            "unchecked",
+            "unsafe",
+            "ushort",
+            "using",
+            "using",
+            "static",
+            "void",
+            "volatile",
+            "while",
+	    };
+
         public static string LowerFirst(string value)
         {
             var firstLetter = value[0];
             return value.Remove(0, 1).Insert(0, firstLetter.ToString().ToLowerInvariant());
+        }
+
+        public static string ToValidVariableName(string name)
+        {
+            if (KeyWords.Contains(name))
+                return "@" + name;
+            else
+                return name;
         }
 
         public static string ToPascalCase(string value)
