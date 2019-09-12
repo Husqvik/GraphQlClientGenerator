@@ -81,7 +81,8 @@ namespace GraphQlClientGenerator
     {
         String,
         Guid,
-        Object
+        Object,
+        Custom
     }
 
     [Flags]

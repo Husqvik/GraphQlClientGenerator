@@ -1,6 +1,6 @@
 ﻿namespace GraphQlClientGenerator
 {
-    public class IntrospectionQuery
+    public static class IntrospectionQuery
     {
         public const string Text =
     @"query IntrospectionQuery {

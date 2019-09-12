@@ -307,7 +307,7 @@ using Newtonsoft.Json.Linq;
                             propertyType = "bool?";
                             break;
                         case GraphQlTypeBase.GraphQlTypeScalarId:
-                            propertyType = GetIdNetType();
+                            propertyType = GetIdNetType(baseType, fieldType, member.Name);
                             break;
                         default:
                             propertyType = GetCustomScalarType(baseType, fieldType, member.Name);
@@ -353,13 +353,14 @@ using Newtonsoft.Json.Linq;
             }
         }
 
-        private static string GetIdNetType()
+        private static string GetIdNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
         {
             switch (GraphQlGeneratorConfiguration.IdType)
             {
                 case IdType.String: return "string";
                 case IdType.Guid: return "Guid?";
                 case IdType.Object: return "object";
+                case IdType.Custom: return GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName);
                 default: throw new InvalidOperationException($"'{GraphQlGeneratorConfiguration.IdType}' not supported");
             }
         }
@@ -611,7 +612,12 @@ using Newtonsoft.Json.Linq;
             {
                 var enumValue = enumValues[i];
                 GenerateCodeComments(builder, enumValue.Description);
-                builder.Append($"    [EnumMember(Value=\"{enumValue.Name}\")] {NamingHelper.ToNetEnumName(enumValue.Name)}");
+                builder.Append("    ");
+                var netIdentifier = NamingHelper.ToNetEnumName(enumValue.Name);
+                if (netIdentifier != enumValue.Name)
+                    builder.Append($"[EnumMember(Value=\"{enumValue.Name}\")] ");
+
+                builder.Append(netIdentifier);
 
                 if (i < enumValues.Count - 1)
                     builder.Append(",");
@@ -662,7 +668,7 @@ using Newtonsoft.Json.Linq;
                 case GraphQlTypeBase.GraphQlTypeScalarBoolean:
                     return "bool?";
                 case GraphQlTypeBase.GraphQlTypeScalarId:
-                    return GetIdNetType();
+                    return GetIdNetType(baseType, valueType, valueName);
                 default:
                     return GetCustomScalarType(baseType, valueType, valueName);
             }
