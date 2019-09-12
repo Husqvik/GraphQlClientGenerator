@@ -458,11 +458,11 @@ public partial class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
         return WithScalarField("avatars");
     }
 
-    public MeQueryBuilder WithHome(HomeQueryBuilder homeQueryBuilder, string id = null)
+    public MeQueryBuilder WithHome(HomeQueryBuilder homeQueryBuilder, string @object = null)
     {
         var args = new Dictionary<string, object>();
-        if (id != null)
-            args.Add("id", id);
+        if (@object != null)
+            args.Add("object", @object);
 
         return WithObjectField("home", homeQueryBuilder, args);
     }

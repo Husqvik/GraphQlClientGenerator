@@ -156,7 +156,7 @@
               "description": null,
               "args": [
                 {
-                  "name": "id",
+                  "name": "object",
                   "description": null,
                   "type": {
                     "kind": "SCALAR",
