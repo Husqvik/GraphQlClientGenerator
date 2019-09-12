@@ -394,10 +394,9 @@ using Newtonsoft.Json.Linq;
                     builder.Append(", IsComplex = true");
 
                     fieldType = isList ? fieldType.OfType.UnwrapIfNonNull() : fieldType;
-                    if (fieldType.Kind != GraphQlTypeKindScalar)
-                    {
+
+                    if (fieldType.Kind != GraphQlTypeKindScalar && fieldType.Kind != GraphQlTypeKindEnum)
                         builder.Append($", QueryBuilderType = typeof({fieldType.Name}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix})");
-                    }
                 }
 
                 builder.AppendLine($" }}{comma}");
