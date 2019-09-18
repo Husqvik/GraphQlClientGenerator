@@ -162,7 +162,14 @@ internal interface IGraphQlInputObject
     IEnumerable<InputPropertyInfo> GetPropertyValues();
 }
 
-public abstract class GraphQlQueryBuilder
+public interface IGraphQlQueryBuilder
+{
+    void Clear();
+    void IncludeAllFields();
+    string Build(Formatting formatting = Formatting.None, byte indentationSize = 2);
+}
+
+public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 {
     private readonly Dictionary<string, GraphQlFieldCriteria> _fieldCriteria = new Dictionary<string, GraphQlFieldCriteria>();
 
