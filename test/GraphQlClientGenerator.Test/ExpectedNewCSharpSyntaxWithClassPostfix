@@ -177,12 +177,12 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     protected abstract IList<FieldMetadata> AllFields { get; }
 
-    public void Clear()
+    public virtual void Clear()
     {
         _fieldCriteria.Clear();
     }
 
-    public void IncludeAllFields()
+    public virtual void IncludeAllFields()
     {
         IncludeFields(AllFields);
     }
@@ -192,7 +192,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         return Build(formatting, 1, indentationSize);
     }
 
-    protected string Build(Formatting formatting, int level, byte indentationSize)
+    protected virtual string Build(Formatting formatting, int level, byte indentationSize)
     {
         var isIndentedFormatting = formatting == Formatting.Indented;
 
