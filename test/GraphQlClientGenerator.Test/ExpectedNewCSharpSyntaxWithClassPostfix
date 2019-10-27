@@ -251,6 +251,10 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
                 IncludeScalarField(field.Name, null);
             else
             {
+                var builderType = GetType();
+                if (builderType.IsAssignableFrom(field.QueryBuilderType))
+                    throw new InvalidOperationException($"Field '{builderType.Name}.{field.Name}' cannot be added because its type is the same as the parent type (or inherited) and leads to infinite recursion. ");
+
                 var queryBuilder = (GraphQlQueryBuilder)Activator.CreateInstance(field.QueryBuilderType);
                 queryBuilder.IncludeAllFields();
                 IncludeObjectField(field.Name, queryBuilder, null);
