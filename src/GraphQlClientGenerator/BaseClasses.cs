@@ -181,9 +181,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     protected GraphQlQueryBuilder(string alias = null)
     {
-        if (alias != null && String.IsNullOrWhiteSpace(alias))
-            throw new ArgumentException("Value must not be white space. ", nameof(alias));
-
+        ValidateAlias(alias);
         Alias = alias;
     }
 
@@ -243,9 +241,10 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         return builder.ToString();
     }
 
-    protected void IncludeScalarField(string fieldName, IDictionary<string, object> args)
+    protected void IncludeScalarField(string fieldName, string alias, IDictionary<string, object> args)
     {
-        _fieldCriteria[fieldName] = new GraphQlScalarFieldCriteria(fieldName, args);
+        ValidateAlias(alias);
+        _fieldCriteria[alias ?? fieldName] = new GraphQlScalarFieldCriteria(fieldName, alias, args);
     }
 
     protected void IncludeObjectField(string fieldName, GraphQlQueryBuilder objectFieldQueryBuilder, IDictionary<string, object> args)
@@ -258,7 +257,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         foreach (var field in fields)
         {
             if (field.QueryBuilderType == null)
-                IncludeScalarField(field.Name, null);
+                IncludeScalarField(field.Name, null, null);
             else
             {
                 var builderType = GetType();
@@ -270,6 +269,12 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
                 IncludeObjectField(field.Name, queryBuilder, null);
             }
         }
+    }
+
+    private static void ValidateAlias(string alias)
+    {
+        if (alias != null && String.IsNullOrWhiteSpace(alias))
+            throw new ArgumentException("Value must not be white space. ", nameof(alias));
     }
 
     private abstract class GraphQlFieldCriteria
@@ -293,12 +298,21 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
                     ? $"({String.Join($",{separator}", _args.Select(kvp => $"{kvp.Key}:{separator}{GraphQlQueryHelper.BuildArgumentValue(kvp.Value, formatting, level, indentationSize)}"))}){separator}"
                     : String.Empty;
         }
+
+        protected static string BuildAliasPrefix(string alias, Formatting formatting)
+        {
+            var separator = formatting == Formatting.Indented ? " " : String.Empty;
+            return String.IsNullOrWhiteSpace(alias) ? null : alias + ':' + separator;
+        }
     }
 
     private class GraphQlScalarFieldCriteria : GraphQlFieldCriteria
     {
-        public GraphQlScalarFieldCriteria(string fieldName, IDictionary<string, object> args) : base(fieldName, args)
+        private readonly string _alias;
+
+        public GraphQlScalarFieldCriteria(string fieldName, string alias, IDictionary<string, object> args) : base(fieldName, args)
         {
+            _alias = alias;
         }
 
         public override string Build(Formatting formatting, int level, byte indentationSize)
@@ -307,6 +321,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
             if (formatting == Formatting.Indented)
                 builder.Append(GraphQlQueryHelper.GetIndentation(level, indentationSize));
 
+            builder.Append(BuildAliasPrefix(_alias, formatting));
             builder.Append(FieldName);
             builder.Append(BuildArgumentClause(formatting, level, indentationSize));
             return builder.ToString();
@@ -332,15 +347,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
             if (formatting == Formatting.Indented)
                 builder.Append(GraphQlQueryHelper.GetIndentation(level, indentationSize));
 
-            if (!String.IsNullOrWhiteSpace(_objectQueryBuilder.Alias))
-            {
-                builder.Append(_objectQueryBuilder.Alias);
-                builder.Append(":");
-
-                if (formatting == Formatting.Indented)
-                    builder.Append(" ");
-            }
-
+            builder.Append(BuildAliasPrefix(_objectQueryBuilder.Alias, formatting));
             builder.Append(FieldName);
 
             if (formatting == Formatting.Indented)
@@ -371,9 +378,9 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
         return (TQueryBuilder)this;
     }
 
-    protected TQueryBuilder WithScalarField(string fieldName, IDictionary<string, object> args = null)
+    protected TQueryBuilder WithScalarField(string fieldName, string alias = null, IDictionary<string, object> args = null)
     {
-        IncludeScalarField(fieldName, args);
+        IncludeScalarField(fieldName, alias, args);
         return (TQueryBuilder)this;
     }
 

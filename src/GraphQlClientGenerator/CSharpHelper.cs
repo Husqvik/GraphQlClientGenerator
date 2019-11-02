@@ -13,8 +13,8 @@ namespace GraphQlClientGenerator
 
             foreach (var ch in value)
             {
-                var uc = CharUnicodeInfo.GetUnicodeCategory(ch);
-                switch (uc)
+                var unicodeCategory = CharUnicodeInfo.GetUnicodeCategory(ch);
+                switch (unicodeCategory)
                 {
                     case UnicodeCategory.UppercaseLetter:
                     case UnicodeCategory.LowercaseLetter:

@@ -181,9 +181,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     protected GraphQlQueryBuilder(string alias = null)
     {
-        if (alias != null && String.IsNullOrWhiteSpace(alias))
-            throw new ArgumentException("Value must not be white space. ", nameof(alias));
-
+        ValidateAlias(alias);
         Alias = alias;
     }
 
@@ -243,9 +241,10 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         return builder.ToString();
     }
 
-    protected void IncludeScalarField(string fieldName, IDictionary<string, object> args)
+    protected void IncludeScalarField(string fieldName, string alias, IDictionary<string, object> args)
     {
-        _fieldCriteria[fieldName] = new GraphQlScalarFieldCriteria(fieldName, args);
+        ValidateAlias(alias);
+        _fieldCriteria[alias ?? fieldName] = new GraphQlScalarFieldCriteria(fieldName, alias, args);
     }
 
     protected void IncludeObjectField(string fieldName, GraphQlQueryBuilder objectFieldQueryBuilder, IDictionary<string, object> args)
@@ -258,7 +257,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         foreach (var field in fields)
         {
             if (field.QueryBuilderType == null)
-                IncludeScalarField(field.Name, null);
+                IncludeScalarField(field.Name, null, null);
             else
             {
                 var builderType = GetType();
@@ -270,6 +269,12 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
                 IncludeObjectField(field.Name, queryBuilder, null);
             }
         }
+    }
+
+    private static void ValidateAlias(string alias)
+    {
+        if (alias != null && String.IsNullOrWhiteSpace(alias))
+            throw new ArgumentException("Value must not be white space. ", nameof(alias));
     }
 
     private abstract class GraphQlFieldCriteria
@@ -293,12 +298,21 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
                     ? $"({String.Join($",{separator}", _args.Select(kvp => $"{kvp.Key}:{separator}{GraphQlQueryHelper.BuildArgumentValue(kvp.Value, formatting, level, indentationSize)}"))}){separator}"
                     : String.Empty;
         }
+
+        protected static string BuildAliasPrefix(string alias, Formatting formatting)
+        {
+            var separator = formatting == Formatting.Indented ? " " : String.Empty;
+            return String.IsNullOrWhiteSpace(alias) ? null : alias + ':' + separator;
+        }
     }
 
     private class GraphQlScalarFieldCriteria : GraphQlFieldCriteria
     {
-        public GraphQlScalarFieldCriteria(string fieldName, IDictionary<string, object> args) : base(fieldName, args)
+        private readonly string _alias;
+
+        public GraphQlScalarFieldCriteria(string fieldName, string alias, IDictionary<string, object> args) : base(fieldName, args)
         {
+            _alias = alias;
         }
 
         public override string Build(Formatting formatting, int level, byte indentationSize)
@@ -307,6 +321,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
             if (formatting == Formatting.Indented)
                 builder.Append(GraphQlQueryHelper.GetIndentation(level, indentationSize));
 
+            builder.Append(BuildAliasPrefix(_alias, formatting));
             builder.Append(FieldName);
             builder.Append(BuildArgumentClause(formatting, level, indentationSize));
             return builder.ToString();
@@ -332,15 +347,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
             if (formatting == Formatting.Indented)
                 builder.Append(GraphQlQueryHelper.GetIndentation(level, indentationSize));
 
-            if (!String.IsNullOrWhiteSpace(_objectQueryBuilder.Alias))
-            {
-                builder.Append(_objectQueryBuilder.Alias);
-                builder.Append(":");
-
-                if (formatting == Formatting.Indented)
-                    builder.Append(" ");
-            }
-
+            builder.Append(BuildAliasPrefix(_objectQueryBuilder.Alias, formatting));
             builder.Append(FieldName);
 
             if (formatting == Formatting.Indented)
@@ -371,9 +378,9 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
         return (TQueryBuilder)this;
     }
 
-    protected TQueryBuilder WithScalarField(string fieldName, IDictionary<string, object> args = null)
+    protected TQueryBuilder WithScalarField(string fieldName, string alias = null, IDictionary<string, object> args = null)
     {
-        IncludeScalarField(fieldName, args);
+        IncludeScalarField(fieldName, alias, args);
         return (TQueryBuilder)this;
     }
 
@@ -416,6 +423,10 @@ public partial class QueryQueryBuilderV1 : GraphQlQueryBuilder<QueryQueryBuilder
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
+    public QueryQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
+
     public QueryQueryBuilderV1 WithMe(MeQueryBuilderV1 meQueryBuilder) => WithObjectField("me", meQueryBuilder);
 }
 
@@ -444,23 +455,27 @@ public partial class MeQueryBuilderV1 : GraphQlQueryBuilder<MeQueryBuilderV1>
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public MeQueryBuilderV1 WithId() => WithScalarField("id");
+    public MeQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public MeQueryBuilderV1 WithFirstName() => WithScalarField("firstName");
+    public MeQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
 
-    public MeQueryBuilderV1 WithLastName() => WithScalarField("lastName");
+    public MeQueryBuilderV1 WithFirstName(string alias = null) => WithScalarField("firstName", alias);
 
-    public MeQueryBuilderV1 WithFullName() => WithScalarField("fullName");
+    public MeQueryBuilderV1 WithLastName(string alias = null) => WithScalarField("lastName", alias);
 
-    public MeQueryBuilderV1 WithSsn() => WithScalarField("ssn");
+    public MeQueryBuilderV1 WithFullName(string alias = null) => WithScalarField("fullName", alias);
 
-    public MeQueryBuilderV1 WithEmail() => WithScalarField("email");
+    public MeQueryBuilderV1 WithSsn(string alias = null) => WithScalarField("ssn", alias);
 
-    public MeQueryBuilderV1 WithLanguage() => WithScalarField("language");
+    public MeQueryBuilderV1 WithEmail(string alias = null) => WithScalarField("email", alias);
 
-    public MeQueryBuilderV1 WithTone() => WithScalarField("tone");
+    public MeQueryBuilderV1 WithLanguage(string alias = null) => WithScalarField("language", alias);
 
-    public MeQueryBuilderV1 WithMobile() => WithScalarField("mobile");
+    public MeQueryBuilderV1 WithTone(string alias = null) => WithScalarField("tone", alias);
+
+    public MeQueryBuilderV1 WithMobile(string alias = null) => WithScalarField("mobile", alias);
 
     public MeQueryBuilderV1 WithWelcomeGreeting(GreetingQueryBuilderV1 greetingQueryBuilder) => WithObjectField("welcomeGreeting", greetingQueryBuilder);
 
@@ -497,13 +512,17 @@ public partial class GreetingQueryBuilderV1 : GraphQlQueryBuilder<GreetingQueryB
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public GreetingQueryBuilderV1 WithTitle() => WithScalarField("title");
+    public GreetingQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public GreetingQueryBuilderV1 WithDescription() => WithScalarField("description");
+    public GreetingQueryBuilderV1 WithTitle(string alias = null) => WithScalarField("title", alias);
 
-    public GreetingQueryBuilderV1 WithDescriptionWhenNoEnergyDeal() => WithScalarField("descriptionWhenNoEnergyDeal");
+    public GreetingQueryBuilderV1 WithDescription(string alias = null) => WithScalarField("description", alias);
 
-    public GreetingQueryBuilderV1 WithShowUntil() => WithScalarField("showUntil");
+    public GreetingQueryBuilderV1 WithDescriptionWhenNoEnergyDeal(string alias = null) => WithScalarField("descriptionWhenNoEnergyDeal", alias);
+
+    public GreetingQueryBuilderV1 WithShowUntil(string alias = null) => WithScalarField("showUntil", alias);
 }
 
 public partial class AppStateQueryBuilderV1 : GraphQlQueryBuilder<AppStateQueryBuilderV1>
@@ -516,6 +535,10 @@ public partial class AppStateQueryBuilderV1 : GraphQlQueryBuilder<AppStateQueryB
         };
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public AppStateQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
     public AppStateQueryBuilderV1 WithJourney(AppStateJourneyQueryBuilderV1 appStateJourneyQueryBuilder) => WithObjectField("journey", appStateJourneyQueryBuilder);
 
@@ -532,7 +555,11 @@ public partial class AppStateJourneyQueryBuilderV1 : GraphQlQueryBuilder<AppStat
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AppStateJourneyQueryBuilderV1 WithHasVisitedPairDevices() => WithScalarField("hasVisitedPairDevices");
+    public AppStateJourneyQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
+
+    public AppStateJourneyQueryBuilderV1 WithHasVisitedPairDevices(string alias = null) => WithScalarField("hasVisitedPairDevices", alias);
 }
 
 public partial class AppStateFronScreenQueryBuilderV1 : GraphQlQueryBuilder<AppStateFronScreenQueryBuilderV1>
@@ -547,11 +574,15 @@ public partial class AppStateFronScreenQueryBuilderV1 : GraphQlQueryBuilder<AppS
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AppStateFronScreenQueryBuilderV1 WithHomeId() => WithScalarField("homeId");
+    public AppStateFronScreenQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public AppStateFronScreenQueryBuilderV1 WithBubbles() => WithScalarField("bubbles");
+    public AppStateFronScreenQueryBuilderV1 WithHomeId(string alias = null) => WithScalarField("homeId", alias);
 
-    public AppStateFronScreenQueryBuilderV1 WithBubblesSortOrder() => WithScalarField("bubblesSortOrder");
+    public AppStateFronScreenQueryBuilderV1 WithBubbles(string alias = null) => WithScalarField("bubbles", alias);
+
+    public AppStateFronScreenQueryBuilderV1 WithBubblesSortOrder(string alias = null) => WithScalarField("bubblesSortOrder", alias);
 }
 
 public partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1>
@@ -590,17 +621,21 @@ public partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public HomeQueryBuilderV1 WithId() => WithScalarField("id");
+    public HomeQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public HomeQueryBuilderV1 WithAvatar() => WithScalarField("avatar");
+    public HomeQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
 
-    public HomeQueryBuilderV1 WithTimeZone() => WithScalarField("timeZone");
+    public HomeQueryBuilderV1 WithAvatar(string alias = null) => WithScalarField("avatar", alias);
 
-    public HomeQueryBuilderV1 WithTitle() => WithScalarField("title");
+    public HomeQueryBuilderV1 WithTimeZone(string alias = null) => WithScalarField("timeZone", alias);
 
-    public HomeQueryBuilderV1 WithType() => WithScalarField("type");
+    public HomeQueryBuilderV1 WithTitle(string alias = null) => WithScalarField("title", alias);
 
-    public HomeQueryBuilderV1 WithHasEnergyDeal() => WithScalarField("hasEnergyDeal");
+    public HomeQueryBuilderV1 WithType(string alias = null) => WithScalarField("type", alias);
+
+    public HomeQueryBuilderV1 WithHasEnergyDeal(string alias = null) => WithScalarField("hasEnergyDeal", alias);
 
     public HomeQueryBuilderV1 WithAddress(AddressQueryBuilderV1 addressQueryBuilder) => WithObjectField("address", addressQueryBuilder);
 
@@ -654,7 +689,7 @@ public partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1
 
     public HomeQueryBuilderV1 WithProfileQuestions(HomeProfileQuestionQueryBuilderV1 homeProfileQuestionQueryBuilder) => WithObjectField("profileQuestions", homeProfileQuestionQueryBuilder);
 
-    public HomeQueryBuilderV1 WithTemperatures(DateTimeOffset? from = null, DateTimeOffset? to = null, string resolution = null, bool? useDemoData = null)
+    public HomeQueryBuilderV1 WithTemperatures(DateTimeOffset? from = null, DateTimeOffset? to = null, string resolution = null, bool? useDemoData = null, string alias = null)
     {
         var args = new Dictionary<string, object>();
         if (from != null)
@@ -669,7 +704,7 @@ public partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1
         if (useDemoData != null)
             args.Add("useDemoData", useDemoData);
 
-        return WithScalarField("temperatures", args);
+        return WithScalarField("temperatures", alias, args);
     }
 
     public HomeQueryBuilderV1 WithSignupStatus(SignupStatusQueryBuilderV1 signupStatusQueryBuilder) => WithObjectField("signupStatus", signupStatusQueryBuilder);
@@ -736,25 +771,29 @@ public partial class AddressQueryBuilderV1 : GraphQlQueryBuilder<AddressQueryBui
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AddressQueryBuilderV1 WithAddress1() => WithScalarField("address1");
+    public AddressQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public AddressQueryBuilderV1 WithAddress2() => WithScalarField("address2");
+    public AddressQueryBuilderV1 WithAddress1(string alias = null) => WithScalarField("address1", alias);
 
-    public AddressQueryBuilderV1 WithAddress3() => WithScalarField("address3");
+    public AddressQueryBuilderV1 WithAddress2(string alias = null) => WithScalarField("address2", alias);
 
-    public AddressQueryBuilderV1 WithCity() => WithScalarField("city");
+    public AddressQueryBuilderV1 WithAddress3(string alias = null) => WithScalarField("address3", alias);
 
-    public AddressQueryBuilderV1 WithPostalCode() => WithScalarField("postalCode");
+    public AddressQueryBuilderV1 WithCity(string alias = null) => WithScalarField("city", alias);
 
-    public AddressQueryBuilderV1 WithCountry() => WithScalarField("country");
+    public AddressQueryBuilderV1 WithPostalCode(string alias = null) => WithScalarField("postalCode", alias);
 
-    public AddressQueryBuilderV1 WithLatitude() => WithScalarField("latitude");
+    public AddressQueryBuilderV1 WithCountry(string alias = null) => WithScalarField("country", alias);
 
-    public AddressQueryBuilderV1 WithLongitude() => WithScalarField("longitude");
+    public AddressQueryBuilderV1 WithLatitude(string alias = null) => WithScalarField("latitude", alias);
 
-    public AddressQueryBuilderV1 WithElevation() => WithScalarField("elevation");
+    public AddressQueryBuilderV1 WithLongitude(string alias = null) => WithScalarField("longitude", alias);
 
-    public AddressQueryBuilderV1 WithAddressText() => WithScalarField("addressText");
+    public AddressQueryBuilderV1 WithElevation(string alias = null) => WithScalarField("elevation", alias);
+
+    public AddressQueryBuilderV1 WithAddressText(string alias = null) => WithScalarField("addressText", alias);
 }
 
 public partial class SubscriptionQueryBuilderV1 : GraphQlQueryBuilder<SubscriptionQueryBuilderV1>
@@ -775,17 +814,21 @@ public partial class SubscriptionQueryBuilderV1 : GraphQlQueryBuilder<Subscripti
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public SubscriptionQueryBuilderV1 WithId() => WithScalarField("id");
+    public SubscriptionQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public SubscriptionQueryBuilderV1 WithWalletId() => WithScalarField("walletId");
+    public SubscriptionQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
 
-    public SubscriptionQueryBuilderV1 WithValidFrom() => WithScalarField("validFrom");
+    public SubscriptionQueryBuilderV1 WithWalletId(string alias = null) => WithScalarField("walletId", alias);
 
-    public SubscriptionQueryBuilderV1 WithValidTo() => WithScalarField("validTo");
+    public SubscriptionQueryBuilderV1 WithValidFrom(string alias = null) => WithScalarField("validFrom", alias);
 
-    public SubscriptionQueryBuilderV1 WithStatus() => WithScalarField("status");
+    public SubscriptionQueryBuilderV1 WithValidTo(string alias = null) => WithScalarField("validTo", alias);
 
-    public SubscriptionQueryBuilderV1 WithBillingRegionId() => WithScalarField("billingRegionId");
+    public SubscriptionQueryBuilderV1 WithStatus(string alias = null) => WithScalarField("status", alias);
+
+    public SubscriptionQueryBuilderV1 WithBillingRegionId(string alias = null) => WithScalarField("billingRegionId", alias);
 
     public SubscriptionQueryBuilderV1 WithPriceRating(PriceRatingRootQueryBuilderV1 priceRatingRootQueryBuilder) => WithObjectField("priceRating", priceRatingRootQueryBuilder);
 
@@ -810,13 +853,17 @@ public partial class PriceRatingRootQueryBuilderV1 : GraphQlQueryBuilder<PriceRa
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PriceRatingRootQueryBuilderV1 WithIsAvailable() => WithScalarField("isAvailable");
+    public PriceRatingRootQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public PriceRatingRootQueryBuilderV1 WithUseTotalIsConfigurable() => WithScalarField("useTotalIsConfigurable");
+    public PriceRatingRootQueryBuilderV1 WithIsAvailable(string alias = null) => WithScalarField("isAvailable", alias);
 
-    public PriceRatingRootQueryBuilderV1 WithUseTotalAsDefault() => WithScalarField("useTotalAsDefault");
+    public PriceRatingRootQueryBuilderV1 WithUseTotalIsConfigurable(string alias = null) => WithScalarField("useTotalIsConfigurable", alias);
 
-    public PriceRatingRootQueryBuilderV1 WithUseTotalText() => WithScalarField("useTotalText");
+    public PriceRatingRootQueryBuilderV1 WithUseTotalAsDefault(string alias = null) => WithScalarField("useTotalAsDefault", alias);
+
+    public PriceRatingRootQueryBuilderV1 WithUseTotalText(string alias = null) => WithScalarField("useTotalText", alias);
 
     public PriceRatingRootQueryBuilderV1 WithHourly(PriceRatingQueryBuilderV1 priceRatingQueryBuilder) => WithObjectField("hourly", priceRatingQueryBuilder);
 
@@ -841,15 +888,19 @@ public partial class PriceRatingQueryBuilderV1 : GraphQlQueryBuilder<PriceRating
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PriceRatingQueryBuilderV1 WithMinEnergy() => WithScalarField("minEnergy");
+    public PriceRatingQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public PriceRatingQueryBuilderV1 WithMaxEnergy() => WithScalarField("maxEnergy");
+    public PriceRatingQueryBuilderV1 WithMinEnergy(string alias = null) => WithScalarField("minEnergy", alias);
 
-    public PriceRatingQueryBuilderV1 WithMinTotal() => WithScalarField("minTotal");
+    public PriceRatingQueryBuilderV1 WithMaxEnergy(string alias = null) => WithScalarField("maxEnergy", alias);
 
-    public PriceRatingQueryBuilderV1 WithMaxTotal() => WithScalarField("maxTotal");
+    public PriceRatingQueryBuilderV1 WithMinTotal(string alias = null) => WithScalarField("minTotal", alias);
 
-    public PriceRatingQueryBuilderV1 WithCurrency() => WithScalarField("currency");
+    public PriceRatingQueryBuilderV1 WithMaxTotal(string alias = null) => WithScalarField("maxTotal", alias);
+
+    public PriceRatingQueryBuilderV1 WithCurrency(string alias = null) => WithScalarField("currency", alias);
 
     public PriceRatingQueryBuilderV1 WithColorOffsets(PriceRatingColorOffsetQueryBuilderV1 priceRatingColorOffsetQueryBuilder) => WithObjectField("colorOffsets", priceRatingColorOffsetQueryBuilder);
 
@@ -868,11 +919,15 @@ public partial class PriceRatingColorOffsetQueryBuilderV1 : GraphQlQueryBuilder<
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PriceRatingColorOffsetQueryBuilderV1 WithFullGreenPercent() => WithScalarField("fullGreenPercent");
+    public PriceRatingColorOffsetQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public PriceRatingColorOffsetQueryBuilderV1 WithFullYellowPercent() => WithScalarField("fullYellowPercent");
+    public PriceRatingColorOffsetQueryBuilderV1 WithFullGreenPercent(string alias = null) => WithScalarField("fullGreenPercent", alias);
 
-    public PriceRatingColorOffsetQueryBuilderV1 WithFullRedPercent() => WithScalarField("fullRedPercent");
+    public PriceRatingColorOffsetQueryBuilderV1 WithFullYellowPercent(string alias = null) => WithScalarField("fullYellowPercent", alias);
+
+    public PriceRatingColorOffsetQueryBuilderV1 WithFullRedPercent(string alias = null) => WithScalarField("fullRedPercent", alias);
 }
 
 public partial class PriceRatingEntryQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingEntryQueryBuilderV1>
@@ -888,13 +943,17 @@ public partial class PriceRatingEntryQueryBuilderV1 : GraphQlQueryBuilder<PriceR
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PriceRatingEntryQueryBuilderV1 WithTime() => WithScalarField("time");
+    public PriceRatingEntryQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public PriceRatingEntryQueryBuilderV1 WithEnergy() => WithScalarField("energy");
+    public PriceRatingEntryQueryBuilderV1 WithTime(string alias = null) => WithScalarField("time", alias);
 
-    public PriceRatingEntryQueryBuilderV1 WithTotal() => WithScalarField("total");
+    public PriceRatingEntryQueryBuilderV1 WithEnergy(string alias = null) => WithScalarField("energy", alias);
 
-    public PriceRatingEntryQueryBuilderV1 WithDifference() => WithScalarField("difference");
+    public PriceRatingEntryQueryBuilderV1 WithTotal(string alias = null) => WithScalarField("total", alias);
+
+    public PriceRatingEntryQueryBuilderV1 WithDifference(string alias = null) => WithScalarField("difference", alias);
 }
 
 public partial class InvoiceQueryBuilderV1 : GraphQlQueryBuilder<InvoiceQueryBuilderV1>
@@ -930,53 +989,57 @@ public partial class InvoiceQueryBuilderV1 : GraphQlQueryBuilder<InvoiceQueryBui
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public InvoiceQueryBuilderV1 WithId() => WithScalarField("id");
+    public InvoiceQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public InvoiceQueryBuilderV1 WithNo() => WithScalarField("no");
+    public InvoiceQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
 
-    public InvoiceQueryBuilderV1 WithDate() => WithScalarField("date");
+    public InvoiceQueryBuilderV1 WithNo(string alias = null) => WithScalarField("no", alias);
 
-    public InvoiceQueryBuilderV1 WithDueDate() => WithScalarField("dueDate");
+    public InvoiceQueryBuilderV1 WithDate(string alias = null) => WithScalarField("date", alias);
 
-    public InvoiceQueryBuilderV1 WithTotalCost() => WithScalarField("totalCost");
+    public InvoiceQueryBuilderV1 WithDueDate(string alias = null) => WithScalarField("dueDate", alias);
 
-    public InvoiceQueryBuilderV1 WithTotalCostLocalized() => WithScalarField("totalCostLocalized");
+    public InvoiceQueryBuilderV1 WithTotalCost(string alias = null) => WithScalarField("totalCost", alias);
 
-    public InvoiceQueryBuilderV1 WithTotalEnergyConsumption() => WithScalarField("totalEnergyConsumption");
+    public InvoiceQueryBuilderV1 WithTotalCostLocalized(string alias = null) => WithScalarField("totalCostLocalized", alias);
 
-    public InvoiceQueryBuilderV1 WithTotalEnergyConsumptionLocalized() => WithScalarField("totalEnergyConsumptionLocalized");
+    public InvoiceQueryBuilderV1 WithTotalEnergyConsumption(string alias = null) => WithScalarField("totalEnergyConsumption", alias);
 
-    public InvoiceQueryBuilderV1 WithTotalVat() => WithScalarField("totalVat");
+    public InvoiceQueryBuilderV1 WithTotalEnergyConsumptionLocalized(string alias = null) => WithScalarField("totalEnergyConsumptionLocalized", alias);
 
-    public InvoiceQueryBuilderV1 WithTotalVatLocalized() => WithScalarField("totalVatLocalized");
+    public InvoiceQueryBuilderV1 WithTotalVat(string alias = null) => WithScalarField("totalVat", alias);
 
-    public InvoiceQueryBuilderV1 WithVatPercent() => WithScalarField("vatPercent");
+    public InvoiceQueryBuilderV1 WithTotalVatLocalized(string alias = null) => WithScalarField("totalVatLocalized", alias);
 
-    public InvoiceQueryBuilderV1 WithVatPercentLocalized() => WithScalarField("vatPercentLocalized");
+    public InvoiceQueryBuilderV1 WithVatPercent(string alias = null) => WithScalarField("vatPercent", alias);
 
-    public InvoiceQueryBuilderV1 WithVatIsIncluded() => WithScalarField("vatIsIncluded");
+    public InvoiceQueryBuilderV1 WithVatPercentLocalized(string alias = null) => WithScalarField("vatPercentLocalized", alias);
 
-    public InvoiceQueryBuilderV1 WithMeteringPointId() => WithScalarField("meteringPointId");
+    public InvoiceQueryBuilderV1 WithVatIsIncluded(string alias = null) => WithScalarField("vatIsIncluded", alias);
 
-    public InvoiceQueryBuilderV1 WithPaymentReference() => WithScalarField("paymentReference");
+    public InvoiceQueryBuilderV1 WithMeteringPointId(string alias = null) => WithScalarField("meteringPointId", alias);
 
-    public InvoiceQueryBuilderV1 WithShowManualPaymentReferences() => WithScalarField("showManualPaymentReferences");
+    public InvoiceQueryBuilderV1 WithPaymentReference(string alias = null) => WithScalarField("paymentReference", alias);
 
-    public InvoiceQueryBuilderV1 WithBankAccount() => WithScalarField("bankAccount");
+    public InvoiceQueryBuilderV1 WithShowManualPaymentReferences(string alias = null) => WithScalarField("showManualPaymentReferences", alias);
 
-    public InvoiceQueryBuilderV1 WithPdfUrl() => WithScalarField("pdfUrl");
+    public InvoiceQueryBuilderV1 WithBankAccount(string alias = null) => WithScalarField("bankAccount", alias);
 
-    public InvoiceQueryBuilderV1 WithTimeZone() => WithScalarField("timeZone");
+    public InvoiceQueryBuilderV1 WithPdfUrl(string alias = null) => WithScalarField("pdfUrl", alias);
 
-    public InvoiceQueryBuilderV1 WithCurrency() => WithScalarField("currency");
+    public InvoiceQueryBuilderV1 WithTimeZone(string alias = null) => WithScalarField("timeZone", alias);
+
+    public InvoiceQueryBuilderV1 WithCurrency(string alias = null) => WithScalarField("currency", alias);
 
     public InvoiceQueryBuilderV1 WithPayment(InvoicePaymentQueryBuilderV1 invoicePaymentQueryBuilder) => WithObjectField("payment", invoicePaymentQueryBuilder);
 
     public InvoiceQueryBuilderV1 WithSections(InvoiceSectionQueryBuilderV1 invoiceSectionQueryBuilder) => WithObjectField("sections", invoiceSectionQueryBuilder);
 
-    public InvoiceQueryBuilderV1 WithFrom() => WithScalarField("from");
+    public InvoiceQueryBuilderV1 WithFrom(string alias = null) => WithScalarField("from", alias);
 
-    public InvoiceQueryBuilderV1 WithTo() => WithScalarField("to");
+    public InvoiceQueryBuilderV1 WithTo(string alias = null) => WithScalarField("to", alias);
 }
 
 public partial class InvoicePaymentQueryBuilderV1 : GraphQlQueryBuilder<InvoicePaymentQueryBuilderV1>
@@ -993,13 +1056,17 @@ public partial class InvoicePaymentQueryBuilderV1 : GraphQlQueryBuilder<InvoiceP
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public InvoicePaymentQueryBuilderV1 WithStatus() => WithScalarField("status");
+    public InvoicePaymentQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public InvoicePaymentQueryBuilderV1 WithMethod() => WithScalarField("method");
+    public InvoicePaymentQueryBuilderV1 WithStatus(string alias = null) => WithScalarField("status", alias);
 
-    public InvoicePaymentQueryBuilderV1 WithDate() => WithScalarField("date");
+    public InvoicePaymentQueryBuilderV1 WithMethod(string alias = null) => WithScalarField("method", alias);
 
-    public InvoicePaymentQueryBuilderV1 WithFailureText() => WithScalarField("failureText");
+    public InvoicePaymentQueryBuilderV1 WithDate(string alias = null) => WithScalarField("date", alias);
+
+    public InvoicePaymentQueryBuilderV1 WithFailureText(string alias = null) => WithScalarField("failureText", alias);
 
     public InvoicePaymentQueryBuilderV1 WithCreditCard(CreditCardQueryBuilderV1 creditCardQueryBuilder) => WithObjectField("creditCard", creditCardQueryBuilder);
 }
@@ -1015,9 +1082,13 @@ public partial class CreditCardQueryBuilderV1 : GraphQlQueryBuilder<CreditCardQu
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public CreditCardQueryBuilderV1 WithBrand() => WithScalarField("brand");
+    public CreditCardQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public CreditCardQueryBuilderV1 WithLast4() => WithScalarField("last4");
+    public CreditCardQueryBuilderV1 WithBrand(string alias = null) => WithScalarField("brand", alias);
+
+    public CreditCardQueryBuilderV1 WithLast4(string alias = null) => WithScalarField("last4", alias);
 }
 
 public partial class InvoiceSectionQueryBuilderV1 : GraphQlQueryBuilder<InvoiceSectionQueryBuilderV1>
@@ -1041,29 +1112,33 @@ public partial class InvoiceSectionQueryBuilderV1 : GraphQlQueryBuilder<InvoiceS
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public InvoiceSectionQueryBuilderV1 WithType() => WithScalarField("type");
+    public InvoiceSectionQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public InvoiceSectionQueryBuilderV1 WithText() => WithScalarField("text");
+    public InvoiceSectionQueryBuilderV1 WithType(string alias = null) => WithScalarField("type", alias);
 
-    public InvoiceSectionQueryBuilderV1 WithSubText() => WithScalarField("subText");
+    public InvoiceSectionQueryBuilderV1 WithText(string alias = null) => WithScalarField("text", alias);
 
-    public InvoiceSectionQueryBuilderV1 WithConsumption() => WithScalarField("consumption");
+    public InvoiceSectionQueryBuilderV1 WithSubText(string alias = null) => WithScalarField("subText", alias);
 
-    public InvoiceSectionQueryBuilderV1 WithConsumptionLocalized() => WithScalarField("consumptionLocalized");
+    public InvoiceSectionQueryBuilderV1 WithConsumption(string alias = null) => WithScalarField("consumption", alias);
 
-    public InvoiceSectionQueryBuilderV1 WithConsumptionUnit() => WithScalarField("consumptionUnit");
+    public InvoiceSectionQueryBuilderV1 WithConsumptionLocalized(string alias = null) => WithScalarField("consumptionLocalized", alias);
 
-    public InvoiceSectionQueryBuilderV1 WithPrice() => WithScalarField("price");
+    public InvoiceSectionQueryBuilderV1 WithConsumptionUnit(string alias = null) => WithScalarField("consumptionUnit", alias);
 
-    public InvoiceSectionQueryBuilderV1 WithPriceLocalized() => WithScalarField("priceLocalized");
+    public InvoiceSectionQueryBuilderV1 WithPrice(string alias = null) => WithScalarField("price", alias);
 
-    public InvoiceSectionQueryBuilderV1 WithPriceUnit() => WithScalarField("priceUnit");
+    public InvoiceSectionQueryBuilderV1 WithPriceLocalized(string alias = null) => WithScalarField("priceLocalized", alias);
 
-    public InvoiceSectionQueryBuilderV1 WithCost() => WithScalarField("cost");
+    public InvoiceSectionQueryBuilderV1 WithPriceUnit(string alias = null) => WithScalarField("priceUnit", alias);
 
-    public InvoiceSectionQueryBuilderV1 WithCostLocalized() => WithScalarField("costLocalized");
+    public InvoiceSectionQueryBuilderV1 WithCost(string alias = null) => WithScalarField("cost", alias);
 
-    public InvoiceSectionQueryBuilderV1 WithCostUnit() => WithScalarField("costUnit");
+    public InvoiceSectionQueryBuilderV1 WithCostLocalized(string alias = null) => WithScalarField("costLocalized", alias);
+
+    public InvoiceSectionQueryBuilderV1 WithCostUnit(string alias = null) => WithScalarField("costUnit", alias);
 }
 
 public partial class EnergyDealQueryBuilderV1 : GraphQlQueryBuilder<EnergyDealQueryBuilderV1>
@@ -1075,6 +1150,10 @@ public partial class EnergyDealQueryBuilderV1 : GraphQlQueryBuilder<EnergyDealQu
         };
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public EnergyDealQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
     public EnergyDealQueryBuilderV1 WithCurrentProducer(ProducerQueryBuilderV1 producerQueryBuilder) => WithObjectField("currentProducer", producerQueryBuilder);
 }
@@ -1094,15 +1173,19 @@ public partial class ProducerQueryBuilderV1 : GraphQlQueryBuilder<ProducerQueryB
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ProducerQueryBuilderV1 WithId() => WithScalarField("id");
+    public ProducerQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public ProducerQueryBuilderV1 WithName() => WithScalarField("name");
+    public ProducerQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
 
-    public ProducerQueryBuilderV1 WithTitle() => WithScalarField("title");
+    public ProducerQueryBuilderV1 WithName(string alias = null) => WithScalarField("name", alias);
 
-    public ProducerQueryBuilderV1 WithDescription() => WithScalarField("description");
+    public ProducerQueryBuilderV1 WithTitle(string alias = null) => WithScalarField("title", alias);
 
-    public ProducerQueryBuilderV1 WithImageSrc() => WithScalarField("imageSrc");
+    public ProducerQueryBuilderV1 WithDescription(string alias = null) => WithScalarField("description", alias);
+
+    public ProducerQueryBuilderV1 WithImageSrc(string alias = null) => WithScalarField("imageSrc", alias);
 
     public ProducerQueryBuilderV1 WithBullets(ProducerBulletQueryBuilderV1 producerBulletQueryBuilder) => WithObjectField("bullets", producerBulletQueryBuilder);
 }
@@ -1119,11 +1202,15 @@ public partial class ProducerBulletQueryBuilderV1 : GraphQlQueryBuilder<Producer
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ProducerBulletQueryBuilderV1 WithTitle() => WithScalarField("title");
+    public ProducerBulletQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public ProducerBulletQueryBuilderV1 WithDescription() => WithScalarField("description");
+    public ProducerBulletQueryBuilderV1 WithTitle(string alias = null) => WithScalarField("title", alias);
 
-    public ProducerBulletQueryBuilderV1 WithReadMoreUrl() => WithScalarField("readMoreUrl");
+    public ProducerBulletQueryBuilderV1 WithDescription(string alias = null) => WithScalarField("description", alias);
+
+    public ProducerBulletQueryBuilderV1 WithReadMoreUrl(string alias = null) => WithScalarField("readMoreUrl", alias);
 }
 
 public partial class ConsumptionMonthQueryBuilderV1 : GraphQlQueryBuilder<ConsumptionMonthQueryBuilderV1>
@@ -1143,21 +1230,25 @@ public partial class ConsumptionMonthQueryBuilderV1 : GraphQlQueryBuilder<Consum
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ConsumptionMonthQueryBuilderV1 WithYear() => WithScalarField("year");
+    public ConsumptionMonthQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public ConsumptionMonthQueryBuilderV1 WithMonth() => WithScalarField("month");
+    public ConsumptionMonthQueryBuilderV1 WithYear(string alias = null) => WithScalarField("year", alias);
 
-    public ConsumptionMonthQueryBuilderV1 WithKwh() => WithScalarField("kwh");
+    public ConsumptionMonthQueryBuilderV1 WithMonth(string alias = null) => WithScalarField("month", alias);
 
-    public ConsumptionMonthQueryBuilderV1 WithCost() => WithScalarField("cost");
+    public ConsumptionMonthQueryBuilderV1 WithKwh(string alias = null) => WithScalarField("kwh", alias);
 
-    public ConsumptionMonthQueryBuilderV1 WithIsComplete() => WithScalarField("isComplete");
+    public ConsumptionMonthQueryBuilderV1 WithCost(string alias = null) => WithScalarField("cost", alias);
 
-    public ConsumptionMonthQueryBuilderV1 WithKwhEstimate() => WithScalarField("kwhEstimate");
+    public ConsumptionMonthQueryBuilderV1 WithIsComplete(string alias = null) => WithScalarField("isComplete", alias);
 
-    public ConsumptionMonthQueryBuilderV1 WithCostEstimate() => WithScalarField("costEstimate");
+    public ConsumptionMonthQueryBuilderV1 WithKwhEstimate(string alias = null) => WithScalarField("kwhEstimate", alias);
 
-    public ConsumptionMonthQueryBuilderV1 WithCurrency() => WithScalarField("currency");
+    public ConsumptionMonthQueryBuilderV1 WithCostEstimate(string alias = null) => WithScalarField("costEstimate", alias);
+
+    public ConsumptionMonthQueryBuilderV1 WithCurrency(string alias = null) => WithScalarField("currency", alias);
 }
 
 public partial class ConsumptionQueryBuilderV1 : GraphQlQueryBuilder<ConsumptionQueryBuilderV1>
@@ -1180,27 +1271,31 @@ public partial class ConsumptionQueryBuilderV1 : GraphQlQueryBuilder<Consumption
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ConsumptionQueryBuilderV1 WithAnnualValues() => WithScalarField("annualValues");
+    public ConsumptionQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public ConsumptionQueryBuilderV1 WithMonthlyValues() => WithScalarField("monthlyValues");
+    public ConsumptionQueryBuilderV1 WithAnnualValues(string alias = null) => WithScalarField("annualValues", alias);
 
-    public ConsumptionQueryBuilderV1 WithWeeklyValues() => WithScalarField("weeklyValues");
+    public ConsumptionQueryBuilderV1 WithMonthlyValues(string alias = null) => WithScalarField("monthlyValues", alias);
 
-    public ConsumptionQueryBuilderV1 WithDailyValues() => WithScalarField("dailyValues");
+    public ConsumptionQueryBuilderV1 WithWeeklyValues(string alias = null) => WithScalarField("weeklyValues", alias);
 
-    public ConsumptionQueryBuilderV1 WithHourlyValues() => WithScalarField("hourlyValues");
+    public ConsumptionQueryBuilderV1 WithDailyValues(string alias = null) => WithScalarField("dailyValues", alias);
 
-    public ConsumptionQueryBuilderV1 WithTotalConsumption() => WithScalarField("totalConsumption");
+    public ConsumptionQueryBuilderV1 WithHourlyValues(string alias = null) => WithScalarField("hourlyValues", alias);
 
-    public ConsumptionQueryBuilderV1 WithEnergyCost() => WithScalarField("energyCost");
+    public ConsumptionQueryBuilderV1 WithTotalConsumption(string alias = null) => WithScalarField("totalConsumption", alias);
 
-    public ConsumptionQueryBuilderV1 WithTotalCost() => WithScalarField("totalCost");
+    public ConsumptionQueryBuilderV1 WithEnergyCost(string alias = null) => WithScalarField("energyCost", alias);
 
-    public ConsumptionQueryBuilderV1 WithCurrency() => WithScalarField("currency");
+    public ConsumptionQueryBuilderV1 WithTotalCost(string alias = null) => WithScalarField("totalCost", alias);
 
-    public ConsumptionQueryBuilderV1 WithLatestTransactionTimestamp() => WithScalarField("latestTransactionTimestamp");
+    public ConsumptionQueryBuilderV1 WithCurrency(string alias = null) => WithScalarField("currency", alias);
 
-    public ConsumptionQueryBuilderV1 WithTimeZone() => WithScalarField("timeZone");
+    public ConsumptionQueryBuilderV1 WithLatestTransactionTimestamp(string alias = null) => WithScalarField("latestTransactionTimestamp", alias);
+
+    public ConsumptionQueryBuilderV1 WithTimeZone(string alias = null) => WithScalarField("timeZone", alias);
 }
 
 public partial class PreLiveComparisonQueryBuilderV1 : GraphQlQueryBuilder<PreLiveComparisonQueryBuilderV1>
@@ -1216,9 +1311,13 @@ public partial class PreLiveComparisonQueryBuilderV1 : GraphQlQueryBuilder<PreLi
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PreLiveComparisonQueryBuilderV1 WithHomeId() => WithScalarField("homeId");
+    public PreLiveComparisonQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public PreLiveComparisonQueryBuilderV1 WithBasedOnActuals() => WithScalarField("basedOnActuals");
+    public PreLiveComparisonQueryBuilderV1 WithHomeId(string alias = null) => WithScalarField("homeId", alias);
+
+    public PreLiveComparisonQueryBuilderV1 WithBasedOnActuals(string alias = null) => WithScalarField("basedOnActuals", alias);
 
     public PreLiveComparisonQueryBuilderV1 WithPreviousYear(ComparisonQueryBuilderV1 comparisonQueryBuilder) => WithObjectField("previousYear", comparisonQueryBuilder);
 
@@ -1242,15 +1341,19 @@ public partial class ComparisonQueryBuilderV1 : GraphQlQueryBuilder<ComparisonQu
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ComparisonQueryBuilderV1 WithYear() => WithScalarField("year");
+    public ComparisonQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public ComparisonQueryBuilderV1 WithMonth() => WithScalarField("month");
+    public ComparisonQueryBuilderV1 WithYear(string alias = null) => WithScalarField("year", alias);
 
-    public ComparisonQueryBuilderV1 WithResolution() => WithScalarField("resolution");
+    public ComparisonQueryBuilderV1 WithMonth(string alias = null) => WithScalarField("month", alias);
 
-    public ComparisonQueryBuilderV1 WithHomeEfficency() => WithScalarField("homeEfficency");
+    public ComparisonQueryBuilderV1 WithResolution(string alias = null) => WithScalarField("resolution", alias);
 
-    public ComparisonQueryBuilderV1 WithHomeEfficencyDescription() => WithScalarField("homeEfficencyDescription");
+    public ComparisonQueryBuilderV1 WithHomeEfficency(string alias = null) => WithScalarField("homeEfficency", alias);
+
+    public ComparisonQueryBuilderV1 WithHomeEfficencyDescription(string alias = null) => WithScalarField("homeEfficencyDescription", alias);
 
     public ComparisonQueryBuilderV1 WithHome(ComparisonDataQueryBuilderV1 comparisonDataQueryBuilder) => WithObjectField("home", comparisonDataQueryBuilder);
 
@@ -1270,9 +1373,13 @@ public partial class ComparisonDataQueryBuilderV1 : GraphQlQueryBuilder<Comparis
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ComparisonDataQueryBuilderV1 WithCost() => WithScalarField("cost");
+    public ComparisonDataQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public ComparisonDataQueryBuilderV1 WithConsumption() => WithScalarField("consumption");
+    public ComparisonDataQueryBuilderV1 WithCost(string alias = null) => WithScalarField("cost", alias);
+
+    public ComparisonDataQueryBuilderV1 WithConsumption(string alias = null) => WithScalarField("consumption", alias);
 }
 
 public partial class HomeProfileQuestionQueryBuilderV1 : GraphQlQueryBuilder<HomeProfileQuestionQueryBuilderV1>
@@ -1294,23 +1401,27 @@ public partial class HomeProfileQuestionQueryBuilderV1 : GraphQlQueryBuilder<Hom
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public HomeProfileQuestionQueryBuilderV1 WithId() => WithScalarField("id");
+    public HomeProfileQuestionQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public HomeProfileQuestionQueryBuilderV1 WithTitle() => WithScalarField("title");
+    public HomeProfileQuestionQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
 
-    public HomeProfileQuestionQueryBuilderV1 WithText() => WithScalarField("text");
+    public HomeProfileQuestionQueryBuilderV1 WithTitle(string alias = null) => WithScalarField("title", alias);
 
-    public HomeProfileQuestionQueryBuilderV1 WithCategory() => WithScalarField("category");
+    public HomeProfileQuestionQueryBuilderV1 WithText(string alias = null) => WithScalarField("text", alias);
 
-    public HomeProfileQuestionQueryBuilderV1 WithIsAnswered() => WithScalarField("isAnswered");
+    public HomeProfileQuestionQueryBuilderV1 WithCategory(string alias = null) => WithScalarField("category", alias);
 
-    public HomeProfileQuestionQueryBuilderV1 WithPropertyName() => WithScalarField("propertyName");
+    public HomeProfileQuestionQueryBuilderV1 WithIsAnswered(string alias = null) => WithScalarField("isAnswered", alias);
 
-    public HomeProfileQuestionQueryBuilderV1 WithValueType() => WithScalarField("valueType");
+    public HomeProfileQuestionQueryBuilderV1 WithPropertyName(string alias = null) => WithScalarField("propertyName", alias);
 
-    public HomeProfileQuestionQueryBuilderV1 WithCurrentValue() => WithScalarField("currentValue");
+    public HomeProfileQuestionQueryBuilderV1 WithValueType(string alias = null) => WithScalarField("valueType", alias);
 
-    public HomeProfileQuestionQueryBuilderV1 WithCurrentValueText() => WithScalarField("currentValueText");
+    public HomeProfileQuestionQueryBuilderV1 WithCurrentValue(string alias = null) => WithScalarField("currentValue", alias);
+
+    public HomeProfileQuestionQueryBuilderV1 WithCurrentValueText(string alias = null) => WithScalarField("currentValueText", alias);
 
     public HomeProfileQuestionQueryBuilderV1 WithInput(HomeProfileQuestionInputQueryBuilderV1 homeProfileQuestionInputQueryBuilder) => WithObjectField("input", homeProfileQuestionInputQueryBuilder);
 }
@@ -1326,9 +1437,13 @@ public partial class HomeProfileQuestionInputQueryBuilderV1 : GraphQlQueryBuilde
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public HomeProfileQuestionInputQueryBuilderV1 WithType() => WithScalarField("type");
+    public HomeProfileQuestionInputQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public HomeProfileQuestionInputQueryBuilderV1 WithOptions() => WithScalarField("options");
+    public HomeProfileQuestionInputQueryBuilderV1 WithType(string alias = null) => WithScalarField("type", alias);
+
+    public HomeProfileQuestionInputQueryBuilderV1 WithOptions(string alias = null) => WithScalarField("options", alias);
 }
 
 public partial class SignupStatusQueryBuilderV1 : GraphQlQueryBuilder<SignupStatusQueryBuilderV1>
@@ -1342,6 +1457,10 @@ public partial class SignupStatusQueryBuilderV1 : GraphQlQueryBuilder<SignupStat
         };
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public SignupStatusQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
     public SignupStatusQueryBuilderV1 WithFeedStep(ProcessStepQueryBuilderV1 processStepQueryBuilder) => WithObjectField("feedStep", processStepQueryBuilder);
 
@@ -1363,13 +1482,17 @@ public partial class ProcessStepQueryBuilderV1 : GraphQlQueryBuilder<ProcessStep
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ProcessStepQueryBuilderV1 WithTimestamp() => WithScalarField("timestamp");
+    public ProcessStepQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public ProcessStepQueryBuilderV1 WithIsComplete() => WithScalarField("isComplete");
+    public ProcessStepQueryBuilderV1 WithTimestamp(string alias = null) => WithScalarField("timestamp", alias);
 
-    public ProcessStepQueryBuilderV1 WithTitle() => WithScalarField("title");
+    public ProcessStepQueryBuilderV1 WithIsComplete(string alias = null) => WithScalarField("isComplete", alias);
 
-    public ProcessStepQueryBuilderV1 WithDescription() => WithScalarField("description");
+    public ProcessStepQueryBuilderV1 WithTitle(string alias = null) => WithScalarField("title", alias);
+
+    public ProcessStepQueryBuilderV1 WithDescription(string alias = null) => WithScalarField("description", alias);
 }
 
 public partial class DisaggregationQueryBuilderV1 : GraphQlQueryBuilder<DisaggregationQueryBuilderV1>
@@ -1396,35 +1519,39 @@ public partial class DisaggregationQueryBuilderV1 : GraphQlQueryBuilder<Disaggre
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public DisaggregationQueryBuilderV1 WithYear() => WithScalarField("year");
+    public DisaggregationQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public DisaggregationQueryBuilderV1 WithMonth() => WithScalarField("month");
+    public DisaggregationQueryBuilderV1 WithYear(string alias = null) => WithScalarField("year", alias);
 
-    public DisaggregationQueryBuilderV1 WithFixedConsumptionKwh() => WithScalarField("fixedConsumptionKwh");
+    public DisaggregationQueryBuilderV1 WithMonth(string alias = null) => WithScalarField("month", alias);
 
-    public DisaggregationQueryBuilderV1 WithFixedConsumptionKwhPercent() => WithScalarField("fixedConsumptionKwhPercent");
+    public DisaggregationQueryBuilderV1 WithFixedConsumptionKwh(string alias = null) => WithScalarField("fixedConsumptionKwh", alias);
 
-    public DisaggregationQueryBuilderV1 WithFixedConsumptionCost() => WithScalarField("fixedConsumptionCost");
+    public DisaggregationQueryBuilderV1 WithFixedConsumptionKwhPercent(string alias = null) => WithScalarField("fixedConsumptionKwhPercent", alias);
 
-    public DisaggregationQueryBuilderV1 WithHeatingConsumptionKwh() => WithScalarField("heatingConsumptionKwh");
+    public DisaggregationQueryBuilderV1 WithFixedConsumptionCost(string alias = null) => WithScalarField("fixedConsumptionCost", alias);
 
-    public DisaggregationQueryBuilderV1 WithHeatingConsumptionKwhPercent() => WithScalarField("heatingConsumptionKwhPercent");
+    public DisaggregationQueryBuilderV1 WithHeatingConsumptionKwh(string alias = null) => WithScalarField("heatingConsumptionKwh", alias);
 
-    public DisaggregationQueryBuilderV1 WithHeatingConsumptionCost() => WithScalarField("heatingConsumptionCost");
+    public DisaggregationQueryBuilderV1 WithHeatingConsumptionKwhPercent(string alias = null) => WithScalarField("heatingConsumptionKwhPercent", alias);
 
-    public DisaggregationQueryBuilderV1 WithBehaviorConsumptionKwh() => WithScalarField("behaviorConsumptionKwh");
+    public DisaggregationQueryBuilderV1 WithHeatingConsumptionCost(string alias = null) => WithScalarField("heatingConsumptionCost", alias);
 
-    public DisaggregationQueryBuilderV1 WithBehaviorConsumptionKwhPercent() => WithScalarField("behaviorConsumptionKwhPercent");
+    public DisaggregationQueryBuilderV1 WithBehaviorConsumptionKwh(string alias = null) => WithScalarField("behaviorConsumptionKwh", alias);
 
-    public DisaggregationQueryBuilderV1 WithBehaviorConsumptionCost() => WithScalarField("behaviorConsumptionCost");
+    public DisaggregationQueryBuilderV1 WithBehaviorConsumptionKwhPercent(string alias = null) => WithScalarField("behaviorConsumptionKwhPercent", alias);
 
-    public DisaggregationQueryBuilderV1 WithCurrency() => WithScalarField("currency");
+    public DisaggregationQueryBuilderV1 WithBehaviorConsumptionCost(string alias = null) => WithScalarField("behaviorConsumptionCost", alias);
 
-    public DisaggregationQueryBuilderV1 WithIsValid() => WithScalarField("isValid");
+    public DisaggregationQueryBuilderV1 WithCurrency(string alias = null) => WithScalarField("currency", alias);
 
-    public DisaggregationQueryBuilderV1 WithTotalCost() => WithScalarField("totalCost");
+    public DisaggregationQueryBuilderV1 WithIsValid(string alias = null) => WithScalarField("isValid", alias);
 
-    public DisaggregationQueryBuilderV1 WithTotalConsumptionKwh() => WithScalarField("totalConsumptionKwh");
+    public DisaggregationQueryBuilderV1 WithTotalCost(string alias = null) => WithScalarField("totalCost", alias);
+
+    public DisaggregationQueryBuilderV1 WithTotalConsumptionKwh(string alias = null) => WithScalarField("totalConsumptionKwh", alias);
 }
 
 public partial class WeatherQueryBuilderV1 : GraphQlQueryBuilder<WeatherQueryBuilderV1>
@@ -1439,9 +1566,13 @@ public partial class WeatherQueryBuilderV1 : GraphQlQueryBuilder<WeatherQueryBui
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public WeatherQueryBuilderV1 WithMinTemperature() => WithScalarField("minTemperature");
+    public WeatherQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public WeatherQueryBuilderV1 WithMaxTemperature() => WithScalarField("maxTemperature");
+    public WeatherQueryBuilderV1 WithMinTemperature(string alias = null) => WithScalarField("minTemperature", alias);
+
+    public WeatherQueryBuilderV1 WithMaxTemperature(string alias = null) => WithScalarField("maxTemperature", alias);
 
     public WeatherQueryBuilderV1 WithEntries(WeatherEntryQueryBuilderV1 weatherEntryQueryBuilder) => WithObjectField("entries", weatherEntryQueryBuilder);
 }
@@ -1463,21 +1594,25 @@ public partial class WeatherEntryQueryBuilderV1 : GraphQlQueryBuilder<WeatherEnt
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public WeatherEntryQueryBuilderV1 WithTime() => WithScalarField("time");
+    public WeatherEntryQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public WeatherEntryQueryBuilderV1 WithTemperature() => WithScalarField("temperature");
+    public WeatherEntryQueryBuilderV1 WithTime(string alias = null) => WithScalarField("time", alias);
 
-    public WeatherEntryQueryBuilderV1 WithType() => WithScalarField("type");
+    public WeatherEntryQueryBuilderV1 WithTemperature(string alias = null) => WithScalarField("temperature", alias);
 
-    public WeatherEntryQueryBuilderV1 WithFog() => WithScalarField("fog");
+    public WeatherEntryQueryBuilderV1 WithType(string alias = null) => WithScalarField("type", alias);
 
-    public WeatherEntryQueryBuilderV1 WithPrecipitation() => WithScalarField("precipitation");
+    public WeatherEntryQueryBuilderV1 WithFog(string alias = null) => WithScalarField("fog", alias);
 
-    public WeatherEntryQueryBuilderV1 WithCloudiness() => WithScalarField("cloudiness");
+    public WeatherEntryQueryBuilderV1 WithPrecipitation(string alias = null) => WithScalarField("precipitation", alias);
 
-    public WeatherEntryQueryBuilderV1 WithWindSpeed() => WithScalarField("windSpeed");
+    public WeatherEntryQueryBuilderV1 WithCloudiness(string alias = null) => WithScalarField("cloudiness", alias);
 
-    public WeatherEntryQueryBuilderV1 WithWindGust() => WithScalarField("windGust");
+    public WeatherEntryQueryBuilderV1 WithWindSpeed(string alias = null) => WithScalarField("windSpeed", alias);
+
+    public WeatherEntryQueryBuilderV1 WithWindGust(string alias = null) => WithScalarField("windGust", alias);
 }
 
 public partial class AwayModeQueryBuilderV1 : GraphQlQueryBuilder<AwayModeQueryBuilderV1>
@@ -1491,7 +1626,11 @@ public partial class AwayModeQueryBuilderV1 : GraphQlQueryBuilder<AwayModeQueryB
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AwayModeQueryBuilderV1 WithIsSupported() => WithScalarField("isSupported");
+    public AwayModeQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
+
+    public AwayModeQueryBuilderV1 WithIsSupported(string alias = null) => WithScalarField("isSupported", alias);
 
     public AwayModeQueryBuilderV1 WithSettings(AwayModeSettingsQueryBuilderV1 awayModeSettingsQueryBuilder) => WithObjectField("settings", awayModeSettingsQueryBuilder);
 }
@@ -1507,9 +1646,13 @@ public partial class AwayModeSettingsQueryBuilderV1 : GraphQlQueryBuilder<AwayMo
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AwayModeSettingsQueryBuilderV1 WithFrom() => WithScalarField("from");
+    public AwayModeSettingsQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public AwayModeSettingsQueryBuilderV1 WithTo() => WithScalarField("to");
+    public AwayModeSettingsQueryBuilderV1 WithFrom(string alias = null) => WithScalarField("from", alias);
+
+    public AwayModeSettingsQueryBuilderV1 WithTo(string alias = null) => WithScalarField("to", alias);
 }
 
 public partial class DayNightScheduleQueryBuilderV1 : GraphQlQueryBuilder<DayNightScheduleQueryBuilderV1>
@@ -1524,7 +1667,11 @@ public partial class DayNightScheduleQueryBuilderV1 : GraphQlQueryBuilder<DayNig
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public DayNightScheduleQueryBuilderV1 WithIsSupported() => WithScalarField("isSupported");
+    public DayNightScheduleQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
+
+    public DayNightScheduleQueryBuilderV1 WithIsSupported(string alias = null) => WithScalarField("isSupported", alias);
 
     public DayNightScheduleQueryBuilderV1 WithDay(DayNightScheduleSettingsQueryBuilderV1 dayNightScheduleSettingsQueryBuilder) => WithObjectField("day", dayNightScheduleSettingsQueryBuilder);
 
@@ -1544,13 +1691,17 @@ public partial class DayNightScheduleSettingsQueryBuilderV1 : GraphQlQueryBuilde
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public DayNightScheduleSettingsQueryBuilderV1 WithIsEnabled() => WithScalarField("isEnabled");
+    public DayNightScheduleSettingsQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public DayNightScheduleSettingsQueryBuilderV1 WithLocalTimeFrom() => WithScalarField("localTimeFrom");
+    public DayNightScheduleSettingsQueryBuilderV1 WithIsEnabled(string alias = null) => WithScalarField("isEnabled", alias);
 
-    public DayNightScheduleSettingsQueryBuilderV1 WithLocalTimeTo() => WithScalarField("localTimeTo");
+    public DayNightScheduleSettingsQueryBuilderV1 WithLocalTimeFrom(string alias = null) => WithScalarField("localTimeFrom", alias);
 
-    public DayNightScheduleSettingsQueryBuilderV1 WithRecurringDays() => WithScalarField("recurringDays");
+    public DayNightScheduleSettingsQueryBuilderV1 WithLocalTimeTo(string alias = null) => WithScalarField("localTimeTo", alias);
+
+    public DayNightScheduleSettingsQueryBuilderV1 WithRecurringDays(string alias = null) => WithScalarField("recurringDays", alias);
 }
 
 public partial class ReportRootQueryBuilderV1 : GraphQlQueryBuilder<ReportRootQueryBuilderV1>
@@ -1562,6 +1713,10 @@ public partial class ReportRootQueryBuilderV1 : GraphQlQueryBuilder<ReportRootQu
         };
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ReportRootQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
     public ReportRootQueryBuilderV1 WithReports(ReportQueryBuilderV1 reportQueryBuilder) => WithObjectField("reports", reportQueryBuilder);
 }
@@ -1581,15 +1736,19 @@ public partial class ReportQueryBuilderV1 : GraphQlQueryBuilder<ReportQueryBuild
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ReportQueryBuilderV1 WithAvatar() => WithScalarField("avatar");
+    public ReportQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public ReportQueryBuilderV1 WithTitle() => WithScalarField("title");
+    public ReportQueryBuilderV1 WithAvatar(string alias = null) => WithScalarField("avatar", alias);
 
-    public ReportQueryBuilderV1 WithEfficiency() => WithScalarField("efficiency");
+    public ReportQueryBuilderV1 WithTitle(string alias = null) => WithScalarField("title", alias);
 
-    public ReportQueryBuilderV1 WithYear() => WithScalarField("year");
+    public ReportQueryBuilderV1 WithEfficiency(string alias = null) => WithScalarField("efficiency", alias);
 
-    public ReportQueryBuilderV1 WithMonth() => WithScalarField("month");
+    public ReportQueryBuilderV1 WithYear(string alias = null) => WithScalarField("year", alias);
+
+    public ReportQueryBuilderV1 WithMonth(string alias = null) => WithScalarField("month", alias);
 
     public ReportQueryBuilderV1 WithItems(ReportCellQueryBuilderV1 reportCellQueryBuilder) => WithObjectField("items", reportCellQueryBuilder);
 }
@@ -1611,21 +1770,25 @@ public partial class ReportCellQueryBuilderV1 : GraphQlQueryBuilder<ReportCellQu
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ReportCellQueryBuilderV1 WithType() => WithScalarField("type");
+    public ReportCellQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public ReportCellQueryBuilderV1 WithStyle() => WithScalarField("style");
+    public ReportCellQueryBuilderV1 WithType(string alias = null) => WithScalarField("type", alias);
 
-    public ReportCellQueryBuilderV1 WithImageSrc() => WithScalarField("imageSrc");
+    public ReportCellQueryBuilderV1 WithStyle(string alias = null) => WithScalarField("style", alias);
 
-    public ReportCellQueryBuilderV1 WithTitle() => WithScalarField("title");
+    public ReportCellQueryBuilderV1 WithImageSrc(string alias = null) => WithScalarField("imageSrc", alias);
 
-    public ReportCellQueryBuilderV1 WithDescription() => WithScalarField("description");
+    public ReportCellQueryBuilderV1 WithTitle(string alias = null) => WithScalarField("title", alias);
 
-    public ReportCellQueryBuilderV1 WithUnitText() => WithScalarField("unitText");
+    public ReportCellQueryBuilderV1 WithDescription(string alias = null) => WithScalarField("description", alias);
 
-    public ReportCellQueryBuilderV1 WithLink() => WithScalarField("link");
+    public ReportCellQueryBuilderV1 WithUnitText(string alias = null) => WithScalarField("unitText", alias);
 
-    public ReportCellQueryBuilderV1 WithProperties() => WithScalarField("properties");
+    public ReportCellQueryBuilderV1 WithLink(string alias = null) => WithScalarField("link", alias);
+
+    public ReportCellQueryBuilderV1 WithProperties(string alias = null) => WithScalarField("properties", alias);
 }
 
 public partial class ThermostatQueryBuilderV1 : GraphQlQueryBuilder<ThermostatQueryBuilderV1>
@@ -1647,11 +1810,15 @@ public partial class ThermostatQueryBuilderV1 : GraphQlQueryBuilder<ThermostatQu
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatQueryBuilderV1 WithId() => WithScalarField("id");
+    public ThermostatQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public ThermostatQueryBuilderV1 WithName() => WithScalarField("name");
+    public ThermostatQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
 
-    public ThermostatQueryBuilderV1 WithConnectivity() => WithScalarField("connectivity");
+    public ThermostatQueryBuilderV1 WithName(string alias = null) => WithScalarField("name", alias);
+
+    public ThermostatQueryBuilderV1 WithConnectivity(string alias = null) => WithScalarField("connectivity", alias);
 
     public ThermostatQueryBuilderV1 WithState(ThermostatStateQueryBuilderV1 thermostatStateQueryBuilder) => WithObjectField("state", thermostatStateQueryBuilder);
 
@@ -1661,11 +1828,11 @@ public partial class ThermostatQueryBuilderV1 : GraphQlQueryBuilder<ThermostatQu
 
     public ThermostatQueryBuilderV1 WithModes(ThermostatModeQueryBuilderV1 thermostatModeQueryBuilder) => WithObjectField("modes", thermostatModeQueryBuilder);
 
-    public ThermostatQueryBuilderV1 WithTemplate() => WithScalarField("template");
+    public ThermostatQueryBuilderV1 WithTemplate(string alias = null) => WithScalarField("template", alias);
 
-    public ThermostatQueryBuilderV1 WithHasSettings() => WithScalarField("hasSettings");
+    public ThermostatQueryBuilderV1 WithHasSettings(string alias = null) => WithScalarField("hasSettings", alias);
 
-    public ThermostatQueryBuilderV1 WithSupportsDayNightSchedule() => WithScalarField("supportsDayNightSchedule");
+    public ThermostatQueryBuilderV1 WithSupportsDayNightSchedule(string alias = null) => WithScalarField("supportsDayNightSchedule", alias);
 }
 
 public partial class ThermostatStateQueryBuilderV1 : GraphQlQueryBuilder<ThermostatStateQueryBuilderV1>
@@ -1681,13 +1848,17 @@ public partial class ThermostatStateQueryBuilderV1 : GraphQlQueryBuilder<Thermos
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatStateQueryBuilderV1 WithMode() => WithScalarField("mode");
+    public ThermostatStateQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public ThermostatStateQueryBuilderV1 WithComfortTemperature() => WithScalarField("comfortTemperature");
+    public ThermostatStateQueryBuilderV1 WithMode(string alias = null) => WithScalarField("mode", alias);
 
-    public ThermostatStateQueryBuilderV1 WithFanLevel() => WithScalarField("fanLevel");
+    public ThermostatStateQueryBuilderV1 WithComfortTemperature(string alias = null) => WithScalarField("comfortTemperature", alias);
 
-    public ThermostatStateQueryBuilderV1 WithOnOff() => WithScalarField("onOff");
+    public ThermostatStateQueryBuilderV1 WithFanLevel(string alias = null) => WithScalarField("fanLevel", alias);
+
+    public ThermostatStateQueryBuilderV1 WithOnOff(string alias = null) => WithScalarField("onOff", alias);
 }
 
 public partial class ThermostatMeasurementsQueryBuilderV1 : GraphQlQueryBuilder<ThermostatMeasurementsQueryBuilderV1>
@@ -1702,9 +1873,13 @@ public partial class ThermostatMeasurementsQueryBuilderV1 : GraphQlQueryBuilder<
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatMeasurementsQueryBuilderV1 WithTemperature() => WithScalarField("temperature");
+    public ThermostatMeasurementsQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public ThermostatMeasurementsQueryBuilderV1 WithTimestamp() => WithScalarField("timestamp");
+    public ThermostatMeasurementsQueryBuilderV1 WithTemperature(string alias = null) => WithScalarField("temperature", alias);
+
+    public ThermostatMeasurementsQueryBuilderV1 WithTimestamp(string alias = null) => WithScalarField("timestamp", alias);
 
     public ThermostatMeasurementsQueryBuilderV1 WithDisplay(ThermostatMeasurementQueryBuilderV1 thermostatMeasurementQueryBuilder) => WithObjectField("display", thermostatMeasurementQueryBuilder);
 }
@@ -1728,25 +1903,29 @@ public partial class ThermostatMeasurementQueryBuilderV1 : GraphQlQueryBuilder<T
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatMeasurementQueryBuilderV1 WithLabel() => WithScalarField("label");
+    public ThermostatMeasurementQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public ThermostatMeasurementQueryBuilderV1 WithDescription() => WithScalarField("description");
+    public ThermostatMeasurementQueryBuilderV1 WithLabel(string alias = null) => WithScalarField("label", alias);
 
-    public ThermostatMeasurementQueryBuilderV1 WithDescriptionLong() => WithScalarField("descriptionLong");
+    public ThermostatMeasurementQueryBuilderV1 WithDescription(string alias = null) => WithScalarField("description", alias);
 
-    public ThermostatMeasurementQueryBuilderV1 WithValue() => WithScalarField("value");
+    public ThermostatMeasurementQueryBuilderV1 WithDescriptionLong(string alias = null) => WithScalarField("descriptionLong", alias);
 
-    public ThermostatMeasurementQueryBuilderV1 WithValueText() => WithScalarField("valueText");
+    public ThermostatMeasurementQueryBuilderV1 WithValue(string alias = null) => WithScalarField("value", alias);
 
-    public ThermostatMeasurementQueryBuilderV1 WithUnit() => WithScalarField("unit");
+    public ThermostatMeasurementQueryBuilderV1 WithValueText(string alias = null) => WithScalarField("valueText", alias);
 
-    public ThermostatMeasurementQueryBuilderV1 WithUnitText() => WithScalarField("unitText");
+    public ThermostatMeasurementQueryBuilderV1 WithUnit(string alias = null) => WithScalarField("unit", alias);
 
-    public ThermostatMeasurementQueryBuilderV1 WithTimestamp() => WithScalarField("timestamp");
+    public ThermostatMeasurementQueryBuilderV1 WithUnitText(string alias = null) => WithScalarField("unitText", alias);
 
-    public ThermostatMeasurementQueryBuilderV1 WithType() => WithScalarField("type");
+    public ThermostatMeasurementQueryBuilderV1 WithTimestamp(string alias = null) => WithScalarField("timestamp", alias);
 
-    public ThermostatMeasurementQueryBuilderV1 WithTypeText() => WithScalarField("typeText");
+    public ThermostatMeasurementQueryBuilderV1 WithType(string alias = null) => WithScalarField("type", alias);
+
+    public ThermostatMeasurementQueryBuilderV1 WithTypeText(string alias = null) => WithScalarField("typeText", alias);
 }
 
 public partial class ThermostatCapabilityQueryBuilderV1 : GraphQlQueryBuilder<ThermostatCapabilityQueryBuilderV1>
@@ -1761,11 +1940,15 @@ public partial class ThermostatCapabilityQueryBuilderV1 : GraphQlQueryBuilder<Th
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatCapabilityQueryBuilderV1 WithName() => WithScalarField("name");
+    public ThermostatCapabilityQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public ThermostatCapabilityQueryBuilderV1 WithType() => WithScalarField("type");
+    public ThermostatCapabilityQueryBuilderV1 WithName(string alias = null) => WithScalarField("name", alias);
 
-    public ThermostatCapabilityQueryBuilderV1 WithValues() => WithScalarField("values");
+    public ThermostatCapabilityQueryBuilderV1 WithType(string alias = null) => WithScalarField("type", alias);
+
+    public ThermostatCapabilityQueryBuilderV1 WithValues(string alias = null) => WithScalarField("values", alias);
 }
 
 public partial class ThermostatModeQueryBuilderV1 : GraphQlQueryBuilder<ThermostatModeQueryBuilderV1>
@@ -1779,9 +1962,13 @@ public partial class ThermostatModeQueryBuilderV1 : GraphQlQueryBuilder<Thermost
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatModeQueryBuilderV1 WithName() => WithScalarField("name");
+    public ThermostatModeQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public ThermostatModeQueryBuilderV1 WithCapabilities() => WithScalarField("capabilities");
+    public ThermostatModeQueryBuilderV1 WithName(string alias = null) => WithScalarField("name", alias);
+
+    public ThermostatModeQueryBuilderV1 WithCapabilities(string alias = null) => WithScalarField("capabilities", alias);
 }
 
 public partial class SensorQueryBuilderV1 : GraphQlQueryBuilder<SensorQueryBuilderV1>
@@ -1797,11 +1984,15 @@ public partial class SensorQueryBuilderV1 : GraphQlQueryBuilder<SensorQueryBuild
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public SensorQueryBuilderV1 WithId() => WithScalarField("id");
+    public SensorQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public SensorQueryBuilderV1 WithIdDeprecated() => WithScalarField("idDeprecated");
+    public SensorQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
 
-    public SensorQueryBuilderV1 WithHasHistory() => WithScalarField("hasHistory");
+    public SensorQueryBuilderV1 WithIdDeprecated(string alias = null) => WithScalarField("idDeprecated", alias);
+
+    public SensorQueryBuilderV1 WithHasHistory(string alias = null) => WithScalarField("hasHistory", alias);
 
     public SensorQueryBuilderV1 WithMeasurement(ThermostatMeasurementQueryBuilderV1 thermostatMeasurementQueryBuilder) => WithObjectField("measurement", thermostatMeasurementQueryBuilder);
 }
@@ -1818,9 +2009,13 @@ public partial class SensorHistoryQueryBuilderV1 : GraphQlQueryBuilder<SensorHis
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public SensorHistoryQueryBuilderV1 WithSensorId() => WithScalarField("sensorId");
+    public SensorHistoryQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public SensorHistoryQueryBuilderV1 WithDescription() => WithScalarField("description");
+    public SensorHistoryQueryBuilderV1 WithSensorId(string alias = null) => WithScalarField("sensorId", alias);
+
+    public SensorHistoryQueryBuilderV1 WithDescription(string alias = null) => WithScalarField("description", alias);
 
     public SensorHistoryQueryBuilderV1 WithValues(SensorHistoryValueQueryBuilderV1 sensorHistoryValueQueryBuilder) => WithObjectField("values", sensorHistoryValueQueryBuilder);
 }
@@ -1837,11 +2032,15 @@ public partial class SensorHistoryValueQueryBuilderV1 : GraphQlQueryBuilder<Sens
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public SensorHistoryValueQueryBuilderV1 WithTimestamp() => WithScalarField("timestamp");
+    public SensorHistoryValueQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public SensorHistoryValueQueryBuilderV1 WithValue() => WithScalarField("value");
+    public SensorHistoryValueQueryBuilderV1 WithTimestamp(string alias = null) => WithScalarField("timestamp", alias);
 
-    public SensorHistoryValueQueryBuilderV1 WithValueText() => WithScalarField("valueText");
+    public SensorHistoryValueQueryBuilderV1 WithValue(string alias = null) => WithScalarField("value", alias);
+
+    public SensorHistoryValueQueryBuilderV1 WithValueText(string alias = null) => WithScalarField("valueText", alias);
 }
 
 public partial class PairableDeviceQueryBuilderV1 : GraphQlQueryBuilder<PairableDeviceQueryBuilderV1>
@@ -1856,11 +2055,15 @@ public partial class PairableDeviceQueryBuilderV1 : GraphQlQueryBuilder<Pairable
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PairableDeviceQueryBuilderV1 WithType() => WithScalarField("type");
+    public PairableDeviceQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
+
+    public PairableDeviceQueryBuilderV1 WithType(string alias = null) => WithScalarField("type", alias);
 
     public PairableDeviceQueryBuilderV1 WithOauth(PairableDeviceOAuthQueryBuilderV1 pairableDeviceOAuthQueryBuilder) => WithObjectField("oauth", pairableDeviceOAuthQueryBuilder);
 
-    public PairableDeviceQueryBuilderV1 WithReadMoreUrl() => WithScalarField("readMoreUrl");
+    public PairableDeviceQueryBuilderV1 WithReadMoreUrl(string alias = null) => WithScalarField("readMoreUrl", alias);
 }
 
 public partial class PairableDeviceOAuthQueryBuilderV1 : GraphQlQueryBuilder<PairableDeviceOAuthQueryBuilderV1>
@@ -1874,9 +2077,13 @@ public partial class PairableDeviceOAuthQueryBuilderV1 : GraphQlQueryBuilder<Pai
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PairableDeviceOAuthQueryBuilderV1 WithUrl() => WithScalarField("url");
+    public PairableDeviceOAuthQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public PairableDeviceOAuthQueryBuilderV1 WithRedirectUriStartsWith() => WithScalarField("redirectUriStartsWith");
+    public PairableDeviceOAuthQueryBuilderV1 WithUrl(string alias = null) => WithScalarField("url", alias);
+
+    public PairableDeviceOAuthQueryBuilderV1 WithRedirectUriStartsWith(string alias = null) => WithScalarField("redirectUriStartsWith", alias);
 }
 
 public partial class ProductionMonthQueryBuilderV1 : GraphQlQueryBuilder<ProductionMonthQueryBuilderV1>
@@ -1897,23 +2104,27 @@ public partial class ProductionMonthQueryBuilderV1 : GraphQlQueryBuilder<Product
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ProductionMonthQueryBuilderV1 WithYear() => WithScalarField("year");
+    public ProductionMonthQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public ProductionMonthQueryBuilderV1 WithMonth() => WithScalarField("month");
+    public ProductionMonthQueryBuilderV1 WithYear(string alias = null) => WithScalarField("year", alias);
 
-    public ProductionMonthQueryBuilderV1 WithKwh() => WithScalarField("kwh");
+    public ProductionMonthQueryBuilderV1 WithMonth(string alias = null) => WithScalarField("month", alias);
 
-    public ProductionMonthQueryBuilderV1 WithCost() => WithScalarField("cost");
+    public ProductionMonthQueryBuilderV1 WithKwh(string alias = null) => WithScalarField("kwh", alias);
 
-    public ProductionMonthQueryBuilderV1 WithIsComplete() => WithScalarField("isComplete");
+    public ProductionMonthQueryBuilderV1 WithCost(string alias = null) => WithScalarField("cost", alias);
 
-    public ProductionMonthQueryBuilderV1 WithTitle() => WithScalarField("title");
+    public ProductionMonthQueryBuilderV1 WithIsComplete(string alias = null) => WithScalarField("isComplete", alias);
 
-    public ProductionMonthQueryBuilderV1 WithCostText() => WithScalarField("costText");
+    public ProductionMonthQueryBuilderV1 WithTitle(string alias = null) => WithScalarField("title", alias);
 
-    public ProductionMonthQueryBuilderV1 WithKwhText() => WithScalarField("kwhText");
+    public ProductionMonthQueryBuilderV1 WithCostText(string alias = null) => WithScalarField("costText", alias);
 
-    public ProductionMonthQueryBuilderV1 WithDescription() => WithScalarField("description");
+    public ProductionMonthQueryBuilderV1 WithKwhText(string alias = null) => WithScalarField("kwhText", alias);
+
+    public ProductionMonthQueryBuilderV1 WithDescription(string alias = null) => WithScalarField("description", alias);
 }
 
 public partial class ProductionQueryBuilderV1 : GraphQlQueryBuilder<ProductionQueryBuilderV1>
@@ -1936,6 +2147,10 @@ public partial class ProductionQueryBuilderV1 : GraphQlQueryBuilder<ProductionQu
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
+    public ProductionQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
+
     public ProductionQueryBuilderV1 WithAnnualValues(ProductionValueQueryBuilderV1 productionValueQueryBuilder) => WithObjectField("annualValues", productionValueQueryBuilder);
 
     public ProductionQueryBuilderV1 WithMonthlyValues(ProductionValueQueryBuilderV1 productionValueQueryBuilder) => WithObjectField("monthlyValues", productionValueQueryBuilder);
@@ -1946,17 +2161,17 @@ public partial class ProductionQueryBuilderV1 : GraphQlQueryBuilder<ProductionQu
 
     public ProductionQueryBuilderV1 WithHourlyValues(ProductionValueQueryBuilderV1 productionValueQueryBuilder) => WithObjectField("hourlyValues", productionValueQueryBuilder);
 
-    public ProductionQueryBuilderV1 WithTotalConsumption() => WithScalarField("totalConsumption");
+    public ProductionQueryBuilderV1 WithTotalConsumption(string alias = null) => WithScalarField("totalConsumption", alias);
 
-    public ProductionQueryBuilderV1 WithEnergyCost() => WithScalarField("energyCost");
+    public ProductionQueryBuilderV1 WithEnergyCost(string alias = null) => WithScalarField("energyCost", alias);
 
-    public ProductionQueryBuilderV1 WithTotalCost() => WithScalarField("totalCost");
+    public ProductionQueryBuilderV1 WithTotalCost(string alias = null) => WithScalarField("totalCost", alias);
 
-    public ProductionQueryBuilderV1 WithCurrency() => WithScalarField("currency");
+    public ProductionQueryBuilderV1 WithCurrency(string alias = null) => WithScalarField("currency", alias);
 
-    public ProductionQueryBuilderV1 WithLatestTransactionTimestamp() => WithScalarField("latestTransactionTimestamp");
+    public ProductionQueryBuilderV1 WithLatestTransactionTimestamp(string alias = null) => WithScalarField("latestTransactionTimestamp", alias);
 
-    public ProductionQueryBuilderV1 WithTimeZone() => WithScalarField("timeZone");
+    public ProductionQueryBuilderV1 WithTimeZone(string alias = null) => WithScalarField("timeZone", alias);
 }
 
 public partial class ProductionValueQueryBuilderV1 : GraphQlQueryBuilder<ProductionValueQueryBuilderV1>
@@ -1978,25 +2193,29 @@ public partial class ProductionValueQueryBuilderV1 : GraphQlQueryBuilder<Product
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ProductionValueQueryBuilderV1 WithFrom() => WithScalarField("from");
+    public ProductionValueQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public ProductionValueQueryBuilderV1 WithTo() => WithScalarField("to");
+    public ProductionValueQueryBuilderV1 WithFrom(string alias = null) => WithScalarField("from", alias);
 
-    public ProductionValueQueryBuilderV1 WithUnitPrice() => WithScalarField("unitPrice");
+    public ProductionValueQueryBuilderV1 WithTo(string alias = null) => WithScalarField("to", alias);
 
-    public ProductionValueQueryBuilderV1 WithUnitPriceVat() => WithScalarField("unitPriceVAT");
+    public ProductionValueQueryBuilderV1 WithUnitPrice(string alias = null) => WithScalarField("unitPrice", alias);
 
-    public ProductionValueQueryBuilderV1 WithConsumption() => WithScalarField("consumption");
+    public ProductionValueQueryBuilderV1 WithUnitPriceVat(string alias = null) => WithScalarField("unitPriceVAT", alias);
 
-    public ProductionValueQueryBuilderV1 WithConsumptionUnit() => WithScalarField("consumptionUnit");
+    public ProductionValueQueryBuilderV1 WithConsumption(string alias = null) => WithScalarField("consumption", alias);
 
-    public ProductionValueQueryBuilderV1 WithTotalCost() => WithScalarField("totalCost");
+    public ProductionValueQueryBuilderV1 WithConsumptionUnit(string alias = null) => WithScalarField("consumptionUnit", alias);
 
-    public ProductionValueQueryBuilderV1 WithUnitCost() => WithScalarField("unitCost");
+    public ProductionValueQueryBuilderV1 WithTotalCost(string alias = null) => WithScalarField("totalCost", alias);
 
-    public ProductionValueQueryBuilderV1 WithQuality() => WithScalarField("quality");
+    public ProductionValueQueryBuilderV1 WithUnitCost(string alias = null) => WithScalarField("unitCost", alias);
 
-    public ProductionValueQueryBuilderV1 WithConsumptionEntries() => WithScalarField("consumptionEntries");
+    public ProductionValueQueryBuilderV1 WithQuality(string alias = null) => WithScalarField("quality", alias);
+
+    public ProductionValueQueryBuilderV1 WithConsumptionEntries(string alias = null) => WithScalarField("consumptionEntries", alias);
 }
 
 public partial class FeedQueryBuilderV1 : GraphQlQueryBuilder<FeedQueryBuilderV1>
@@ -2011,7 +2230,11 @@ public partial class FeedQueryBuilderV1 : GraphQlQueryBuilder<FeedQueryBuilderV1
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public FeedQueryBuilderV1 WithNumberOfItems() => WithScalarField("numberOfItems");
+    public FeedQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
+
+    public FeedQueryBuilderV1 WithNumberOfItems(string alias = null) => WithScalarField("numberOfItems", alias);
 
     public FeedQueryBuilderV1 WithItems(FeedItemQueryBuilderV1 feedItemQueryBuilder, int? page = null, int? pageSize = null)
     {
@@ -2043,17 +2266,21 @@ public partial class FeedItemQueryBuilderV1 : GraphQlQueryBuilder<FeedItemQueryB
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public FeedItemQueryBuilderV1 WithId() => WithScalarField("id");
+    public FeedItemQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public FeedItemQueryBuilderV1 WithMessageTypeId() => WithScalarField("messageTypeId");
+    public FeedItemQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
 
-    public FeedItemQueryBuilderV1 WithLink() => WithScalarField("link");
+    public FeedItemQueryBuilderV1 WithMessageTypeId(string alias = null) => WithScalarField("messageTypeId", alias);
 
-    public FeedItemQueryBuilderV1 WithText() => WithScalarField("text");
+    public FeedItemQueryBuilderV1 WithLink(string alias = null) => WithScalarField("link", alias);
 
-    public FeedItemQueryBuilderV1 WithCreatedAt() => WithScalarField("createdAt");
+    public FeedItemQueryBuilderV1 WithText(string alias = null) => WithScalarField("text", alias);
 
-    public FeedItemQueryBuilderV1 WithModifiedAt() => WithScalarField("modifiedAt");
+    public FeedItemQueryBuilderV1 WithCreatedAt(string alias = null) => WithScalarField("createdAt", alias);
+
+    public FeedItemQueryBuilderV1 WithModifiedAt(string alias = null) => WithScalarField("modifiedAt", alias);
 }
 
 public partial class PushNotificationQueryBuilderV1 : GraphQlQueryBuilder<PushNotificationQueryBuilderV1>
@@ -2068,11 +2295,15 @@ public partial class PushNotificationQueryBuilderV1 : GraphQlQueryBuilder<PushNo
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PushNotificationQueryBuilderV1 WithId() => WithScalarField("id");
+    public PushNotificationQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public PushNotificationQueryBuilderV1 WithLink() => WithScalarField("link");
+    public PushNotificationQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
 
-    public PushNotificationQueryBuilderV1 WithText() => WithScalarField("text");
+    public PushNotificationQueryBuilderV1 WithLink(string alias = null) => WithScalarField("link", alias);
+
+    public PushNotificationQueryBuilderV1 WithText(string alias = null) => WithScalarField("text", alias);
 }
 
 public partial class WalletQueryBuilderV1 : GraphQlQueryBuilder<WalletQueryBuilderV1>
@@ -2087,11 +2318,15 @@ public partial class WalletQueryBuilderV1 : GraphQlQueryBuilder<WalletQueryBuild
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public WalletQueryBuilderV1 WithId() => WithScalarField("id");
+    public WalletQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
+
+    public WalletQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
 
     public WalletQueryBuilderV1 WithPaymentMethods(PaymentMethodQueryBuilderV1 paymentMethodQueryBuilder) => WithObjectField("paymentMethods", paymentMethodQueryBuilder);
 
-    public WalletQueryBuilderV1 WithDirectDebitToPromote() => WithScalarField("directDebitToPromote");
+    public WalletQueryBuilderV1 WithDirectDebitToPromote(string alias = null) => WithScalarField("directDebitToPromote", alias);
 }
 
 public partial class PaymentMethodQueryBuilderV1 : GraphQlQueryBuilder<PaymentMethodQueryBuilderV1>
@@ -2106,11 +2341,15 @@ public partial class PaymentMethodQueryBuilderV1 : GraphQlQueryBuilder<PaymentMe
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PaymentMethodQueryBuilderV1 WithMethod() => WithScalarField("method");
+    public PaymentMethodQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public PaymentMethodQueryBuilderV1 WithStatus() => WithScalarField("status");
+    public PaymentMethodQueryBuilderV1 WithMethod(string alias = null) => WithScalarField("method", alias);
 
-    public PaymentMethodQueryBuilderV1 WithProperties() => WithScalarField("properties");
+    public PaymentMethodQueryBuilderV1 WithStatus(string alias = null) => WithScalarField("status", alias);
+
+    public PaymentMethodQueryBuilderV1 WithProperties(string alias = null) => WithScalarField("properties", alias);
 }
 
 public partial class AboutQueryBuilderV1 : GraphQlQueryBuilder<AboutQueryBuilderV1>
@@ -2122,6 +2361,10 @@ public partial class AboutQueryBuilderV1 : GraphQlQueryBuilder<AboutQueryBuilder
         };
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public AboutQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
     public AboutQueryBuilderV1 WithItems(AboutItemQueryBuilderV1 aboutItemQueryBuilder) => WithObjectField("items", aboutItemQueryBuilder);
 }
@@ -2137,9 +2380,13 @@ public partial class AboutItemQueryBuilderV1 : GraphQlQueryBuilder<AboutItemQuer
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AboutItemQueryBuilderV1 WithLabel() => WithScalarField("label");
+    public AboutItemQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public AboutItemQueryBuilderV1 WithUrl() => WithScalarField("url");
+    public AboutItemQueryBuilderV1 WithLabel(string alias = null) => WithScalarField("label", alias);
+
+    public AboutItemQueryBuilderV1 WithUrl(string alias = null) => WithScalarField("url", alias);
 }
 
 public partial class MutationQueryBuilderV1 : GraphQlQueryBuilder<MutationQueryBuilderV1>
@@ -2153,6 +2400,10 @@ public partial class MutationQueryBuilderV1 : GraphQlQueryBuilder<MutationQueryB
     protected override string Prefix { get; } = "mutation";
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public MutationQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
     public MutationQueryBuilderV1 WithMe(MeMutationQueryBuilderV1 meMutationQueryBuilder) => WithObjectField("me", meMutationQueryBuilder);
 }
@@ -2168,6 +2419,10 @@ public partial class MeMutationQueryBuilderV1 : GraphQlQueryBuilder<MeMutationQu
         };
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public MeMutationQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
     public MeMutationQueryBuilderV1 WithUpdate(MeQueryBuilderV1 meQueryBuilder, string email = null, string mobile = null)
     {
@@ -2215,6 +2470,10 @@ public partial class HomeMutationQueryBuilderV1 : GraphQlQueryBuilder<HomeMutati
         };
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public HomeMutationQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
     public HomeMutationQueryBuilderV1 WithThermostat(ThermostatMutationQueryBuilderV1 thermostatMutationQueryBuilder, string id = null)
     {
@@ -2299,7 +2558,11 @@ public partial class ThermostatMutationQueryBuilderV1 : GraphQlQueryBuilder<Ther
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatMutationQueryBuilderV1 WithSetState(string mode = null, decimal? comfortTemperature = null, string fanLevel = null, string onOff = null)
+    public ThermostatMutationQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
+
+    public ThermostatMutationQueryBuilderV1 WithSetState(string mode = null, decimal? comfortTemperature = null, string fanLevel = null, string onOff = null, string alias = null)
     {
         var args = new Dictionary<string, object>();
         if (mode != null)
@@ -2314,16 +2577,16 @@ public partial class ThermostatMutationQueryBuilderV1 : GraphQlQueryBuilder<Ther
         if (onOff != null)
             args.Add("onOff", onOff);
 
-        return WithScalarField("setState", args);
+        return WithScalarField("setState", alias, args);
     }
 
-    public ThermostatMutationQueryBuilderV1 WithSetName(string name = null)
+    public ThermostatMutationQueryBuilderV1 WithSetName(string name = null, string alias = null)
     {
         var args = new Dictionary<string, object>();
         if (name != null)
             args.Add("name", name);
 
-        return WithScalarField("setName", args);
+        return WithScalarField("setName", alias, args);
     }
 }
 
@@ -2338,6 +2601,10 @@ public partial class PairDeviceResultQueryBuilderV1 : GraphQlQueryBuilder<PairDe
         };
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public PairDeviceResultQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
     public PairDeviceResultQueryBuilderV1 WithThermostats(ThermostatQueryBuilderV1 thermostatQueryBuilder) => WithObjectField("thermostats", thermostatQueryBuilder);
 
@@ -2357,9 +2624,13 @@ public partial class GQLMutationErrorQueryBuilderV1 : GraphQlQueryBuilder<GQLMut
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public GQLMutationErrorQueryBuilderV1 WithStatusCode() => WithScalarField("statusCode");
+    public GQLMutationErrorQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
-    public GQLMutationErrorQueryBuilderV1 WithMessage() => WithScalarField("message");
+    public GQLMutationErrorQueryBuilderV1 WithStatusCode(string alias = null) => WithScalarField("statusCode", alias);
+
+    public GQLMutationErrorQueryBuilderV1 WithMessage(string alias = null) => WithScalarField("message", alias);
 }
 
 public partial class GQLMutationGeneralResponseQueryBuilderV1 : GraphQlQueryBuilder<GQLMutationGeneralResponseQueryBuilderV1>
@@ -2371,6 +2642,10 @@ public partial class GQLMutationGeneralResponseQueryBuilderV1 : GraphQlQueryBuil
         };
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public GQLMutationGeneralResponseQueryBuilderV1(string alias = null) : base(alias)
+    {
+    }
 
     public GQLMutationGeneralResponseQueryBuilderV1 WithError(GQLMutationErrorQueryBuilderV1 gQLMutationErrorQueryBuilder) => WithObjectField("error", gQLMutationErrorQueryBuilder);
 }

@@ -46,26 +46,21 @@ using Newtonsoft.Json.Linq;
 
         public static async Task<GraphQlSchema> RetrieveSchema(string url)
         {
-            using (var client = new HttpClient())
-            {
-                string content;
+            using var client = new HttpClient();
+            using var response =
+                await client.PostAsync(
+                    url,
+                    new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json"));
+            
+            var content =
+                response.Content == null
+                    ? "(no content)"
+                    : await response.Content.ReadAsStringAsync();
 
-                using (var response =
-                    await client.PostAsync(
-                        url,
-                        new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json")))
-                {
-                    content =
-                        response.Content == null
-                            ? "(no content)"
-                            : await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+                throw new InvalidOperationException($"Status code: {(int)response.StatusCode} ({response.StatusCode}); content: {content}");
 
-                    if (!response.IsSuccessStatusCode)
-                        throw new InvalidOperationException($"Status code: {(int)response.StatusCode} ({response.StatusCode}); content: {content}");
-                }
-
-                return JsonConvert.DeserializeObject<GraphQlResult>(content, SerializerSettings).Data.Schema;
-            }
+            return JsonConvert.DeserializeObject<GraphQlResult>(content, SerializerSettings).Data.Schema;
         }
 
         private static bool IsComplexType(string graphQlTypeKind) =>
@@ -81,7 +76,7 @@ using Newtonsoft.Json.Linq;
 
         public static void GenerateQueryBuilder(GraphQlSchema schema, StringBuilder builder)
         {
-            using (var reader = new StreamReader(typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses")))
+            using (var reader = new StreamReader(typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses.cs")))
                 builder.AppendLine(reader.ReadToEnd());
 
             GenerateSharedTypes(schema, builder);
@@ -410,6 +405,11 @@ using Newtonsoft.Json.Linq;
 
             WriteOverrideProperty("IList<FieldMetadata>", "AllFields", "AllFieldMetadata", builder);
 
+            builder.AppendLine($"    public {className}(string alias = null) : base(alias)");
+            builder.AppendLine("    {");
+            builder.AppendLine("    }");
+            builder.AppendLine();
+
             for (var i = 0; i < fields?.Length; i++)
             {
                 var field = fields[i];
@@ -418,7 +418,7 @@ using Newtonsoft.Json.Linq;
                     fieldType = fieldType.OfType;
                 fieldType = fieldType.UnwrapIfNonNull();
 
-                bool IsCompatibleArgument(GraphQlFieldType argumentType)
+                static bool IsCompatibleArgument(GraphQlFieldType argumentType)
                 {
                     argumentType = argumentType.UnwrapIfNonNull();
                     switch (argumentType.Kind)
@@ -445,9 +445,9 @@ using Newtonsoft.Json.Linq;
                 var requiresFullBody = GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.Compatible || args.Any();
                 var returnPrefix = requiresFullBody ? "        return " : String.Empty;
 
-                if (fieldType.Kind == GraphQlTypeKindScalar || fieldType.Kind == GraphQlTypeKindEnum || fieldType.Kind == GraphQlTypeKindScalar)
+                if (fieldType.Kind == GraphQlTypeKindScalar || fieldType.Kind == GraphQlTypeKindEnum)
                 {
-                    builder.Append($"    public {className} With{NamingHelper.ToPascalCase(field.Name)}({methodParameters})");
+                    builder.Append($"    public {className} With{NamingHelper.ToPascalCase(field.Name)}({methodParameters}{(String.IsNullOrEmpty(methodParameters) ? null : ", ")}string alias = null)");
 
                     if (requiresFullBody)
                     {
@@ -458,7 +458,7 @@ using Newtonsoft.Json.Linq;
                     else
                         builder.Append(" => ");
 
-                    builder.Append($"{returnPrefix}WithScalarField(\"{field.Name}\"");
+                    builder.Append($"{returnPrefix}WithScalarField(\"{field.Name}\", alias");
 
                     if (args.Length > 0)
                         builder.Append(", args");
