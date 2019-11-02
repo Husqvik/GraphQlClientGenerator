@@ -177,6 +177,16 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     protected abstract IList<FieldMetadata> AllFields { get; }
 
+    public string Alias { get; }
+
+    protected GraphQlQueryBuilder(string alias = null)
+    {
+        if (alias != null && String.IsNullOrWhiteSpace(alias))
+            throw new ArgumentException("Value must not be white space. ", nameof(alias));
+
+        Alias = alias;
+    }
+
     public virtual void Clear()
     {
         _fieldCriteria.Clear();
@@ -240,7 +250,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     protected void IncludeObjectField(string fieldName, GraphQlQueryBuilder objectFieldQueryBuilder, IDictionary<string, object> args)
     {
-        _fieldCriteria[fieldName] = new GraphQlObjectFieldCriteria(fieldName, objectFieldQueryBuilder, args);
+        _fieldCriteria[objectFieldQueryBuilder.Alias ?? fieldName] = new GraphQlObjectFieldCriteria(fieldName, objectFieldQueryBuilder, args);
     }
 
     protected void IncludeFields(IEnumerable<FieldMetadata> fields)
@@ -318,11 +328,24 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
                 return String.Empty;
 
             var builder = new StringBuilder();
-            var fieldName = FieldName;
-            if (formatting == Formatting.Indented)
-                fieldName = $"{GraphQlQueryHelper.GetIndentation(level, indentationSize)}{FieldName} ";
 
-            builder.Append(fieldName);
+            if (formatting == Formatting.Indented)
+                builder.Append(GraphQlQueryHelper.GetIndentation(level, indentationSize));
+
+            if (!String.IsNullOrWhiteSpace(_objectQueryBuilder.Alias))
+            {
+                builder.Append(_objectQueryBuilder.Alias);
+                builder.Append(":");
+
+                if (formatting == Formatting.Indented)
+                    builder.Append(" ");
+            }
+
+            builder.Append(FieldName);
+
+            if (formatting == Formatting.Indented)
+                builder.Append(" ");
+
             builder.Append(BuildArgumentClause(formatting, level, indentationSize));
             builder.Append(_objectQueryBuilder.Build(formatting, level + 1, indentationSize));
             return builder.ToString();
@@ -332,6 +355,10 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
 public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder where TQueryBuilder : GraphQlQueryBuilder<TQueryBuilder>
 {
+    protected GraphQlQueryBuilder(string alias = null) : base(alias)
+    {
+    }
+
     public TQueryBuilder WithAllFields()
     {
         IncludeAllFields();
