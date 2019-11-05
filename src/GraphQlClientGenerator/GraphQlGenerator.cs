@@ -89,9 +89,11 @@ using Newtonsoft.Json.Linq;
                 var type = complexTypes[i];
 
                 string queryPrefix;
-                if (String.Equals(type.Name, schema.MutationType?.Name))
+                if (type.Name == schema.QueryType?.Name)
+                    queryPrefix = "query";
+                else if (type.Name == schema.MutationType?.Name)
                     queryPrefix = "mutation";
-                else if (String.Equals(type.Name, schema.SubscriptionType?.Name))
+                else if (type.Name == schema.SubscriptionType?.Name)
                     queryPrefix = "subscription";
                 else
                     queryPrefix = null;

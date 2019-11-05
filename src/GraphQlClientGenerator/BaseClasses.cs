@@ -210,7 +210,15 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         {
             builder.Append(Prefix);
 
-            if (isIndentedFormatting)
+            if (!String.IsNullOrEmpty(Alias))
+            {
+                builder.Append(" ");
+                builder.Append(Alias);
+
+                if (isIndentedFormatting)
+                    builder.Append(" ");
+            }
+            else if (isIndentedFormatting)
                 builder.Append(" ");
         }
 

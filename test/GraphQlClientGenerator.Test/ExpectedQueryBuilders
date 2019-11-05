@@ -210,7 +210,15 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         {
             builder.Append(Prefix);
 
-            if (isIndentedFormatting)
+            if (!String.IsNullOrEmpty(Alias))
+            {
+                builder.Append(" ");
+                builder.Append(Alias);
+
+                if (isIndentedFormatting)
+                    builder.Append(" ");
+            }
+            else if (isIndentedFormatting)
                 builder.Append(" ");
         }
 
@@ -427,6 +435,8 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
         {
             new FieldMetadata { Name = "me", IsComplex = true, QueryBuilderType = typeof(MeQueryBuilder) }
         };
+
+    protected override string Prefix { get { return "query"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
