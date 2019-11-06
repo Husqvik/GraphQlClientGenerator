@@ -1,0 +1,3294 @@
+#region base classes
+public class FieldMetadata
+{
+    public string Name { get; set; }
+    public bool IsComplex { get; set; }
+    public Type QueryBuilderType { get; set; }
+}
+
+public enum Formatting
+{
+    None,
+    Indented
+}
+
+internal static class GraphQlQueryHelper
+{
+    private static readonly Regex RegexWhiteSpace = new Regex(@"\s", RegexOptions.Compiled);
+
+    public static string GetIndentation(int level, byte indentationSize)
+    {
+        return new String(' ', level * indentationSize);
+    }
+
+    public static string BuildArgumentValue(object value, Formatting formatting, int level, byte indentationSize)
+    {
+        if (value is JValue jValue)
+        {
+            switch (jValue.Type)
+            {
+                case JTokenType.Null: return "null";
+                case JTokenType.Integer:
+                case JTokenType.Float:
+                case JTokenType.Boolean:
+                    return BuildArgumentValue(jValue.Value, formatting, level, indentationSize);
+                default:
+                    return $"\"{jValue.Value}\"";
+            }
+        }
+
+        if (value is Enum @enum)
+            return ConvertEnumToString(@enum);
+
+        if (value is bool @bool)
+            return @bool ? "true" : "false";
+
+        if (value is DateTime dateTime)
+            return $"\"{dateTime:O}\"";
+
+        if (value is DateTimeOffset dateTimeOffset)
+            return $"\"{dateTimeOffset:O}\"";
+
+        if (value is IGraphQlInputObject inputObject)
+            return BuildInputObject(inputObject, formatting, level + 2, indentationSize);
+
+        if (value is String || value is Guid)
+            return $"\"{value}\"";
+
+        if (value is JProperty jProperty)
+        {
+            if (RegexWhiteSpace.IsMatch(jProperty.Name))
+			    throw new ArgumentException($"JSON object keys used as GraphQL arguments must not contain whitespace; key: {jProperty.Name}");
+
+            return $"{jProperty.Name}:{(formatting == Formatting.Indented ? " " : null)}{BuildArgumentValue(jProperty.Value, formatting, level, indentationSize)}";
+        }
+
+        if (value is JObject jObject)
+            return BuildEnumerableArgument(jObject, formatting, level + 1, indentationSize, '{', '}');
+
+        if (value is IEnumerable enumerable)
+            return BuildEnumerableArgument(enumerable, formatting, level, indentationSize, '[', ']');
+
+        if (value is short || value is ushort || value is byte || value is int || value is uint || value is long || value is ulong || value is float || value is double || value is decimal)
+            return Convert.ToString(value, CultureInfo.InvariantCulture);
+
+        var argumentValue = Convert.ToString(value, CultureInfo.InvariantCulture);
+        return $"\"{argumentValue}\"";
+    }
+
+    private static string BuildEnumerableArgument(IEnumerable enumerable, Formatting formatting, int level, byte indentationSize, char openingSymbol, char closingSymbol)
+    {
+        var builder = new StringBuilder();
+        builder.Append(openingSymbol);
+        var delimiter = String.Empty;
+        foreach (var item in enumerable)
+        {
+            builder.Append(delimiter);
+
+            if (formatting == Formatting.Indented)
+            {
+                builder.AppendLine();
+                builder.Append(GetIndentation(level + 1, indentationSize));
+            }
+
+            builder.Append(BuildArgumentValue(item, formatting, level, indentationSize));
+            delimiter = ",";
+        }
+
+        builder.Append(closingSymbol);
+        return builder.ToString();
+    }
+
+    public static string BuildInputObject(IGraphQlInputObject inputObject, Formatting formatting, int level, byte indentationSize)
+    {
+        var builder = new StringBuilder();
+        builder.Append("{");
+
+        var isIndentedFormatting = formatting == Formatting.Indented;
+        string valueSeparator;
+        if (isIndentedFormatting)
+        {
+            builder.AppendLine();
+            valueSeparator = ": ";
+        }
+        else
+            valueSeparator = ":";
+
+        var separator = String.Empty;
+        foreach (var propertyValue in inputObject.GetPropertyValues().Where(p => p.Value != null))
+        {
+            var value = BuildArgumentValue(propertyValue.Value, formatting, level, indentationSize);
+            builder.Append(isIndentedFormatting ? GetIndentation(level, indentationSize) : separator);
+            builder.Append(propertyValue.Name);
+            builder.Append(valueSeparator);
+            builder.Append(value);
+
+            separator = ",";
+
+            if (isIndentedFormatting)
+                builder.AppendLine();
+        }
+
+        if (isIndentedFormatting)
+            builder.Append(GetIndentation(level - 1, indentationSize));
+
+        builder.Append("}");
+
+        return builder.ToString();
+    }
+
+    private static string ConvertEnumToString(Enum @enum)
+    {
+        var enumMember = @enum.GetType().GetTypeInfo().GetField(@enum.ToString());
+            if (enumMember == null)
+                throw new InvalidOperationException("enum member resolution failed");
+
+        var enumMemberAttribute = (EnumMemberAttribute)enumMember.GetCustomAttribute(typeof(EnumMemberAttribute));
+
+        return enumMemberAttribute == null
+            ? @enum.ToString()
+            : enumMemberAttribute.Value;
+    }
+}
+
+public struct InputPropertyInfo
+{
+    public string Name { get; set; }
+    public object Value { get; set; }
+}
+
+internal interface IGraphQlInputObject
+{
+    IEnumerable<InputPropertyInfo> GetPropertyValues();
+}
+
+public interface IGraphQlQueryBuilder
+{
+    void Clear();
+    void IncludeAllFields();
+    string Build(Formatting formatting = Formatting.None, byte indentationSize = 2);
+}
+
+public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
+{
+    private static readonly Type[] MethodParameterTypeString = { typeof(String) };
+    private static readonly string[] MethodParameterString = { null };
+
+    private readonly Dictionary<string, GraphQlFieldCriteria> _fieldCriteria = new Dictionary<string, GraphQlFieldCriteria>();
+
+    protected virtual string Prefix { get { return null; } }
+
+    protected abstract IList<FieldMetadata> AllFields { get; }
+
+    public string Alias { get; }
+
+    protected GraphQlQueryBuilder(string alias = null)
+    {
+        ValidateAlias(alias);
+        Alias = alias;
+    }
+
+    public virtual void Clear()
+    {
+        _fieldCriteria.Clear();
+    }
+
+    public virtual void IncludeAllFields()
+    {
+        IncludeFields(AllFields);
+    }
+
+    public string Build(Formatting formatting = Formatting.None, byte indentationSize = 2)
+    {
+        return Build(formatting, 1, indentationSize);
+    }
+
+    protected virtual string Build(Formatting formatting, int level, byte indentationSize)
+    {
+        var isIndentedFormatting = formatting == Formatting.Indented;
+
+        var builder = new StringBuilder();
+
+        if (!String.IsNullOrEmpty(Prefix))
+        {
+            builder.Append(Prefix);
+
+            if (!String.IsNullOrEmpty(Alias))
+            {
+                builder.Append(" ");
+                builder.Append(Alias);
+
+                if (isIndentedFormatting)
+                    builder.Append(" ");
+            }
+            else if (isIndentedFormatting)
+                builder.Append(" ");
+        }
+
+        builder.Append("{");
+
+        if (isIndentedFormatting)
+            builder.AppendLine();
+
+        var separator = String.Empty;
+        foreach (var criteria in _fieldCriteria.Values)
+        {
+            var fieldCriteria = criteria.Build(formatting, level, indentationSize);
+            if (isIndentedFormatting)
+                builder.AppendLine(fieldCriteria);
+            else if (!String.IsNullOrEmpty(fieldCriteria))
+            {
+                builder.Append(separator);
+                builder.Append(fieldCriteria);
+            }
+
+            separator = ",";
+        }
+
+        if (isIndentedFormatting)
+            builder.Append(GraphQlQueryHelper.GetIndentation(level - 1, indentationSize));
+        
+        builder.Append("}");
+        return builder.ToString();
+    }
+
+    protected void IncludeScalarField(string fieldName, string alias, IDictionary<string, object> args)
+    {
+        ValidateAlias(alias);
+        _fieldCriteria[alias ?? fieldName] = new GraphQlScalarFieldCriteria(fieldName, alias, args);
+    }
+
+    protected void IncludeObjectField(string fieldName, GraphQlQueryBuilder objectFieldQueryBuilder, IDictionary<string, object> args)
+    {
+        _fieldCriteria[objectFieldQueryBuilder.Alias ?? fieldName] = new GraphQlObjectFieldCriteria(fieldName, objectFieldQueryBuilder, args);
+    }
+
+    protected void IncludeFields(IEnumerable<FieldMetadata> fields)
+    {
+        foreach (var field in fields)
+        {
+            if (field.QueryBuilderType == null)
+                IncludeScalarField(field.Name, null, null);
+            else
+            {
+                var builderType = GetType();
+                if (builderType.IsAssignableFrom(field.QueryBuilderType))
+                    throw new InvalidOperationException($"Field '{builderType.Name}.{field.Name}' cannot be added because its type is the same as the parent type (or inherited) and leads to infinite recursion. ");
+
+                var constructor = field.QueryBuilderType.GetConstructor(MethodParameterTypeString);
+                if (constructor == null)
+                    throw new InvalidOperationException($"{field.QueryBuilderType.FullName} constructor not found");
+
+                var queryBuilder = (GraphQlQueryBuilder)constructor.Invoke(MethodParameterString);
+                queryBuilder.IncludeAllFields();
+                IncludeObjectField(field.Name, queryBuilder, null);
+            }
+        }
+    }
+
+    private static void ValidateAlias(string alias)
+    {
+        if (alias != null && String.IsNullOrWhiteSpace(alias))
+            throw new ArgumentException("Value must not be white space. ", nameof(alias));
+    }
+
+    private abstract class GraphQlFieldCriteria
+    {
+        protected readonly string FieldName;
+        private readonly IDictionary<string, object> _args;
+
+        protected GraphQlFieldCriteria(string fieldName, IDictionary<string, object> args)
+        {
+            FieldName = fieldName;
+            _args = args;
+        }
+
+        public abstract string Build(Formatting formatting, int level, byte indentationSize);
+
+        protected string BuildArgumentClause(Formatting formatting, int level, byte indentationSize)
+        {
+            var separator = formatting == Formatting.Indented ? " " : null;
+            return
+                _args?.Count > 0
+                    ? $"({String.Join($",{separator}", _args.Select(kvp => $"{kvp.Key}:{separator}{GraphQlQueryHelper.BuildArgumentValue(kvp.Value, formatting, level, indentationSize)}"))}){separator}"
+                    : String.Empty;
+        }
+
+        protected static string BuildAliasPrefix(string alias, Formatting formatting)
+        {
+            var separator = formatting == Formatting.Indented ? " " : String.Empty;
+            return String.IsNullOrWhiteSpace(alias) ? null : alias + ':' + separator;
+        }
+    }
+
+    private class GraphQlScalarFieldCriteria : GraphQlFieldCriteria
+    {
+        private readonly string _alias;
+
+        public GraphQlScalarFieldCriteria(string fieldName, string alias, IDictionary<string, object> args) : base(fieldName, args)
+        {
+            _alias = alias;
+        }
+
+        public override string Build(Formatting formatting, int level, byte indentationSize)
+        {
+            var builder = new StringBuilder();
+            if (formatting == Formatting.Indented)
+                builder.Append(GraphQlQueryHelper.GetIndentation(level, indentationSize));
+
+            builder.Append(BuildAliasPrefix(_alias, formatting));
+            builder.Append(FieldName);
+            builder.Append(BuildArgumentClause(formatting, level, indentationSize));
+            return builder.ToString();
+        }
+    }
+
+    private class GraphQlObjectFieldCriteria : GraphQlFieldCriteria
+    {
+        private readonly GraphQlQueryBuilder _objectQueryBuilder;
+
+        public GraphQlObjectFieldCriteria(string fieldName, GraphQlQueryBuilder objectQueryBuilder, IDictionary<string, object> args) : base(fieldName, args)
+        {
+            _objectQueryBuilder = objectQueryBuilder;
+        }
+
+        public override string Build(Formatting formatting, int level, byte indentationSize)
+        {
+            if (_objectQueryBuilder._fieldCriteria.Count == 0)
+                return String.Empty;
+
+            var builder = new StringBuilder();
+
+            if (formatting == Formatting.Indented)
+                builder.Append(GraphQlQueryHelper.GetIndentation(level, indentationSize));
+
+            builder.Append(BuildAliasPrefix(_objectQueryBuilder.Alias, formatting));
+            builder.Append(FieldName);
+
+            if (formatting == Formatting.Indented)
+                builder.Append(" ");
+
+            builder.Append(BuildArgumentClause(formatting, level, indentationSize));
+            builder.Append(_objectQueryBuilder.Build(formatting, level + 1, indentationSize));
+            return builder.ToString();
+        }
+    }
+}
+
+public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder where TQueryBuilder : GraphQlQueryBuilder<TQueryBuilder>
+{
+    protected GraphQlQueryBuilder(string alias = null) : base(alias)
+    {
+    }
+
+    public TQueryBuilder WithAllFields()
+    {
+        IncludeAllFields();
+        return (TQueryBuilder)this;
+    }
+
+    public TQueryBuilder WithAllScalarFields()
+    {
+        IncludeFields(AllFields.Where(f => !f.IsComplex));
+        return (TQueryBuilder)this;
+    }
+
+    protected TQueryBuilder WithScalarField(string fieldName, string alias = null, IDictionary<string, object> args = null)
+    {
+        IncludeScalarField(fieldName, alias, args);
+        return (TQueryBuilder)this;
+    }
+
+    protected TQueryBuilder WithObjectField(string fieldName, GraphQlQueryBuilder queryBuilder, IDictionary<string, object> args = null)
+    {
+        IncludeObjectField(fieldName, queryBuilder, args);
+        return (TQueryBuilder)this;
+    }
+}
+#endregion
+
+#region shared types
+public enum Avatar
+{
+    [EnumMember(Value="floorhouse1")] Floorhouse1,
+    [EnumMember(Value="floorhouse2")] Floorhouse2,
+    [EnumMember(Value="floorhouse3")] Floorhouse3,
+    [EnumMember(Value="castle")] Castle,
+    [EnumMember(Value="apartment")] Apartment,
+    [EnumMember(Value="cottage")] Cottage,
+    [EnumMember(Value="rowhouse")] Rowhouse
+}
+
+public enum Resolution
+{
+    [EnumMember(Value="annual")] Annual,
+    [EnumMember(Value="monthly")] Monthly
+}
+
+#endregion
+
+#nullable enable
+#region builder classes
+public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "me", IsComplex = true, QueryBuilderType = typeof(MeQueryBuilder) }
+        };
+
+    protected override string Prefix { get; } = "query";
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public QueryQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public QueryQueryBuilder WithMe(MeQueryBuilder meQueryBuilder) => WithObjectField("me", meQueryBuilder);
+}
+
+public partial class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "id" },
+            new FieldMetadata { Name = "firstName" },
+            new FieldMetadata { Name = "lastName" },
+            new FieldMetadata { Name = "fullName" },
+            new FieldMetadata { Name = "ssn" },
+            new FieldMetadata { Name = "email" },
+            new FieldMetadata { Name = "language" },
+            new FieldMetadata { Name = "tone" },
+            new FieldMetadata { Name = "mobile" },
+            new FieldMetadata { Name = "welcomeGreeting", IsComplex = true, QueryBuilderType = typeof(GreetingQueryBuilder) },
+            new FieldMetadata { Name = "appState", IsComplex = true, QueryBuilderType = typeof(AppStateQueryBuilder) },
+            new FieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilder) },
+            new FieldMetadata { Name = "homes", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilder) },
+            new FieldMetadata { Name = "feed", IsComplex = true, QueryBuilderType = typeof(FeedQueryBuilder) },
+            new FieldMetadata { Name = "wallet", IsComplex = true, QueryBuilderType = typeof(WalletQueryBuilder) },
+            new FieldMetadata { Name = "about", IsComplex = true, QueryBuilderType = typeof(AboutQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public MeQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public MeQueryBuilder WithId(string? alias = null) => WithScalarField("id", alias);
+
+    public MeQueryBuilder WithFirstName(string? alias = null) => WithScalarField("firstName", alias);
+
+    public MeQueryBuilder WithLastName(string? alias = null) => WithScalarField("lastName", alias);
+
+    public MeQueryBuilder WithFullName(string? alias = null) => WithScalarField("fullName", alias);
+
+    public MeQueryBuilder WithSsn(string? alias = null) => WithScalarField("ssn", alias);
+
+    public MeQueryBuilder WithEmail(string? alias = null) => WithScalarField("email", alias);
+
+    public MeQueryBuilder WithLanguage(string? alias = null) => WithScalarField("language", alias);
+
+    public MeQueryBuilder WithTone(string? alias = null) => WithScalarField("tone", alias);
+
+    public MeQueryBuilder WithMobile(string? alias = null) => WithScalarField("mobile", alias);
+
+    public MeQueryBuilder WithWelcomeGreeting(GreetingQueryBuilder greetingQueryBuilder) => WithObjectField("welcomeGreeting", greetingQueryBuilder);
+
+    public MeQueryBuilder WithAppState(AppStateQueryBuilder appStateQueryBuilder) => WithObjectField("appState", appStateQueryBuilder);
+
+    public MeQueryBuilder WithHome(HomeQueryBuilder homeQueryBuilder, string? id = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (id != null)
+            args.Add("id", id);
+
+        return WithObjectField("home", homeQueryBuilder, args);
+    }
+
+    public MeQueryBuilder WithHomes(HomeQueryBuilder homeQueryBuilder) => WithObjectField("homes", homeQueryBuilder);
+
+    public MeQueryBuilder WithFeed(FeedQueryBuilder feedQueryBuilder) => WithObjectField("feed", feedQueryBuilder);
+
+    public MeQueryBuilder WithWallet(WalletQueryBuilder walletQueryBuilder) => WithObjectField("wallet", walletQueryBuilder);
+
+    public MeQueryBuilder WithAbout(AboutQueryBuilder aboutQueryBuilder) => WithObjectField("about", aboutQueryBuilder);
+}
+
+public partial class GreetingQueryBuilder : GraphQlQueryBuilder<GreetingQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "title" },
+            new FieldMetadata { Name = "description" },
+            new FieldMetadata { Name = "descriptionWhenNoEnergyDeal" },
+            new FieldMetadata { Name = "showUntil" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public GreetingQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public GreetingQueryBuilder WithTitle(string? alias = null) => WithScalarField("title", alias);
+
+    public GreetingQueryBuilder WithDescription(string? alias = null) => WithScalarField("description", alias);
+
+    public GreetingQueryBuilder WithDescriptionWhenNoEnergyDeal(string? alias = null) => WithScalarField("descriptionWhenNoEnergyDeal", alias);
+
+    public GreetingQueryBuilder WithShowUntil(string? alias = null) => WithScalarField("showUntil", alias);
+}
+
+public partial class AppStateQueryBuilder : GraphQlQueryBuilder<AppStateQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "journey", IsComplex = true, QueryBuilderType = typeof(AppStateJourneyQueryBuilder) },
+            new FieldMetadata { Name = "frontScreens", IsComplex = true, QueryBuilderType = typeof(AppStateFronScreenQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public AppStateQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public AppStateQueryBuilder WithJourney(AppStateJourneyQueryBuilder appStateJourneyQueryBuilder) => WithObjectField("journey", appStateJourneyQueryBuilder);
+
+    public AppStateQueryBuilder WithFrontScreens(AppStateFronScreenQueryBuilder appStateFronScreenQueryBuilder) => WithObjectField("frontScreens", appStateFronScreenQueryBuilder);
+}
+
+public partial class AppStateJourneyQueryBuilder : GraphQlQueryBuilder<AppStateJourneyQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "hasVisitedPairDevices" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public AppStateJourneyQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public AppStateJourneyQueryBuilder WithHasVisitedPairDevices(string? alias = null) => WithScalarField("hasVisitedPairDevices", alias);
+}
+
+public partial class AppStateFronScreenQueryBuilder : GraphQlQueryBuilder<AppStateFronScreenQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "homeId" },
+            new FieldMetadata { Name = "bubbles", IsComplex = true },
+            new FieldMetadata { Name = "bubblesSortOrder", IsComplex = true }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public AppStateFronScreenQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public AppStateFronScreenQueryBuilder WithHomeId(string? alias = null) => WithScalarField("homeId", alias);
+
+    public AppStateFronScreenQueryBuilder WithBubbles(string? alias = null) => WithScalarField("bubbles", alias);
+
+    public AppStateFronScreenQueryBuilder WithBubblesSortOrder(string? alias = null) => WithScalarField("bubblesSortOrder", alias);
+}
+
+public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "id" },
+            new FieldMetadata { Name = "avatar" },
+            new FieldMetadata { Name = "timeZone" },
+            new FieldMetadata { Name = "title" },
+            new FieldMetadata { Name = "type" },
+            new FieldMetadata { Name = "hasEnergyDeal" },
+            new FieldMetadata { Name = "address", IsComplex = true, QueryBuilderType = typeof(AddressQueryBuilder) },
+            new FieldMetadata { Name = "subscription", IsComplex = true, QueryBuilderType = typeof(SubscriptionQueryBuilder) },
+            new FieldMetadata { Name = "consumptionMonths", IsComplex = true, QueryBuilderType = typeof(ConsumptionMonthQueryBuilder) },
+            new FieldMetadata { Name = "consumption", IsComplex = true, QueryBuilderType = typeof(ConsumptionQueryBuilder) },
+            new FieldMetadata { Name = "preLiveComparison", IsComplex = true, QueryBuilderType = typeof(PreLiveComparisonQueryBuilder) },
+            new FieldMetadata { Name = "comparisons", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilder) },
+            new FieldMetadata { Name = "comparisonCurrentMonth", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilder) },
+            new FieldMetadata { Name = "profileQuestions", IsComplex = true, QueryBuilderType = typeof(HomeProfileQuestionQueryBuilder) },
+            new FieldMetadata { Name = "temperatures", IsComplex = true },
+            new FieldMetadata { Name = "signupStatus", IsComplex = true, QueryBuilderType = typeof(SignupStatusQueryBuilder) },
+            new FieldMetadata { Name = "disaggregation", IsComplex = true, QueryBuilderType = typeof(DisaggregationQueryBuilder) },
+            new FieldMetadata { Name = "weather", IsComplex = true, QueryBuilderType = typeof(WeatherQueryBuilder) },
+            new FieldMetadata { Name = "awayMode", IsComplex = true, QueryBuilderType = typeof(AwayModeQueryBuilder) },
+            new FieldMetadata { Name = "dayNightSchedule", IsComplex = true, QueryBuilderType = typeof(DayNightScheduleQueryBuilder) },
+            new FieldMetadata { Name = "report", IsComplex = true, QueryBuilderType = typeof(ReportRootQueryBuilder) },
+            new FieldMetadata { Name = "thermostats", IsComplex = true, QueryBuilderType = typeof(ThermostatQueryBuilder) },
+            new FieldMetadata { Name = "sensors", IsComplex = true, QueryBuilderType = typeof(SensorQueryBuilder) },
+            new FieldMetadata { Name = "sensorsHistory", IsComplex = true, QueryBuilderType = typeof(SensorHistoryQueryBuilder) },
+            new FieldMetadata { Name = "pairableDevices", IsComplex = true, QueryBuilderType = typeof(PairableDeviceQueryBuilder) },
+            new FieldMetadata { Name = "productionMonths", IsComplex = true, QueryBuilderType = typeof(ProductionMonthQueryBuilder) },
+            new FieldMetadata { Name = "production", IsComplex = true, QueryBuilderType = typeof(ProductionQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public HomeQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public HomeQueryBuilder WithId(string? alias = null) => WithScalarField("id", alias);
+
+    public HomeQueryBuilder WithAvatar(string? alias = null) => WithScalarField("avatar", alias);
+
+    public HomeQueryBuilder WithTimeZone(string? alias = null) => WithScalarField("timeZone", alias);
+
+    public HomeQueryBuilder WithTitle(string? alias = null) => WithScalarField("title", alias);
+
+    public HomeQueryBuilder WithType(string? alias = null) => WithScalarField("type", alias);
+
+    public HomeQueryBuilder WithHasEnergyDeal(string? alias = null) => WithScalarField("hasEnergyDeal", alias);
+
+    public HomeQueryBuilder WithAddress(AddressQueryBuilder addressQueryBuilder) => WithObjectField("address", addressQueryBuilder);
+
+    public HomeQueryBuilder WithSubscription(SubscriptionQueryBuilder subscriptionQueryBuilder) => WithObjectField("subscription", subscriptionQueryBuilder);
+
+    public HomeQueryBuilder WithConsumptionMonths(ConsumptionMonthQueryBuilder consumptionMonthQueryBuilder, bool? useDemoData = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (useDemoData != null)
+            args.Add("useDemoData", useDemoData);
+
+        return WithObjectField("consumptionMonths", consumptionMonthQueryBuilder, args);
+    }
+
+    public HomeQueryBuilder WithConsumption(ConsumptionQueryBuilder consumptionQueryBuilder, DateTimeOffset? from = null, DateTimeOffset? to = null, bool? useDemoData = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (from != null)
+            args.Add("from", from);
+
+        if (to != null)
+            args.Add("to", to);
+
+        if (useDemoData != null)
+            args.Add("useDemoData", useDemoData);
+
+        return WithObjectField("consumption", consumptionQueryBuilder, args);
+    }
+
+    public HomeQueryBuilder WithPreLiveComparison(PreLiveComparisonQueryBuilder preLiveComparisonQueryBuilder) => WithObjectField("preLiveComparison", preLiveComparisonQueryBuilder);
+
+    public HomeQueryBuilder WithComparisons(ComparisonQueryBuilder comparisonQueryBuilder, DateTimeOffset? from = null, DateTimeOffset? to = null, Resolution? resolution = null, bool? useDemoData = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (from != null)
+            args.Add("from", from);
+
+        if (to != null)
+            args.Add("to", to);
+
+        if (resolution != null)
+            args.Add("resolution", resolution);
+
+        if (useDemoData != null)
+            args.Add("useDemoData", useDemoData);
+
+        return WithObjectField("comparisons", comparisonQueryBuilder, args);
+    }
+
+    public HomeQueryBuilder WithComparisonCurrentMonth(ComparisonQueryBuilder comparisonQueryBuilder) => WithObjectField("comparisonCurrentMonth", comparisonQueryBuilder);
+
+    public HomeQueryBuilder WithProfileQuestions(HomeProfileQuestionQueryBuilder homeProfileQuestionQueryBuilder) => WithObjectField("profileQuestions", homeProfileQuestionQueryBuilder);
+
+    public HomeQueryBuilder WithTemperatures(DateTimeOffset? from = null, DateTimeOffset? to = null, string? resolution = null, bool? useDemoData = null, string? alias = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (from != null)
+            args.Add("from", from);
+
+        if (to != null)
+            args.Add("to", to);
+
+        if (resolution != null)
+            args.Add("resolution", resolution);
+
+        if (useDemoData != null)
+            args.Add("useDemoData", useDemoData);
+
+        return WithScalarField("temperatures", alias, args);
+    }
+
+    public HomeQueryBuilder WithSignupStatus(SignupStatusQueryBuilder signupStatusQueryBuilder) => WithObjectField("signupStatus", signupStatusQueryBuilder);
+
+    public HomeQueryBuilder WithDisaggregation(DisaggregationQueryBuilder disaggregationQueryBuilder, Resolution? resolution = null, bool? useDemoData = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (resolution != null)
+            args.Add("resolution", resolution);
+
+        if (useDemoData != null)
+            args.Add("useDemoData", useDemoData);
+
+        return WithObjectField("disaggregation", disaggregationQueryBuilder, args);
+    }
+
+    public HomeQueryBuilder WithWeather(WeatherQueryBuilder weatherQueryBuilder) => WithObjectField("weather", weatherQueryBuilder);
+
+    public HomeQueryBuilder WithAwayMode(AwayModeQueryBuilder awayModeQueryBuilder) => WithObjectField("awayMode", awayModeQueryBuilder);
+
+    public HomeQueryBuilder WithDayNightSchedule(DayNightScheduleQueryBuilder dayNightScheduleQueryBuilder) => WithObjectField("dayNightSchedule", dayNightScheduleQueryBuilder);
+
+    public HomeQueryBuilder WithReport(ReportRootQueryBuilder reportRootQueryBuilder) => WithObjectField("report", reportRootQueryBuilder);
+
+    public HomeQueryBuilder WithThermostats(ThermostatQueryBuilder thermostatQueryBuilder) => WithObjectField("thermostats", thermostatQueryBuilder);
+
+    public HomeQueryBuilder WithSensors(SensorQueryBuilder sensorQueryBuilder) => WithObjectField("sensors", sensorQueryBuilder);
+
+    public HomeQueryBuilder WithSensorsHistory(SensorHistoryQueryBuilder sensorHistoryQueryBuilder) => WithObjectField("sensorsHistory", sensorHistoryQueryBuilder);
+
+    public HomeQueryBuilder WithPairableDevices(PairableDeviceQueryBuilder pairableDeviceQueryBuilder) => WithObjectField("pairableDevices", pairableDeviceQueryBuilder);
+
+    public HomeQueryBuilder WithProductionMonths(ProductionMonthQueryBuilder productionMonthQueryBuilder) => WithObjectField("productionMonths", productionMonthQueryBuilder);
+
+    public HomeQueryBuilder WithProduction(ProductionQueryBuilder productionQueryBuilder, DateTimeOffset? from = null, DateTimeOffset? to = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (from != null)
+            args.Add("from", from);
+
+        if (to != null)
+            args.Add("to", to);
+
+        return WithObjectField("production", productionQueryBuilder, args);
+    }
+}
+
+public partial class AddressQueryBuilder : GraphQlQueryBuilder<AddressQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "address1" },
+            new FieldMetadata { Name = "address2" },
+            new FieldMetadata { Name = "address3" },
+            new FieldMetadata { Name = "city" },
+            new FieldMetadata { Name = "postalCode" },
+            new FieldMetadata { Name = "country" },
+            new FieldMetadata { Name = "latitude" },
+            new FieldMetadata { Name = "longitude" },
+            new FieldMetadata { Name = "elevation" },
+            new FieldMetadata { Name = "addressText" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public AddressQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public AddressQueryBuilder WithAddress1(string? alias = null) => WithScalarField("address1", alias);
+
+    public AddressQueryBuilder WithAddress2(string? alias = null) => WithScalarField("address2", alias);
+
+    public AddressQueryBuilder WithAddress3(string? alias = null) => WithScalarField("address3", alias);
+
+    public AddressQueryBuilder WithCity(string? alias = null) => WithScalarField("city", alias);
+
+    public AddressQueryBuilder WithPostalCode(string? alias = null) => WithScalarField("postalCode", alias);
+
+    public AddressQueryBuilder WithCountry(string? alias = null) => WithScalarField("country", alias);
+
+    public AddressQueryBuilder WithLatitude(string? alias = null) => WithScalarField("latitude", alias);
+
+    public AddressQueryBuilder WithLongitude(string? alias = null) => WithScalarField("longitude", alias);
+
+    public AddressQueryBuilder WithElevation(string? alias = null) => WithScalarField("elevation", alias);
+
+    public AddressQueryBuilder WithAddressText(string? alias = null) => WithScalarField("addressText", alias);
+}
+
+public partial class SubscriptionQueryBuilder : GraphQlQueryBuilder<SubscriptionQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "id" },
+            new FieldMetadata { Name = "walletId" },
+            new FieldMetadata { Name = "validFrom" },
+            new FieldMetadata { Name = "validTo" },
+            new FieldMetadata { Name = "status" },
+            new FieldMetadata { Name = "billingRegionId" },
+            new FieldMetadata { Name = "priceRating", IsComplex = true, QueryBuilderType = typeof(PriceRatingRootQueryBuilder) },
+            new FieldMetadata { Name = "invoices", IsComplex = true, QueryBuilderType = typeof(InvoiceQueryBuilder) },
+            new FieldMetadata { Name = "energyDeal", IsComplex = true, QueryBuilderType = typeof(EnergyDealQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public SubscriptionQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public SubscriptionQueryBuilder WithId(string? alias = null) => WithScalarField("id", alias);
+
+    public SubscriptionQueryBuilder WithWalletId(string? alias = null) => WithScalarField("walletId", alias);
+
+    public SubscriptionQueryBuilder WithValidFrom(string? alias = null) => WithScalarField("validFrom", alias);
+
+    public SubscriptionQueryBuilder WithValidTo(string? alias = null) => WithScalarField("validTo", alias);
+
+    public SubscriptionQueryBuilder WithStatus(string? alias = null) => WithScalarField("status", alias);
+
+    public SubscriptionQueryBuilder WithBillingRegionId(string? alias = null) => WithScalarField("billingRegionId", alias);
+
+    public SubscriptionQueryBuilder WithPriceRating(PriceRatingRootQueryBuilder priceRatingRootQueryBuilder) => WithObjectField("priceRating", priceRatingRootQueryBuilder);
+
+    public SubscriptionQueryBuilder WithInvoices(InvoiceQueryBuilder invoiceQueryBuilder) => WithObjectField("invoices", invoiceQueryBuilder);
+
+    public SubscriptionQueryBuilder WithEnergyDeal(EnergyDealQueryBuilder energyDealQueryBuilder) => WithObjectField("energyDeal", energyDealQueryBuilder);
+}
+
+public partial class PriceRatingRootQueryBuilder : GraphQlQueryBuilder<PriceRatingRootQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "isAvailable" },
+            new FieldMetadata { Name = "useTotalIsConfigurable" },
+            new FieldMetadata { Name = "useTotalAsDefault" },
+            new FieldMetadata { Name = "useTotalText" },
+            new FieldMetadata { Name = "hourly", IsComplex = true, QueryBuilderType = typeof(PriceRatingQueryBuilder) },
+            new FieldMetadata { Name = "daily", IsComplex = true, QueryBuilderType = typeof(PriceRatingQueryBuilder) },
+            new FieldMetadata { Name = "monthly", IsComplex = true, QueryBuilderType = typeof(PriceRatingQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public PriceRatingRootQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public PriceRatingRootQueryBuilder WithIsAvailable(string? alias = null) => WithScalarField("isAvailable", alias);
+
+    public PriceRatingRootQueryBuilder WithUseTotalIsConfigurable(string? alias = null) => WithScalarField("useTotalIsConfigurable", alias);
+
+    public PriceRatingRootQueryBuilder WithUseTotalAsDefault(string? alias = null) => WithScalarField("useTotalAsDefault", alias);
+
+    public PriceRatingRootQueryBuilder WithUseTotalText(string? alias = null) => WithScalarField("useTotalText", alias);
+
+    public PriceRatingRootQueryBuilder WithHourly(PriceRatingQueryBuilder priceRatingQueryBuilder) => WithObjectField("hourly", priceRatingQueryBuilder);
+
+    public PriceRatingRootQueryBuilder WithDaily(PriceRatingQueryBuilder priceRatingQueryBuilder) => WithObjectField("daily", priceRatingQueryBuilder);
+
+    public PriceRatingRootQueryBuilder WithMonthly(PriceRatingQueryBuilder priceRatingQueryBuilder) => WithObjectField("monthly", priceRatingQueryBuilder);
+}
+
+public partial class PriceRatingQueryBuilder : GraphQlQueryBuilder<PriceRatingQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "minEnergy" },
+            new FieldMetadata { Name = "maxEnergy" },
+            new FieldMetadata { Name = "minTotal" },
+            new FieldMetadata { Name = "maxTotal" },
+            new FieldMetadata { Name = "currency" },
+            new FieldMetadata { Name = "colorOffsets", IsComplex = true, QueryBuilderType = typeof(PriceRatingColorOffsetQueryBuilder) },
+            new FieldMetadata { Name = "entries", IsComplex = true, QueryBuilderType = typeof(PriceRatingEntryQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public PriceRatingQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public PriceRatingQueryBuilder WithMinEnergy(string? alias = null) => WithScalarField("minEnergy", alias);
+
+    public PriceRatingQueryBuilder WithMaxEnergy(string? alias = null) => WithScalarField("maxEnergy", alias);
+
+    public PriceRatingQueryBuilder WithMinTotal(string? alias = null) => WithScalarField("minTotal", alias);
+
+    public PriceRatingQueryBuilder WithMaxTotal(string? alias = null) => WithScalarField("maxTotal", alias);
+
+    public PriceRatingQueryBuilder WithCurrency(string? alias = null) => WithScalarField("currency", alias);
+
+    public PriceRatingQueryBuilder WithColorOffsets(PriceRatingColorOffsetQueryBuilder priceRatingColorOffsetQueryBuilder) => WithObjectField("colorOffsets", priceRatingColorOffsetQueryBuilder);
+
+    public PriceRatingQueryBuilder WithEntries(PriceRatingEntryQueryBuilder priceRatingEntryQueryBuilder) => WithObjectField("entries", priceRatingEntryQueryBuilder);
+}
+
+public partial class PriceRatingColorOffsetQueryBuilder : GraphQlQueryBuilder<PriceRatingColorOffsetQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "fullGreenPercent" },
+            new FieldMetadata { Name = "fullYellowPercent" },
+            new FieldMetadata { Name = "fullRedPercent" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public PriceRatingColorOffsetQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public PriceRatingColorOffsetQueryBuilder WithFullGreenPercent(string? alias = null) => WithScalarField("fullGreenPercent", alias);
+
+    public PriceRatingColorOffsetQueryBuilder WithFullYellowPercent(string? alias = null) => WithScalarField("fullYellowPercent", alias);
+
+    public PriceRatingColorOffsetQueryBuilder WithFullRedPercent(string? alias = null) => WithScalarField("fullRedPercent", alias);
+}
+
+public partial class PriceRatingEntryQueryBuilder : GraphQlQueryBuilder<PriceRatingEntryQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "time" },
+            new FieldMetadata { Name = "energy" },
+            new FieldMetadata { Name = "total" },
+            new FieldMetadata { Name = "difference" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public PriceRatingEntryQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public PriceRatingEntryQueryBuilder WithTime(string? alias = null) => WithScalarField("time", alias);
+
+    public PriceRatingEntryQueryBuilder WithEnergy(string? alias = null) => WithScalarField("energy", alias);
+
+    public PriceRatingEntryQueryBuilder WithTotal(string? alias = null) => WithScalarField("total", alias);
+
+    public PriceRatingEntryQueryBuilder WithDifference(string? alias = null) => WithScalarField("difference", alias);
+}
+
+public partial class InvoiceQueryBuilder : GraphQlQueryBuilder<InvoiceQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "id" },
+            new FieldMetadata { Name = "no" },
+            new FieldMetadata { Name = "date" },
+            new FieldMetadata { Name = "dueDate" },
+            new FieldMetadata { Name = "totalCost" },
+            new FieldMetadata { Name = "totalCostLocalized" },
+            new FieldMetadata { Name = "totalEnergyConsumption" },
+            new FieldMetadata { Name = "totalEnergyConsumptionLocalized" },
+            new FieldMetadata { Name = "totalVat" },
+            new FieldMetadata { Name = "totalVatLocalized" },
+            new FieldMetadata { Name = "vatPercent" },
+            new FieldMetadata { Name = "vatPercentLocalized" },
+            new FieldMetadata { Name = "vatIsIncluded" },
+            new FieldMetadata { Name = "meteringPointId" },
+            new FieldMetadata { Name = "paymentReference" },
+            new FieldMetadata { Name = "showManualPaymentReferences" },
+            new FieldMetadata { Name = "bankAccount" },
+            new FieldMetadata { Name = "pdfUrl" },
+            new FieldMetadata { Name = "timeZone" },
+            new FieldMetadata { Name = "currency" },
+            new FieldMetadata { Name = "payment", IsComplex = true, QueryBuilderType = typeof(InvoicePaymentQueryBuilder) },
+            new FieldMetadata { Name = "sections", IsComplex = true, QueryBuilderType = typeof(InvoiceSectionQueryBuilder) },
+            new FieldMetadata { Name = "from" },
+            new FieldMetadata { Name = "to" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public InvoiceQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public InvoiceQueryBuilder WithId(string? alias = null) => WithScalarField("id", alias);
+
+    public InvoiceQueryBuilder WithNo(string? alias = null) => WithScalarField("no", alias);
+
+    public InvoiceQueryBuilder WithDate(string? alias = null) => WithScalarField("date", alias);
+
+    public InvoiceQueryBuilder WithDueDate(string? alias = null) => WithScalarField("dueDate", alias);
+
+    public InvoiceQueryBuilder WithTotalCost(string? alias = null) => WithScalarField("totalCost", alias);
+
+    public InvoiceQueryBuilder WithTotalCostLocalized(string? alias = null) => WithScalarField("totalCostLocalized", alias);
+
+    public InvoiceQueryBuilder WithTotalEnergyConsumption(string? alias = null) => WithScalarField("totalEnergyConsumption", alias);
+
+    public InvoiceQueryBuilder WithTotalEnergyConsumptionLocalized(string? alias = null) => WithScalarField("totalEnergyConsumptionLocalized", alias);
+
+    public InvoiceQueryBuilder WithTotalVat(string? alias = null) => WithScalarField("totalVat", alias);
+
+    public InvoiceQueryBuilder WithTotalVatLocalized(string? alias = null) => WithScalarField("totalVatLocalized", alias);
+
+    public InvoiceQueryBuilder WithVatPercent(string? alias = null) => WithScalarField("vatPercent", alias);
+
+    public InvoiceQueryBuilder WithVatPercentLocalized(string? alias = null) => WithScalarField("vatPercentLocalized", alias);
+
+    public InvoiceQueryBuilder WithVatIsIncluded(string? alias = null) => WithScalarField("vatIsIncluded", alias);
+
+    public InvoiceQueryBuilder WithMeteringPointId(string? alias = null) => WithScalarField("meteringPointId", alias);
+
+    public InvoiceQueryBuilder WithPaymentReference(string? alias = null) => WithScalarField("paymentReference", alias);
+
+    public InvoiceQueryBuilder WithShowManualPaymentReferences(string? alias = null) => WithScalarField("showManualPaymentReferences", alias);
+
+    public InvoiceQueryBuilder WithBankAccount(string? alias = null) => WithScalarField("bankAccount", alias);
+
+    public InvoiceQueryBuilder WithPdfUrl(string? alias = null) => WithScalarField("pdfUrl", alias);
+
+    public InvoiceQueryBuilder WithTimeZone(string? alias = null) => WithScalarField("timeZone", alias);
+
+    public InvoiceQueryBuilder WithCurrency(string? alias = null) => WithScalarField("currency", alias);
+
+    public InvoiceQueryBuilder WithPayment(InvoicePaymentQueryBuilder invoicePaymentQueryBuilder) => WithObjectField("payment", invoicePaymentQueryBuilder);
+
+    public InvoiceQueryBuilder WithSections(InvoiceSectionQueryBuilder invoiceSectionQueryBuilder) => WithObjectField("sections", invoiceSectionQueryBuilder);
+
+    public InvoiceQueryBuilder WithFrom(string? alias = null) => WithScalarField("from", alias);
+
+    public InvoiceQueryBuilder WithTo(string? alias = null) => WithScalarField("to", alias);
+}
+
+public partial class InvoicePaymentQueryBuilder : GraphQlQueryBuilder<InvoicePaymentQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "status" },
+            new FieldMetadata { Name = "method" },
+            new FieldMetadata { Name = "date" },
+            new FieldMetadata { Name = "failureText" },
+            new FieldMetadata { Name = "creditCard", IsComplex = true, QueryBuilderType = typeof(CreditCardQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public InvoicePaymentQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public InvoicePaymentQueryBuilder WithStatus(string? alias = null) => WithScalarField("status", alias);
+
+    public InvoicePaymentQueryBuilder WithMethod(string? alias = null) => WithScalarField("method", alias);
+
+    public InvoicePaymentQueryBuilder WithDate(string? alias = null) => WithScalarField("date", alias);
+
+    public InvoicePaymentQueryBuilder WithFailureText(string? alias = null) => WithScalarField("failureText", alias);
+
+    public InvoicePaymentQueryBuilder WithCreditCard(CreditCardQueryBuilder creditCardQueryBuilder) => WithObjectField("creditCard", creditCardQueryBuilder);
+}
+
+public partial class CreditCardQueryBuilder : GraphQlQueryBuilder<CreditCardQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "brand" },
+            new FieldMetadata { Name = "last4" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public CreditCardQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public CreditCardQueryBuilder WithBrand(string? alias = null) => WithScalarField("brand", alias);
+
+    public CreditCardQueryBuilder WithLast4(string? alias = null) => WithScalarField("last4", alias);
+}
+
+public partial class InvoiceSectionQueryBuilder : GraphQlQueryBuilder<InvoiceSectionQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "type" },
+            new FieldMetadata { Name = "text" },
+            new FieldMetadata { Name = "subText" },
+            new FieldMetadata { Name = "consumption" },
+            new FieldMetadata { Name = "consumptionLocalized" },
+            new FieldMetadata { Name = "consumptionUnit" },
+            new FieldMetadata { Name = "price" },
+            new FieldMetadata { Name = "priceLocalized" },
+            new FieldMetadata { Name = "priceUnit" },
+            new FieldMetadata { Name = "cost" },
+            new FieldMetadata { Name = "costLocalized" },
+            new FieldMetadata { Name = "costUnit" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public InvoiceSectionQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public InvoiceSectionQueryBuilder WithType(string? alias = null) => WithScalarField("type", alias);
+
+    public InvoiceSectionQueryBuilder WithText(string? alias = null) => WithScalarField("text", alias);
+
+    public InvoiceSectionQueryBuilder WithSubText(string? alias = null) => WithScalarField("subText", alias);
+
+    public InvoiceSectionQueryBuilder WithConsumption(string? alias = null) => WithScalarField("consumption", alias);
+
+    public InvoiceSectionQueryBuilder WithConsumptionLocalized(string? alias = null) => WithScalarField("consumptionLocalized", alias);
+
+    public InvoiceSectionQueryBuilder WithConsumptionUnit(string? alias = null) => WithScalarField("consumptionUnit", alias);
+
+    public InvoiceSectionQueryBuilder WithPrice(string? alias = null) => WithScalarField("price", alias);
+
+    public InvoiceSectionQueryBuilder WithPriceLocalized(string? alias = null) => WithScalarField("priceLocalized", alias);
+
+    public InvoiceSectionQueryBuilder WithPriceUnit(string? alias = null) => WithScalarField("priceUnit", alias);
+
+    public InvoiceSectionQueryBuilder WithCost(string? alias = null) => WithScalarField("cost", alias);
+
+    public InvoiceSectionQueryBuilder WithCostLocalized(string? alias = null) => WithScalarField("costLocalized", alias);
+
+    public InvoiceSectionQueryBuilder WithCostUnit(string? alias = null) => WithScalarField("costUnit", alias);
+}
+
+public partial class EnergyDealQueryBuilder : GraphQlQueryBuilder<EnergyDealQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "currentProducer", IsComplex = true, QueryBuilderType = typeof(ProducerQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public EnergyDealQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public EnergyDealQueryBuilder WithCurrentProducer(ProducerQueryBuilder producerQueryBuilder) => WithObjectField("currentProducer", producerQueryBuilder);
+}
+
+public partial class ProducerQueryBuilder : GraphQlQueryBuilder<ProducerQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "id" },
+            new FieldMetadata { Name = "name" },
+            new FieldMetadata { Name = "title" },
+            new FieldMetadata { Name = "description" },
+            new FieldMetadata { Name = "imageSrc" },
+            new FieldMetadata { Name = "bullets", IsComplex = true, QueryBuilderType = typeof(ProducerBulletQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ProducerQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ProducerQueryBuilder WithId(string? alias = null) => WithScalarField("id", alias);
+
+    public ProducerQueryBuilder WithName(string? alias = null) => WithScalarField("name", alias);
+
+    public ProducerQueryBuilder WithTitle(string? alias = null) => WithScalarField("title", alias);
+
+    public ProducerQueryBuilder WithDescription(string? alias = null) => WithScalarField("description", alias);
+
+    public ProducerQueryBuilder WithImageSrc(string? alias = null) => WithScalarField("imageSrc", alias);
+
+    public ProducerQueryBuilder WithBullets(ProducerBulletQueryBuilder producerBulletQueryBuilder) => WithObjectField("bullets", producerBulletQueryBuilder);
+}
+
+public partial class ProducerBulletQueryBuilder : GraphQlQueryBuilder<ProducerBulletQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "title" },
+            new FieldMetadata { Name = "description" },
+            new FieldMetadata { Name = "readMoreUrl" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ProducerBulletQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ProducerBulletQueryBuilder WithTitle(string? alias = null) => WithScalarField("title", alias);
+
+    public ProducerBulletQueryBuilder WithDescription(string? alias = null) => WithScalarField("description", alias);
+
+    public ProducerBulletQueryBuilder WithReadMoreUrl(string? alias = null) => WithScalarField("readMoreUrl", alias);
+}
+
+public partial class ConsumptionMonthQueryBuilder : GraphQlQueryBuilder<ConsumptionMonthQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "year" },
+            new FieldMetadata { Name = "month" },
+            new FieldMetadata { Name = "kwh" },
+            new FieldMetadata { Name = "cost" },
+            new FieldMetadata { Name = "isComplete" },
+            new FieldMetadata { Name = "kwhEstimate" },
+            new FieldMetadata { Name = "costEstimate" },
+            new FieldMetadata { Name = "currency" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ConsumptionMonthQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ConsumptionMonthQueryBuilder WithYear(string? alias = null) => WithScalarField("year", alias);
+
+    public ConsumptionMonthQueryBuilder WithMonth(string? alias = null) => WithScalarField("month", alias);
+
+    public ConsumptionMonthQueryBuilder WithKwh(string? alias = null) => WithScalarField("kwh", alias);
+
+    public ConsumptionMonthQueryBuilder WithCost(string? alias = null) => WithScalarField("cost", alias);
+
+    public ConsumptionMonthQueryBuilder WithIsComplete(string? alias = null) => WithScalarField("isComplete", alias);
+
+    public ConsumptionMonthQueryBuilder WithKwhEstimate(string? alias = null) => WithScalarField("kwhEstimate", alias);
+
+    public ConsumptionMonthQueryBuilder WithCostEstimate(string? alias = null) => WithScalarField("costEstimate", alias);
+
+    public ConsumptionMonthQueryBuilder WithCurrency(string? alias = null) => WithScalarField("currency", alias);
+}
+
+public partial class ConsumptionQueryBuilder : GraphQlQueryBuilder<ConsumptionQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "annualValues", IsComplex = true },
+            new FieldMetadata { Name = "monthlyValues", IsComplex = true },
+            new FieldMetadata { Name = "weeklyValues", IsComplex = true },
+            new FieldMetadata { Name = "dailyValues", IsComplex = true },
+            new FieldMetadata { Name = "hourlyValues", IsComplex = true },
+            new FieldMetadata { Name = "totalConsumption" },
+            new FieldMetadata { Name = "energyCost" },
+            new FieldMetadata { Name = "totalCost" },
+            new FieldMetadata { Name = "currency" },
+            new FieldMetadata { Name = "latestTransactionTimestamp" },
+            new FieldMetadata { Name = "timeZone" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ConsumptionQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ConsumptionQueryBuilder WithAnnualValues(string? alias = null) => WithScalarField("annualValues", alias);
+
+    public ConsumptionQueryBuilder WithMonthlyValues(string? alias = null) => WithScalarField("monthlyValues", alias);
+
+    public ConsumptionQueryBuilder WithWeeklyValues(string? alias = null) => WithScalarField("weeklyValues", alias);
+
+    public ConsumptionQueryBuilder WithDailyValues(string? alias = null) => WithScalarField("dailyValues", alias);
+
+    public ConsumptionQueryBuilder WithHourlyValues(string? alias = null) => WithScalarField("hourlyValues", alias);
+
+    public ConsumptionQueryBuilder WithTotalConsumption(string? alias = null) => WithScalarField("totalConsumption", alias);
+
+    public ConsumptionQueryBuilder WithEnergyCost(string? alias = null) => WithScalarField("energyCost", alias);
+
+    public ConsumptionQueryBuilder WithTotalCost(string? alias = null) => WithScalarField("totalCost", alias);
+
+    public ConsumptionQueryBuilder WithCurrency(string? alias = null) => WithScalarField("currency", alias);
+
+    public ConsumptionQueryBuilder WithLatestTransactionTimestamp(string? alias = null) => WithScalarField("latestTransactionTimestamp", alias);
+
+    public ConsumptionQueryBuilder WithTimeZone(string? alias = null) => WithScalarField("timeZone", alias);
+}
+
+public partial class PreLiveComparisonQueryBuilder : GraphQlQueryBuilder<PreLiveComparisonQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "homeId" },
+            new FieldMetadata { Name = "basedOnActuals" },
+            new FieldMetadata { Name = "previousYear", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilder) },
+            new FieldMetadata { Name = "previousYearMonths", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public PreLiveComparisonQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public PreLiveComparisonQueryBuilder WithHomeId(string? alias = null) => WithScalarField("homeId", alias);
+
+    public PreLiveComparisonQueryBuilder WithBasedOnActuals(string? alias = null) => WithScalarField("basedOnActuals", alias);
+
+    public PreLiveComparisonQueryBuilder WithPreviousYear(ComparisonQueryBuilder comparisonQueryBuilder) => WithObjectField("previousYear", comparisonQueryBuilder);
+
+    public PreLiveComparisonQueryBuilder WithPreviousYearMonths(ComparisonQueryBuilder comparisonQueryBuilder) => WithObjectField("previousYearMonths", comparisonQueryBuilder);
+}
+
+public partial class ComparisonQueryBuilder : GraphQlQueryBuilder<ComparisonQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "year" },
+            new FieldMetadata { Name = "month" },
+            new FieldMetadata { Name = "resolution" },
+            new FieldMetadata { Name = "homeEfficency" },
+            new FieldMetadata { Name = "homeEfficencyDescription" },
+            new FieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(ComparisonDataQueryBuilder) },
+            new FieldMetadata { Name = "average", IsComplex = true, QueryBuilderType = typeof(ComparisonDataQueryBuilder) },
+            new FieldMetadata { Name = "efficient", IsComplex = true, QueryBuilderType = typeof(ComparisonDataQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ComparisonQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ComparisonQueryBuilder WithYear(string? alias = null) => WithScalarField("year", alias);
+
+    public ComparisonQueryBuilder WithMonth(string? alias = null) => WithScalarField("month", alias);
+
+    public ComparisonQueryBuilder WithResolution(string? alias = null) => WithScalarField("resolution", alias);
+
+    public ComparisonQueryBuilder WithHomeEfficency(string? alias = null) => WithScalarField("homeEfficency", alias);
+
+    public ComparisonQueryBuilder WithHomeEfficencyDescription(string? alias = null) => WithScalarField("homeEfficencyDescription", alias);
+
+    public ComparisonQueryBuilder WithHome(ComparisonDataQueryBuilder comparisonDataQueryBuilder) => WithObjectField("home", comparisonDataQueryBuilder);
+
+    public ComparisonQueryBuilder WithAverage(ComparisonDataQueryBuilder comparisonDataQueryBuilder) => WithObjectField("average", comparisonDataQueryBuilder);
+
+    public ComparisonQueryBuilder WithEfficient(ComparisonDataQueryBuilder comparisonDataQueryBuilder) => WithObjectField("efficient", comparisonDataQueryBuilder);
+}
+
+public partial class ComparisonDataQueryBuilder : GraphQlQueryBuilder<ComparisonDataQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "cost" },
+            new FieldMetadata { Name = "consumption" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ComparisonDataQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ComparisonDataQueryBuilder WithCost(string? alias = null) => WithScalarField("cost", alias);
+
+    public ComparisonDataQueryBuilder WithConsumption(string? alias = null) => WithScalarField("consumption", alias);
+}
+
+public partial class HomeProfileQuestionQueryBuilder : GraphQlQueryBuilder<HomeProfileQuestionQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "id" },
+            new FieldMetadata { Name = "title" },
+            new FieldMetadata { Name = "text" },
+            new FieldMetadata { Name = "category" },
+            new FieldMetadata { Name = "isAnswered" },
+            new FieldMetadata { Name = "propertyName" },
+            new FieldMetadata { Name = "valueType" },
+            new FieldMetadata { Name = "currentValue", IsComplex = true },
+            new FieldMetadata { Name = "currentValueText" },
+            new FieldMetadata { Name = "input", IsComplex = true, QueryBuilderType = typeof(HomeProfileQuestionInputQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public HomeProfileQuestionQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public HomeProfileQuestionQueryBuilder WithId(string? alias = null) => WithScalarField("id", alias);
+
+    public HomeProfileQuestionQueryBuilder WithTitle(string? alias = null) => WithScalarField("title", alias);
+
+    public HomeProfileQuestionQueryBuilder WithText(string? alias = null) => WithScalarField("text", alias);
+
+    public HomeProfileQuestionQueryBuilder WithCategory(string? alias = null) => WithScalarField("category", alias);
+
+    public HomeProfileQuestionQueryBuilder WithIsAnswered(string? alias = null) => WithScalarField("isAnswered", alias);
+
+    public HomeProfileQuestionQueryBuilder WithPropertyName(string? alias = null) => WithScalarField("propertyName", alias);
+
+    public HomeProfileQuestionQueryBuilder WithValueType(string? alias = null) => WithScalarField("valueType", alias);
+
+    public HomeProfileQuestionQueryBuilder WithCurrentValue(string? alias = null) => WithScalarField("currentValue", alias);
+
+    public HomeProfileQuestionQueryBuilder WithCurrentValueText(string? alias = null) => WithScalarField("currentValueText", alias);
+
+    public HomeProfileQuestionQueryBuilder WithInput(HomeProfileQuestionInputQueryBuilder homeProfileQuestionInputQueryBuilder) => WithObjectField("input", homeProfileQuestionInputQueryBuilder);
+}
+
+public partial class HomeProfileQuestionInputQueryBuilder : GraphQlQueryBuilder<HomeProfileQuestionInputQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "type" },
+            new FieldMetadata { Name = "options", IsComplex = true }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public HomeProfileQuestionInputQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public HomeProfileQuestionInputQueryBuilder WithType(string? alias = null) => WithScalarField("type", alias);
+
+    public HomeProfileQuestionInputQueryBuilder WithOptions(string? alias = null) => WithScalarField("options", alias);
+}
+
+public partial class SignupStatusQueryBuilder : GraphQlQueryBuilder<SignupStatusQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "feedStep", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilder) },
+            new FieldMetadata { Name = "avatarStep", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilder) },
+            new FieldMetadata { Name = "steps", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public SignupStatusQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public SignupStatusQueryBuilder WithFeedStep(ProcessStepQueryBuilder processStepQueryBuilder) => WithObjectField("feedStep", processStepQueryBuilder);
+
+    public SignupStatusQueryBuilder WithAvatarStep(ProcessStepQueryBuilder processStepQueryBuilder) => WithObjectField("avatarStep", processStepQueryBuilder);
+
+    public SignupStatusQueryBuilder WithSteps(ProcessStepQueryBuilder processStepQueryBuilder) => WithObjectField("steps", processStepQueryBuilder);
+}
+
+public partial class ProcessStepQueryBuilder : GraphQlQueryBuilder<ProcessStepQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "timestamp" },
+            new FieldMetadata { Name = "isComplete" },
+            new FieldMetadata { Name = "title" },
+            new FieldMetadata { Name = "description" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ProcessStepQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ProcessStepQueryBuilder WithTimestamp(string? alias = null) => WithScalarField("timestamp", alias);
+
+    public ProcessStepQueryBuilder WithIsComplete(string? alias = null) => WithScalarField("isComplete", alias);
+
+    public ProcessStepQueryBuilder WithTitle(string? alias = null) => WithScalarField("title", alias);
+
+    public ProcessStepQueryBuilder WithDescription(string? alias = null) => WithScalarField("description", alias);
+}
+
+public partial class DisaggregationQueryBuilder : GraphQlQueryBuilder<DisaggregationQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "year" },
+            new FieldMetadata { Name = "month" },
+            new FieldMetadata { Name = "fixedConsumptionKwh" },
+            new FieldMetadata { Name = "fixedConsumptionKwhPercent" },
+            new FieldMetadata { Name = "fixedConsumptionCost" },
+            new FieldMetadata { Name = "heatingConsumptionKwh" },
+            new FieldMetadata { Name = "heatingConsumptionKwhPercent" },
+            new FieldMetadata { Name = "heatingConsumptionCost" },
+            new FieldMetadata { Name = "behaviorConsumptionKwh" },
+            new FieldMetadata { Name = "behaviorConsumptionKwhPercent" },
+            new FieldMetadata { Name = "behaviorConsumptionCost" },
+            new FieldMetadata { Name = "currency" },
+            new FieldMetadata { Name = "isValid" },
+            new FieldMetadata { Name = "totalCost" },
+            new FieldMetadata { Name = "totalConsumptionKwh" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public DisaggregationQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public DisaggregationQueryBuilder WithYear(string? alias = null) => WithScalarField("year", alias);
+
+    public DisaggregationQueryBuilder WithMonth(string? alias = null) => WithScalarField("month", alias);
+
+    public DisaggregationQueryBuilder WithFixedConsumptionKwh(string? alias = null) => WithScalarField("fixedConsumptionKwh", alias);
+
+    public DisaggregationQueryBuilder WithFixedConsumptionKwhPercent(string? alias = null) => WithScalarField("fixedConsumptionKwhPercent", alias);
+
+    public DisaggregationQueryBuilder WithFixedConsumptionCost(string? alias = null) => WithScalarField("fixedConsumptionCost", alias);
+
+    public DisaggregationQueryBuilder WithHeatingConsumptionKwh(string? alias = null) => WithScalarField("heatingConsumptionKwh", alias);
+
+    public DisaggregationQueryBuilder WithHeatingConsumptionKwhPercent(string? alias = null) => WithScalarField("heatingConsumptionKwhPercent", alias);
+
+    public DisaggregationQueryBuilder WithHeatingConsumptionCost(string? alias = null) => WithScalarField("heatingConsumptionCost", alias);
+
+    public DisaggregationQueryBuilder WithBehaviorConsumptionKwh(string? alias = null) => WithScalarField("behaviorConsumptionKwh", alias);
+
+    public DisaggregationQueryBuilder WithBehaviorConsumptionKwhPercent(string? alias = null) => WithScalarField("behaviorConsumptionKwhPercent", alias);
+
+    public DisaggregationQueryBuilder WithBehaviorConsumptionCost(string? alias = null) => WithScalarField("behaviorConsumptionCost", alias);
+
+    public DisaggregationQueryBuilder WithCurrency(string? alias = null) => WithScalarField("currency", alias);
+
+    public DisaggregationQueryBuilder WithIsValid(string? alias = null) => WithScalarField("isValid", alias);
+
+    public DisaggregationQueryBuilder WithTotalCost(string? alias = null) => WithScalarField("totalCost", alias);
+
+    public DisaggregationQueryBuilder WithTotalConsumptionKwh(string? alias = null) => WithScalarField("totalConsumptionKwh", alias);
+}
+
+public partial class WeatherQueryBuilder : GraphQlQueryBuilder<WeatherQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "minTemperature" },
+            new FieldMetadata { Name = "maxTemperature" },
+            new FieldMetadata { Name = "entries", IsComplex = true, QueryBuilderType = typeof(WeatherEntryQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public WeatherQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public WeatherQueryBuilder WithMinTemperature(string? alias = null) => WithScalarField("minTemperature", alias);
+
+    public WeatherQueryBuilder WithMaxTemperature(string? alias = null) => WithScalarField("maxTemperature", alias);
+
+    public WeatherQueryBuilder WithEntries(WeatherEntryQueryBuilder weatherEntryQueryBuilder) => WithObjectField("entries", weatherEntryQueryBuilder);
+}
+
+public partial class WeatherEntryQueryBuilder : GraphQlQueryBuilder<WeatherEntryQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "time" },
+            new FieldMetadata { Name = "temperature" },
+            new FieldMetadata { Name = "type" },
+            new FieldMetadata { Name = "fog" },
+            new FieldMetadata { Name = "precipitation" },
+            new FieldMetadata { Name = "cloudiness" },
+            new FieldMetadata { Name = "windSpeed" },
+            new FieldMetadata { Name = "windGust" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public WeatherEntryQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public WeatherEntryQueryBuilder WithTime(string? alias = null) => WithScalarField("time", alias);
+
+    public WeatherEntryQueryBuilder WithTemperature(string? alias = null) => WithScalarField("temperature", alias);
+
+    public WeatherEntryQueryBuilder WithType(string? alias = null) => WithScalarField("type", alias);
+
+    public WeatherEntryQueryBuilder WithFog(string? alias = null) => WithScalarField("fog", alias);
+
+    public WeatherEntryQueryBuilder WithPrecipitation(string? alias = null) => WithScalarField("precipitation", alias);
+
+    public WeatherEntryQueryBuilder WithCloudiness(string? alias = null) => WithScalarField("cloudiness", alias);
+
+    public WeatherEntryQueryBuilder WithWindSpeed(string? alias = null) => WithScalarField("windSpeed", alias);
+
+    public WeatherEntryQueryBuilder WithWindGust(string? alias = null) => WithScalarField("windGust", alias);
+}
+
+public partial class AwayModeQueryBuilder : GraphQlQueryBuilder<AwayModeQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "isSupported" },
+            new FieldMetadata { Name = "settings", IsComplex = true, QueryBuilderType = typeof(AwayModeSettingsQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public AwayModeQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public AwayModeQueryBuilder WithIsSupported(string? alias = null) => WithScalarField("isSupported", alias);
+
+    public AwayModeQueryBuilder WithSettings(AwayModeSettingsQueryBuilder awayModeSettingsQueryBuilder) => WithObjectField("settings", awayModeSettingsQueryBuilder);
+}
+
+public partial class AwayModeSettingsQueryBuilder : GraphQlQueryBuilder<AwayModeSettingsQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "from" },
+            new FieldMetadata { Name = "to" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public AwayModeSettingsQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public AwayModeSettingsQueryBuilder WithFrom(string? alias = null) => WithScalarField("from", alias);
+
+    public AwayModeSettingsQueryBuilder WithTo(string? alias = null) => WithScalarField("to", alias);
+}
+
+public partial class DayNightScheduleQueryBuilder : GraphQlQueryBuilder<DayNightScheduleQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "isSupported" },
+            new FieldMetadata { Name = "day", IsComplex = true, QueryBuilderType = typeof(DayNightScheduleSettingsQueryBuilder) },
+            new FieldMetadata { Name = "night", IsComplex = true, QueryBuilderType = typeof(DayNightScheduleSettingsQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public DayNightScheduleQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public DayNightScheduleQueryBuilder WithIsSupported(string? alias = null) => WithScalarField("isSupported", alias);
+
+    public DayNightScheduleQueryBuilder WithDay(DayNightScheduleSettingsQueryBuilder dayNightScheduleSettingsQueryBuilder) => WithObjectField("day", dayNightScheduleSettingsQueryBuilder);
+
+    public DayNightScheduleQueryBuilder WithNight(DayNightScheduleSettingsQueryBuilder dayNightScheduleSettingsQueryBuilder) => WithObjectField("night", dayNightScheduleSettingsQueryBuilder);
+}
+
+public partial class DayNightScheduleSettingsQueryBuilder : GraphQlQueryBuilder<DayNightScheduleSettingsQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "isEnabled" },
+            new FieldMetadata { Name = "localTimeFrom" },
+            new FieldMetadata { Name = "localTimeTo" },
+            new FieldMetadata { Name = "recurringDays", IsComplex = true }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public DayNightScheduleSettingsQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public DayNightScheduleSettingsQueryBuilder WithIsEnabled(string? alias = null) => WithScalarField("isEnabled", alias);
+
+    public DayNightScheduleSettingsQueryBuilder WithLocalTimeFrom(string? alias = null) => WithScalarField("localTimeFrom", alias);
+
+    public DayNightScheduleSettingsQueryBuilder WithLocalTimeTo(string? alias = null) => WithScalarField("localTimeTo", alias);
+
+    public DayNightScheduleSettingsQueryBuilder WithRecurringDays(string? alias = null) => WithScalarField("recurringDays", alias);
+}
+
+public partial class ReportRootQueryBuilder : GraphQlQueryBuilder<ReportRootQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "reports", IsComplex = true, QueryBuilderType = typeof(ReportQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ReportRootQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ReportRootQueryBuilder WithReports(ReportQueryBuilder reportQueryBuilder) => WithObjectField("reports", reportQueryBuilder);
+}
+
+public partial class ReportQueryBuilder : GraphQlQueryBuilder<ReportQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "avatar" },
+            new FieldMetadata { Name = "title" },
+            new FieldMetadata { Name = "efficiency" },
+            new FieldMetadata { Name = "year" },
+            new FieldMetadata { Name = "month" },
+            new FieldMetadata { Name = "items", IsComplex = true, QueryBuilderType = typeof(ReportCellQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ReportQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ReportQueryBuilder WithAvatar(string? alias = null) => WithScalarField("avatar", alias);
+
+    public ReportQueryBuilder WithTitle(string? alias = null) => WithScalarField("title", alias);
+
+    public ReportQueryBuilder WithEfficiency(string? alias = null) => WithScalarField("efficiency", alias);
+
+    public ReportQueryBuilder WithYear(string? alias = null) => WithScalarField("year", alias);
+
+    public ReportQueryBuilder WithMonth(string? alias = null) => WithScalarField("month", alias);
+
+    public ReportQueryBuilder WithItems(ReportCellQueryBuilder reportCellQueryBuilder) => WithObjectField("items", reportCellQueryBuilder);
+}
+
+public partial class ReportCellQueryBuilder : GraphQlQueryBuilder<ReportCellQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "type" },
+            new FieldMetadata { Name = "style" },
+            new FieldMetadata { Name = "imageSrc" },
+            new FieldMetadata { Name = "title" },
+            new FieldMetadata { Name = "description" },
+            new FieldMetadata { Name = "unitText" },
+            new FieldMetadata { Name = "link" },
+            new FieldMetadata { Name = "properties", IsComplex = true }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ReportCellQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ReportCellQueryBuilder WithType(string? alias = null) => WithScalarField("type", alias);
+
+    public ReportCellQueryBuilder WithStyle(string? alias = null) => WithScalarField("style", alias);
+
+    public ReportCellQueryBuilder WithImageSrc(string? alias = null) => WithScalarField("imageSrc", alias);
+
+    public ReportCellQueryBuilder WithTitle(string? alias = null) => WithScalarField("title", alias);
+
+    public ReportCellQueryBuilder WithDescription(string? alias = null) => WithScalarField("description", alias);
+
+    public ReportCellQueryBuilder WithUnitText(string? alias = null) => WithScalarField("unitText", alias);
+
+    public ReportCellQueryBuilder WithLink(string? alias = null) => WithScalarField("link", alias);
+
+    public ReportCellQueryBuilder WithProperties(string? alias = null) => WithScalarField("properties", alias);
+}
+
+public partial class ThermostatQueryBuilder : GraphQlQueryBuilder<ThermostatQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "id" },
+            new FieldMetadata { Name = "name" },
+            new FieldMetadata { Name = "connectivity" },
+            new FieldMetadata { Name = "state", IsComplex = true, QueryBuilderType = typeof(ThermostatStateQueryBuilder) },
+            new FieldMetadata { Name = "measurements", IsComplex = true, QueryBuilderType = typeof(ThermostatMeasurementsQueryBuilder) },
+            new FieldMetadata { Name = "capabilities", IsComplex = true, QueryBuilderType = typeof(ThermostatCapabilityQueryBuilder) },
+            new FieldMetadata { Name = "modes", IsComplex = true, QueryBuilderType = typeof(ThermostatModeQueryBuilder) },
+            new FieldMetadata { Name = "template" },
+            new FieldMetadata { Name = "hasSettings" },
+            new FieldMetadata { Name = "supportsDayNightSchedule" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ThermostatQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ThermostatQueryBuilder WithId(string? alias = null) => WithScalarField("id", alias);
+
+    public ThermostatQueryBuilder WithName(string? alias = null) => WithScalarField("name", alias);
+
+    public ThermostatQueryBuilder WithConnectivity(string? alias = null) => WithScalarField("connectivity", alias);
+
+    public ThermostatQueryBuilder WithState(ThermostatStateQueryBuilder thermostatStateQueryBuilder) => WithObjectField("state", thermostatStateQueryBuilder);
+
+    public ThermostatQueryBuilder WithMeasurements(ThermostatMeasurementsQueryBuilder thermostatMeasurementsQueryBuilder) => WithObjectField("measurements", thermostatMeasurementsQueryBuilder);
+
+    public ThermostatQueryBuilder WithCapabilities(ThermostatCapabilityQueryBuilder thermostatCapabilityQueryBuilder) => WithObjectField("capabilities", thermostatCapabilityQueryBuilder);
+
+    public ThermostatQueryBuilder WithModes(ThermostatModeQueryBuilder thermostatModeQueryBuilder) => WithObjectField("modes", thermostatModeQueryBuilder);
+
+    public ThermostatQueryBuilder WithTemplate(string? alias = null) => WithScalarField("template", alias);
+
+    public ThermostatQueryBuilder WithHasSettings(string? alias = null) => WithScalarField("hasSettings", alias);
+
+    public ThermostatQueryBuilder WithSupportsDayNightSchedule(string? alias = null) => WithScalarField("supportsDayNightSchedule", alias);
+}
+
+public partial class ThermostatStateQueryBuilder : GraphQlQueryBuilder<ThermostatStateQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "mode" },
+            new FieldMetadata { Name = "comfortTemperature" },
+            new FieldMetadata { Name = "fanLevel" },
+            new FieldMetadata { Name = "onOff" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ThermostatStateQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ThermostatStateQueryBuilder WithMode(string? alias = null) => WithScalarField("mode", alias);
+
+    public ThermostatStateQueryBuilder WithComfortTemperature(string? alias = null) => WithScalarField("comfortTemperature", alias);
+
+    public ThermostatStateQueryBuilder WithFanLevel(string? alias = null) => WithScalarField("fanLevel", alias);
+
+    public ThermostatStateQueryBuilder WithOnOff(string? alias = null) => WithScalarField("onOff", alias);
+}
+
+public partial class ThermostatMeasurementsQueryBuilder : GraphQlQueryBuilder<ThermostatMeasurementsQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "temperature" },
+            new FieldMetadata { Name = "timestamp" },
+            new FieldMetadata { Name = "display", IsComplex = true, QueryBuilderType = typeof(ThermostatMeasurementQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ThermostatMeasurementsQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ThermostatMeasurementsQueryBuilder WithTemperature(string? alias = null) => WithScalarField("temperature", alias);
+
+    public ThermostatMeasurementsQueryBuilder WithTimestamp(string? alias = null) => WithScalarField("timestamp", alias);
+
+    public ThermostatMeasurementsQueryBuilder WithDisplay(ThermostatMeasurementQueryBuilder thermostatMeasurementQueryBuilder) => WithObjectField("display", thermostatMeasurementQueryBuilder);
+}
+
+public partial class ThermostatMeasurementQueryBuilder : GraphQlQueryBuilder<ThermostatMeasurementQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "label" },
+            new FieldMetadata { Name = "description" },
+            new FieldMetadata { Name = "descriptionLong" },
+            new FieldMetadata { Name = "value" },
+            new FieldMetadata { Name = "valueText" },
+            new FieldMetadata { Name = "unit" },
+            new FieldMetadata { Name = "unitText" },
+            new FieldMetadata { Name = "timestamp" },
+            new FieldMetadata { Name = "type" },
+            new FieldMetadata { Name = "typeText" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ThermostatMeasurementQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ThermostatMeasurementQueryBuilder WithLabel(string? alias = null) => WithScalarField("label", alias);
+
+    public ThermostatMeasurementQueryBuilder WithDescription(string? alias = null) => WithScalarField("description", alias);
+
+    public ThermostatMeasurementQueryBuilder WithDescriptionLong(string? alias = null) => WithScalarField("descriptionLong", alias);
+
+    public ThermostatMeasurementQueryBuilder WithValue(string? alias = null) => WithScalarField("value", alias);
+
+    public ThermostatMeasurementQueryBuilder WithValueText(string? alias = null) => WithScalarField("valueText", alias);
+
+    public ThermostatMeasurementQueryBuilder WithUnit(string? alias = null) => WithScalarField("unit", alias);
+
+    public ThermostatMeasurementQueryBuilder WithUnitText(string? alias = null) => WithScalarField("unitText", alias);
+
+    public ThermostatMeasurementQueryBuilder WithTimestamp(string? alias = null) => WithScalarField("timestamp", alias);
+
+    public ThermostatMeasurementQueryBuilder WithType(string? alias = null) => WithScalarField("type", alias);
+
+    public ThermostatMeasurementQueryBuilder WithTypeText(string? alias = null) => WithScalarField("typeText", alias);
+}
+
+public partial class ThermostatCapabilityQueryBuilder : GraphQlQueryBuilder<ThermostatCapabilityQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "name" },
+            new FieldMetadata { Name = "type" },
+            new FieldMetadata { Name = "values", IsComplex = true }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ThermostatCapabilityQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ThermostatCapabilityQueryBuilder WithName(string? alias = null) => WithScalarField("name", alias);
+
+    public ThermostatCapabilityQueryBuilder WithType(string? alias = null) => WithScalarField("type", alias);
+
+    public ThermostatCapabilityQueryBuilder WithValues(string? alias = null) => WithScalarField("values", alias);
+}
+
+public partial class ThermostatModeQueryBuilder : GraphQlQueryBuilder<ThermostatModeQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "name" },
+            new FieldMetadata { Name = "capabilities", IsComplex = true }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ThermostatModeQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ThermostatModeQueryBuilder WithName(string? alias = null) => WithScalarField("name", alias);
+
+    public ThermostatModeQueryBuilder WithCapabilities(string? alias = null) => WithScalarField("capabilities", alias);
+}
+
+public partial class SensorQueryBuilder : GraphQlQueryBuilder<SensorQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "id" },
+            new FieldMetadata { Name = "idDeprecated" },
+            new FieldMetadata { Name = "hasHistory" },
+            new FieldMetadata { Name = "measurement", IsComplex = true, QueryBuilderType = typeof(ThermostatMeasurementQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public SensorQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public SensorQueryBuilder WithId(string? alias = null) => WithScalarField("id", alias);
+
+    public SensorQueryBuilder WithIdDeprecated(string? alias = null) => WithScalarField("idDeprecated", alias);
+
+    public SensorQueryBuilder WithHasHistory(string? alias = null) => WithScalarField("hasHistory", alias);
+
+    public SensorQueryBuilder WithMeasurement(ThermostatMeasurementQueryBuilder thermostatMeasurementQueryBuilder) => WithObjectField("measurement", thermostatMeasurementQueryBuilder);
+}
+
+public partial class SensorHistoryQueryBuilder : GraphQlQueryBuilder<SensorHistoryQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "sensorId" },
+            new FieldMetadata { Name = "description" },
+            new FieldMetadata { Name = "values", IsComplex = true, QueryBuilderType = typeof(SensorHistoryValueQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public SensorHistoryQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public SensorHistoryQueryBuilder WithSensorId(string? alias = null) => WithScalarField("sensorId", alias);
+
+    public SensorHistoryQueryBuilder WithDescription(string? alias = null) => WithScalarField("description", alias);
+
+    public SensorHistoryQueryBuilder WithValues(SensorHistoryValueQueryBuilder sensorHistoryValueQueryBuilder) => WithObjectField("values", sensorHistoryValueQueryBuilder);
+}
+
+public partial class SensorHistoryValueQueryBuilder : GraphQlQueryBuilder<SensorHistoryValueQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "timestamp" },
+            new FieldMetadata { Name = "value" },
+            new FieldMetadata { Name = "valueText" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public SensorHistoryValueQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public SensorHistoryValueQueryBuilder WithTimestamp(string? alias = null) => WithScalarField("timestamp", alias);
+
+    public SensorHistoryValueQueryBuilder WithValue(string? alias = null) => WithScalarField("value", alias);
+
+    public SensorHistoryValueQueryBuilder WithValueText(string? alias = null) => WithScalarField("valueText", alias);
+}
+
+public partial class PairableDeviceQueryBuilder : GraphQlQueryBuilder<PairableDeviceQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "type" },
+            new FieldMetadata { Name = "oauth", IsComplex = true, QueryBuilderType = typeof(PairableDeviceOAuthQueryBuilder) },
+            new FieldMetadata { Name = "readMoreUrl" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public PairableDeviceQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public PairableDeviceQueryBuilder WithType(string? alias = null) => WithScalarField("type", alias);
+
+    public PairableDeviceQueryBuilder WithOauth(PairableDeviceOAuthQueryBuilder pairableDeviceOAuthQueryBuilder) => WithObjectField("oauth", pairableDeviceOAuthQueryBuilder);
+
+    public PairableDeviceQueryBuilder WithReadMoreUrl(string? alias = null) => WithScalarField("readMoreUrl", alias);
+}
+
+public partial class PairableDeviceOAuthQueryBuilder : GraphQlQueryBuilder<PairableDeviceOAuthQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "url" },
+            new FieldMetadata { Name = "redirectUriStartsWith" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public PairableDeviceOAuthQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public PairableDeviceOAuthQueryBuilder WithUrl(string? alias = null) => WithScalarField("url", alias);
+
+    public PairableDeviceOAuthQueryBuilder WithRedirectUriStartsWith(string? alias = null) => WithScalarField("redirectUriStartsWith", alias);
+}
+
+public partial class ProductionMonthQueryBuilder : GraphQlQueryBuilder<ProductionMonthQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "year" },
+            new FieldMetadata { Name = "month" },
+            new FieldMetadata { Name = "kwh" },
+            new FieldMetadata { Name = "cost" },
+            new FieldMetadata { Name = "isComplete" },
+            new FieldMetadata { Name = "title" },
+            new FieldMetadata { Name = "costText" },
+            new FieldMetadata { Name = "kwhText" },
+            new FieldMetadata { Name = "description" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ProductionMonthQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ProductionMonthQueryBuilder WithYear(string? alias = null) => WithScalarField("year", alias);
+
+    public ProductionMonthQueryBuilder WithMonth(string? alias = null) => WithScalarField("month", alias);
+
+    public ProductionMonthQueryBuilder WithKwh(string? alias = null) => WithScalarField("kwh", alias);
+
+    public ProductionMonthQueryBuilder WithCost(string? alias = null) => WithScalarField("cost", alias);
+
+    public ProductionMonthQueryBuilder WithIsComplete(string? alias = null) => WithScalarField("isComplete", alias);
+
+    public ProductionMonthQueryBuilder WithTitle(string? alias = null) => WithScalarField("title", alias);
+
+    public ProductionMonthQueryBuilder WithCostText(string? alias = null) => WithScalarField("costText", alias);
+
+    public ProductionMonthQueryBuilder WithKwhText(string? alias = null) => WithScalarField("kwhText", alias);
+
+    public ProductionMonthQueryBuilder WithDescription(string? alias = null) => WithScalarField("description", alias);
+}
+
+public partial class ProductionQueryBuilder : GraphQlQueryBuilder<ProductionQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "annualValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilder) },
+            new FieldMetadata { Name = "monthlyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilder) },
+            new FieldMetadata { Name = "weeklyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilder) },
+            new FieldMetadata { Name = "dailyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilder) },
+            new FieldMetadata { Name = "hourlyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilder) },
+            new FieldMetadata { Name = "totalConsumption" },
+            new FieldMetadata { Name = "energyCost" },
+            new FieldMetadata { Name = "totalCost" },
+            new FieldMetadata { Name = "currency" },
+            new FieldMetadata { Name = "latestTransactionTimestamp" },
+            new FieldMetadata { Name = "timeZone" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ProductionQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ProductionQueryBuilder WithAnnualValues(ProductionValueQueryBuilder productionValueQueryBuilder) => WithObjectField("annualValues", productionValueQueryBuilder);
+
+    public ProductionQueryBuilder WithMonthlyValues(ProductionValueQueryBuilder productionValueQueryBuilder) => WithObjectField("monthlyValues", productionValueQueryBuilder);
+
+    public ProductionQueryBuilder WithWeeklyValues(ProductionValueQueryBuilder productionValueQueryBuilder) => WithObjectField("weeklyValues", productionValueQueryBuilder);
+
+    public ProductionQueryBuilder WithDailyValues(ProductionValueQueryBuilder productionValueQueryBuilder) => WithObjectField("dailyValues", productionValueQueryBuilder);
+
+    public ProductionQueryBuilder WithHourlyValues(ProductionValueQueryBuilder productionValueQueryBuilder) => WithObjectField("hourlyValues", productionValueQueryBuilder);
+
+    public ProductionQueryBuilder WithTotalConsumption(string? alias = null) => WithScalarField("totalConsumption", alias);
+
+    public ProductionQueryBuilder WithEnergyCost(string? alias = null) => WithScalarField("energyCost", alias);
+
+    public ProductionQueryBuilder WithTotalCost(string? alias = null) => WithScalarField("totalCost", alias);
+
+    public ProductionQueryBuilder WithCurrency(string? alias = null) => WithScalarField("currency", alias);
+
+    public ProductionQueryBuilder WithLatestTransactionTimestamp(string? alias = null) => WithScalarField("latestTransactionTimestamp", alias);
+
+    public ProductionQueryBuilder WithTimeZone(string? alias = null) => WithScalarField("timeZone", alias);
+}
+
+public partial class ProductionValueQueryBuilder : GraphQlQueryBuilder<ProductionValueQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "from" },
+            new FieldMetadata { Name = "to" },
+            new FieldMetadata { Name = "unitPrice" },
+            new FieldMetadata { Name = "unitPriceVAT" },
+            new FieldMetadata { Name = "consumption" },
+            new FieldMetadata { Name = "consumptionUnit" },
+            new FieldMetadata { Name = "totalCost" },
+            new FieldMetadata { Name = "unitCost" },
+            new FieldMetadata { Name = "quality" },
+            new FieldMetadata { Name = "consumptionEntries" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ProductionValueQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ProductionValueQueryBuilder WithFrom(string? alias = null) => WithScalarField("from", alias);
+
+    public ProductionValueQueryBuilder WithTo(string? alias = null) => WithScalarField("to", alias);
+
+    public ProductionValueQueryBuilder WithUnitPrice(string? alias = null) => WithScalarField("unitPrice", alias);
+
+    public ProductionValueQueryBuilder WithUnitPriceVat(string? alias = null) => WithScalarField("unitPriceVAT", alias);
+
+    public ProductionValueQueryBuilder WithConsumption(string? alias = null) => WithScalarField("consumption", alias);
+
+    public ProductionValueQueryBuilder WithConsumptionUnit(string? alias = null) => WithScalarField("consumptionUnit", alias);
+
+    public ProductionValueQueryBuilder WithTotalCost(string? alias = null) => WithScalarField("totalCost", alias);
+
+    public ProductionValueQueryBuilder WithUnitCost(string? alias = null) => WithScalarField("unitCost", alias);
+
+    public ProductionValueQueryBuilder WithQuality(string? alias = null) => WithScalarField("quality", alias);
+
+    public ProductionValueQueryBuilder WithConsumptionEntries(string? alias = null) => WithScalarField("consumptionEntries", alias);
+}
+
+public partial class FeedQueryBuilder : GraphQlQueryBuilder<FeedQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "numberOfItems" },
+            new FieldMetadata { Name = "items", IsComplex = true, QueryBuilderType = typeof(FeedItemQueryBuilder) },
+            new FieldMetadata { Name = "pushNotifications", IsComplex = true, QueryBuilderType = typeof(PushNotificationQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public FeedQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public FeedQueryBuilder WithNumberOfItems(string? alias = null) => WithScalarField("numberOfItems", alias);
+
+    public FeedQueryBuilder WithItems(FeedItemQueryBuilder feedItemQueryBuilder, int? page = null, int? pageSize = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (page != null)
+            args.Add("page", page);
+
+        if (pageSize != null)
+            args.Add("pageSize", pageSize);
+
+        return WithObjectField("items", feedItemQueryBuilder, args);
+    }
+
+    public FeedQueryBuilder WithPushNotifications(PushNotificationQueryBuilder pushNotificationQueryBuilder) => WithObjectField("pushNotifications", pushNotificationQueryBuilder);
+}
+
+public partial class FeedItemQueryBuilder : GraphQlQueryBuilder<FeedItemQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "id" },
+            new FieldMetadata { Name = "messageTypeId" },
+            new FieldMetadata { Name = "link" },
+            new FieldMetadata { Name = "text" },
+            new FieldMetadata { Name = "createdAt" },
+            new FieldMetadata { Name = "modifiedAt" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public FeedItemQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public FeedItemQueryBuilder WithId(string? alias = null) => WithScalarField("id", alias);
+
+    public FeedItemQueryBuilder WithMessageTypeId(string? alias = null) => WithScalarField("messageTypeId", alias);
+
+    public FeedItemQueryBuilder WithLink(string? alias = null) => WithScalarField("link", alias);
+
+    public FeedItemQueryBuilder WithText(string? alias = null) => WithScalarField("text", alias);
+
+    public FeedItemQueryBuilder WithCreatedAt(string? alias = null) => WithScalarField("createdAt", alias);
+
+    public FeedItemQueryBuilder WithModifiedAt(string? alias = null) => WithScalarField("modifiedAt", alias);
+}
+
+public partial class PushNotificationQueryBuilder : GraphQlQueryBuilder<PushNotificationQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "id" },
+            new FieldMetadata { Name = "link" },
+            new FieldMetadata { Name = "text" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public PushNotificationQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public PushNotificationQueryBuilder WithId(string? alias = null) => WithScalarField("id", alias);
+
+    public PushNotificationQueryBuilder WithLink(string? alias = null) => WithScalarField("link", alias);
+
+    public PushNotificationQueryBuilder WithText(string? alias = null) => WithScalarField("text", alias);
+}
+
+public partial class WalletQueryBuilder : GraphQlQueryBuilder<WalletQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "id" },
+            new FieldMetadata { Name = "paymentMethods", IsComplex = true, QueryBuilderType = typeof(PaymentMethodQueryBuilder) },
+            new FieldMetadata { Name = "directDebitToPromote" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public WalletQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public WalletQueryBuilder WithId(string? alias = null) => WithScalarField("id", alias);
+
+    public WalletQueryBuilder WithPaymentMethods(PaymentMethodQueryBuilder paymentMethodQueryBuilder) => WithObjectField("paymentMethods", paymentMethodQueryBuilder);
+
+    public WalletQueryBuilder WithDirectDebitToPromote(string? alias = null) => WithScalarField("directDebitToPromote", alias);
+}
+
+public partial class PaymentMethodQueryBuilder : GraphQlQueryBuilder<PaymentMethodQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "method" },
+            new FieldMetadata { Name = "status" },
+            new FieldMetadata { Name = "properties", IsComplex = true }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public PaymentMethodQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public PaymentMethodQueryBuilder WithMethod(string? alias = null) => WithScalarField("method", alias);
+
+    public PaymentMethodQueryBuilder WithStatus(string? alias = null) => WithScalarField("status", alias);
+
+    public PaymentMethodQueryBuilder WithProperties(string? alias = null) => WithScalarField("properties", alias);
+}
+
+public partial class AboutQueryBuilder : GraphQlQueryBuilder<AboutQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "items", IsComplex = true, QueryBuilderType = typeof(AboutItemQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public AboutQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public AboutQueryBuilder WithItems(AboutItemQueryBuilder aboutItemQueryBuilder) => WithObjectField("items", aboutItemQueryBuilder);
+}
+
+public partial class AboutItemQueryBuilder : GraphQlQueryBuilder<AboutItemQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "label" },
+            new FieldMetadata { Name = "url" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public AboutItemQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public AboutItemQueryBuilder WithLabel(string? alias = null) => WithScalarField("label", alias);
+
+    public AboutItemQueryBuilder WithUrl(string? alias = null) => WithScalarField("url", alias);
+}
+
+public partial class MutationQueryBuilder : GraphQlQueryBuilder<MutationQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "me", IsComplex = true, QueryBuilderType = typeof(MeMutationQueryBuilder) }
+        };
+
+    protected override string Prefix { get; } = "mutation";
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public MutationQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public MutationQueryBuilder WithMe(MeMutationQueryBuilder meMutationQueryBuilder) => WithObjectField("me", meMutationQueryBuilder);
+}
+
+public partial class MeMutationQueryBuilder : GraphQlQueryBuilder<MeMutationQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "update", IsComplex = true, QueryBuilderType = typeof(MeQueryBuilder) },
+            new FieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(HomeMutationQueryBuilder) },
+            new FieldMetadata { Name = "updateAppState", IsComplex = true, QueryBuilderType = typeof(GQLMutationGeneralResponseQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public MeMutationQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public MeMutationQueryBuilder WithUpdate(MeQueryBuilder meQueryBuilder, string? email = null, string? mobile = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (email != null)
+            args.Add("email", email);
+
+        if (mobile != null)
+            args.Add("mobile", mobile);
+
+        return WithObjectField("update", meQueryBuilder, args);
+    }
+
+    public MeMutationQueryBuilder WithHome(HomeMutationQueryBuilder homeMutationQueryBuilder, string? id = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (id != null)
+            args.Add("id", id);
+
+        return WithObjectField("home", homeMutationQueryBuilder, args);
+    }
+
+    public MeMutationQueryBuilder WithUpdateAppState(GQLMutationGeneralResponseQueryBuilder gQLMutationGeneralResponseQueryBuilder, AppStateMutation? state = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (state != null)
+            args.Add("state", state);
+
+        return WithObjectField("updateAppState", gQLMutationGeneralResponseQueryBuilder, args);
+    }
+}
+
+public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutationQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "thermostat", IsComplex = true, QueryBuilderType = typeof(ThermostatMutationQueryBuilder) },
+            new FieldMetadata { Name = "pairDeviceWithOAuth", IsComplex = true, QueryBuilderType = typeof(PairDeviceResultQueryBuilder) },
+            new FieldMetadata { Name = "pairDeviceWithCredentials", IsComplex = true, QueryBuilderType = typeof(PairDeviceResultQueryBuilder) },
+            new FieldMetadata { Name = "answerProfileQuestions", IsComplex = true, QueryBuilderType = typeof(HomeProfileQuestionQueryBuilder) },
+            new FieldMetadata { Name = "sendMeterReading", IsComplex = true, QueryBuilderType = typeof(GQLMutationGeneralResponseQueryBuilder) },
+            new FieldMetadata { Name = "setMeteringPointIdAndBindingTime", IsComplex = true, QueryBuilderType = typeof(GQLMutationGeneralResponseQueryBuilder) },
+            new FieldMetadata { Name = "restartSubscription", IsComplex = true, QueryBuilderType = typeof(GQLMutationGeneralResponseQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public HomeMutationQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public HomeMutationQueryBuilder WithThermostat(ThermostatMutationQueryBuilder thermostatMutationQueryBuilder, string? id = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (id != null)
+            args.Add("id", id);
+
+        return WithObjectField("thermostat", thermostatMutationQueryBuilder, args);
+    }
+
+    public HomeMutationQueryBuilder WithPairDeviceWithOAuth(PairDeviceResultQueryBuilder pairDeviceResultQueryBuilder, string? deviceType = null, string? authorizationCode = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (deviceType != null)
+            args.Add("deviceType", deviceType);
+
+        if (authorizationCode != null)
+            args.Add("authorizationCode", authorizationCode);
+
+        return WithObjectField("pairDeviceWithOAuth", pairDeviceResultQueryBuilder, args);
+    }
+
+    public HomeMutationQueryBuilder WithPairDeviceWithCredentials(PairDeviceResultQueryBuilder pairDeviceResultQueryBuilder, string? deviceType = null, string? username = null, string? password = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (deviceType != null)
+            args.Add("deviceType", deviceType);
+
+        if (username != null)
+            args.Add("username", username);
+
+        if (password != null)
+            args.Add("password", password);
+
+        return WithObjectField("pairDeviceWithCredentials", pairDeviceResultQueryBuilder, args);
+    }
+
+    public HomeMutationQueryBuilder WithAnswerProfileQuestions(HomeProfileQuestionQueryBuilder homeProfileQuestionQueryBuilder, IEnumerable<HomeProfileQuestionAnswer?>? answers = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (answers != null)
+            args.Add("answers", answers);
+
+        return WithObjectField("answerProfileQuestions", homeProfileQuestionQueryBuilder, args);
+    }
+
+    public HomeMutationQueryBuilder WithSendMeterReading(GQLMutationGeneralResponseQueryBuilder gQLMutationGeneralResponseQueryBuilder, int? meterReading = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (meterReading != null)
+            args.Add("meterReading", meterReading);
+
+        return WithObjectField("sendMeterReading", gQLMutationGeneralResponseQueryBuilder, args);
+    }
+
+    public HomeMutationQueryBuilder WithSetMeteringPointIdAndBindingTime(GQLMutationGeneralResponseQueryBuilder gQLMutationGeneralResponseQueryBuilder, string? meteringPointId = null, string? bindingTime = null, bool? isMovingIn = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (meteringPointId != null)
+            args.Add("meteringPointId", meteringPointId);
+
+        if (bindingTime != null)
+            args.Add("bindingTime", bindingTime);
+
+        if (isMovingIn != null)
+            args.Add("isMovingIn", isMovingIn);
+
+        return WithObjectField("setMeteringPointIdAndBindingTime", gQLMutationGeneralResponseQueryBuilder, args);
+    }
+
+    public HomeMutationQueryBuilder WithRestartSubscription(GQLMutationGeneralResponseQueryBuilder gQLMutationGeneralResponseQueryBuilder) => WithObjectField("restartSubscription", gQLMutationGeneralResponseQueryBuilder);
+}
+
+public partial class ThermostatMutationQueryBuilder : GraphQlQueryBuilder<ThermostatMutationQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "setState" },
+            new FieldMetadata { Name = "setName" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public ThermostatMutationQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public ThermostatMutationQueryBuilder WithSetState(string? mode = null, decimal? comfortTemperature = null, string? fanLevel = null, string? onOff = null, string? alias = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (mode != null)
+            args.Add("mode", mode);
+
+        if (comfortTemperature != null)
+            args.Add("comfortTemperature", comfortTemperature);
+
+        if (fanLevel != null)
+            args.Add("fanLevel", fanLevel);
+
+        if (onOff != null)
+            args.Add("onOff", onOff);
+
+        return WithScalarField("setState", alias, args);
+    }
+
+    public ThermostatMutationQueryBuilder WithSetName(string? name = null, string? alias = null)
+    {
+        var args = new Dictionary<string, object>();
+        if (name != null)
+            args.Add("name", name);
+
+        return WithScalarField("setName", alias, args);
+    }
+}
+
+public partial class PairDeviceResultQueryBuilder : GraphQlQueryBuilder<PairDeviceResultQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "thermostats", IsComplex = true, QueryBuilderType = typeof(ThermostatQueryBuilder) },
+            new FieldMetadata { Name = "sensors", IsComplex = true, QueryBuilderType = typeof(SensorQueryBuilder) },
+            new FieldMetadata { Name = "error", IsComplex = true, QueryBuilderType = typeof(GQLMutationErrorQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public PairDeviceResultQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public PairDeviceResultQueryBuilder WithThermostats(ThermostatQueryBuilder thermostatQueryBuilder) => WithObjectField("thermostats", thermostatQueryBuilder);
+
+    public PairDeviceResultQueryBuilder WithSensors(SensorQueryBuilder sensorQueryBuilder) => WithObjectField("sensors", sensorQueryBuilder);
+
+    public PairDeviceResultQueryBuilder WithError(GQLMutationErrorQueryBuilder gQLMutationErrorQueryBuilder) => WithObjectField("error", gQLMutationErrorQueryBuilder);
+}
+
+public partial class GQLMutationErrorQueryBuilder : GraphQlQueryBuilder<GQLMutationErrorQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "statusCode" },
+            new FieldMetadata { Name = "message" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public GQLMutationErrorQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public GQLMutationErrorQueryBuilder WithStatusCode(string? alias = null) => WithScalarField("statusCode", alias);
+
+    public GQLMutationErrorQueryBuilder WithMessage(string? alias = null) => WithScalarField("message", alias);
+}
+
+public partial class GQLMutationGeneralResponseQueryBuilder : GraphQlQueryBuilder<GQLMutationGeneralResponseQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "error", IsComplex = true, QueryBuilderType = typeof(GQLMutationErrorQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public GQLMutationGeneralResponseQueryBuilder(string? alias = null) : base(alias)
+    {
+    }
+
+    public GQLMutationGeneralResponseQueryBuilder WithError(GQLMutationErrorQueryBuilder gQLMutationErrorQueryBuilder) => WithObjectField("error", gQLMutationErrorQueryBuilder);
+}
+#endregion
+#nullable disable
+#nullable enable
+
+#region input classes
+public partial class HomeProfileQuestionAnswer : IGraphQlInputObject
+{
+    public string? PropertyName { get; set; }
+    public object? Value { get; set; }
+
+    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
+    {
+        yield return new InputPropertyInfo { Name = "propertyName", Value = PropertyName };
+        yield return new InputPropertyInfo { Name = "value", Value = Value };
+    }
+}
+
+public partial class AppStateMutation : IGraphQlInputObject
+{
+    public AppStateJourneyMutation? Journey { get; set; }
+    public ICollection<AppStateFronScreenMutation>? FrontScreens { get; set; }
+
+    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
+    {
+        yield return new InputPropertyInfo { Name = "journey", Value = Journey };
+        yield return new InputPropertyInfo { Name = "frontScreens", Value = FrontScreens };
+    }
+}
+
+public partial class AppStateJourneyMutation : IGraphQlInputObject
+{
+    public bool? HasVisitedPairDevices { get; set; }
+
+    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
+    {
+        yield return new InputPropertyInfo { Name = "hasVisitedPairDevices", Value = HasVisitedPairDevices };
+    }
+}
+
+public partial class AppStateFronScreenMutation : IGraphQlInputObject
+{
+    public string? HomeId { get; set; }
+    public ICollection<string>? Bubbles { get; set; }
+    public ICollection<string>? BubblesSortOrder { get; set; }
+
+    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
+    {
+        yield return new InputPropertyInfo { Name = "homeId", Value = HomeId };
+        yield return new InputPropertyInfo { Name = "bubbles", Value = Bubbles };
+        yield return new InputPropertyInfo { Name = "bubblesSortOrder", Value = BubblesSortOrder };
+    }
+}
+#endregion
+
+#region data classes
+public partial class Query
+{
+    public Me? Me { get; set; }
+}
+
+public partial class Me
+{
+    public Guid? Id { get; set; }
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? FullName { get; set; }
+    public string? Ssn { get; set; }
+    public string? Email { get; set; }
+    public string? Language { get; set; }
+    public string? Tone { get; set; }
+    public string? Mobile { get; set; }
+    public Greeting? WelcomeGreeting { get; set; }
+    public AppState? AppState { get; set; }
+    public Home? Home { get; set; }
+    public ICollection<Home>? Homes { get; set; }
+    public Feed? Feed { get; set; }
+    public Wallet? Wallet { get; set; }
+    public About? About { get; set; }
+}
+
+public partial class Greeting
+{
+    public string? Title { get; set; }
+    public string? Description { get; set; }
+    public string? DescriptionWhenNoEnergyDeal { get; set; }
+    public string? ShowUntil { get; set; }
+}
+
+public partial class AppState
+{
+    public AppStateJourney? Journey { get; set; }
+    public ICollection<AppStateFronScreen>? FrontScreens { get; set; }
+}
+
+public partial class AppStateJourney
+{
+    public bool? HasVisitedPairDevices { get; set; }
+}
+
+public partial class AppStateFronScreen
+{
+    public string? HomeId { get; set; }
+    public ICollection<string>? Bubbles { get; set; }
+    public ICollection<string>? BubblesSortOrder { get; set; }
+}
+
+public partial class Home
+{
+    public Guid? Id { get; set; }
+    public Avatar? Avatar { get; set; }
+    public string? TimeZone { get; set; }
+    public string? Title { get; set; }
+    public string? Type { get; set; }
+    public bool? HasEnergyDeal { get; set; }
+    public Address? Address { get; set; }
+    public Subscription? Subscription { get; set; }
+    public ICollection<ConsumptionMonth>? ConsumptionMonths { get; set; }
+    public Consumption? Consumption { get; set; }
+    public PreLiveComparison? PreLiveComparison { get; set; }
+    public ICollection<Comparison>? Comparisons { get; set; }
+    public Comparison? ComparisonCurrentMonth { get; set; }
+    public ICollection<HomeProfileQuestion>? ProfileQuestions { get; set; }
+    public ICollection<object>? Temperatures { get; set; }
+    public SignupStatus? SignupStatus { get; set; }
+    public ICollection<Disaggregation>? Disaggregation { get; set; }
+    public Weather? Weather { get; set; }
+    public AwayMode? AwayMode { get; set; }
+    public DayNightSchedule? DayNightSchedule { get; set; }
+    public ReportRoot? Report { get; set; }
+    public ICollection<Thermostat>? Thermostats { get; set; }
+    public ICollection<Sensor>? Sensors { get; set; }
+    public ICollection<SensorHistory>? SensorsHistory { get; set; }
+    public ICollection<PairableDevice>? PairableDevices { get; set; }
+    public ICollection<ProductionMonth>? ProductionMonths { get; set; }
+    public Production? Production { get; set; }
+}
+
+public partial class Address
+{
+    public string? Address1 { get; set; }
+    public string? Address2 { get; set; }
+    public string? Address3 { get; set; }
+    public string? City { get; set; }
+    public string? PostalCode { get; set; }
+    public string? Country { get; set; }
+    public decimal? Latitude { get; set; }
+    public decimal? Longitude { get; set; }
+    public int? Elevation { get; set; }
+    public string? AddressText { get; set; }
+}
+
+public partial class Subscription
+{
+    public Guid? Id { get; set; }
+    public Guid? WalletId { get; set; }
+    public DateTimeOffset? ValidFrom { get; set; }
+    public DateTimeOffset? ValidTo { get; set; }
+    public string? Status { get; set; }
+    public int? BillingRegionId { get; set; }
+    public PriceRatingRoot? PriceRating { get; set; }
+    public ICollection<Invoice>? Invoices { get; set; }
+    public EnergyDeal? EnergyDeal { get; set; }
+}
+
+public partial class PriceRatingRoot
+{
+    public bool? IsAvailable { get; set; }
+    public bool? UseTotalIsConfigurable { get; set; }
+    public bool? UseTotalAsDefault { get; set; }
+    public string? UseTotalText { get; set; }
+    public PriceRating? Hourly { get; set; }
+    public PriceRating? Daily { get; set; }
+    public PriceRating? Monthly { get; set; }
+}
+
+public partial class PriceRating
+{
+    public decimal? MinEnergy { get; set; }
+    public decimal? MaxEnergy { get; set; }
+    public decimal? MinTotal { get; set; }
+    public decimal? MaxTotal { get; set; }
+    public string? Currency { get; set; }
+    public PriceRatingColorOffset? ColorOffsets { get; set; }
+    public ICollection<PriceRatingEntry>? Entries { get; set; }
+}
+
+public partial class PriceRatingColorOffset
+{
+    public decimal? FullGreenPercent { get; set; }
+    public decimal? FullYellowPercent { get; set; }
+    public decimal? FullRedPercent { get; set; }
+}
+
+public partial class PriceRatingEntry
+{
+    public string? Time { get; set; }
+    public decimal? Energy { get; set; }
+    public decimal? Total { get; set; }
+    public decimal? Difference { get; set; }
+}
+
+public partial class Invoice
+{
+    public int? Id { get; set; }
+    public string? No { get; set; }
+    public string? Date { get; set; }
+    public string? DueDate { get; set; }
+    public decimal? TotalCost { get; set; }
+    public string? TotalCostLocalized { get; set; }
+    public decimal? TotalEnergyConsumption { get; set; }
+    public string? TotalEnergyConsumptionLocalized { get; set; }
+    public decimal? TotalVat { get; set; }
+    public string? TotalVatLocalized { get; set; }
+    public decimal? VatPercent { get; set; }
+    public string? VatPercentLocalized { get; set; }
+    public bool? VatIsIncluded { get; set; }
+    public string? MeteringPointId { get; set; }
+    public string? PaymentReference { get; set; }
+    public bool? ShowManualPaymentReferences { get; set; }
+    public string? BankAccount { get; set; }
+    public string? PdfUrl { get; set; }
+    public string? TimeZone { get; set; }
+    public string? Currency { get; set; }
+    public InvoicePayment? Payment { get; set; }
+    public ICollection<InvoiceSection>? Sections { get; set; }
+    public DateTimeOffset? From { get; set; }
+    public DateTimeOffset? To { get; set; }
+}
+
+public partial class InvoicePayment
+{
+    public string? Status { get; set; }
+    public string? Method { get; set; }
+    public string? Date { get; set; }
+    public string? FailureText { get; set; }
+    public CreditCard? CreditCard { get; set; }
+}
+
+public partial class CreditCard
+{
+    public string? Brand { get; set; }
+    public string? Last4 { get; set; }
+}
+
+public partial class InvoiceSection
+{
+    public string? Type { get; set; }
+    public string? Text { get; set; }
+    public string? SubText { get; set; }
+    public decimal? Consumption { get; set; }
+    public string? ConsumptionLocalized { get; set; }
+    public string? ConsumptionUnit { get; set; }
+    public decimal? Price { get; set; }
+    public string? PriceLocalized { get; set; }
+    public string? PriceUnit { get; set; }
+    public decimal? Cost { get; set; }
+    public string? CostLocalized { get; set; }
+    public string? CostUnit { get; set; }
+}
+
+public partial class EnergyDeal
+{
+    public Producer? CurrentProducer { get; set; }
+}
+
+public partial class Producer
+{
+    public string? Id { get; set; }
+    public string? Name { get; set; }
+    public string? Title { get; set; }
+    public string? Description { get; set; }
+    public string? ImageSrc { get; set; }
+    public ICollection<ProducerBullet>? Bullets { get; set; }
+}
+
+public partial class ProducerBullet
+{
+    public string? Title { get; set; }
+    public string? Description { get; set; }
+    public string? ReadMoreUrl { get; set; }
+}
+
+public partial class ConsumptionMonth
+{
+    public int? Year { get; set; }
+    public int? Month { get; set; }
+    public decimal? Kwh { get; set; }
+    public decimal? Cost { get; set; }
+    public bool? IsComplete { get; set; }
+    public decimal? KwhEstimate { get; set; }
+    public decimal? CostEstimate { get; set; }
+    public string? Currency { get; set; }
+}
+
+public partial class Consumption
+{
+    public object? AnnualValues { get; set; }
+    public object? MonthlyValues { get; set; }
+    public object? WeeklyValues { get; set; }
+    public object? DailyValues { get; set; }
+    public object? HourlyValues { get; set; }
+    public decimal? TotalConsumption { get; set; }
+    public decimal? EnergyCost { get; set; }
+    public decimal? TotalCost { get; set; }
+    public string? Currency { get; set; }
+    public DateTimeOffset? LatestTransactionTimestamp { get; set; }
+    public string? TimeZone { get; set; }
+}
+
+public partial class PreLiveComparison
+{
+    public string? HomeId { get; set; }
+    public bool? BasedOnActuals { get; set; }
+    public Comparison? PreviousYear { get; set; }
+    public ICollection<Comparison>? PreviousYearMonths { get; set; }
+}
+
+public partial class Comparison
+{
+    public int? Year { get; set; }
+    public int? Month { get; set; }
+    public string? Resolution { get; set; }
+    public string? HomeEfficency { get; set; }
+    public string? HomeEfficencyDescription { get; set; }
+    public ComparisonData? Home { get; set; }
+    public ComparisonData? Average { get; set; }
+    public ComparisonData? Efficient { get; set; }
+}
+
+public partial class ComparisonData
+{
+    public decimal? Cost { get; set; }
+    public decimal? Consumption { get; set; }
+}
+
+public partial class HomeProfileQuestion
+{
+    public int? Id { get; set; }
+    public string? Title { get; set; }
+    public string? Text { get; set; }
+    public string? Category { get; set; }
+    public bool? IsAnswered { get; set; }
+    public string? PropertyName { get; set; }
+    public string? ValueType { get; set; }
+    public object? CurrentValue { get; set; }
+    public string? CurrentValueText { get; set; }
+    public HomeProfileQuestionInput? Input { get; set; }
+}
+
+public partial class HomeProfileQuestionInput
+{
+    public string? Type { get; set; }
+    public object? Options { get; set; }
+}
+
+public partial class SignupStatus
+{
+    public ProcessStep? FeedStep { get; set; }
+    public ProcessStep? AvatarStep { get; set; }
+    public ICollection<ProcessStep>? Steps { get; set; }
+}
+
+public partial class ProcessStep
+{
+    public DateTimeOffset? Timestamp { get; set; }
+    public bool? IsComplete { get; set; }
+    public string? Title { get; set; }
+    public string? Description { get; set; }
+}
+
+public partial class Disaggregation
+{
+    public int? Year { get; set; }
+    public int? Month { get; set; }
+    public decimal? FixedConsumptionKwh { get; set; }
+    public int? FixedConsumptionKwhPercent { get; set; }
+    public decimal? FixedConsumptionCost { get; set; }
+    public decimal? HeatingConsumptionKwh { get; set; }
+    public int? HeatingConsumptionKwhPercent { get; set; }
+    public decimal? HeatingConsumptionCost { get; set; }
+    public decimal? BehaviorConsumptionKwh { get; set; }
+    public int? BehaviorConsumptionKwhPercent { get; set; }
+    public decimal? BehaviorConsumptionCost { get; set; }
+    public string? Currency { get; set; }
+    public bool? IsValid { get; set; }
+    public int? TotalCost { get; set; }
+    public int? TotalConsumptionKwh { get; set; }
+}
+
+public partial class Weather
+{
+    public decimal? MinTemperature { get; set; }
+    public decimal? MaxTemperature { get; set; }
+    public ICollection<WeatherEntry>? Entries { get; set; }
+}
+
+public partial class WeatherEntry
+{
+    public string? Time { get; set; }
+    public decimal? Temperature { get; set; }
+    public string? Type { get; set; }
+    public decimal? Fog { get; set; }
+    public decimal? Precipitation { get; set; }
+    public decimal? Cloudiness { get; set; }
+    public decimal? WindSpeed { get; set; }
+    public decimal? WindGust { get; set; }
+}
+
+public partial class AwayMode
+{
+    public bool? IsSupported { get; set; }
+    public AwayModeSettings? Settings { get; set; }
+}
+
+public partial class AwayModeSettings
+{
+    public DateTimeOffset? From { get; set; }
+    public DateTimeOffset? To { get; set; }
+}
+
+public partial class DayNightSchedule
+{
+    public bool? IsSupported { get; set; }
+    public DayNightScheduleSettings? Day { get; set; }
+    public DayNightScheduleSettings? Night { get; set; }
+}
+
+public partial class DayNightScheduleSettings
+{
+    public bool? IsEnabled { get; set; }
+    public string? LocalTimeFrom { get; set; }
+    public string? LocalTimeTo { get; set; }
+    public ICollection<int>? RecurringDays { get; set; }
+}
+
+public partial class ReportRoot
+{
+    public ICollection<Report>? Reports { get; set; }
+}
+
+public partial class Report
+{
+    public string? Avatar { get; set; }
+    public string? Title { get; set; }
+    public string? Efficiency { get; set; }
+    public int? Year { get; set; }
+    public int? Month { get; set; }
+    public ICollection<ReportCell>? Items { get; set; }
+}
+
+public partial class ReportCell
+{
+    public string? Type { get; set; }
+    public string? Style { get; set; }
+    public string? ImageSrc { get; set; }
+    public string? Title { get; set; }
+    public string? Description { get; set; }
+    public string? UnitText { get; set; }
+    public string? Link { get; set; }
+    public object? Properties { get; set; }
+}
+
+public partial class Thermostat
+{
+    public string? Id { get; set; }
+    public string? Name { get; set; }
+    public string? Connectivity { get; set; }
+    public ThermostatState? State { get; set; }
+    public ThermostatMeasurements? Measurements { get; set; }
+    public ICollection<ThermostatCapability>? Capabilities { get; set; }
+    public ICollection<ThermostatMode>? Modes { get; set; }
+    public string? Template { get; set; }
+    public bool? HasSettings { get; set; }
+    public bool? SupportsDayNightSchedule { get; set; }
+}
+
+public partial class ThermostatState
+{
+    public string? Mode { get; set; }
+    public decimal? ComfortTemperature { get; set; }
+    public string? FanLevel { get; set; }
+    public string? OnOff { get; set; }
+}
+
+public partial class ThermostatMeasurements
+{
+    public decimal? Temperature { get; set; }
+    public DateTimeOffset? Timestamp { get; set; }
+    public ICollection<ThermostatMeasurement>? Display { get; set; }
+}
+
+public partial class ThermostatMeasurement
+{
+    public string? Label { get; set; }
+    public string? Description { get; set; }
+    public string? DescriptionLong { get; set; }
+    public decimal? Value { get; set; }
+    public string? ValueText { get; set; }
+    public string? Unit { get; set; }
+    public string? UnitText { get; set; }
+    public DateTimeOffset? Timestamp { get; set; }
+    public string? Type { get; set; }
+    public string? TypeText { get; set; }
+}
+
+public partial class ThermostatCapability
+{
+    public string? Name { get; set; }
+    public string? Type { get; set; }
+    public object? Values { get; set; }
+}
+
+public partial class ThermostatMode
+{
+    public string? Name { get; set; }
+    public ICollection<string>? Capabilities { get; set; }
+}
+
+public partial class Sensor
+{
+    public string? Id { get; set; }
+    public string? IdDeprecated { get; set; }
+    public bool? HasHistory { get; set; }
+    public ThermostatMeasurement? Measurement { get; set; }
+}
+
+public partial class SensorHistory
+{
+    public string? SensorId { get; set; }
+    public string? Description { get; set; }
+    public ICollection<SensorHistoryValue>? Values { get; set; }
+}
+
+public partial class SensorHistoryValue
+{
+    public DateTimeOffset? Timestamp { get; set; }
+    public decimal? Value { get; set; }
+    public string? ValueText { get; set; }
+}
+
+public partial class PairableDevice
+{
+    public string? Type { get; set; }
+    public PairableDeviceOAuth? Oauth { get; set; }
+    public string? ReadMoreUrl { get; set; }
+}
+
+public partial class PairableDeviceOAuth
+{
+    public string? Url { get; set; }
+    public string? RedirectUriStartsWith { get; set; }
+}
+
+public partial class ProductionMonth
+{
+    public int? Year { get; set; }
+    public int? Month { get; set; }
+    public decimal? Kwh { get; set; }
+    public decimal? Cost { get; set; }
+    public bool? IsComplete { get; set; }
+    public string? Title { get; set; }
+    public string? CostText { get; set; }
+    public string? KwhText { get; set; }
+    public string? Description { get; set; }
+}
+
+public partial class Production
+{
+    public ICollection<ProductionValue>? AnnualValues { get; set; }
+    public ICollection<ProductionValue>? MonthlyValues { get; set; }
+    public ICollection<ProductionValue>? WeeklyValues { get; set; }
+    public ICollection<ProductionValue>? DailyValues { get; set; }
+    public ICollection<ProductionValue>? HourlyValues { get; set; }
+    public decimal? TotalConsumption { get; set; }
+    public decimal? EnergyCost { get; set; }
+    public decimal? TotalCost { get; set; }
+    public string? Currency { get; set; }
+    public DateTimeOffset? LatestTransactionTimestamp { get; set; }
+    public string? TimeZone { get; set; }
+}
+
+public partial class ProductionValue
+{
+    public DateTimeOffset? From { get; set; }
+    public DateTimeOffset? To { get; set; }
+    public decimal? UnitPrice { get; set; }
+    public decimal? UnitPriceVat { get; set; }
+    public decimal? Consumption { get; set; }
+    public string? ConsumptionUnit { get; set; }
+    public decimal? TotalCost { get; set; }
+    public decimal? UnitCost { get; set; }
+    public string? Quality { get; set; }
+    public int? ConsumptionEntries { get; set; }
+}
+
+public partial class Feed
+{
+    public int? NumberOfItems { get; set; }
+    public ICollection<FeedItem>? Items { get; set; }
+    public ICollection<PushNotification>? PushNotifications { get; set; }
+}
+
+public partial class FeedItem
+{
+    public int? Id { get; set; }
+    public string? MessageTypeId { get; set; }
+    public string? Link { get; set; }
+    public string? Text { get; set; }
+    public DateTimeOffset? CreatedAt { get; set; }
+    public DateTimeOffset? ModifiedAt { get; set; }
+}
+
+public partial class PushNotification
+{
+    public int? Id { get; set; }
+    public string? Link { get; set; }
+    public string? Text { get; set; }
+}
+
+public partial class Wallet
+{
+    public string? Id { get; set; }
+    public ICollection<PaymentMethod>? PaymentMethods { get; set; }
+    public string? DirectDebitToPromote { get; set; }
+}
+
+public partial class PaymentMethod
+{
+    public string? Method { get; set; }
+    public string? Status { get; set; }
+    public object? Properties { get; set; }
+}
+
+public partial class About
+{
+    public ICollection<AboutItem>? Items { get; set; }
+}
+
+public partial class AboutItem
+{
+    public string? Label { get; set; }
+    public string? Url { get; set; }
+}
+
+public partial class Mutation
+{
+    public MeMutation? Me { get; set; }
+}
+
+public partial class MeMutation
+{
+    public Me? Update { get; set; }
+    public HomeMutation? Home { get; set; }
+    public GQLMutationGeneralResponse? UpdateAppState { get; set; }
+}
+
+public partial class HomeMutation
+{
+    public ThermostatMutation? Thermostat { get; set; }
+    public PairDeviceResult? PairDeviceWithOAuth { get; set; }
+    public PairDeviceResult? PairDeviceWithCredentials { get; set; }
+    public ICollection<HomeProfileQuestion>? AnswerProfileQuestions { get; set; }
+    public GQLMutationGeneralResponse? SendMeterReading { get; set; }
+    public GQLMutationGeneralResponse? SetMeteringPointIdAndBindingTime { get; set; }
+    public GQLMutationGeneralResponse? RestartSubscription { get; set; }
+}
+
+public partial class ThermostatMutation
+{
+    public bool? SetState { get; set; }
+    public bool? SetName { get; set; }
+}
+
+public partial class PairDeviceResult
+{
+    public ICollection<Thermostat>? Thermostats { get; set; }
+    public ICollection<Sensor>? Sensors { get; set; }
+    public GQLMutationError? Error { get; set; }
+}
+
+public partial class GQLMutationError
+{
+    public int? StatusCode { get; set; }
+    public string? Message { get; set; }
+}
+
+public partial class GQLMutationGeneralResponse
+{
+    public GQLMutationError? Error { get; set; }
+}
+#endregion
+#nullable disable

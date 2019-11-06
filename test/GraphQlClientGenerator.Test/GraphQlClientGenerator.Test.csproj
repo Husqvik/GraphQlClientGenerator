@@ -23,6 +23,7 @@
     <EmbeddedResource Include="ExpectedDataClassesWithInterfaces" />
     <EmbeddedResource Include="ExpectedNewCSharpSyntaxWithClassPostfix" />
     <EmbeddedResource Include="ExpectedDeprecatedAttributes" />
+    <EmbeddedResource Include="ExpectedWithNullableReferences" />
     <EmbeddedResource Include="ExpectedQueryBuilders" />
     <EmbeddedResource Include="TestSchema" />
     <EmbeddedResource Include="TestSchema2" />

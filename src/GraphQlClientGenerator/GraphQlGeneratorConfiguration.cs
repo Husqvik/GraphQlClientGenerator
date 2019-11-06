@@ -53,14 +53,16 @@ namespace GraphQlClientGenerator
                 valueName == "To" || valueName == "ValidTo" || valueName == "ModifiedAt" || valueName.EndsWith("Timestamp"))
                 return "DateTimeOffset?";
 
-            return valueType.Name == GraphQlTypeBase.GraphQlTypeScalarString ? "string" : "object";
+            var dataType = valueType.Name == GraphQlTypeBase.GraphQlTypeScalarString ? "string" : "object";
+            return GraphQlGenerator.AddQuestionMarkIfNullableReferencesEnabled(dataType);
         }
     }
 
     public enum CSharpVersion
     {
         Compatible,
-        Newest
+        Newest,
+        NewestWithNullableReferences
     }
 
     public enum FloatType

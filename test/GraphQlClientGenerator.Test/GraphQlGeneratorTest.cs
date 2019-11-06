@@ -98,6 +98,22 @@ namespace GraphQlClientGenerator.Test
         }
 
         [Fact]
+        public void WithNullableReferences()
+        {
+            GraphQlGeneratorConfiguration.CSharpVersion = CSharpVersion.NewestWithNullableReferences;
+            var schema = DeserializeTestSchema("TestSchema2");
+
+            var stringBuilder = new StringBuilder();
+            GraphQlGenerator.GenerateQueryBuilder(schema, stringBuilder);
+            GraphQlGenerator.GenerateDataClasses(schema, stringBuilder);
+
+            var expectedOutput = GetTestResource("ExpectedWithNullableReferences");
+            var generatedSourceCode = stringBuilder.ToString();
+            File.WriteAllText(@"D:\ExpectedWithNullableReferences", generatedSourceCode);
+            generatedSourceCode.ShouldBe(expectedOutput);
+        }
+
+        [Fact]
         public void GeneratedQuery()
         {
             var schema = DeserializeTestSchema("TestSchema2");
@@ -244,8 +260,8 @@ namespace GraphQlClientGenerator.Test
 
         private static string GetTestResource(string name)
         {
-            using (var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream($"GraphQlClientGenerator.Test.{name}")))
-                return reader.ReadToEnd();
+            using var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream($"GraphQlClientGenerator.Test.{name}"));
+            return reader.ReadToEnd();
         }
 
         private static void CompileIntoAssembly(string sourceCode, string assemblyName)

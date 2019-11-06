@@ -81,6 +81,9 @@ using Newtonsoft.Json.Linq;
 
             GenerateSharedTypes(schema, builder);
 
+            if (GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.NewestWithNullableReferences)
+                builder.AppendLine("#nullable enable");
+
             builder.AppendLine("#region builder classes");
 
             var complexTypes = schema.Types.Where(t => IsComplexType(t.Kind) && !t.Name.StartsWith("__")).ToArray();
@@ -105,6 +108,9 @@ using Newtonsoft.Json.Linq;
             }
 
             builder.AppendLine("#endregion");
+
+            if (GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.NewestWithNullableReferences)
+                builder.AppendLine("#nullable disable");
         }
 
         private static void FindAllReferencedObjectTypes(GraphQlSchema schema, GraphQlType type, ISet<string> objectTypes)
@@ -140,6 +146,9 @@ using Newtonsoft.Json.Linq;
             var hasInputType = inputTypes.Any();
             var referencedObjectTypes = new HashSet<string>();
 
+            if (GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.NewestWithNullableReferences)
+                builder.AppendLine("#nullable enable");
+
             if (hasInputType)
             {
                 builder.AppendLine();
@@ -161,52 +170,55 @@ using Newtonsoft.Json.Linq;
             }
 
             var complexTypes = schema.Types.Where(t => IsComplexType(t.Kind) && !t.Name.StartsWith("__")).ToArray();
-            if (!complexTypes.Any())
-                return;
-
-            if (hasInputType)
-                builder.AppendLine();
-
-            builder.AppendLine("#region data classes");
-
-            for (var i = 0; i < complexTypes.Length; i++)
+            if (complexTypes.Any())
             {
-                var type = complexTypes[i];
-                var hasInputReference = referencedObjectTypes.Contains(type.Name);
-                var isInterface = type.Kind == GraphQlTypeKindInterface;
+                if (hasInputType)
+                    builder.AppendLine();
 
-                void GenerateBody(bool isInterfaceMember)
+                builder.AppendLine("#region data classes");
+
+                for (var i = 0; i < complexTypes.Length; i++)
                 {
-                    var fieldsToGenerate = type.Fields?.Where(f => !f.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields).ToArray();
+                    var type = complexTypes[i];
+                    var hasInputReference = referencedObjectTypes.Contains(type.Name);
+                    var isInterface = type.Kind == GraphQlTypeKindInterface;
+
+                    void GenerateBody(bool isInterfaceMember)
+                    {
+                        var fieldsToGenerate = type.Fields?.Where(f => !f.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields).ToArray();
+                        if (hasInputReference)
+                            GenerateInputDataClassBody(type, fieldsToGenerate, builder);
+                        else if (fieldsToGenerate != null)
+                            foreach (var field in fieldsToGenerate)
+                                GenerateDataProperty(type, field, isInterfaceMember, field.IsDeprecated, field.DeprecationReason, builder);
+                    }
+
+                    var interfacesToImplement = new List<string>();
+                    if (isInterface)
+                    {
+                        interfacesToImplement.Add(GenerateInterface($"I{type.Name}", builder, () => GenerateBody(true)));
+                        builder.AppendLine();
+                        builder.AppendLine();
+                    }
+                    else if (type.Interfaces?.Count > 0)
+                        interfacesToImplement.AddRange(type.Interfaces.Select(x => $"I{x.Name}{GraphQlGeneratorConfiguration.ClassPostfix}"));
+
                     if (hasInputReference)
-                        GenerateInputDataClassBody(type, fieldsToGenerate, builder);
-                    else if (fieldsToGenerate != null)
-                        foreach (var field in fieldsToGenerate)
-                            GenerateDataProperty(type, field, isInterfaceMember, field.IsDeprecated, field.DeprecationReason, builder);
+                        interfacesToImplement.Add("IGraphQlInputObject");
+
+                    GenerateDataClass(type.Name, String.Join(", ", interfacesToImplement), builder, () => GenerateBody(false));
+
+                    builder.AppendLine();
+
+                    if (i < complexTypes.Length - 1)
+                        builder.AppendLine();
                 }
 
-                var interfacesToImplement = new List<string>();
-                if (isInterface)
-                {
-                    interfacesToImplement.Add(GenerateInterface($"I{type.Name}", builder, () => GenerateBody(true)));
-                    builder.AppendLine();
-                    builder.AppendLine();
-                }
-                else if (type.Interfaces?.Count > 0)
-                    interfacesToImplement.AddRange(type.Interfaces.Select(x => $"I{x.Name}{GraphQlGeneratorConfiguration.ClassPostfix}"));
-
-                if (hasInputReference)
-                    interfacesToImplement.Add("IGraphQlInputObject");
-
-                GenerateDataClass(type.Name, String.Join(", ", interfacesToImplement), builder, () => GenerateBody(false));
-
-                builder.AppendLine();
-
-                if (i < complexTypes.Length - 1)
-                    builder.AppendLine();
+                builder.AppendLine("#endregion");
             }
 
-            builder.AppendLine("#endregion");
+            if (GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.NewestWithNullableReferences)
+                builder.AppendLine("#nullable disable");
         }
 
         private static void GenerateInputDataClassBody(GraphQlType type, ICollection<IGraphQlMember> members, StringBuilder builder)
@@ -263,6 +275,9 @@ using Newtonsoft.Json.Linq;
             return memberName;
         }
 
+        internal static string AddQuestionMarkIfNullableReferencesEnabled(string dataTypeIdentifier) =>
+            GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.NewestWithNullableReferences ? dataTypeIdentifier + "?" : dataTypeIdentifier;
+
         private static void GenerateDataProperty(GraphQlType baseType, IGraphQlMember member, bool isInterfaceMember, bool isDeprecated, string deprecationReason, StringBuilder builder)
         {
             var propertyName = NamingHelper.ToPascalCase(member.Name);
@@ -276,6 +291,7 @@ using Newtonsoft.Json.Linq;
                 case GraphQlTypeKindUnion:
                 case GraphQlTypeKindInputObject:
                     propertyType = $"{fieldType.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
+                    propertyType = AddQuestionMarkIfNullableReferencesEnabled(propertyType);
                     break;
                 case GraphQlTypeKindEnum:
                     propertyType = $"{fieldType.Name}?";
@@ -283,10 +299,13 @@ using Newtonsoft.Json.Linq;
                 case GraphQlTypeKindList:
                     var itemType = IsUnknownObjectScalar(baseType, member.Name, fieldType.OfType) ? "object" : $"{fieldType.OfType.UnwrapIfNonNull().Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
                     var suggestedNetType = ScalarToNetType(baseType, member.Name, fieldType.OfType.UnwrapIfNonNull()).TrimEnd('?');
-                    if (!String.Equals(suggestedNetType, "object") && !suggestedNetType.TrimEnd().EndsWith("System.Object"))
+                    if (!String.Equals(suggestedNetType, "object") && !String.Equals(suggestedNetType, "object?") && !suggestedNetType.TrimEnd().EndsWith("System.Object") && !suggestedNetType.TrimEnd().EndsWith("System.Object?"))
                         itemType = suggestedNetType;
 
                     propertyType = $"ICollection<{itemType}>";
+
+                    propertyType = AddQuestionMarkIfNullableReferencesEnabled(propertyType);
+
                     break;
                 case GraphQlTypeKindScalar:
                     switch (fieldType.Name)
@@ -313,7 +332,7 @@ using Newtonsoft.Json.Linq;
 
                     break;
                 default:
-                    propertyType = "string";
+                    propertyType = AddQuestionMarkIfNullableReferencesEnabled("string");
                     break;
             }
 
@@ -354,7 +373,7 @@ using Newtonsoft.Json.Linq;
         {
             switch (GraphQlGeneratorConfiguration.IdType)
             {
-                case IdType.String: return "string";
+                case IdType.String: return GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.NewestWithNullableReferences ? "string?" : "string";
                 case IdType.Guid: return "Guid?";
                 case IdType.Object: return "object";
                 case IdType.Custom: return GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName);
@@ -371,7 +390,10 @@ using Newtonsoft.Json.Linq;
             builder.AppendLine("{");
 
             builder.AppendLine("    private static readonly FieldMetadata[] AllFieldMetadata =");
-            builder.AppendLine("        new []");
+
+            if (GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.Compatible)
+                builder.AppendLine("        new []");
+
             builder.AppendLine("        {");
 
             var fields = type.Fields?.ToArray();
@@ -407,7 +429,9 @@ using Newtonsoft.Json.Linq;
 
             WriteOverrideProperty("IList<FieldMetadata>", "AllFields", "AllFieldMetadata", builder);
 
-            builder.AppendLine($"    public {className}(string alias = null) : base(alias)");
+            var stringDataType = AddQuestionMarkIfNullableReferencesEnabled("string");
+
+            builder.AppendLine($"    public {className}({stringDataType} alias = null) : base(alias)");
             builder.AppendLine("    {");
             builder.AppendLine("    }");
             builder.AppendLine();
@@ -449,7 +473,7 @@ using Newtonsoft.Json.Linq;
 
                 if (fieldType.Kind == GraphQlTypeKindScalar || fieldType.Kind == GraphQlTypeKindEnum)
                 {
-                    builder.Append($"    public {className} With{NamingHelper.ToPascalCase(field.Name)}({methodParameters}{(String.IsNullOrEmpty(methodParameters) ? null : ", ")}string alias = null)");
+                    builder.Append($"    public {className} With{NamingHelper.ToPascalCase(field.Name)}({methodParameters}{(String.IsNullOrEmpty(methodParameters) ? null : ", ")}{stringDataType} alias = null)");
 
                     if (requiresFullBody)
                     {
@@ -555,14 +579,22 @@ using Newtonsoft.Json.Linq;
                 argumentNetType = argumentNetType.TrimEnd('?');
 
             if (unwrappedType.Kind == GraphQlTypeKindInputObject)
+            {
                 argumentNetType = $"{unwrappedType.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
+                if (!isTypeNotNull)
+                    argumentNetType = AddQuestionMarkIfNullableReferencesEnabled(argumentNetType);
+            }
 
             if (isCollection)
+            {
                 argumentNetType = $"IEnumerable<{argumentNetType}>";
+                if (!isTypeNotNull)
+                    argumentNetType = AddQuestionMarkIfNullableReferencesEnabled(argumentNetType);
+            }
 
             var argumentDefinition = $"{argumentNetType} {NamingHelper.ToValidVariableName(argument.Name)}";
             if (!isArgumentNotNull)
-                argumentDefinition = $"{argumentDefinition} = null";
+                argumentDefinition += " = null";
 
             return argumentDefinition;
         }
@@ -653,7 +685,7 @@ using Newtonsoft.Json.Linq;
                 return false;
 
             var netType = ScalarToNetType(baseType, valueName, fieldType);
-            return netType == "object" || netType.TrimEnd().EndsWith("System.Object");
+            return netType == "object" || netType.TrimEnd().EndsWith("System.Object") || netType == "object?" || netType.TrimEnd().EndsWith("System.Object?");
         }
 
         private static string ScalarToNetType(GraphQlType baseType, string valueName, GraphQlTypeBase valueType)
