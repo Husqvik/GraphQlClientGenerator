@@ -109,7 +109,6 @@ namespace GraphQlClientGenerator.Test
 
             var expectedOutput = GetTestResource("ExpectedWithNullableReferences");
             var generatedSourceCode = stringBuilder.ToString();
-            File.WriteAllText(@"D:\ExpectedWithNullableReferences", generatedSourceCode);
             generatedSourceCode.ShouldBe(expectedOutput);
         }
 
