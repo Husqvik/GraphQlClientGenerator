@@ -171,6 +171,9 @@ public interface IGraphQlQueryBuilder
 
 public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 {
+    private static readonly Type[] MethodParameterTypeString = { typeof(String) };
+    private static readonly string[] MethodParameterString = { null };
+
     private readonly Dictionary<string, GraphQlFieldCriteria> _fieldCriteria = new Dictionary<string, GraphQlFieldCriteria>();
 
     protected virtual string Prefix { get { return null; } }
@@ -272,7 +275,11 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
                 if (builderType.IsAssignableFrom(field.QueryBuilderType))
                     throw new InvalidOperationException($"Field '{builderType.Name}.{field.Name}' cannot be added because its type is the same as the parent type (or inherited) and leads to infinite recursion. ");
 
-                var queryBuilder = (GraphQlQueryBuilder)Activator.CreateInstance(field.QueryBuilderType);
+                var constructor = field.QueryBuilderType.GetConstructor(MethodParameterTypeString);
+                if (constructor == null)
+                    throw new InvalidOperationException($"{field.QueryBuilderType.FullName} constructor not found");
+
+                var queryBuilder = (GraphQlQueryBuilder)constructor.Invoke(MethodParameterString);
                 queryBuilder.IncludeAllFields();
                 IncludeObjectField(field.Name, queryBuilder, null);
             }
