@@ -193,14 +193,19 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         _fieldCriteria.Clear();
     }
 
-    public virtual void IncludeAllFields()
+    void IGraphQlQueryBuilder.IncludeAllFields()
     {
-        IncludeFields(AllFields);
+        IncludeAllFields();
     }
 
     public string Build(Formatting formatting = Formatting.None, byte indentationSize = 2)
     {
         return Build(formatting, 1, indentationSize);
+    }
+
+    protected void IncludeAllFields()
+    {
+        IncludeFields(AllFields);
     }
 
     protected virtual string Build(Formatting formatting, int level, byte indentationSize)
@@ -261,6 +266,14 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
     protected void IncludeObjectField(string fieldName, GraphQlQueryBuilder objectFieldQueryBuilder, IDictionary<string, object> args)
     {
         _fieldCriteria[objectFieldQueryBuilder.Alias ?? fieldName] = new GraphQlObjectFieldCriteria(fieldName, objectFieldQueryBuilder, args);
+    }
+
+    protected void ExcludeField(string fieldName)
+    {
+        if (fieldName == null)
+            throw new ArgumentNullException(nameof(fieldName));
+
+        _fieldCriteria.Remove(fieldName);
     }
 
     protected void IncludeFields(IEnumerable<FieldMetadata> fields)
@@ -402,6 +415,12 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
     protected TQueryBuilder WithObjectField(string fieldName, GraphQlQueryBuilder queryBuilder, IDictionary<string, object> args = null)
     {
         IncludeObjectField(fieldName, queryBuilder, args);
+        return (TQueryBuilder)this;
+    }
+
+    public TQueryBuilder ExceptField(string fieldName)
+    {
+        ExcludeField(fieldName);
         return (TQueryBuilder)this;
     }
 }

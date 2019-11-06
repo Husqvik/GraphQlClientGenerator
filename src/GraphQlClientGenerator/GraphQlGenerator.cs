@@ -532,6 +532,23 @@ using Newtonsoft.Json.Linq;
                         builder.AppendLine("    }");
                 }
 
+                builder.AppendLine();
+
+                builder.Append($"    public {className} Except{NamingHelper.ToPascalCase(field.Name)}()");
+                
+                if (requiresFullBody)
+                {
+                    builder.AppendLine();
+                    builder.AppendLine("    {");
+                }
+                else
+                    builder.Append(" => ");
+
+                builder.AppendLine($"{returnPrefix}ExceptField(\"{field.Name}\");");
+
+                if (requiresFullBody)
+                    builder.AppendLine("    }");
+
                 if (i < fields.Length - 1)
                     builder.AppendLine();
             }
