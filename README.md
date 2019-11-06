@@ -103,7 +103,7 @@ Mutation
 -------------
 ```csharp
 var mutation =
-	new RootMutationQueryBuilder()
+	new MutationQueryBuilder()
 		.WithUpdateHome(
 			new HomeQueryBuilder().WithAllScalarFields(),
 			new UpdateHomeInput { HomeId = Guid.Empty, AppNickname = "My nickname", Type = HomeType.House, NumberOfResidents = 4, Size = 160, AppAvatar = HomeAvatar.Floorhouse1, PrimaryHeatingSource = HeatingSource.Electricity }
