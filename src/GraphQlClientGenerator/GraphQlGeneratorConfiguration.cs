@@ -49,8 +49,9 @@ namespace GraphQlClientGenerator
         public static string DefaultScalarFieldTypeMapping(GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
         {
             valueName = NamingHelper.ToPascalCase(valueName);
-            if (valueName == "From" || valueName == "ValidFrom" || valueName == "CreatedAt" ||
-                valueName == "To" || valueName == "ValidTo" || valueName == "ModifiedAt" || valueName.EndsWith("Timestamp"))
+            if (valueName == "From" || valueName == "ValidFrom" || valueName == "To" || valueName == "ValidTo"
+                || valueName == "CreatedAt" || valueName == "UpdatedAt" || valueName == "ModifiedAt" || valueName == "DeletedAt"
+                || valueName.EndsWith("Timestamp"))
                 return "DateTimeOffset?";
 
             var dataType = valueType.Name == GraphQlTypeBase.GraphQlTypeScalarString ? "string" : "object";
