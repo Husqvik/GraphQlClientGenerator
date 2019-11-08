@@ -671,7 +671,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
             new FieldMetadata { Name = "disaggregation", IsComplex = true, QueryBuilderType = typeof(DisaggregationQueryBuilder) },
             new FieldMetadata { Name = "devices", IsComplex = true, QueryBuilderType = typeof(DeviceQueryBuilder) },
             new FieldMetadata { Name = "weather", IsComplex = true, QueryBuilderType = typeof(WeatherQueryBuilder) },
-            new FieldMetadata { Name = "awayMode", IsComplex = true, QueryBuilderType = typeof(AwayModeQueryBuilder) }
+            new FieldMetadata { Name = "awayMode", IsComplex = true, QueryBuilderType = typeof(VacationModeQueryBuilder) }
         };
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
@@ -885,9 +885,9 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return ExceptField("weather");
     }
 
-    public HomeQueryBuilder WithAwayMode(AwayModeQueryBuilder awayModeQueryBuilder)
+    public HomeQueryBuilder WithAwayMode(VacationModeQueryBuilder vacationModeQueryBuilder)
     {
-        return WithObjectField("awayMode", awayModeQueryBuilder);
+        return WithObjectField("awayMode", vacationModeQueryBuilder);
     }
 
     public HomeQueryBuilder ExceptAwayMode()
@@ -1965,7 +1965,7 @@ public partial class WeatherQueryBuilder : GraphQlQueryBuilder<WeatherQueryBuild
     }
 }
 
-public partial class AwayModeQueryBuilder : GraphQlQueryBuilder<AwayModeQueryBuilder>
+public partial class VacationModeQueryBuilder : GraphQlQueryBuilder<VacationModeQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -1976,26 +1976,26 @@ public partial class AwayModeQueryBuilder : GraphQlQueryBuilder<AwayModeQueryBui
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
-    public AwayModeQueryBuilder(string alias = null) : base(alias)
+    public VacationModeQueryBuilder(string alias = null) : base(alias)
     {
     }
 
-    public AwayModeQueryBuilder WithIsSupported(string alias = null)
+    public VacationModeQueryBuilder WithIsSupported(string alias = null)
     {
         return WithScalarField("isSupported", alias);
     }
 
-    public AwayModeQueryBuilder ExceptIsSupported()
+    public VacationModeQueryBuilder ExceptIsSupported()
     {
         return ExceptField("isSupported");
     }
 
-    public AwayModeQueryBuilder WithSettings(AwayModeSettingsQueryBuilder awayModeSettingsQueryBuilder)
+    public VacationModeQueryBuilder WithSettings(AwayModeSettingsQueryBuilder awayModeSettingsQueryBuilder)
     {
         return WithObjectField("settings", awayModeSettingsQueryBuilder);
     }
 
-    public AwayModeQueryBuilder ExceptSettings()
+    public VacationModeQueryBuilder ExceptSettings()
     {
         return ExceptField("settings");
     }

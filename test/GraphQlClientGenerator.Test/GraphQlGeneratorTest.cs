@@ -35,20 +35,26 @@ namespace GraphQlClientGenerator.Test
         [Fact]
         public void GenerateQueryBuilder()
         {
+            GraphQlGeneratorConfiguration.CustomClassNameMapping.Add("AwayMode", "VacationMode");
+
             var stringBuilder = new StringBuilder();
             GraphQlGenerator.GenerateQueryBuilder(TestSchema, stringBuilder);
 
             var expectedQueryBuilders = GetTestResource("ExpectedQueryBuilders");
+            File.WriteAllText(@"D:\ExpectedQueryBuilders", stringBuilder.ToString());
             stringBuilder.ToString().ShouldBe(expectedQueryBuilders);
         }
 
         [Fact]
         public void GenerateDataClasses()
         {
+            GraphQlGeneratorConfiguration.CustomClassNameMapping.Add("AwayMode", "VacationMode");
+
             var stringBuilder = new StringBuilder();
             GraphQlGenerator.GenerateDataClasses(TestSchema, stringBuilder);
 
             var expectedDataClasses = GetTestResource("ExpectedDataClasses");
+            File.WriteAllText(@"D:\ExpectedDataClasses", stringBuilder.ToString());
             stringBuilder.ToString().ShouldBe(expectedDataClasses);
         }
 
@@ -90,6 +96,7 @@ namespace GraphQlClientGenerator.Test
 
             var expectedOutput = GetTestResource("ExpectedNewCSharpSyntaxWithClassPostfix");
             var generatedSourceCode = stringBuilder.ToString();
+            File.WriteAllText(@"D:\ExpectedNewCSharpSyntaxWithClassPostfix", generatedSourceCode);
             generatedSourceCode.ShouldBe(expectedOutput);
 
             CompileIntoAssembly(generatedSourceCode, "GraphQLTestAssembly");
@@ -109,6 +116,7 @@ namespace GraphQlClientGenerator.Test
 
             var expectedOutput = GetTestResource("ExpectedWithNullableReferences");
             var generatedSourceCode = stringBuilder.ToString();
+            File.WriteAllText(@"D:\ExpectedWithNullableReferences", generatedSourceCode);
             generatedSourceCode.ShouldBe(expectedOutput);
         }
 

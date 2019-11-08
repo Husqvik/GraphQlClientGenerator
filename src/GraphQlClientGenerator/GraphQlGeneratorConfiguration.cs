@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace GraphQlClientGenerator
 {
@@ -6,9 +7,13 @@ namespace GraphQlClientGenerator
 
     public static class GraphQlGeneratorConfiguration
     {
+        private const string DefaultClassPostfixOnPropertyCollision = "Record";
+
         public static CSharpVersion CSharpVersion { get; set; }
 
         public static string ClassPostfix { get; set; }
+
+        public static IDictionary<string, string> CustomClassNameMapping { get; } = new Dictionary<string, string>();
 
         public static CommentGenerationOption CommentGeneration { get; set; }
 
@@ -35,6 +40,7 @@ namespace GraphQlClientGenerator
         public static void Reset()
         {
             ClassPostfix = null;
+            CustomClassNameMapping.Clear();
             CSharpVersion = CSharpVersion.Compatible;
             CustomScalarFieldTypeMapping = DefaultScalarFieldTypeMapping;
             CommentGeneration = CommentGenerationOption.Disabled;

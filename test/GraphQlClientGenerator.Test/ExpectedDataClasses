@@ -40,7 +40,7 @@ public partial class Home
     public ICollection<Disaggregation> Disaggregation { get; set; }
     public ICollection<Device> Devices { get; set; }
     public Weather Weather { get; set; }
-    public AwayMode AwayMode { get; set; }
+    public VacationMode AwayMode { get; set; }
 }
 
 public partial class Subscription
@@ -175,7 +175,7 @@ public partial class Weather
     public string Type { get; set; }
 }
 
-public partial class AwayMode
+public partial class VacationMode
 {
     public bool? IsSupported { get; set; }
     public AwayModeSettings Settings { get; set; }

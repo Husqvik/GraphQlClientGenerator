@@ -182,11 +182,15 @@ using Newtonsoft.Json.Linq;
                 {
                     var type = complexTypes[i];
                     var hasInputReference = referencedObjectTypes.Contains(type.Name);
+                    var fieldsToGenerate = type.Fields?.Where(f => !f.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields).ToArray();
+                    var hasFields = fieldsToGenerate != null && fieldsToGenerate.Length > 0;
+                    if (!hasInputReference && !hasFields)
+                        continue;
+
                     var isInterface = type.Kind == GraphQlTypeKindInterface;
 
                     void GenerateBody(bool isInterfaceMember)
                     {
-                        var fieldsToGenerate = type.Fields?.Where(f => !f.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields).ToArray();
                         if (hasInputReference)
                             GenerateInputDataClassBody(type, fieldsToGenerate, builder);
                         else if (fieldsToGenerate != null)
@@ -252,7 +256,9 @@ using Newtonsoft.Json.Linq;
 
         private static string GenerateFileMember(string memberType, string typeName, string baseTypeName, StringBuilder builder, Action generateFileMemberBody)
         {
-            var memberName = $"{typeName}{GraphQlGeneratorConfiguration.ClassPostfix}";
+            typeName = UseCustomClassNameIfDefined(typeName);
+
+            var memberName = typeName + GraphQlGeneratorConfiguration.ClassPostfix;
             ValidateClassName(memberName);
 
             builder.Append("public ");
@@ -279,6 +285,9 @@ using Newtonsoft.Json.Linq;
         internal static string AddQuestionMarkIfNullableReferencesEnabled(string dataTypeIdentifier) =>
             GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.NewestWithNullableReferences ? dataTypeIdentifier + "?" : dataTypeIdentifier;
 
+        private static string UseCustomClassNameIfDefined(string typeName) =>
+            GraphQlGeneratorConfiguration.CustomClassNameMapping.TryGetValue(typeName, out var customTypeName) ? customTypeName : typeName;
+
         private static void GenerateDataProperty(GraphQlType baseType, IGraphQlMember member, bool isInterfaceMember, bool isDeprecated, string deprecationReason, StringBuilder builder)
         {
             var propertyName = NamingHelper.ToPascalCase(member.Name);
@@ -291,14 +300,18 @@ using Newtonsoft.Json.Linq;
                 case GraphQlTypeKindInterface:
                 case GraphQlTypeKindUnion:
                 case GraphQlTypeKindInputObject:
-                    propertyType = $"{fieldType.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
+                    var fieldTypeName = fieldType.Name;
+                    fieldTypeName = UseCustomClassNameIfDefined(fieldTypeName);
+                    propertyType = $"{fieldTypeName}{GraphQlGeneratorConfiguration.ClassPostfix}";
                     propertyType = AddQuestionMarkIfNullableReferencesEnabled(propertyType);
                     break;
                 case GraphQlTypeKindEnum:
                     propertyType = $"{fieldType.Name}?";
                     break;
                 case GraphQlTypeKindList:
-                    var itemType = IsUnknownObjectScalar(baseType, member.Name, fieldType.OfType) ? "object" : $"{fieldType.OfType.UnwrapIfNonNull().Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
+                    var itemTypeName = fieldType.OfType.UnwrapIfNonNull().Name;
+                    itemTypeName = UseCustomClassNameIfDefined(itemTypeName);
+                    var itemType = IsUnknownObjectScalar(baseType, member.Name, fieldType.OfType) ? "object" : $"{itemTypeName}{GraphQlGeneratorConfiguration.ClassPostfix}";
                     var suggestedNetType = ScalarToNetType(baseType, member.Name, fieldType.OfType.UnwrapIfNonNull()).TrimEnd('?');
                     if (!String.Equals(suggestedNetType, "object") && !String.Equals(suggestedNetType, "object?") && !suggestedNetType.TrimEnd().EndsWith("System.Object") && !suggestedNetType.TrimEnd().EndsWith("System.Object?"))
                         itemType = suggestedNetType;
@@ -384,7 +397,9 @@ using Newtonsoft.Json.Linq;
 
         private static void GenerateTypeQueryBuilder(GraphQlType type, string queryPrefix, StringBuilder builder)
         {
-            var className = $"{type.Name}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix}";
+            var typeName = type.Name;
+            typeName = UseCustomClassNameIfDefined(typeName);
+            var className = $"{typeName}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix}";
             ValidateClassName(className);
 
             builder.AppendLine($"public {(GraphQlGeneratorConfiguration.GeneratePartialClasses ? "partial " : null)}class {className} : GraphQlQueryBuilder<{className}>");
@@ -416,7 +431,11 @@ using Newtonsoft.Json.Linq;
                     fieldType = isList ? fieldType.OfType.UnwrapIfNonNull() : fieldType;
 
                     if (fieldType.Kind != GraphQlTypeKindScalar && fieldType.Kind != GraphQlTypeKindEnum)
-                        builder.Append($", QueryBuilderType = typeof({fieldType.Name}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix})");
+                    {
+                        var fieldTypeName = fieldType.Name;
+                        fieldTypeName = UseCustomClassNameIfDefined(fieldTypeName);
+                        builder.Append($", QueryBuilderType = typeof({fieldTypeName}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix})");
+                    }
                 }
 
                 builder.AppendLine($" }}{comma}");
@@ -497,11 +516,13 @@ using Newtonsoft.Json.Linq;
                 }
                 else
                 {
-                    if (String.IsNullOrEmpty(fieldType.Name))
+                    var fieldTypeName = fieldType.Name;
+                    fieldTypeName = UseCustomClassNameIfDefined(fieldTypeName);
+                    if (String.IsNullOrEmpty(fieldTypeName))
                         throw new InvalidOperationException($"Field '{field.Name}' type name not resolved. ");
 
-                    var builderParameterName = NamingHelper.LowerFirst(fieldType.Name);
-                    builder.Append($"    public {className} With{NamingHelper.ToPascalCase(field.Name)}({fieldType.Name}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix} {builderParameterName}QueryBuilder");
+                    var builderParameterName = NamingHelper.LowerFirst(fieldTypeName);
+                    builder.Append($"    public {className} With{NamingHelper.ToPascalCase(field.Name)}({fieldTypeName}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix} {builderParameterName}QueryBuilder");
 
                     if (args.Length > 0)
                     {
