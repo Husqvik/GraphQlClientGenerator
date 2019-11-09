@@ -649,7 +649,7 @@ using Newtonsoft.Json.Linq;
             if (args.Count == 0)
                 return;
 
-            builder.AppendLine("        var args = new Dictionary<string, object>();");
+            builder.AppendLine("        var args = new Dictionary<string, object>(StringComparer.Ordinal);");
 
             foreach (var arg in args)
             {
