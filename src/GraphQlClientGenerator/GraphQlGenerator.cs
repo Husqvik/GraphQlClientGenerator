@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -708,7 +708,7 @@ using Newtonsoft.Json.Linq;
             if (GraphQlGeneratorConfiguration.CommentGeneration.HasFlag(CommentGenerationOption.CodeSummary))
             {
                 builder.AppendLine("    /// <summary>");
-                builder.AppendLine($"    /// {description}");
+                builder.AppendLine($"    /// {string.Join("\n        /// ", description.Split('\n'))}");
                 builder.AppendLine("    /// </summary>");
             }
 
