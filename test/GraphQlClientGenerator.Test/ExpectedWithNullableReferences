@@ -542,7 +542,7 @@ public partial class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
 
     public MeQueryBuilder WithHome(HomeQueryBuilder homeQueryBuilder, string? id = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (id != null)
             args.Add("id", id);
 
@@ -746,7 +746,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder WithConsumptionMonths(ConsumptionMonthQueryBuilder consumptionMonthQueryBuilder, bool? useDemoData = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (useDemoData != null)
             args.Add("useDemoData", useDemoData);
 
@@ -760,7 +760,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder WithConsumption(ConsumptionQueryBuilder consumptionQueryBuilder, DateTimeOffset? from = null, DateTimeOffset? to = null, bool? useDemoData = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (from != null)
             args.Add("from", from);
 
@@ -784,7 +784,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder WithComparisons(ComparisonQueryBuilder comparisonQueryBuilder, DateTimeOffset? from = null, DateTimeOffset? to = null, Resolution? resolution = null, bool? useDemoData = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (from != null)
             args.Add("from", from);
 
@@ -815,7 +815,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder WithTemperatures(DateTimeOffset? from = null, DateTimeOffset? to = null, string? resolution = null, bool? useDemoData = null, string? alias = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (from != null)
             args.Add("from", from);
 
@@ -842,7 +842,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder WithDisaggregation(DisaggregationQueryBuilder disaggregationQueryBuilder, Resolution? resolution = null, bool? useDemoData = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (resolution != null)
             args.Add("resolution", resolution);
 
@@ -895,7 +895,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder WithProduction(ProductionQueryBuilder productionQueryBuilder, DateTimeOffset? from = null, DateTimeOffset? to = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (from != null)
             args.Add("from", from);
 
@@ -2900,7 +2900,7 @@ public partial class FeedQueryBuilder : GraphQlQueryBuilder<FeedQueryBuilder>
 
     public FeedQueryBuilder WithItems(FeedItemQueryBuilder feedItemQueryBuilder, int? page = null, int? pageSize = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (page != null)
             args.Add("page", page);
 
@@ -3125,7 +3125,7 @@ public partial class MeMutationQueryBuilder : GraphQlQueryBuilder<MeMutationQuer
 
     public MeMutationQueryBuilder WithUpdate(MeQueryBuilder meQueryBuilder, string? email = null, string? mobile = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (email != null)
             args.Add("email", email);
 
@@ -3142,7 +3142,7 @@ public partial class MeMutationQueryBuilder : GraphQlQueryBuilder<MeMutationQuer
 
     public MeMutationQueryBuilder WithHome(HomeMutationQueryBuilder homeMutationQueryBuilder, string? id = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (id != null)
             args.Add("id", id);
 
@@ -3156,7 +3156,7 @@ public partial class MeMutationQueryBuilder : GraphQlQueryBuilder<MeMutationQuer
 
     public MeMutationQueryBuilder WithUpdateAppState(GQLMutationGeneralResponseQueryBuilder gQLMutationGeneralResponseQueryBuilder, AppStateMutation? state = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (state != null)
             args.Add("state", state);
 
@@ -3190,7 +3190,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
 
     public HomeMutationQueryBuilder WithThermostat(ThermostatMutationQueryBuilder thermostatMutationQueryBuilder, string? id = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (id != null)
             args.Add("id", id);
 
@@ -3204,7 +3204,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
 
     public HomeMutationQueryBuilder WithPairDeviceWithOAuth(PairDeviceResultQueryBuilder pairDeviceResultQueryBuilder, string? deviceType = null, string? authorizationCode = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (deviceType != null)
             args.Add("deviceType", deviceType);
 
@@ -3221,7 +3221,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
 
     public HomeMutationQueryBuilder WithPairDeviceWithCredentials(PairDeviceResultQueryBuilder pairDeviceResultQueryBuilder, string? deviceType = null, string? username = null, string? password = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (deviceType != null)
             args.Add("deviceType", deviceType);
 
@@ -3241,7 +3241,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
 
     public HomeMutationQueryBuilder WithAnswerProfileQuestions(HomeProfileQuestionQueryBuilder homeProfileQuestionQueryBuilder, IEnumerable<HomeProfileQuestionAnswer?>? answers = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (answers != null)
             args.Add("answers", answers);
 
@@ -3255,7 +3255,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
 
     public HomeMutationQueryBuilder WithSendMeterReading(GQLMutationGeneralResponseQueryBuilder gQLMutationGeneralResponseQueryBuilder, int? meterReading = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (meterReading != null)
             args.Add("meterReading", meterReading);
 
@@ -3269,7 +3269,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
 
     public HomeMutationQueryBuilder WithSetMeteringPointIdAndBindingTime(GQLMutationGeneralResponseQueryBuilder gQLMutationGeneralResponseQueryBuilder, string? meteringPointId = null, string? bindingTime = null, bool? isMovingIn = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (meteringPointId != null)
             args.Add("meteringPointId", meteringPointId);
 
@@ -3308,7 +3308,7 @@ public partial class ThermostatMutationQueryBuilder : GraphQlQueryBuilder<Thermo
 
     public ThermostatMutationQueryBuilder WithSetState(string? mode = null, decimal? comfortTemperature = null, string? fanLevel = null, string? onOff = null, string? alias = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (mode != null)
             args.Add("mode", mode);
 
@@ -3331,7 +3331,7 @@ public partial class ThermostatMutationQueryBuilder : GraphQlQueryBuilder<Thermo
 
     public ThermostatMutationQueryBuilder WithSetName(string? name = null, string? alias = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (name != null)
             args.Add("name", name);
 

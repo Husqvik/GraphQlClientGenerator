@@ -14,7 +14,7 @@
           "fields": [
             {
               "name": "me",
-              "description": null,
+              "description": "Information\nabout\r\nuser",
               "args": [],
               "type": {
                 "kind": "OBJECT",
@@ -33,7 +33,7 @@
         {
           "kind": "OBJECT",
           "name": "Me",
-          "description": null,
+          "description": "Information\nabout\r\nuser",
           "fields": [
             {
               "name": "id",
@@ -600,7 +600,7 @@
         {
           "kind": "ENUM",
           "name": "Avatar",
-          "description": null,
+          "description": "Home\naavatar\r\ntypes",
           "fields": null,
           "inputFields": null,
           "interfaces": null,

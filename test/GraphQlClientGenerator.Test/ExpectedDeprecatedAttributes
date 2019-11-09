@@ -1,9 +1,25 @@
 #region data classes
 public class Query
 {
+    /// <summary>
+    /// Information
+    /// about
+    /// user
+    /// </summary>
+    [Description(@"Information
+about
+user")]
     public Me Me { get; set; }
 }
 
+/// <summary>
+/// Information
+/// about
+/// user
+/// </summary>
+[Description(@"Information
+about
+user")]
 public class Me
 {
     public Guid? Id { get; set; }

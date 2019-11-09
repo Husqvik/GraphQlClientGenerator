@@ -159,7 +159,7 @@ using Newtonsoft.Json.Linq;
                 {
                     var type = inputTypes[i];
                     FindAllReferencedObjectTypes(schema, type, referencedObjectTypes);
-                    GenerateDataClass(type.Name, "IGraphQlInputObject", builder, () => GenerateInputDataClassBody(type, type.InputFields.Cast<IGraphQlMember>().ToArray(), builder));
+                    GenerateDataClass(type.Name, type.Description, "IGraphQlInputObject", builder, () => GenerateInputDataClassBody(type, type.InputFields.Cast<IGraphQlMember>().ToArray(), builder));
 
                     builder.AppendLine();
 
@@ -201,7 +201,7 @@ using Newtonsoft.Json.Linq;
                     var interfacesToImplement = new List<string>();
                     if (isInterface)
                     {
-                        interfacesToImplement.Add(GenerateInterface($"I{type.Name}", builder, () => GenerateBody(true)));
+                        interfacesToImplement.Add(GenerateInterface($"I{type.Name}", type.Description, builder, () => GenerateBody(true)));
                         builder.AppendLine();
                         builder.AppendLine();
                     }
@@ -211,7 +211,7 @@ using Newtonsoft.Json.Linq;
                     if (hasInputReference)
                         interfacesToImplement.Add("IGraphQlInputObject");
 
-                    GenerateDataClass(type.Name, String.Join(", ", interfacesToImplement), builder, () => GenerateBody(false));
+                    GenerateDataClass(type.Name, type.Description, String.Join(", ", interfacesToImplement), builder, () => GenerateBody(false));
 
                     builder.AppendLine();
 
@@ -248,18 +248,20 @@ using Newtonsoft.Json.Linq;
             builder.AppendLine("    }");
         }
 
-        private static string GenerateInterface(string interfaceName, StringBuilder builder, Action generateInterfaceBody) =>
-            GenerateFileMember("interface", interfaceName, null, builder, generateInterfaceBody);
+        private static string GenerateInterface(string interfaceName, string interfaceDescription, StringBuilder builder, Action generateInterfaceBody) =>
+            GenerateFileMember("interface", interfaceName, interfaceDescription, null, builder, generateInterfaceBody);
 
-        private static string GenerateDataClass(string typeName, string baseTypeName, StringBuilder builder, Action generateClassBody) =>
-            GenerateFileMember((GraphQlGeneratorConfiguration.GeneratePartialClasses ? "partial " : null) + "class", typeName, baseTypeName, builder, generateClassBody);
+        private static string GenerateDataClass(string typeName, string typeDescription, string baseTypeName, StringBuilder builder, Action generateClassBody) =>
+            GenerateFileMember((GraphQlGeneratorConfiguration.GeneratePartialClasses ? "partial " : null) + "class", typeName, typeDescription, baseTypeName, builder, generateClassBody);
 
-        private static string GenerateFileMember(string memberType, string typeName, string baseTypeName, StringBuilder builder, Action generateFileMemberBody)
+        private static string GenerateFileMember(string memberType, string typeName, string typeDescription, string baseTypeName, StringBuilder builder, Action generateFileMemberBody)
         {
             typeName = UseCustomClassNameIfDefined(typeName);
 
             var memberName = typeName + GraphQlGeneratorConfiguration.ClassPostfix;
             ValidateClassName(memberName);
+
+            GenerateCodeComments(builder, typeDescription, 0);
 
             builder.Append("public ");
             builder.Append(memberType);
@@ -350,7 +352,7 @@ using Newtonsoft.Json.Linq;
                     break;
             }
 
-            GenerateCodeComments(builder, member.Description);
+            GenerateCodeComments(builder, member.Description, 4);
 
             if (isDeprecated)
             {
@@ -675,6 +677,7 @@ using Newtonsoft.Json.Linq;
 
         private static void GenerateEnum(GraphQlType type, StringBuilder builder)
         {
+            GenerateCodeComments(builder, type.Description, 0);
             builder.Append("public enum ");
             builder.AppendLine(type.Name);
             builder.AppendLine("{");
@@ -683,7 +686,7 @@ using Newtonsoft.Json.Linq;
             for (var i = 0; i < enumValues.Count; i++)
             {
                 var enumValue = enumValues[i];
-                GenerateCodeComments(builder, enumValue.Description);
+                GenerateCodeComments(builder, enumValue.Description, 4);
                 builder.Append("    ");
                 var netIdentifier = NamingHelper.ToNetEnumName(enumValue.Name);
                 if (netIdentifier != enumValue.Name)
@@ -700,20 +703,28 @@ using Newtonsoft.Json.Linq;
             builder.AppendLine("}");
         }
 
-        private static void GenerateCodeComments(StringBuilder builder, string description)
+        private static void GenerateCodeComments(StringBuilder builder, string description, int offset)
         {
             if (String.IsNullOrWhiteSpace(description))
                 return;
 
+            var offsetSpaces = new String(' ', offset);
+
             if (GraphQlGeneratorConfiguration.CommentGeneration.HasFlag(CommentGenerationOption.CodeSummary))
             {
-                builder.AppendLine("    /// <summary>");
-                builder.AppendLine($"    /// {string.Join("\n        /// ", description.Split('\n'))}");
-                builder.AppendLine("    /// </summary>");
+                builder.Append(offsetSpaces);
+                builder.AppendLine("/// <summary>");
+                builder.Append(offsetSpaces);
+                builder.AppendLine("/// " + String.Join(Environment.NewLine + offsetSpaces + "/// ", description.Split('\n').Select(l => l.Trim())));
+                builder.Append(offsetSpaces);
+                builder.AppendLine("/// </summary>");
             }
 
             if (GraphQlGeneratorConfiguration.CommentGeneration.HasFlag(CommentGenerationOption.DescriptionAttribute))
-                builder.AppendLine($"    [Description(@\"{description.Replace("\"", "\"\"")}\")]");
+            {
+                builder.Append(offsetSpaces);
+                builder.AppendLine($"[Description(@\"{description.Replace("\"", "\"\"")}\")]");
+            }
         }
 
         private static bool IsUnknownObjectScalar(GraphQlType baseType, string valueName, GraphQlFieldType fieldType)

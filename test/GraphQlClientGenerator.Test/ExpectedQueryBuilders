@@ -599,7 +599,7 @@ public partial class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
 
     public MeQueryBuilder WithHome(HomeQueryBuilder homeQueryBuilder, string @object = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (@object != null)
             args.Add("object", @object);
 
@@ -633,7 +633,7 @@ public partial class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
 
     public MeQueryBuilder WithEnergyStatements(DateTimeOffset? from = null, DateTimeOffset? to = null, string alias = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (from != null)
             args.Add("from", from);
 
@@ -722,7 +722,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder WithConsumptionMonths(ConsumptionMonthQueryBuilder consumptionMonthQueryBuilder, DateTimeOffset? from = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (from != null)
             args.Add("from", from);
 
@@ -736,7 +736,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder WithConsumption(ConsumptionQueryBuilder consumptionQueryBuilder, DateTimeOffset? from = null, DateTimeOffset? to = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (from != null)
             args.Add("from", from);
 
@@ -763,7 +763,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder WithComparisons(ComparisonQueryBuilder comparisonQueryBuilder, DateTimeOffset? from = null, DateTimeOffset? to = null, Resolution? resolution = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (from != null)
             args.Add("from", from);
 
@@ -823,7 +823,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder WithTemperatures(DateTimeOffset? from = null, DateTimeOffset? to = null, string resolution = null, string alias = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (from != null)
             args.Add("from", from);
 
@@ -853,7 +853,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder WithDisaggregation(DisaggregationQueryBuilder disaggregationQueryBuilder, Resolution? resolution = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (resolution != null)
             args.Add("resolution", resolution);
 
@@ -968,7 +968,7 @@ public partial class SubscriptionQueryBuilder : GraphQlQueryBuilder<Subscription
 
     public SubscriptionQueryBuilder WithEnergyStatements(DateTimeOffset? from = null, DateTimeOffset? to = null, string alias = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (from != null)
             args.Add("from", from);
 
@@ -2065,7 +2065,7 @@ public partial class FeedQueryBuilder : GraphQlQueryBuilder<FeedQueryBuilder>
 
     public FeedQueryBuilder WithItems(FeedItemQueryBuilder feedItemQueryBuilder, int? page = null, int? pageSize = null)
     {
-        var args = new Dictionary<string, object>();
+        var args = new Dictionary<string, object>(StringComparer.Ordinal);
         if (page != null)
             args.Add("page", page);
 
