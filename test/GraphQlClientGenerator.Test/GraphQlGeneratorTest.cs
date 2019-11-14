@@ -21,10 +21,7 @@ namespace GraphQlClientGenerator.Test
         private readonly ITestOutputHelper _outputHelper;
 
         private static GraphQlSchema DeserializeTestSchema(string resourceName) =>
-            JsonConvert.DeserializeObject<GraphQlResult>(
-                    GetTestResource(resourceName),
-                    GraphQlGenerator.SerializerSettings)
-                .Data.Schema;
+            GraphQlGenerator.SchemaFromString(GetTestResource(resourceName));
 
         public GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         {
