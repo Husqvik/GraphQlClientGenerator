@@ -51,7 +51,7 @@ using Newtonsoft.Json.Linq;
                 await client.PostAsync(
                     url,
                     new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json"));
-            
+
             var content =
                 response.Content == null
                     ? "(no content)"
@@ -60,6 +60,11 @@ using Newtonsoft.Json.Linq;
             if (!response.IsSuccessStatusCode)
                 throw new InvalidOperationException($"Status code: {(int)response.StatusCode} ({response.StatusCode}); content: {content}");
 
+            return SchemaFromString(content);
+        }
+
+        public static GraphQlSchema SchemaFromString(string content)
+        {
             return JsonConvert.DeserializeObject<GraphQlResult>(content, SerializerSettings).Data.Schema;
         }
 
