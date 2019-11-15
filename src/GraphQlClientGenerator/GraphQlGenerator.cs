@@ -60,12 +60,16 @@ using Newtonsoft.Json.Linq;
             if (!response.IsSuccessStatusCode)
                 throw new InvalidOperationException($"Status code: {(int)response.StatusCode} ({response.StatusCode}); content: {content}");
 
-            return SchemaFromString(content);
+            return DeserializeGraphQlSchema(content);
         }
 
-        public static GraphQlSchema SchemaFromString(string content)
+        public static GraphQlSchema DeserializeGraphQlSchema(string content)
         {
-            return JsonConvert.DeserializeObject<GraphQlResult>(content, SerializerSettings).Data.Schema;
+            var result = JsonConvert.DeserializeObject<GraphQlResult>(content, SerializerSettings);
+            if (result.Data?.Schema == null)
+                throw new ArgumentException("not a GraphQL schema", nameof(content));
+
+            return result.Data.Schema;
         }
 
         private static bool IsComplexType(string graphQlTypeKind) =>
