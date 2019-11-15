@@ -135,6 +135,77 @@ mutation {
 }
 ```
 
+Field exclusion
+-------------
+Sometimes there is a need to select almost all fields of a queried object except few. In that case `Except` methods can be used often in conjunction with `WithAllFields` or `WithAllScalarFields`.
+```csharp
+new ViewerQueryBuilder()
+	.WithHomes(
+		new HomeQueryBuilder()
+			.WithAllScalarFields()
+			.ExceptPrimaryHeatingSource()
+			.ExceptMainFuseSize()
+	)
+	.Build(Formatting.Indented);
+```
+result:
+```
+{
+  homes {
+    id
+    timeZone
+    appNickname
+    appAvatar
+    size
+    type
+    numberOfResidents
+    hasVentilationSystem
+  }
+}
+
+```
+
+Aliases
+-------------
+Queried fields can be freely renamed to match target data classes using GraphQL aliases.
+```csharp
+new ViewerQueryBuilder()
+	.WithHome(
+		new HomeQueryBuilder("primaryHome")
+			.WithType()
+			.WithSize()
+			.WithAddress(new AddressQueryBuilder("primaryAddress").WithAddress1("primaryAddressText").WithCountry()),
+		Guid.NewGuid())
+	.WithHome(
+		new HomeQueryBuilder("secondaryHome")
+			.WithType()
+			.WithSize()
+			.WithAddress(new AddressQueryBuilder("secondaryAddress").WithAddress1("secondaryAddressText").WithCountry()),
+		Guid.NewGuid())
+	.Build(Formatting.Indented);
+```
+result:
+```
+{
+  primaryHome: home (id: "120efe4a-6839-45fc-beed-27455d29212f") {
+    type
+    size
+    primaryAddress: address {
+      primaryAddressText: address1
+      country
+    }
+  }
+  secondaryHome: home (id: "0c735830-be56-4a3d-a8cb-d0189037f221") {
+    type
+    size
+    secondaryAddress: address {
+      secondaryAddressText: address1
+      country
+    }
+  }
+}
+```
+
 Custom scalar types
 -------------
 GraphQL supports custom scalar types. By default these are mapped to `object` type. To ensure appropriate .NET types are generated for data class properties custom mapping function can be used:
