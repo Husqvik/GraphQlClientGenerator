@@ -771,7 +771,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
             new FieldMetadata { Name = "consumption", IsComplex = true, QueryBuilderType = typeof(ConsumptionQueryBuilder) },
             new FieldMetadata { Name = "preLiveComparison", IsComplex = true, QueryBuilderType = typeof(PreLiveComparisonQueryBuilder) },
             new FieldMetadata { Name = "comparisons", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilder) },
-            new FieldMetadata { Name = "comparisonCurrentMonth", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilder) },
+            new FieldMetadata { Name = "comparison_current_month", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilder) },
             new FieldMetadata { Name = "profile", IsComplex = true },
             new FieldMetadata { Name = "profileQuestions", IsComplex = true },
             new FieldMetadata { Name = "thermostat", IsComplex = true },
@@ -892,12 +892,12 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder WithComparisonCurrentMonth(ComparisonQueryBuilder comparisonQueryBuilder)
     {
-        return WithObjectField("comparisonCurrentMonth", comparisonQueryBuilder);
+        return WithObjectField("comparison_current_month", comparisonQueryBuilder);
     }
 
     public HomeQueryBuilder ExceptComparisonCurrentMonth()
     {
-        return ExceptField("comparisonCurrentMonth");
+        return ExceptField("comparison_current_month");
     }
 
     public HomeQueryBuilder WithProfile(string alias = null)

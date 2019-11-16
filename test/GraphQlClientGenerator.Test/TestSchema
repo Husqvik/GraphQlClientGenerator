@@ -438,7 +438,7 @@
               "deprecationReason": null
             },
             {
-              "name": "comparisonCurrentMonth",
+              "name": "comparison_current_month",
               "description": null,
               "args": [],
               "type": {

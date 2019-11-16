@@ -368,6 +368,9 @@ using Newtonsoft.Json.Linq;
                 builder.AppendLine($"    [Obsolete{deprecationReason}]");
             }
 
+            if (!isInterfaceMember && !String.Equals(member.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                builder.AppendLine($"    [JsonProperty(\"{member.Name}\")]");
+            
             builder.AppendLine($"    {(isInterfaceMember ? null : "public ")}{propertyType} {propertyName} {{ get; set; }}");
         }
 
