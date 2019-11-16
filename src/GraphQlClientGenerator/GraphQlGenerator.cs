@@ -472,12 +472,13 @@ using Newtonsoft.Json.Linq;
             
             if (queryPrefix != null)
             {
-                builder.AppendLine();
                 builder.Append($"    public {className} WithParameter<T>(GraphQlQueryParameter<T> parameter)");
                 WriteQueryBuilderMethodBody(
                     useCompatibleSyntax,
                     builder,
                     () => builder.AppendLine($"{ReturnPrefix(useCompatibleSyntax)}WithParameterInternal(parameter);"));
+
+                builder.AppendLine();
             }
 
             for (var i = 0; i < fields?.Length; i++)

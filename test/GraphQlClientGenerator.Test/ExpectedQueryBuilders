@@ -574,11 +574,11 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
     {
     }
 
-
     public QueryQueryBuilder WithParameter<T>(GraphQlQueryParameter<T> parameter)
     {
         return WithParameterInternal(parameter);
     }
+
     public QueryQueryBuilder WithMe(MeQueryBuilder meQueryBuilder)
     {
         return WithObjectField("me", meQueryBuilder);

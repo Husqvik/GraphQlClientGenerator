@@ -567,8 +567,8 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
     {
     }
 
-
     public QueryQueryBuilder WithParameter<T>(GraphQlQueryParameter<T> parameter) => WithParameterInternal(parameter);
+
     public QueryQueryBuilder WithMe(MeQueryBuilder meQueryBuilder) => WithObjectField("me", meQueryBuilder);
 
     public QueryQueryBuilder ExceptMe() => ExceptField("me");
@@ -3209,8 +3209,8 @@ public partial class MutationQueryBuilder : GraphQlQueryBuilder<MutationQueryBui
     {
     }
 
-
     public MutationQueryBuilder WithParameter<T>(GraphQlQueryParameter<T> parameter) => WithParameterInternal(parameter);
+
     public MutationQueryBuilder WithMe(MeMutationQueryBuilder meMutationQueryBuilder) => WithObjectField("me", meMutationQueryBuilder);
 
     public MutationQueryBuilder ExceptMe() => ExceptField("me");
