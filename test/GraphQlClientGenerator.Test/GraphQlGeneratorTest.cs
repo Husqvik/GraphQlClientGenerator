@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -134,9 +135,23 @@ namespace GraphQlClientGenerator.Test
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-	public TestQueryBuilder WithTestField(short? valueInt16 = null, ushort? valueUInt16 = null, byte? valueByte = null, int? valueInt32 = null, uint? valueUInt32 = null, long? valueInt64 = null, ulong? valueUInt64 = null, float? valueSingle = null, double? valueDouble = null, decimal? valueDecimal = null, DateTime? valueDateTime = null, DateTimeOffset? valueDateTimeOffset = null, Guid? valueGuid = null, string valueString = null)
+	public TestQueryBuilder WithTestField(
+        QueryBuilderParameter<short?> valueInt16 = null,
+        QueryBuilderParameter<ushort?> valueUInt16 = null,
+        QueryBuilderParameter<byte?> valueByte = null,
+        QueryBuilderParameter<int?> valueInt32 = null,
+        QueryBuilderParameter<uint?> valueUInt32 = null,
+        QueryBuilderParameter<long?> valueInt64 = null,
+        QueryBuilderParameter<ulong?> valueUInt64 = null,
+        QueryBuilderParameter<float?> valueSingle = null,
+        QueryBuilderParameter<double?> valueDouble = null,
+        QueryBuilderParameter<decimal?> valueDecimal = null,
+        QueryBuilderParameter<DateTime?> valueDateTime = null,
+        QueryBuilderParameter<DateTimeOffset?> valueDateTimeOffset = null,
+        QueryBuilderParameter<Guid?> valueGuid = null,
+        QueryBuilderParameter<string> valueString = null)
 	{
-		var args = new Dictionary<string, object>();
+		var args = new Dictionary<string, QueryBuilderParameter>();
 		if (valueInt16 != null)
 			args.Add(""valueInt16"", valueInt16);
 
@@ -182,9 +197,9 @@ namespace GraphQlClientGenerator.Test
 		return WithScalarField(""testField"", null, args);
 	}
 
-    public TestQueryBuilder WithObjectParameterField(object objectParameter = null)
+    public TestQueryBuilder WithObjectParameterField(QueryBuilderParameter<object> objectParameter = null)
 	{
-		var args = new Dictionary<string, object>();
+		var args = new Dictionary<string, QueryBuilderParameter>();
 		if (objectParameter != null)
 			args.Add(""objectParameter"", objectParameter);
 
@@ -220,7 +235,7 @@ namespace GraphQlClientGenerator.Test
                         new DateTimeOffset(2019, 6, 30, 2, 27, 47, TimeSpan.FromHours(2)),
                         Guid.Empty,
                         "string value"
-                    });
+                    }.Select(CreateParameter).ToArray());
 
             builderType
                 .GetMethod("WithObjectParameterField", BindingFlags.Instance | BindingFlags.Public)
@@ -233,7 +248,7 @@ namespace GraphQlClientGenerator.Test
                             JsonConvert.DeserializeObject("{ \"rootProperty1\": \"root value 1\", \"rootProperty2\": 123.456, \"rootProperty3\": true, \"rootProperty4\": null, \"rootProperty5\": { \"nestedProperty\": 987 } }"),
                             JsonConvert.DeserializeObject("[{ \"rootProperty1\": \"root value 2\" }, { \"rootProperty1\": false }]")
                         }
-                    });
+                    }.Select(CreateParameter).ToArray());
 
             var query =
                 builderType
@@ -241,6 +256,28 @@ namespace GraphQlClientGenerator.Test
                     .Invoke(builderInstance, new [] { Enum.Parse(formattingType, "None"), (byte)2 });
 
             query.ShouldBe("{testField(valueInt16:1,valueUInt16:2,valueByte:3,valueInt32:4,valueUInt32:5,valueInt64:6,valueUInt64:7,valueSingle:8.123,valueDouble:9.456,valueDecimal:10.789,valueDateTime:\"2019-06-30T00:27:47.0000000Z\",valueDateTimeOffset:\"2019-06-30T02:27:47.0000000+02:00\",valueGuid:\"00000000-0000-0000-0000-000000000000\",valueString:\"string value\"),fieldAlias:objectParameter(objectParameter:[{rootProperty1:\"root value 1\",rootProperty2:123.456,rootProperty3:true,rootProperty4:null,rootProperty5:{nestedProperty:987}},[{rootProperty1:\"root value 2\"},{rootProperty1:false}]])}");
+
+            static object CreateParameter(object value)
+            {
+                var genericType = value.GetType();
+                if (genericType.IsValueType)
+                    genericType = typeof(Nullable<>).MakeGenericType(value.GetType());
+
+                if (value is object[])
+                    genericType = typeof(object);
+
+                var makeGenericType = Type.GetType("GeneratedQueryTestAssembly.QueryBuilderParameter`1, GeneratedQueryTestAssembly").MakeGenericType(genericType);
+                var parameter = Activator.CreateInstance(makeGenericType, BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { value }, CultureInfo.InvariantCulture);
+                return parameter;
+            }
+
+            builderType = Type.GetType("GeneratedQueryTestAssembly.QueryQueryBuilder, GeneratedQueryTestAssembly");
+            builderType.ShouldNotBeNull();
+            builderInstance = builderType.GetConstructor(new [] { typeof(string) }).Invoke(new object[1]);
+            builderType.GetMethod("WithAllFields", BindingFlags.Instance | BindingFlags.Public).Invoke(builderInstance, null);
+            builderType
+                .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
+                .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
         }
 
         [Fact]

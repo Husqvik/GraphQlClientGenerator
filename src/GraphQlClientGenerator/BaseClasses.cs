@@ -169,12 +169,76 @@ public interface IGraphQlQueryBuilder
     string Build(Formatting formatting = Formatting.None, byte indentationSize = 2);
 }
 
+public abstract class QueryBuilderParameter
+{
+    private string _name;
+
+    internal string GraphQlTypeName { get; }
+    internal object Value { get; set; }
+
+    public string Name
+    {
+        get => _name;
+        set
+        {
+            ValidateParameterValue(nameof(Name), value);
+            _name = value;
+        }
+    }
+
+    protected QueryBuilderParameter(string name, string graphQlTypeName, object value)
+    {
+        Name = name;
+
+        ValidateParameterValue(nameof(graphQlTypeName), graphQlTypeName);
+
+        GraphQlTypeName = graphQlTypeName;
+        Value = value;
+    }
+
+    protected QueryBuilderParameter(object value) => Value = value;
+
+    private void ValidateParameterValue(string parameterName, string value)
+    {
+        if (String.IsNullOrWhiteSpace(value) || !value.All(Char.IsLetterOrDigit))
+            throw new ArgumentException("invalid value", parameterName);
+    }
+}
+
+public class QueryBuilderParameter<T> : QueryBuilderParameter
+{
+    public QueryBuilderParameter(string name, string graphQlTypeName, T value) : base(name, graphQlTypeName, value)
+    {
+    }
+
+    private QueryBuilderParameter(T value) : base(value)
+    {
+    }
+
+    public static implicit operator QueryBuilderParameter<T>(T value) => new QueryBuilderParameter<T>(value);
+}
+
+public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
+{
+    public new T Value
+    {
+        get => (T)base.Value;
+        set => base.Value = value;
+    }
+
+    public GraphQlQueryParameter(string name, string graphQlTypeName, T value) : base(name, graphQlTypeName, value)
+    {
+    }
+}
+
 public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 {
     private static readonly Type[] MethodParameterTypeString = { typeof(String) };
     private static readonly string[] MethodParameterString = { null };
 
     private readonly Dictionary<string, GraphQlFieldCriteria> _fieldCriteria = new Dictionary<string, GraphQlFieldCriteria>();
+    
+    private Dictionary<string, QueryBuilderParameter> _queryParameters;
 
     protected virtual string Prefix { get { return null; } }
 
@@ -211,23 +275,45 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
     protected virtual string Build(Formatting formatting, int level, byte indentationSize)
     {
         var isIndentedFormatting = formatting == Formatting.Indented;
-
+        var separator = String.Empty;
         var builder = new StringBuilder();
 
         if (!String.IsNullOrEmpty(Prefix))
         {
             builder.Append(Prefix);
 
+            var indentationSpace = isIndentedFormatting ? " " : String.Empty;
+
             if (!String.IsNullOrEmpty(Alias))
             {
                 builder.Append(" ");
                 builder.Append(Alias);
-
-                if (isIndentedFormatting)
-                    builder.Append(" ");
             }
-            else if (isIndentedFormatting)
-                builder.Append(" ");
+
+            builder.Append(indentationSpace);
+
+            if (_queryParameters != null)
+            {
+                builder.Append("(");
+
+                foreach (var queryParameter in _queryParameters.Values)
+                {
+                    builder.Append(separator);
+                    builder.Append("$");
+                    builder.Append(queryParameter.Name);
+                    builder.Append(":");
+                    builder.Append(indentationSpace);
+
+                    builder.Append(queryParameter.GraphQlTypeName);
+                    builder.Append(isIndentedFormatting ? " = " : "=");
+                    builder.Append(GraphQlQueryHelper.BuildArgumentValue(queryParameter.Value, formatting, 0, indentationSize));
+
+                    separator = " ";
+                }
+
+                builder.Append(")");
+                builder.Append(indentationSpace);
+            }
         }
 
         builder.Append("{");
@@ -235,7 +321,8 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         if (isIndentedFormatting)
             builder.AppendLine();
 
-        var separator = String.Empty;
+        separator = String.Empty;
+        
         foreach (var criteria in _fieldCriteria.Values)
         {
             var fieldCriteria = criteria.Build(formatting, level, indentationSize);
@@ -254,16 +341,17 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
             builder.Append(GraphQlQueryHelper.GetIndentation(level - 1, indentationSize));
         
         builder.Append("}");
+
         return builder.ToString();
     }
 
-    protected void IncludeScalarField(string fieldName, string alias, IDictionary<string, object> args)
+    protected void IncludeScalarField(string fieldName, string alias, IDictionary<string, QueryBuilderParameter> args)
     {
         ValidateAlias(alias);
         _fieldCriteria[alias ?? fieldName] = new GraphQlScalarFieldCriteria(fieldName, alias, args);
     }
 
-    protected void IncludeObjectField(string fieldName, GraphQlQueryBuilder objectFieldQueryBuilder, IDictionary<string, object> args)
+    protected void IncludeObjectField(string fieldName, GraphQlQueryBuilder objectFieldQueryBuilder, IDictionary<string, QueryBuilderParameter> args)
     {
         _fieldCriteria[objectFieldQueryBuilder.Alias ?? fieldName] = new GraphQlObjectFieldCriteria(fieldName, objectFieldQueryBuilder, args);
     }
@@ -299,6 +387,14 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         }
     }
 
+    protected void AddParameter<T>(GraphQlQueryParameter<T> parameter)
+    {
+        if (_queryParameters == null)
+            _queryParameters = new Dictionary<string, QueryBuilderParameter>();
+        
+        _queryParameters.Add(parameter.Name, parameter);
+    }
+
     private static void ValidateAlias(string alias)
     {
         if (alias != null && String.IsNullOrWhiteSpace(alias))
@@ -307,10 +403,11 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     private abstract class GraphQlFieldCriteria
     {
-        protected readonly string FieldName;
-        private readonly IDictionary<string, object> _args;
+        private readonly IDictionary<string, QueryBuilderParameter> _args;
 
-        protected GraphQlFieldCriteria(string fieldName, IDictionary<string, object> args)
+        protected readonly string FieldName;
+
+        protected GraphQlFieldCriteria(string fieldName, IDictionary<string, QueryBuilderParameter> args)
         {
             FieldName = fieldName;
             _args = args;
@@ -321,10 +418,15 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         protected string BuildArgumentClause(Formatting formatting, int level, byte indentationSize)
         {
             var separator = formatting == Formatting.Indented ? " " : null;
-            return
-                _args?.Count > 0
-                    ? $"({String.Join($",{separator}", _args.Select(kvp => $"{kvp.Key}:{separator}{GraphQlQueryHelper.BuildArgumentValue(kvp.Value, formatting, level, indentationSize)}"))}){separator}"
-                    : String.Empty;
+            var argumentCount = _args?.Count ?? 0;
+            if (argumentCount == 0)
+                return String.Empty;
+
+            var arguments =
+                _args.Select(
+                    kvp => $"{kvp.Key}:{separator}{(kvp.Value.Name == null ? GraphQlQueryHelper.BuildArgumentValue(kvp.Value.Value, formatting, level, indentationSize) : "$" + kvp.Value.Name)}");
+
+            return $"({String.Join($",{separator}", arguments)}){separator}";
         }
 
         protected static string BuildAliasPrefix(string alias, Formatting formatting)
@@ -338,7 +440,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
     {
         private readonly string _alias;
 
-        public GraphQlScalarFieldCriteria(string fieldName, string alias, IDictionary<string, object> args) : base(fieldName, args)
+        public GraphQlScalarFieldCriteria(string fieldName, string alias, IDictionary<string, QueryBuilderParameter> args) : base(fieldName, args)
         {
             _alias = alias;
         }
@@ -360,7 +462,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
     {
         private readonly GraphQlQueryBuilder _objectQueryBuilder;
 
-        public GraphQlObjectFieldCriteria(string fieldName, GraphQlQueryBuilder objectQueryBuilder, IDictionary<string, object> args) : base(fieldName, args)
+        public GraphQlObjectFieldCriteria(string fieldName, GraphQlQueryBuilder objectQueryBuilder, IDictionary<string, QueryBuilderParameter> args) : base(fieldName, args)
         {
             _objectQueryBuilder = objectQueryBuilder;
         }
@@ -377,10 +479,6 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
             builder.Append(BuildAliasPrefix(_objectQueryBuilder.Alias, formatting));
             builder.Append(FieldName);
-
-            if (formatting == Formatting.Indented)
-                builder.Append(" ");
-
             builder.Append(BuildArgumentClause(formatting, level, indentationSize));
             builder.Append(_objectQueryBuilder.Build(formatting, level + 1, indentationSize));
             return builder.ToString();
@@ -406,13 +504,13 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
         return (TQueryBuilder)this;
     }
 
-    protected TQueryBuilder WithScalarField(string fieldName, string alias = null, IDictionary<string, object> args = null)
+    protected TQueryBuilder WithScalarField(string fieldName, string alias = null, IDictionary<string, QueryBuilderParameter> args = null)
     {
         IncludeScalarField(fieldName, alias, args);
         return (TQueryBuilder)this;
     }
 
-    protected TQueryBuilder WithObjectField(string fieldName, GraphQlQueryBuilder queryBuilder, IDictionary<string, object> args = null)
+    protected TQueryBuilder WithObjectField(string fieldName, GraphQlQueryBuilder queryBuilder, IDictionary<string, QueryBuilderParameter> args = null)
     {
         IncludeObjectField(fieldName, queryBuilder, args);
         return (TQueryBuilder)this;
@@ -421,6 +519,12 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
     public TQueryBuilder ExceptField(string fieldName)
     {
         ExcludeField(fieldName);
+        return (TQueryBuilder)this;
+    }
+
+    protected TQueryBuilder WithParameterInternal<T>(GraphQlQueryParameter<T> parameter)
+    {
+        AddParameter(parameter);
         return (TQueryBuilder)this;
     }
 }

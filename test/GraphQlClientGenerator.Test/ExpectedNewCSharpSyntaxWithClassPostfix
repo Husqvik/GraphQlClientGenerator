@@ -169,12 +169,76 @@ public interface IGraphQlQueryBuilder
     string Build(Formatting formatting = Formatting.None, byte indentationSize = 2);
 }
 
+public abstract class QueryBuilderParameter
+{
+    private string _name;
+
+    internal string GraphQlTypeName { get; }
+    internal object Value { get; set; }
+
+    public string Name
+    {
+        get => _name;
+        set
+        {
+            ValidateParameterValue(nameof(Name), value);
+            _name = value;
+        }
+    }
+
+    protected QueryBuilderParameter(string name, string graphQlTypeName, object value)
+    {
+        Name = name;
+
+        ValidateParameterValue(nameof(graphQlTypeName), graphQlTypeName);
+
+        GraphQlTypeName = graphQlTypeName;
+        Value = value;
+    }
+
+    protected QueryBuilderParameter(object value) => Value = value;
+
+    private void ValidateParameterValue(string parameterName, string value)
+    {
+        if (String.IsNullOrWhiteSpace(value) || !value.All(Char.IsLetterOrDigit))
+            throw new ArgumentException("invalid value", parameterName);
+    }
+}
+
+public class QueryBuilderParameter<T> : QueryBuilderParameter
+{
+    public QueryBuilderParameter(string name, string graphQlTypeName, T value) : base(name, graphQlTypeName, value)
+    {
+    }
+
+    private QueryBuilderParameter(T value) : base(value)
+    {
+    }
+
+    public static implicit operator QueryBuilderParameter<T>(T value) => new QueryBuilderParameter<T>(value);
+}
+
+public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
+{
+    public new T Value
+    {
+        get => (T)base.Value;
+        set => base.Value = value;
+    }
+
+    public GraphQlQueryParameter(string name, string graphQlTypeName, T value) : base(name, graphQlTypeName, value)
+    {
+    }
+}
+
 public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 {
     private static readonly Type[] MethodParameterTypeString = { typeof(String) };
     private static readonly string[] MethodParameterString = { null };
 
     private readonly Dictionary<string, GraphQlFieldCriteria> _fieldCriteria = new Dictionary<string, GraphQlFieldCriteria>();
+    
+    private Dictionary<string, QueryBuilderParameter> _queryParameters;
 
     protected virtual string Prefix { get { return null; } }
 
@@ -211,23 +275,45 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
     protected virtual string Build(Formatting formatting, int level, byte indentationSize)
     {
         var isIndentedFormatting = formatting == Formatting.Indented;
-
+        var separator = String.Empty;
         var builder = new StringBuilder();
 
         if (!String.IsNullOrEmpty(Prefix))
         {
             builder.Append(Prefix);
 
+            var indentationSpace = isIndentedFormatting ? " " : String.Empty;
+
             if (!String.IsNullOrEmpty(Alias))
             {
                 builder.Append(" ");
                 builder.Append(Alias);
-
-                if (isIndentedFormatting)
-                    builder.Append(" ");
             }
-            else if (isIndentedFormatting)
-                builder.Append(" ");
+
+            builder.Append(indentationSpace);
+
+            if (_queryParameters != null)
+            {
+                builder.Append("(");
+
+                foreach (var queryParameter in _queryParameters.Values)
+                {
+                    builder.Append(separator);
+                    builder.Append("$");
+                    builder.Append(queryParameter.Name);
+                    builder.Append(":");
+                    builder.Append(indentationSpace);
+
+                    builder.Append(queryParameter.GraphQlTypeName);
+                    builder.Append(isIndentedFormatting ? " = " : "=");
+                    builder.Append(GraphQlQueryHelper.BuildArgumentValue(queryParameter.Value, formatting, 0, indentationSize));
+
+                    separator = " ";
+                }
+
+                builder.Append(")");
+                builder.Append(indentationSpace);
+            }
         }
 
         builder.Append("{");
@@ -235,7 +321,8 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         if (isIndentedFormatting)
             builder.AppendLine();
 
-        var separator = String.Empty;
+        separator = String.Empty;
+        
         foreach (var criteria in _fieldCriteria.Values)
         {
             var fieldCriteria = criteria.Build(formatting, level, indentationSize);
@@ -254,16 +341,17 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
             builder.Append(GraphQlQueryHelper.GetIndentation(level - 1, indentationSize));
         
         builder.Append("}");
+
         return builder.ToString();
     }
 
-    protected void IncludeScalarField(string fieldName, string alias, IDictionary<string, object> args)
+    protected void IncludeScalarField(string fieldName, string alias, IDictionary<string, QueryBuilderParameter> args)
     {
         ValidateAlias(alias);
         _fieldCriteria[alias ?? fieldName] = new GraphQlScalarFieldCriteria(fieldName, alias, args);
     }
 
-    protected void IncludeObjectField(string fieldName, GraphQlQueryBuilder objectFieldQueryBuilder, IDictionary<string, object> args)
+    protected void IncludeObjectField(string fieldName, GraphQlQueryBuilder objectFieldQueryBuilder, IDictionary<string, QueryBuilderParameter> args)
     {
         _fieldCriteria[objectFieldQueryBuilder.Alias ?? fieldName] = new GraphQlObjectFieldCriteria(fieldName, objectFieldQueryBuilder, args);
     }
@@ -299,6 +387,14 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         }
     }
 
+    protected void AddParameter<T>(GraphQlQueryParameter<T> parameter)
+    {
+        if (_queryParameters == null)
+            _queryParameters = new Dictionary<string, QueryBuilderParameter>();
+        
+        _queryParameters.Add(parameter.Name, parameter);
+    }
+
     private static void ValidateAlias(string alias)
     {
         if (alias != null && String.IsNullOrWhiteSpace(alias))
@@ -307,10 +403,11 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     private abstract class GraphQlFieldCriteria
     {
-        protected readonly string FieldName;
-        private readonly IDictionary<string, object> _args;
+        private readonly IDictionary<string, QueryBuilderParameter> _args;
 
-        protected GraphQlFieldCriteria(string fieldName, IDictionary<string, object> args)
+        protected readonly string FieldName;
+
+        protected GraphQlFieldCriteria(string fieldName, IDictionary<string, QueryBuilderParameter> args)
         {
             FieldName = fieldName;
             _args = args;
@@ -321,10 +418,15 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         protected string BuildArgumentClause(Formatting formatting, int level, byte indentationSize)
         {
             var separator = formatting == Formatting.Indented ? " " : null;
-            return
-                _args?.Count > 0
-                    ? $"({String.Join($",{separator}", _args.Select(kvp => $"{kvp.Key}:{separator}{GraphQlQueryHelper.BuildArgumentValue(kvp.Value, formatting, level, indentationSize)}"))}){separator}"
-                    : String.Empty;
+            var argumentCount = _args?.Count ?? 0;
+            if (argumentCount == 0)
+                return String.Empty;
+
+            var arguments =
+                _args.Select(
+                    kvp => $"{kvp.Key}:{separator}{(kvp.Value.Name == null ? GraphQlQueryHelper.BuildArgumentValue(kvp.Value.Value, formatting, level, indentationSize) : "$" + kvp.Value.Name)}");
+
+            return $"({String.Join($",{separator}", arguments)}){separator}";
         }
 
         protected static string BuildAliasPrefix(string alias, Formatting formatting)
@@ -338,7 +440,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
     {
         private readonly string _alias;
 
-        public GraphQlScalarFieldCriteria(string fieldName, string alias, IDictionary<string, object> args) : base(fieldName, args)
+        public GraphQlScalarFieldCriteria(string fieldName, string alias, IDictionary<string, QueryBuilderParameter> args) : base(fieldName, args)
         {
             _alias = alias;
         }
@@ -360,7 +462,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
     {
         private readonly GraphQlQueryBuilder _objectQueryBuilder;
 
-        public GraphQlObjectFieldCriteria(string fieldName, GraphQlQueryBuilder objectQueryBuilder, IDictionary<string, object> args) : base(fieldName, args)
+        public GraphQlObjectFieldCriteria(string fieldName, GraphQlQueryBuilder objectQueryBuilder, IDictionary<string, QueryBuilderParameter> args) : base(fieldName, args)
         {
             _objectQueryBuilder = objectQueryBuilder;
         }
@@ -377,10 +479,6 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
             builder.Append(BuildAliasPrefix(_objectQueryBuilder.Alias, formatting));
             builder.Append(FieldName);
-
-            if (formatting == Formatting.Indented)
-                builder.Append(" ");
-
             builder.Append(BuildArgumentClause(formatting, level, indentationSize));
             builder.Append(_objectQueryBuilder.Build(formatting, level + 1, indentationSize));
             return builder.ToString();
@@ -406,13 +504,13 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
         return (TQueryBuilder)this;
     }
 
-    protected TQueryBuilder WithScalarField(string fieldName, string alias = null, IDictionary<string, object> args = null)
+    protected TQueryBuilder WithScalarField(string fieldName, string alias = null, IDictionary<string, QueryBuilderParameter> args = null)
     {
         IncludeScalarField(fieldName, alias, args);
         return (TQueryBuilder)this;
     }
 
-    protected TQueryBuilder WithObjectField(string fieldName, GraphQlQueryBuilder queryBuilder, IDictionary<string, object> args = null)
+    protected TQueryBuilder WithObjectField(string fieldName, GraphQlQueryBuilder queryBuilder, IDictionary<string, QueryBuilderParameter> args = null)
     {
         IncludeObjectField(fieldName, queryBuilder, args);
         return (TQueryBuilder)this;
@@ -421,6 +519,12 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
     public TQueryBuilder ExceptField(string fieldName)
     {
         ExcludeField(fieldName);
+        return (TQueryBuilder)this;
+    }
+
+    protected TQueryBuilder WithParameterInternal<T>(GraphQlQueryParameter<T> parameter)
+    {
+        AddParameter(parameter);
         return (TQueryBuilder)this;
     }
 }
@@ -462,6 +566,8 @@ public partial class QueryQueryBuilderV1 : GraphQlQueryBuilder<QueryQueryBuilder
     {
     }
 
+
+    public QueryQueryBuilderV1 WithParameter<T>(GraphQlQueryParameter<T> parameter) => WithParameterInternal(parameter);
     public QueryQueryBuilderV1 WithMe(MeQueryBuilderV1 meQueryBuilder) => WithObjectField("me", meQueryBuilder);
 
     public QueryQueryBuilderV1 ExceptMe() => ExceptField("me");
@@ -539,9 +645,9 @@ public partial class MeQueryBuilderV1 : GraphQlQueryBuilder<MeQueryBuilderV1>
 
     public MeQueryBuilderV1 ExceptAppState() => ExceptField("appState");
 
-    public MeQueryBuilderV1 WithHome(HomeQueryBuilderV1 homeQueryBuilder, string id = null)
+    public MeQueryBuilderV1 WithHome(HomeQueryBuilderV1 homeQueryBuilder, QueryBuilderParameter<string> id = null)
     {
-        var args = new Dictionary<string, object>(StringComparer.Ordinal);
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (id != null)
             args.Add("id", id);
 
@@ -743,9 +849,9 @@ public partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1
 
     public HomeQueryBuilderV1 ExceptSubscription() => ExceptField("subscription");
 
-    public HomeQueryBuilderV1 WithConsumptionMonths(ConsumptionMonthQueryBuilderV1 consumptionMonthQueryBuilder, bool? useDemoData = null)
+    public HomeQueryBuilderV1 WithConsumptionMonths(ConsumptionMonthQueryBuilderV1 consumptionMonthQueryBuilder, QueryBuilderParameter<bool?> useDemoData = null)
     {
-        var args = new Dictionary<string, object>(StringComparer.Ordinal);
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (useDemoData != null)
             args.Add("useDemoData", useDemoData);
 
@@ -757,9 +863,9 @@ public partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1
         return ExceptField("consumptionMonths");
     }
 
-    public HomeQueryBuilderV1 WithConsumption(ConsumptionQueryBuilderV1 consumptionQueryBuilder, DateTimeOffset? from = null, DateTimeOffset? to = null, bool? useDemoData = null)
+    public HomeQueryBuilderV1 WithConsumption(ConsumptionQueryBuilderV1 consumptionQueryBuilder, QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null, QueryBuilderParameter<bool?> useDemoData = null)
     {
-        var args = new Dictionary<string, object>(StringComparer.Ordinal);
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (from != null)
             args.Add("from", from);
 
@@ -781,9 +887,9 @@ public partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1
 
     public HomeQueryBuilderV1 ExceptPreLiveComparison() => ExceptField("preLiveComparison");
 
-    public HomeQueryBuilderV1 WithComparisons(ComparisonQueryBuilderV1 comparisonQueryBuilder, DateTimeOffset? from = null, DateTimeOffset? to = null, Resolution? resolution = null, bool? useDemoData = null)
+    public HomeQueryBuilderV1 WithComparisons(ComparisonQueryBuilderV1 comparisonQueryBuilder, QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null, QueryBuilderParameter<Resolution?> resolution = null, QueryBuilderParameter<bool?> useDemoData = null)
     {
-        var args = new Dictionary<string, object>(StringComparer.Ordinal);
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (from != null)
             args.Add("from", from);
 
@@ -812,9 +918,9 @@ public partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1
 
     public HomeQueryBuilderV1 ExceptProfileQuestions() => ExceptField("profileQuestions");
 
-    public HomeQueryBuilderV1 WithTemperatures(DateTimeOffset? from = null, DateTimeOffset? to = null, string resolution = null, bool? useDemoData = null, string alias = null)
+    public HomeQueryBuilderV1 WithTemperatures(QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null, QueryBuilderParameter<string> resolution = null, QueryBuilderParameter<bool?> useDemoData = null, string alias = null)
     {
-        var args = new Dictionary<string, object>(StringComparer.Ordinal);
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (from != null)
             args.Add("from", from);
 
@@ -839,9 +945,9 @@ public partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1
 
     public HomeQueryBuilderV1 ExceptSignupStatus() => ExceptField("signupStatus");
 
-    public HomeQueryBuilderV1 WithDisaggregation(DisaggregationQueryBuilderV1 disaggregationQueryBuilder, Resolution? resolution = null, bool? useDemoData = null)
+    public HomeQueryBuilderV1 WithDisaggregation(DisaggregationQueryBuilderV1 disaggregationQueryBuilder, QueryBuilderParameter<Resolution?> resolution = null, QueryBuilderParameter<bool?> useDemoData = null)
     {
-        var args = new Dictionary<string, object>(StringComparer.Ordinal);
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (resolution != null)
             args.Add("resolution", resolution);
 
@@ -892,9 +998,9 @@ public partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1
 
     public HomeQueryBuilderV1 ExceptProductionMonths() => ExceptField("productionMonths");
 
-    public HomeQueryBuilderV1 WithProduction(ProductionQueryBuilderV1 productionQueryBuilder, DateTimeOffset? from = null, DateTimeOffset? to = null)
+    public HomeQueryBuilderV1 WithProduction(ProductionQueryBuilderV1 productionQueryBuilder, QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null)
     {
-        var args = new Dictionary<string, object>(StringComparer.Ordinal);
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (from != null)
             args.Add("from", from);
 
@@ -2897,9 +3003,9 @@ public partial class FeedQueryBuilderV1 : GraphQlQueryBuilder<FeedQueryBuilderV1
 
     public FeedQueryBuilderV1 ExceptNumberOfItems() => ExceptField("numberOfItems");
 
-    public FeedQueryBuilderV1 WithItems(FeedItemQueryBuilderV1 feedItemQueryBuilder, int? page = null, int? pageSize = null)
+    public FeedQueryBuilderV1 WithItems(FeedItemQueryBuilderV1 feedItemQueryBuilder, QueryBuilderParameter<int?> page = null, QueryBuilderParameter<int?> pageSize = null)
     {
-        var args = new Dictionary<string, object>(StringComparer.Ordinal);
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (page != null)
             args.Add("page", page);
 
@@ -3102,6 +3208,8 @@ public partial class MutationQueryBuilderV1 : GraphQlQueryBuilder<MutationQueryB
     {
     }
 
+
+    public MutationQueryBuilderV1 WithParameter<T>(GraphQlQueryParameter<T> parameter) => WithParameterInternal(parameter);
     public MutationQueryBuilderV1 WithMe(MeMutationQueryBuilderV1 meMutationQueryBuilder) => WithObjectField("me", meMutationQueryBuilder);
 
     public MutationQueryBuilderV1 ExceptMe() => ExceptField("me");
@@ -3122,9 +3230,9 @@ public partial class MeMutationQueryBuilderV1 : GraphQlQueryBuilder<MeMutationQu
     {
     }
 
-    public MeMutationQueryBuilderV1 WithUpdate(MeQueryBuilderV1 meQueryBuilder, string email = null, string mobile = null)
+    public MeMutationQueryBuilderV1 WithUpdate(MeQueryBuilderV1 meQueryBuilder, QueryBuilderParameter<string> email = null, QueryBuilderParameter<string> mobile = null)
     {
-        var args = new Dictionary<string, object>(StringComparer.Ordinal);
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (email != null)
             args.Add("email", email);
 
@@ -3139,9 +3247,9 @@ public partial class MeMutationQueryBuilderV1 : GraphQlQueryBuilder<MeMutationQu
         return ExceptField("update");
     }
 
-    public MeMutationQueryBuilderV1 WithHome(HomeMutationQueryBuilderV1 homeMutationQueryBuilder, string id = null)
+    public MeMutationQueryBuilderV1 WithHome(HomeMutationQueryBuilderV1 homeMutationQueryBuilder, QueryBuilderParameter<string> id = null)
     {
-        var args = new Dictionary<string, object>(StringComparer.Ordinal);
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (id != null)
             args.Add("id", id);
 
@@ -3153,9 +3261,9 @@ public partial class MeMutationQueryBuilderV1 : GraphQlQueryBuilder<MeMutationQu
         return ExceptField("home");
     }
 
-    public MeMutationQueryBuilderV1 WithUpdateAppState(GQLMutationGeneralResponseQueryBuilderV1 gQLMutationGeneralResponseQueryBuilder, AppStateMutationV1 state = null)
+    public MeMutationQueryBuilderV1 WithUpdateAppState(GQLMutationGeneralResponseQueryBuilderV1 gQLMutationGeneralResponseQueryBuilder, QueryBuilderParameter<AppStateMutationV1> state = null)
     {
-        var args = new Dictionary<string, object>(StringComparer.Ordinal);
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (state != null)
             args.Add("state", state);
 
@@ -3187,9 +3295,9 @@ public partial class HomeMutationQueryBuilderV1 : GraphQlQueryBuilder<HomeMutati
     {
     }
 
-    public HomeMutationQueryBuilderV1 WithThermostat(ThermostatMutationQueryBuilderV1 thermostatMutationQueryBuilder, string id = null)
+    public HomeMutationQueryBuilderV1 WithThermostat(ThermostatMutationQueryBuilderV1 thermostatMutationQueryBuilder, QueryBuilderParameter<string> id = null)
     {
-        var args = new Dictionary<string, object>(StringComparer.Ordinal);
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (id != null)
             args.Add("id", id);
 
@@ -3201,9 +3309,9 @@ public partial class HomeMutationQueryBuilderV1 : GraphQlQueryBuilder<HomeMutati
         return ExceptField("thermostat");
     }
 
-    public HomeMutationQueryBuilderV1 WithPairDeviceWithOAuth(PairDeviceResultQueryBuilderV1 pairDeviceResultQueryBuilder, string deviceType = null, string authorizationCode = null)
+    public HomeMutationQueryBuilderV1 WithPairDeviceWithOAuth(PairDeviceResultQueryBuilderV1 pairDeviceResultQueryBuilder, QueryBuilderParameter<string> deviceType = null, QueryBuilderParameter<string> authorizationCode = null)
     {
-        var args = new Dictionary<string, object>(StringComparer.Ordinal);
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (deviceType != null)
             args.Add("deviceType", deviceType);
 
@@ -3218,9 +3326,9 @@ public partial class HomeMutationQueryBuilderV1 : GraphQlQueryBuilder<HomeMutati
         return ExceptField("pairDeviceWithOAuth");
     }
 
-    public HomeMutationQueryBuilderV1 WithPairDeviceWithCredentials(PairDeviceResultQueryBuilderV1 pairDeviceResultQueryBuilder, string deviceType = null, string username = null, string password = null)
+    public HomeMutationQueryBuilderV1 WithPairDeviceWithCredentials(PairDeviceResultQueryBuilderV1 pairDeviceResultQueryBuilder, QueryBuilderParameter<string> deviceType = null, QueryBuilderParameter<string> username = null, QueryBuilderParameter<string> password = null)
     {
-        var args = new Dictionary<string, object>(StringComparer.Ordinal);
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (deviceType != null)
             args.Add("deviceType", deviceType);
 
@@ -3238,9 +3346,9 @@ public partial class HomeMutationQueryBuilderV1 : GraphQlQueryBuilder<HomeMutati
         return ExceptField("pairDeviceWithCredentials");
     }
 
-    public HomeMutationQueryBuilderV1 WithAnswerProfileQuestions(HomeProfileQuestionQueryBuilderV1 homeProfileQuestionQueryBuilder, IEnumerable<HomeProfileQuestionAnswerV1> answers = null)
+    public HomeMutationQueryBuilderV1 WithAnswerProfileQuestions(HomeProfileQuestionQueryBuilderV1 homeProfileQuestionQueryBuilder, QueryBuilderParameter<IEnumerable<HomeProfileQuestionAnswerV1>> answers = null)
     {
-        var args = new Dictionary<string, object>(StringComparer.Ordinal);
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (answers != null)
             args.Add("answers", answers);
 
@@ -3252,9 +3360,9 @@ public partial class HomeMutationQueryBuilderV1 : GraphQlQueryBuilder<HomeMutati
         return ExceptField("answerProfileQuestions");
     }
 
-    public HomeMutationQueryBuilderV1 WithSendMeterReading(GQLMutationGeneralResponseQueryBuilderV1 gQLMutationGeneralResponseQueryBuilder, int? meterReading = null)
+    public HomeMutationQueryBuilderV1 WithSendMeterReading(GQLMutationGeneralResponseQueryBuilderV1 gQLMutationGeneralResponseQueryBuilder, QueryBuilderParameter<int?> meterReading = null)
     {
-        var args = new Dictionary<string, object>(StringComparer.Ordinal);
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (meterReading != null)
             args.Add("meterReading", meterReading);
 
@@ -3266,9 +3374,9 @@ public partial class HomeMutationQueryBuilderV1 : GraphQlQueryBuilder<HomeMutati
         return ExceptField("sendMeterReading");
     }
 
-    public HomeMutationQueryBuilderV1 WithSetMeteringPointIdAndBindingTime(GQLMutationGeneralResponseQueryBuilderV1 gQLMutationGeneralResponseQueryBuilder, string meteringPointId = null, string bindingTime = null, bool? isMovingIn = null)
+    public HomeMutationQueryBuilderV1 WithSetMeteringPointIdAndBindingTime(GQLMutationGeneralResponseQueryBuilderV1 gQLMutationGeneralResponseQueryBuilder, QueryBuilderParameter<string> meteringPointId = null, QueryBuilderParameter<string> bindingTime = null, QueryBuilderParameter<bool?> isMovingIn = null)
     {
-        var args = new Dictionary<string, object>(StringComparer.Ordinal);
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (meteringPointId != null)
             args.Add("meteringPointId", meteringPointId);
 
@@ -3305,9 +3413,9 @@ public partial class ThermostatMutationQueryBuilderV1 : GraphQlQueryBuilder<Ther
     {
     }
 
-    public ThermostatMutationQueryBuilderV1 WithSetState(string mode = null, decimal? comfortTemperature = null, string fanLevel = null, string onOff = null, string alias = null)
+    public ThermostatMutationQueryBuilderV1 WithSetState(QueryBuilderParameter<string> mode = null, QueryBuilderParameter<decimal?> comfortTemperature = null, QueryBuilderParameter<string> fanLevel = null, QueryBuilderParameter<string> onOff = null, string alias = null)
     {
-        var args = new Dictionary<string, object>(StringComparer.Ordinal);
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (mode != null)
             args.Add("mode", mode);
 
@@ -3328,9 +3436,9 @@ public partial class ThermostatMutationQueryBuilderV1 : GraphQlQueryBuilder<Ther
         return ExceptField("setState");
     }
 
-    public ThermostatMutationQueryBuilderV1 WithSetName(string name = null, string alias = null)
+    public ThermostatMutationQueryBuilderV1 WithSetName(QueryBuilderParameter<string> name = null, string alias = null)
     {
-        var args = new Dictionary<string, object>(StringComparer.Ordinal);
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (name != null)
             args.Add("name", name);
 

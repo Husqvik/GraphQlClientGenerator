@@ -466,6 +466,20 @@ using Newtonsoft.Json.Linq;
             builder.AppendLine("    }");
             builder.AppendLine();
 
+            static string ReturnPrefix(bool requiresFullBody) => requiresFullBody ? "        return " : String.Empty;
+
+            var useCompatibleSyntax = GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.Compatible;
+            
+            if (queryPrefix != null)
+            {
+                builder.AppendLine();
+                builder.Append($"    public {className} WithParameter<T>(GraphQlQueryParameter<T> parameter)");
+                WriteQueryBuilderMethodBody(
+                    useCompatibleSyntax,
+                    builder,
+                    () => builder.AppendLine($"{ReturnPrefix(useCompatibleSyntax)}WithParameterInternal(parameter);"));
+            }
+
             for (var i = 0; i < fields?.Length; i++)
             {
                 var field = fields[i];
@@ -498,8 +512,8 @@ using Newtonsoft.Json.Linq;
                             .OrderByDescending(a => a.Type.Kind == GraphQlTypeKindNonNull)
                             .Select(a => BuildMethodParameterDefinition(type, a)));
 
-                var requiresFullBody = GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.Compatible || args.Any();
-                var returnPrefix = requiresFullBody ? "        return " : String.Empty;
+                var requiresFullBody = useCompatibleSyntax || args.Any();
+                var returnPrefix = ReturnPrefix(requiresFullBody);
 
                 if (fieldType.Kind == GraphQlTypeKindScalar || fieldType.Kind == GraphQlTypeKindEnum)
                 {
@@ -622,23 +636,18 @@ using Newtonsoft.Json.Linq;
                 unwrappedType = unwrappedType.OfType.UnwrapIfNonNull();
             }
 
-            var argumentNetType = unwrappedType.Kind == GraphQlTypeKindEnum ? $"{unwrappedType.Name}?" : ScalarToNetType(baseType, argument.Name, unwrappedType);
+            var argumentNetType = unwrappedType.Kind == GraphQlTypeKindEnum ? unwrappedType.Name + "?" : ScalarToNetType(baseType, argument.Name, unwrappedType);
             if (isTypeNotNull)
                 argumentNetType = argumentNetType.TrimEnd('?');
 
-            if (unwrappedType.Kind == GraphQlTypeKindInputObject)
-            {
-                argumentNetType = $"{unwrappedType.Name}{GraphQlGeneratorConfiguration.ClassPostfix}";
-                if (!isTypeNotNull)
-                    argumentNetType = AddQuestionMarkIfNullableReferencesEnabled(argumentNetType);
-            }
+            var isInputObject = unwrappedType.Kind == GraphQlTypeKindInputObject;
+            if (isInputObject)
+                argumentNetType = unwrappedType.Name + GraphQlGeneratorConfiguration.ClassPostfix;
 
-            if (isCollection)
-            {
-                argumentNetType = $"IEnumerable<{argumentNetType}>";
-                if (!isTypeNotNull)
-                    argumentNetType = AddQuestionMarkIfNullableReferencesEnabled(argumentNetType);
-            }
+            argumentNetType = isCollection ? $"QueryBuilderParameter<IEnumerable<{argumentNetType}>>" : $"QueryBuilderParameter<{argumentNetType}>";
+
+            if ((isInputObject || isCollection) && !isTypeNotNull)
+                argumentNetType = AddQuestionMarkIfNullableReferencesEnabled(argumentNetType);
 
             var argumentDefinition = $"{argumentNetType} {NamingHelper.ToValidVariableName(argument.Name)}";
             if (!isArgumentNotNull)
@@ -658,7 +667,7 @@ using Newtonsoft.Json.Linq;
             if (args.Count == 0)
                 return;
 
-            builder.AppendLine("        var args = new Dictionary<string, object>(StringComparer.Ordinal);");
+            builder.AppendLine("        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);");
 
             foreach (var arg in args)
             {
