@@ -276,13 +276,12 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
     {
         var isIndentedFormatting = formatting == Formatting.Indented;
         var separator = String.Empty;
+        var indentationSpace = isIndentedFormatting ? " " : String.Empty;
         var builder = new StringBuilder();
 
         if (!String.IsNullOrEmpty(Prefix))
         {
             builder.Append(Prefix);
-
-            var indentationSpace = isIndentedFormatting ? " " : String.Empty;
 
             if (!String.IsNullOrEmpty(Alias))
             {
@@ -290,10 +289,9 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
                 builder.Append(Alias);
             }
 
-            builder.Append(indentationSpace);
-
-            if (_queryParameters != null)
+            if (_queryParameters?.Count > 0)
             {
+                builder.Append(indentationSpace);
                 builder.Append("(");
 
                 foreach (var queryParameter in _queryParameters.Values)
@@ -305,17 +303,19 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
                     builder.Append(indentationSpace);
 
                     builder.Append(queryParameter.GraphQlTypeName);
-                    builder.Append(isIndentedFormatting ? " = " : "=");
+                    builder.Append(indentationSpace);
+                    builder.Append("=");
+                    builder.Append(indentationSpace);
                     builder.Append(GraphQlQueryHelper.BuildArgumentValue(queryParameter.Value, formatting, 0, indentationSize));
 
                     separator = " ";
                 }
 
                 builder.Append(")");
-                builder.Append(indentationSpace);
             }
         }
 
+        builder.Append(indentationSpace);
         builder.Append("{");
 
         if (isIndentedFormatting)
@@ -426,7 +426,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
                 _args.Select(
                     kvp => $"{kvp.Key}:{separator}{(kvp.Value.Name == null ? GraphQlQueryHelper.BuildArgumentValue(kvp.Value.Value, formatting, level, indentationSize) : "$" + kvp.Value.Name)}");
 
-            return $"({String.Join($",{separator}", arguments)}){separator}";
+            return $"({String.Join($",{separator}", arguments)})";
         }
 
         protected static string BuildAliasPrefix(string alias, Formatting formatting)
@@ -473,8 +473,8 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
                 return String.Empty;
 
             var builder = new StringBuilder();
-
-            if (formatting == Formatting.Indented)
+            var isIndentedFormatting = formatting == Formatting.Indented;
+            if (isIndentedFormatting)
                 builder.Append(GraphQlQueryHelper.GetIndentation(level, indentationSize));
 
             builder.Append(BuildAliasPrefix(_objectQueryBuilder.Alias, formatting));
