@@ -206,6 +206,39 @@ result:
 }
 ```
 
+Query parameters
+-------------
+```csharp
+var homeIdParameter = new GraphQlQueryParameter<Guid>("homeId", "ID", homeId);
+
+var builder =
+  new TibberQueryBuilder()
+    .WithViewer(
+      new ViewerQueryBuilder()
+        .WithHome(new HomeQueryBuilder().WithAllScalarFields(), homeIdParameter)
+    )
+    .WithParameter(homeIdParameter);
+```
+result:
+```
+query ($homeId: ID = "c70dcbe5-4485-4821-933d-a8a86452737b") {
+  viewer{
+    home(id: $homeId) {
+      id
+      timeZone
+      appNickname
+      appAvatar
+      size
+      type
+      numberOfResidents
+      primaryHeatingSource
+      hasVentilationSystem
+      mainFuseSize
+    }
+  }
+}
+```
+
 Custom scalar types
 -------------
 GraphQL supports custom scalar types. By default these are mapped to `object` type. To ensure appropriate .NET types are generated for data class properties custom mapping function can be used:
