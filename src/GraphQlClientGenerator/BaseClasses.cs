@@ -366,6 +366,11 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     protected void IncludeFields(IEnumerable<FieldMetadata> fields)
     {
+        IncludeFields(fields, null);
+    }
+
+    private void IncludeFields(IEnumerable<FieldMetadata> fields, List<Type> parentTypes)
+    {
         foreach (var field in fields)
         {
             if (field.QueryBuilderType == null)
@@ -373,15 +378,18 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
             else
             {
                 var builderType = GetType();
-                if (builderType.IsAssignableFrom(field.QueryBuilderType))
-                    throw new InvalidOperationException($"Field '{builderType.Name}.{field.Name}' cannot be added because its type is the same as the parent type (or inherited) and leads to infinite recursion. ");
+
+                if (parentTypes != null && parentTypes.Any(t => t.IsAssignableFrom(field.QueryBuilderType)))
+                    continue;
+
+                parentTypes?.Add(builderType);
 
                 var constructor = field.QueryBuilderType.GetConstructor(MethodParameterTypeString);
                 if (constructor == null)
                     throw new InvalidOperationException($"{field.QueryBuilderType.FullName} constructor not found");
 
                 var queryBuilder = (GraphQlQueryBuilder)constructor.Invoke(MethodParameterString);
-                queryBuilder.IncludeAllFields();
+                queryBuilder.IncludeFields(queryBuilder.AllFields, parentTypes ?? new List<Type> { builderType });
                 IncludeObjectField(field.Name, queryBuilder, null);
             }
         }
