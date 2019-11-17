@@ -408,6 +408,9 @@ using Newtonsoft.Json.Linq;
             }
         }
 
+        private static void ThrowFieldTypeResolutionFailed(string typeName, string fieldName) =>
+            throw new InvalidOperationException($"field type resolution failed - type: {typeName}; field: {fieldName}");
+
         private static void GenerateTypeQueryBuilder(GraphQlType type, string queryPrefix, StringBuilder builder)
         {
             var typeName = type.Name;
@@ -446,6 +449,9 @@ using Newtonsoft.Json.Linq;
                     if (fieldType.Kind != GraphQlTypeKindScalar && fieldType.Kind != GraphQlTypeKindEnum)
                     {
                         var fieldTypeName = fieldType.Name;
+                        if (fieldTypeName == null)
+                            ThrowFieldTypeResolutionFailed(type.Name, field.Name);
+
                         fieldTypeName = UseCustomClassNameIfDefined(fieldTypeName);
                         builder.Append($", QueryBuilderType = typeof({fieldTypeName}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix})");
                     }
@@ -541,9 +547,10 @@ using Newtonsoft.Json.Linq;
                 else
                 {
                     var fieldTypeName = fieldType.Name;
-                    fieldTypeName = UseCustomClassNameIfDefined(fieldTypeName);
                     if (String.IsNullOrEmpty(fieldTypeName))
-                        throw new InvalidOperationException($"Field '{field.Name}' type name not resolved. ");
+                        ThrowFieldTypeResolutionFailed(type.Name, field.Name);
+
+                    fieldTypeName = UseCustomClassNameIfDefined(fieldTypeName);
 
                     var builderParameterName = NamingHelper.LowerFirst(fieldTypeName);
                     builder.Append($"    public {className} With{NamingHelper.ToPascalCase(field.Name)}({fieldTypeName}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix} {builderParameterName}QueryBuilder");
