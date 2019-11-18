@@ -184,17 +184,27 @@ using Newtonsoft.Json.Linq;
                 if (hasInputType)
                     builder.AppendLine();
 
+                var complexTypeDictionary = complexTypes.ToDictionary(t => t.Name);
+
                 builder.AppendLine("#region data classes");
 
                 for (var i = 0; i < complexTypes.Length; i++)
                 {
                     var type = complexTypes[i];
                     var hasInputReference = referencedObjectTypes.Contains(type.Name);
-                    var fieldsToGenerate = type.Fields?.Where(f => !f.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields).ToArray();
-                    var hasFields = fieldsToGenerate != null && fieldsToGenerate.Length > 0;
-                    if (!hasInputReference && !hasFields)
-                        continue;
+                    var typeFields = type.Fields;
+                    if (type.Kind == GraphQlTypeKindUnion)
+                    {
+                        var unionFields = new List<GraphQlField>();
+                        var unionFieldNames = new HashSet<string>();
+                        foreach (var possibleType in type.PossibleTypes)
+                            if (complexTypeDictionary.TryGetValue(possibleType.Name, out var consistOfType) && consistOfType.Fields != null)
+                                unionFields.AddRange(consistOfType.Fields.Where(f => unionFieldNames.Add(f.Name)));
 
+                        typeFields = unionFields;
+                    }
+
+                    var fieldsToGenerate = typeFields?.Where(f => !f.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields).ToArray();
                     var isInterface = type.Kind == GraphQlTypeKindInterface;
 
                     void GenerateBody(bool isInterfaceMember)
