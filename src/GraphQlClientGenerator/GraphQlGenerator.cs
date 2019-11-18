@@ -96,6 +96,7 @@ using Newtonsoft.Json.Linq;
             builder.AppendLine("#region builder classes");
 
             var complexTypes = schema.Types.Where(t => IsComplexType(t.Kind) && !t.Name.StartsWith("__")).ToArray();
+            var complexTypeDictionary = complexTypes.ToDictionary(t => t.Name);
             for (var i = 0; i < complexTypes.Length; i++)
             {
                 var type = complexTypes[i];
@@ -110,7 +111,7 @@ using Newtonsoft.Json.Linq;
                 else
                     queryPrefix = null;
 
-                GenerateTypeQueryBuilder(type, queryPrefix, builder);
+                GenerateTypeQueryBuilder(type, complexTypeDictionary, queryPrefix, builder);
 
                 if (i < complexTypes.Length - 1)
                     builder.AppendLine();
@@ -192,25 +193,13 @@ using Newtonsoft.Json.Linq;
                 {
                     var type = complexTypes[i];
                     var hasInputReference = referencedObjectTypes.Contains(type.Name);
-                    var typeFields = type.Fields;
-                    if (type.Kind == GraphQlTypeKindUnion)
-                    {
-                        var unionFields = new List<GraphQlField>();
-                        var unionFieldNames = new HashSet<string>();
-                        foreach (var possibleType in type.PossibleTypes)
-                            if (complexTypeDictionary.TryGetValue(possibleType.Name, out var consistOfType) && consistOfType.Fields != null)
-                                unionFields.AddRange(consistOfType.Fields.Where(f => unionFieldNames.Add(f.Name)));
-
-                        typeFields = unionFields;
-                    }
-
-                    var fieldsToGenerate = typeFields?.Where(f => !f.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields).ToArray();
+                    var fieldsToGenerate = GetFieldsToGenerate(type, complexTypeDictionary);
                     var isInterface = type.Kind == GraphQlTypeKindInterface;
 
                     void GenerateBody(bool isInterfaceMember)
                     {
                         if (hasInputReference)
-                            GenerateInputDataClassBody(type, fieldsToGenerate, builder);
+                            GenerateInputDataClassBody(type, (ICollection<IGraphQlMember>)fieldsToGenerate, builder);
                         else if (fieldsToGenerate != null)
                             foreach (var field in fieldsToGenerate)
                                 GenerateDataProperty(type, field, isInterfaceMember, field.IsDeprecated, field.DeprecationReason, builder);
@@ -300,6 +289,23 @@ using Newtonsoft.Json.Linq;
             builder.Append("}");
 
             return memberName;
+        }
+
+        private static IList<GraphQlField> GetFieldsToGenerate(GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary)
+        {
+            var typeFields = type.Fields;
+            if (type.Kind == GraphQlTypeKindUnion)
+            {
+                var unionFields = new List<GraphQlField>();
+                var unionFieldNames = new HashSet<string>();
+                foreach (var possibleType in type.PossibleTypes)
+                    if (complexTypeDictionary.TryGetValue(possibleType.Name, out var consistOfType) && consistOfType.Fields != null)
+                        unionFields.AddRange(consistOfType.Fields.Where(f => unionFieldNames.Add(f.Name)));
+
+                typeFields = unionFields;
+            }
+
+            return typeFields?.Where(f => !f.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields).ToArray();
         }
 
         internal static string AddQuestionMarkIfNullableReferencesEnabled(string dataTypeIdentifier) =>
@@ -421,7 +427,7 @@ using Newtonsoft.Json.Linq;
         private static void ThrowFieldTypeResolutionFailed(string typeName, string fieldName) =>
             throw new InvalidOperationException($"field type resolution failed - type: {typeName}; field: {fieldName}");
 
-        private static void GenerateTypeQueryBuilder(GraphQlType type, string queryPrefix, StringBuilder builder)
+        private static void GenerateTypeQueryBuilder(GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary, string queryPrefix, StringBuilder builder)
         {
             var typeName = type.Name;
             typeName = UseCustomClassNameIfDefined(typeName);
@@ -438,10 +444,10 @@ using Newtonsoft.Json.Linq;
 
             builder.AppendLine("        {");
 
-            var fields = type.Fields?.ToArray();
-            for (var i = 0; i < fields?.Length; i++)
+            var fields = GetFieldsToGenerate(type, complexTypeDictionary);
+            for (var i = 0; i < fields?.Count; i++)
             {
-                var comma = i == fields.Length - 1 ? null : ",";
+                var comma = i == fields.Count - 1 ? null : ",";
                 var field = fields[i];
                 var fieldType = field.Type.UnwrapIfNonNull();
                 var isList = fieldType.Kind == GraphQlTypeKindList;
@@ -500,7 +506,7 @@ using Newtonsoft.Json.Linq;
                 builder.AppendLine();
             }
 
-            for (var i = 0; i < fields?.Length; i++)
+            for (var i = 0; i < fields?.Count; i++)
             {
                 var field = fields[i];
                 var fieldType = field.Type.UnwrapIfNonNull();
@@ -598,7 +604,7 @@ using Newtonsoft.Json.Linq;
                     builder,
                     () => builder.AppendLine($"{returnPrefix}ExceptField(\"{field.Name}\");"));
 
-                if (i < fields.Length - 1)
+                if (i < fields.Count - 1)
                     builder.AppendLine();
             }
 

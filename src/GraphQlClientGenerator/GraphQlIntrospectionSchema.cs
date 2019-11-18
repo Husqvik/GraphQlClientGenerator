@@ -17,8 +17,8 @@ namespace GraphQlClientGenerator
     public class GraphQlSchema
     {
         public GraphQlRequestType QueryType { get; set; }
-        public ICollection<GraphQlType> Types { get; set; }
-        public ICollection<GraphQlDirective> Directives { get; set; }
+        public IList<GraphQlType> Types { get; set; }
+        public IList<GraphQlDirective> Directives { get; set; }
         public GraphQlRequestType MutationType { get; set; }
         public GraphQlRequestType SubscriptionType { get; set; }
     }
@@ -28,7 +28,7 @@ namespace GraphQlClientGenerator
         public string Name { get; set; }
         public string Description { get; set; }
         public ICollection<string> Locations { get; set; }
-        public ICollection<GraphQlArgument> Args { get; set; }
+        public IList<GraphQlArgument> Args { get; set; }
     }
 
     public class GraphQlRequestType
@@ -39,11 +39,11 @@ namespace GraphQlClientGenerator
     public class GraphQlType : GraphQlTypeBase
     {
         public string Description { get; set; }
-        public ICollection<GraphQlField> Fields { get; set; }
-        public ICollection<GraphQlArgument> InputFields { get; set; }
-        public ICollection<GraphQlFieldType> Interfaces { get; set; }
-        public ICollection<GraphQlEnumValue> EnumValues { get; set; }
-        public ICollection<GraphQlFieldType> PossibleTypes { get; set; }
+        public IList<GraphQlField> Fields { get; set; }
+        public IList<GraphQlArgument> InputFields { get; set; }
+        public IList<GraphQlFieldType> Interfaces { get; set; }
+        public IList<GraphQlEnumValue> EnumValues { get; set; }
+        public IList<GraphQlFieldType> PossibleTypes { get; set; }
     }
 
     public abstract class GraphQlValueBase
@@ -60,7 +60,7 @@ namespace GraphQlClientGenerator
 
     public class GraphQlField : GraphQlEnumValue, IGraphQlMember
     {
-        public ICollection<GraphQlArgument> Args { get; set; }
+        public IList<GraphQlArgument> Args { get; set; }
         public GraphQlFieldType Type { get; set; }
     }
 
