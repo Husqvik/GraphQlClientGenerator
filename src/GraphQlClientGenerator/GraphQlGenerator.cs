@@ -213,7 +213,18 @@ using Newtonsoft.Json.Linq;
                         builder.AppendLine();
                     }
                     else if (type.Interfaces?.Count > 0)
-                        interfacesToImplement.AddRange(type.Interfaces.Select(x => $"I{x.Name}{GraphQlGeneratorConfiguration.ClassPostfix}"));
+                    {
+                        var fieldNames = new HashSet<string>(fieldsToGenerate.Select(f => f.Name));
+
+                        foreach (var @interface in type.Interfaces)
+                        {
+                            interfacesToImplement.Add($"I{@interface.Name}{GraphQlGeneratorConfiguration.ClassPostfix}");
+
+                            foreach (var interfaceField in complexTypeDictionary[@interface.Name].Fields.Where(FilterDeprecatedFields))
+                                if (fieldNames.Add(interfaceField.Name))
+                                    fieldsToGenerate.Add(interfaceField);
+                        }
+                    }
 
                     if (hasInputReference)
                         interfacesToImplement.Add("IGraphQlInputObject");
@@ -305,7 +316,7 @@ using Newtonsoft.Json.Linq;
                 typeFields = unionFields;
             }
 
-            return typeFields?.Where(f => !f.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields).ToArray();
+            return typeFields?.Where(FilterDeprecatedFields).ToList();
         }
 
         internal static string AddQuestionMarkIfNullableReferencesEnabled(string dataTypeIdentifier) =>
@@ -313,6 +324,9 @@ using Newtonsoft.Json.Linq;
 
         private static string UseCustomClassNameIfDefined(string typeName) =>
             GraphQlGeneratorConfiguration.CustomClassNameMapping.TryGetValue(typeName, out var customTypeName) ? customTypeName : typeName;
+
+        internal static bool FilterDeprecatedFields(GraphQlField field) =>
+            !field.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields;
 
         private static void GenerateDataProperty(GraphQlType baseType, IGraphQlMember member, bool isInterfaceMember, bool isDeprecated, string deprecationReason, StringBuilder builder)
         {

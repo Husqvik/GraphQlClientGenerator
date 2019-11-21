@@ -1919,6 +1919,34 @@
           "description": "",
           "fields": [
             {
+              "name": "unimplementedField",
+              "description": "",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "unimplementedDeprecatedField",
+              "description": "",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": true,
+              "deprecationReason": "should not be generated"
+            },
+            {
               "name": "endCursor",
               "description": "",
               "args": [

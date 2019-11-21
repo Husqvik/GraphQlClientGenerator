@@ -185,10 +185,12 @@ public partial class SubscriptionPriceConnectionPageInfo : IPageInfo
     public decimal? MinTotal { get; set; }
     public decimal? MaxEnergy { get; set; }
     public decimal? MaxTotal { get; set; }
+    public string UnimplementedField { get; set; }
 }
 
 public interface IPageInfo
 {
+    string UnimplementedField { get; set; }
     string EndCursor { get; set; }
     bool? HasNextPage { get; set; }
     bool? HasPreviousPage { get; set; }
@@ -197,6 +199,7 @@ public interface IPageInfo
 
 public partial class PageInfo : IPageInfo
 {
+    public string UnimplementedField { get; set; }
     public string EndCursor { get; set; }
     public bool? HasNextPage { get; set; }
     public bool? HasPreviousPage { get; set; }
@@ -227,6 +230,7 @@ public partial class HomeConsumptionPageInfo : IPageInfo
     public decimal? TotalCost { get; set; }
     public decimal? TotalConsumption { get; set; }
     public int? Filtered { get; set; }
+    public string UnimplementedField { get; set; }
 }
 
 public partial class Consumption
@@ -265,6 +269,7 @@ public partial class HomeProductionPageInfo : IPageInfo
     public decimal? TotalProfit { get; set; }
     public decimal? TotalProduction { get; set; }
     public int? Filtered { get; set; }
+    public string UnimplementedField { get; set; }
 }
 
 public partial class Production
