@@ -233,11 +233,14 @@ public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
 
 public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 {
-    private static readonly Type[] MethodParameterTypeString = { typeof(String) };
-    private static readonly string[] MethodParameterString = { null };
+    private static readonly Type[] BuilderConstructorParameterTypes = { typeof(String), typeof(QueryBuilderParameter<bool>), typeof(QueryBuilderParameter<bool>) };
+    private static readonly object[] BuilderConstructorDefaultParameters = { null, null, null };
 
     private readonly Dictionary<string, GraphQlFieldCriteria> _fieldCriteria = new Dictionary<string, GraphQlFieldCriteria>();
-    
+
+    private readonly QueryBuilderParameter<bool> _includeIf;
+    private readonly QueryBuilderParameter<bool> _skipIf;
+
     private Dictionary<string, QueryBuilderParameter> _queryParameters;
 
     protected virtual string Prefix { get { return null; } }
@@ -246,10 +249,13 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     public string Alias { get; }
 
-    protected GraphQlQueryBuilder(string alias = null)
+    protected GraphQlQueryBuilder(string alias, QueryBuilderParameter<bool> includeIf, QueryBuilderParameter<bool> skipIf)
     {
         ValidateAlias(alias);
         Alias = alias;
+
+        _includeIf = includeIf;
+        _skipIf = skipIf;
     }
 
     public virtual void Clear()
@@ -313,6 +319,25 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
                 builder.Append(")");
             }
+        }
+        else
+        {
+            void AppendDirective(string directive, QueryBuilderParameter directiveParameter)
+            {
+                if (directiveParameter == null)
+                    return;
+
+                builder.Append(indentationSpace);
+                builder.Append("@");
+                builder.Append(directive);
+                builder.Append("(if:");
+                builder.Append(indentationSpace);
+                builder.Append(directiveParameter.Name == null ? GraphQlQueryHelper.BuildArgumentValue(directiveParameter.Value, formatting, level, indentationSize) : "$" + directiveParameter.Name);
+                builder.Append(")");
+            }
+
+            AppendDirective("include", _includeIf);
+            AppendDirective("skip", _skipIf);
         }
 
         builder.Append(indentationSpace);
@@ -384,11 +409,11 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
                 parentTypes?.Add(builderType);
 
-                var constructor = field.QueryBuilderType.GetConstructor(MethodParameterTypeString);
+                var constructor = field.QueryBuilderType.GetConstructor(BuilderConstructorParameterTypes);
                 if (constructor == null)
                     throw new InvalidOperationException($"{field.QueryBuilderType.FullName} constructor not found");
 
-                var queryBuilder = (GraphQlQueryBuilder)constructor.Invoke(MethodParameterString);
+                var queryBuilder = (GraphQlQueryBuilder)constructor.Invoke(BuilderConstructorDefaultParameters);
                 queryBuilder.IncludeFields(queryBuilder.AllFields, parentTypes ?? new List<Type> { builderType });
                 IncludeObjectField(field.Name, queryBuilder, null);
             }
@@ -496,7 +521,8 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
 public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder where TQueryBuilder : GraphQlQueryBuilder<TQueryBuilder>
 {
-    protected GraphQlQueryBuilder(string alias = null) : base(alias)
+    protected GraphQlQueryBuilder(string alias, QueryBuilderParameter<bool> includeIf, QueryBuilderParameter<bool> skipIf)
+        : base(alias, includeIf, skipIf)
     {
     }
 
@@ -570,7 +596,7 @@ public partial class QueryQueryBuilderV1 : GraphQlQueryBuilder<QueryQueryBuilder
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public QueryQueryBuilderV1(string alias = null) : base(alias)
+    public QueryQueryBuilderV1(string alias = null) : base(alias, null, null)
     {
     }
 
@@ -605,7 +631,7 @@ public partial class MeQueryBuilderV1 : GraphQlQueryBuilder<MeQueryBuilderV1>
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public MeQueryBuilderV1(string alias = null) : base(alias)
+    public MeQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -696,7 +722,7 @@ public partial class GreetingQueryBuilderV1 : GraphQlQueryBuilder<GreetingQueryB
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public GreetingQueryBuilderV1(string alias = null) : base(alias)
+    public GreetingQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -727,7 +753,7 @@ public partial class AppStateQueryBuilderV1 : GraphQlQueryBuilder<AppStateQueryB
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AppStateQueryBuilderV1(string alias = null) : base(alias)
+    public AppStateQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -749,7 +775,7 @@ public partial class AppStateJourneyQueryBuilderV1 : GraphQlQueryBuilder<AppStat
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AppStateJourneyQueryBuilderV1(string alias = null) : base(alias)
+    public AppStateJourneyQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -769,7 +795,7 @@ public partial class AppStateFronScreenQueryBuilderV1 : GraphQlQueryBuilder<AppS
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AppStateFronScreenQueryBuilderV1(string alias = null) : base(alias)
+    public AppStateFronScreenQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -821,7 +847,7 @@ public partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public HomeQueryBuilderV1(string alias = null) : base(alias)
+    public HomeQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1042,7 +1068,7 @@ public partial class AddressQueryBuilderV1 : GraphQlQueryBuilder<AddressQueryBui
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AddressQueryBuilderV1(string alias = null) : base(alias)
+    public AddressQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1104,7 +1130,7 @@ public partial class SubscriptionQueryBuilderV1 : GraphQlQueryBuilder<Subscripti
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public SubscriptionQueryBuilderV1(string alias = null) : base(alias)
+    public SubscriptionQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1160,7 +1186,7 @@ public partial class PriceRatingRootQueryBuilderV1 : GraphQlQueryBuilder<PriceRa
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PriceRatingRootQueryBuilderV1(string alias = null) : base(alias)
+    public PriceRatingRootQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1208,7 +1234,7 @@ public partial class PriceRatingQueryBuilderV1 : GraphQlQueryBuilder<PriceRating
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PriceRatingQueryBuilderV1(string alias = null) : base(alias)
+    public PriceRatingQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1252,7 +1278,7 @@ public partial class PriceRatingColorOffsetQueryBuilderV1 : GraphQlQueryBuilder<
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PriceRatingColorOffsetQueryBuilderV1(string alias = null) : base(alias)
+    public PriceRatingColorOffsetQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1281,7 +1307,7 @@ public partial class PriceRatingEntryQueryBuilderV1 : GraphQlQueryBuilder<PriceR
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PriceRatingEntryQueryBuilderV1(string alias = null) : base(alias)
+    public PriceRatingEntryQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1334,7 +1360,7 @@ public partial class InvoiceQueryBuilderV1 : GraphQlQueryBuilder<InvoiceQueryBui
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public InvoiceQueryBuilderV1(string alias = null) : base(alias)
+    public InvoiceQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1448,7 +1474,7 @@ public partial class InvoicePaymentQueryBuilderV1 : GraphQlQueryBuilder<InvoiceP
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public InvoicePaymentQueryBuilderV1(string alias = null) : base(alias)
+    public InvoicePaymentQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1483,7 +1509,7 @@ public partial class CreditCardQueryBuilderV1 : GraphQlQueryBuilder<CreditCardQu
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public CreditCardQueryBuilderV1(string alias = null) : base(alias)
+    public CreditCardQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1516,7 +1542,7 @@ public partial class InvoiceSectionQueryBuilderV1 : GraphQlQueryBuilder<InvoiceS
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public InvoiceSectionQueryBuilderV1(string alias = null) : base(alias)
+    public InvoiceSectionQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1578,7 +1604,7 @@ public partial class EnergyDealQueryBuilderV1 : GraphQlQueryBuilder<EnergyDealQu
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public EnergyDealQueryBuilderV1(string alias = null) : base(alias)
+    public EnergyDealQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1601,7 +1627,7 @@ public partial class ProducerQueryBuilderV1 : GraphQlQueryBuilder<ProducerQueryB
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ProducerQueryBuilderV1(string alias = null) : base(alias)
+    public ProducerQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1641,7 +1667,7 @@ public partial class ProducerBulletQueryBuilderV1 : GraphQlQueryBuilder<Producer
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ProducerBulletQueryBuilderV1(string alias = null) : base(alias)
+    public ProducerBulletQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1674,7 +1700,7 @@ public partial class ConsumptionMonthQueryBuilderV1 : GraphQlQueryBuilder<Consum
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ConsumptionMonthQueryBuilderV1(string alias = null) : base(alias)
+    public ConsumptionMonthQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1730,7 +1756,7 @@ public partial class ConsumptionQueryBuilderV1 : GraphQlQueryBuilder<Consumption
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ConsumptionQueryBuilderV1(string alias = null) : base(alias)
+    public ConsumptionQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1791,7 +1817,7 @@ public partial class PreLiveComparisonQueryBuilderV1 : GraphQlQueryBuilder<PreLi
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PreLiveComparisonQueryBuilderV1(string alias = null) : base(alias)
+    public PreLiveComparisonQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1828,7 +1854,7 @@ public partial class ComparisonQueryBuilderV1 : GraphQlQueryBuilder<ComparisonQu
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ComparisonQueryBuilderV1(string alias = null) : base(alias)
+    public ComparisonQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1875,7 +1901,7 @@ public partial class ComparisonDataQueryBuilderV1 : GraphQlQueryBuilder<Comparis
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ComparisonDataQueryBuilderV1(string alias = null) : base(alias)
+    public ComparisonDataQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1906,7 +1932,7 @@ public partial class HomeProfileQuestionQueryBuilderV1 : GraphQlQueryBuilder<Hom
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public HomeProfileQuestionQueryBuilderV1(string alias = null) : base(alias)
+    public HomeProfileQuestionQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1961,7 +1987,7 @@ public partial class HomeProfileQuestionInputQueryBuilderV1 : GraphQlQueryBuilde
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public HomeProfileQuestionInputQueryBuilderV1(string alias = null) : base(alias)
+    public HomeProfileQuestionInputQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -1985,7 +2011,7 @@ public partial class SignupStatusQueryBuilderV1 : GraphQlQueryBuilder<SignupStat
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public SignupStatusQueryBuilderV1(string alias = null) : base(alias)
+    public SignupStatusQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2014,7 +2040,7 @@ public partial class ProcessStepQueryBuilderV1 : GraphQlQueryBuilder<ProcessStep
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ProcessStepQueryBuilderV1(string alias = null) : base(alias)
+    public ProcessStepQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2058,7 +2084,7 @@ public partial class DisaggregationQueryBuilderV1 : GraphQlQueryBuilder<Disaggre
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public DisaggregationQueryBuilderV1(string alias = null) : base(alias)
+    public DisaggregationQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2134,7 +2160,7 @@ public partial class WeatherQueryBuilderV1 : GraphQlQueryBuilder<WeatherQueryBui
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public WeatherQueryBuilderV1(string alias = null) : base(alias)
+    public WeatherQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2167,7 +2193,7 @@ public partial class WeatherEntryQueryBuilderV1 : GraphQlQueryBuilder<WeatherEnt
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public WeatherEntryQueryBuilderV1(string alias = null) : base(alias)
+    public WeatherEntryQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2214,7 +2240,7 @@ public partial class AwayModeQueryBuilderV1 : GraphQlQueryBuilder<AwayModeQueryB
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AwayModeQueryBuilderV1(string alias = null) : base(alias)
+    public AwayModeQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2237,7 +2263,7 @@ public partial class AwayModeSettingsQueryBuilderV1 : GraphQlQueryBuilder<AwayMo
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AwayModeSettingsQueryBuilderV1(string alias = null) : base(alias)
+    public AwayModeSettingsQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2261,7 +2287,7 @@ public partial class DayNightScheduleQueryBuilderV1 : GraphQlQueryBuilder<DayNig
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public DayNightScheduleQueryBuilderV1(string alias = null) : base(alias)
+    public DayNightScheduleQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2290,7 +2316,7 @@ public partial class DayNightScheduleSettingsQueryBuilderV1 : GraphQlQueryBuilde
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public DayNightScheduleSettingsQueryBuilderV1(string alias = null) : base(alias)
+    public DayNightScheduleSettingsQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2320,7 +2346,7 @@ public partial class ReportRootQueryBuilderV1 : GraphQlQueryBuilder<ReportRootQu
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ReportRootQueryBuilderV1(string alias = null) : base(alias)
+    public ReportRootQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2343,7 +2369,7 @@ public partial class ReportQueryBuilderV1 : GraphQlQueryBuilder<ReportQueryBuild
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ReportQueryBuilderV1(string alias = null) : base(alias)
+    public ReportQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2388,7 +2414,7 @@ public partial class ReportCellQueryBuilderV1 : GraphQlQueryBuilder<ReportCellQu
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ReportCellQueryBuilderV1(string alias = null) : base(alias)
+    public ReportCellQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2443,7 +2469,7 @@ public partial class ThermostatQueryBuilderV1 : GraphQlQueryBuilder<ThermostatQu
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatQueryBuilderV1(string alias = null) : base(alias)
+    public ThermostatQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2500,7 +2526,7 @@ public partial class ThermostatStateQueryBuilderV1 : GraphQlQueryBuilder<Thermos
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatStateQueryBuilderV1(string alias = null) : base(alias)
+    public ThermostatStateQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2532,7 +2558,7 @@ public partial class ThermostatMeasurementsQueryBuilderV1 : GraphQlQueryBuilder<
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatMeasurementsQueryBuilderV1(string alias = null) : base(alias)
+    public ThermostatMeasurementsQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2567,7 +2593,7 @@ public partial class ThermostatMeasurementQueryBuilderV1 : GraphQlQueryBuilder<T
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatMeasurementQueryBuilderV1(string alias = null) : base(alias)
+    public ThermostatMeasurementQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2623,7 +2649,7 @@ public partial class ThermostatCapabilityQueryBuilderV1 : GraphQlQueryBuilder<Th
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatCapabilityQueryBuilderV1(string alias = null) : base(alias)
+    public ThermostatCapabilityQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2650,7 +2676,7 @@ public partial class ThermostatModeQueryBuilderV1 : GraphQlQueryBuilder<Thermost
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatModeQueryBuilderV1(string alias = null) : base(alias)
+    public ThermostatModeQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2675,7 +2701,7 @@ public partial class SensorQueryBuilderV1 : GraphQlQueryBuilder<SensorQueryBuild
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public SensorQueryBuilderV1(string alias = null) : base(alias)
+    public SensorQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2707,7 +2733,7 @@ public partial class SensorHistoryQueryBuilderV1 : GraphQlQueryBuilder<SensorHis
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public SensorHistoryQueryBuilderV1(string alias = null) : base(alias)
+    public SensorHistoryQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2735,7 +2761,7 @@ public partial class SensorHistoryValueQueryBuilderV1 : GraphQlQueryBuilder<Sens
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public SensorHistoryValueQueryBuilderV1(string alias = null) : base(alias)
+    public SensorHistoryValueQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2763,7 +2789,7 @@ public partial class PairableDeviceQueryBuilderV1 : GraphQlQueryBuilder<Pairable
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PairableDeviceQueryBuilderV1(string alias = null) : base(alias)
+    public PairableDeviceQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2790,7 +2816,7 @@ public partial class PairableDeviceOAuthQueryBuilderV1 : GraphQlQueryBuilder<Pai
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PairableDeviceOAuthQueryBuilderV1(string alias = null) : base(alias)
+    public PairableDeviceOAuthQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2820,7 +2846,7 @@ public partial class ProductionMonthQueryBuilderV1 : GraphQlQueryBuilder<Product
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ProductionMonthQueryBuilderV1(string alias = null) : base(alias)
+    public ProductionMonthQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2880,7 +2906,7 @@ public partial class ProductionQueryBuilderV1 : GraphQlQueryBuilder<ProductionQu
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ProductionQueryBuilderV1(string alias = null) : base(alias)
+    public ProductionQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -2947,7 +2973,7 @@ public partial class ProductionValueQueryBuilderV1 : GraphQlQueryBuilder<Product
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ProductionValueQueryBuilderV1(string alias = null) : base(alias)
+    public ProductionValueQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -3003,7 +3029,7 @@ public partial class FeedQueryBuilderV1 : GraphQlQueryBuilder<FeedQueryBuilderV1
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public FeedQueryBuilderV1(string alias = null) : base(alias)
+    public FeedQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -3047,7 +3073,7 @@ public partial class FeedItemQueryBuilderV1 : GraphQlQueryBuilder<FeedItemQueryB
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public FeedItemQueryBuilderV1(string alias = null) : base(alias)
+    public FeedItemQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -3087,7 +3113,7 @@ public partial class PushNotificationQueryBuilderV1 : GraphQlQueryBuilder<PushNo
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PushNotificationQueryBuilderV1(string alias = null) : base(alias)
+    public PushNotificationQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -3115,7 +3141,7 @@ public partial class WalletQueryBuilderV1 : GraphQlQueryBuilder<WalletQueryBuild
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public WalletQueryBuilderV1(string alias = null) : base(alias)
+    public WalletQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -3143,7 +3169,7 @@ public partial class PaymentMethodQueryBuilderV1 : GraphQlQueryBuilder<PaymentMe
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PaymentMethodQueryBuilderV1(string alias = null) : base(alias)
+    public PaymentMethodQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -3169,7 +3195,7 @@ public partial class AboutQueryBuilderV1 : GraphQlQueryBuilder<AboutQueryBuilder
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AboutQueryBuilderV1(string alias = null) : base(alias)
+    public AboutQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -3188,7 +3214,7 @@ public partial class AboutItemQueryBuilderV1 : GraphQlQueryBuilder<AboutItemQuer
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AboutItemQueryBuilderV1(string alias = null) : base(alias)
+    public AboutItemQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -3212,7 +3238,7 @@ public partial class MutationQueryBuilderV1 : GraphQlQueryBuilder<MutationQueryB
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public MutationQueryBuilderV1(string alias = null) : base(alias)
+    public MutationQueryBuilderV1(string alias = null) : base(alias, null, null)
     {
     }
 
@@ -3234,7 +3260,7 @@ public partial class MeMutationQueryBuilderV1 : GraphQlQueryBuilder<MeMutationQu
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public MeMutationQueryBuilderV1(string alias = null) : base(alias)
+    public MeMutationQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -3299,7 +3325,7 @@ public partial class HomeMutationQueryBuilderV1 : GraphQlQueryBuilder<HomeMutati
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public HomeMutationQueryBuilderV1(string alias = null) : base(alias)
+    public HomeMutationQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -3417,7 +3443,7 @@ public partial class ThermostatMutationQueryBuilderV1 : GraphQlQueryBuilder<Ther
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatMutationQueryBuilderV1(string alias = null) : base(alias)
+    public ThermostatMutationQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -3470,7 +3496,7 @@ public partial class PairDeviceResultQueryBuilderV1 : GraphQlQueryBuilder<PairDe
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PairDeviceResultQueryBuilderV1(string alias = null) : base(alias)
+    public PairDeviceResultQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -3497,7 +3523,7 @@ public partial class GQLMutationErrorQueryBuilderV1 : GraphQlQueryBuilder<GQLMut
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public GQLMutationErrorQueryBuilderV1(string alias = null) : base(alias)
+    public GQLMutationErrorQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 
@@ -3519,7 +3545,7 @@ public partial class GQLMutationGeneralResponseQueryBuilderV1 : GraphQlQueryBuil
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public GQLMutationGeneralResponseQueryBuilderV1(string alias = null) : base(alias)
+    public GQLMutationGeneralResponseQueryBuilderV1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
     {
     }
 

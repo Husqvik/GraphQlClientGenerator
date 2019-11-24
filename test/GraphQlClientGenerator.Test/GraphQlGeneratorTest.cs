@@ -135,6 +135,11 @@ namespace GraphQlClientGenerator.Test
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
+    public TestQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+        : base(alias, includeIf, skipIf)
+    {
+    }
+
 	public TestQueryBuilder WithTestField(
         QueryBuilderParameter<short?> valueInt16 = null,
         QueryBuilderParameter<ushort?> valueUInt16 = null,
@@ -214,7 +219,7 @@ namespace GraphQlClientGenerator.Test
             var formattingType = Type.GetType("GeneratedQueryTestAssembly.Formatting, GeneratedQueryTestAssembly");
             formattingType.ShouldNotBeNull();
 
-            var builderInstance = Activator.CreateInstance(builderType);
+            var builderInstance = Activator.CreateInstance(builderType, null, null, null);
             builderType
                 .GetMethod("WithTestField", BindingFlags.Instance | BindingFlags.Public)
                 .Invoke(

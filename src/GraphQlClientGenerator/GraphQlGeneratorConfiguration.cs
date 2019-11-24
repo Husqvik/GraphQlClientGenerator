@@ -7,8 +7,6 @@ namespace GraphQlClientGenerator
 
     public static class GraphQlGeneratorConfiguration
     {
-        private const string DefaultClassPostfixOnPropertyCollision = "Record";
-
         public static CSharpVersion CSharpVersion { get; set; }
 
         public static string ClassPostfix { get; set; }

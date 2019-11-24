@@ -493,14 +493,32 @@ using Newtonsoft.Json.Linq;
             builder.AppendLine("        };");
             builder.AppendLine();
 
-            if (!String.IsNullOrEmpty(queryPrefix))
+            var hasQueryPrefix = !String.IsNullOrEmpty(queryPrefix);
+            if (hasQueryPrefix)
                 WriteOverrideProperty("string", "Prefix", $"\"{queryPrefix}\"", builder);
 
             WriteOverrideProperty("IList<FieldMetadata>", "AllFields", "AllFieldMetadata", builder);
 
             var stringDataType = AddQuestionMarkIfNullableReferencesEnabled("string");
 
-            builder.AppendLine($"    public {className}({stringDataType} alias = null) : base(alias)");
+            builder.Append("    public ");
+            builder.Append(className);
+            builder.Append("(");
+            builder.Append(stringDataType);
+            builder.Append(" alias = null");
+
+            if (!hasQueryPrefix)
+            {
+                var directiveParameterDataType = AddQuestionMarkIfNullableReferencesEnabled("QueryBuilderParameter<bool>");
+                builder.Append(", ");
+                builder.Append(directiveParameterDataType);
+                builder.Append(" includeIf = null, ");
+                builder.Append(directiveParameterDataType);
+                builder.Append(" skipIf = null");
+            }
+
+            builder.Append(") : base(alias, ");
+            builder.AppendLine(hasQueryPrefix ? "null, null)" : "includeIf, skipIf)");
             builder.AppendLine("    {");
             builder.AppendLine("    }");
             builder.AppendLine();

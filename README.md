@@ -54,7 +54,7 @@ var query = builder.Build(Formatting.Indented);
 ```
 results into
 ```
-{
+query {
   me {
     id
     firstName
@@ -150,7 +150,7 @@ new ViewerQueryBuilder()
 ```
 result:
 ```
-{
+query {
   homes {
     id
     timeZone
@@ -186,7 +186,7 @@ new ViewerQueryBuilder()
 ```
 result:
 ```
-{
+query {
   primaryHome: home (id: "120efe4a-6839-45fc-beed-27455d29212f") {
     type
     size

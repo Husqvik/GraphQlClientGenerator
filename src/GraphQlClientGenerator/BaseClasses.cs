@@ -233,11 +233,14 @@ public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
 
 public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 {
-    private static readonly Type[] MethodParameterTypeString = { typeof(String) };
-    private static readonly string[] MethodParameterString = { null };
+    private static readonly Type[] BuilderConstructorParameterTypes = { typeof(String), typeof(QueryBuilderParameter<bool>), typeof(QueryBuilderParameter<bool>) };
+    private static readonly object[] BuilderConstructorDefaultParameters = { null, null, null };
 
     private readonly Dictionary<string, GraphQlFieldCriteria> _fieldCriteria = new Dictionary<string, GraphQlFieldCriteria>();
-    
+
+    private readonly QueryBuilderParameter<bool> _includeIf;
+    private readonly QueryBuilderParameter<bool> _skipIf;
+
     private Dictionary<string, QueryBuilderParameter> _queryParameters;
 
     protected virtual string Prefix { get { return null; } }
@@ -246,10 +249,13 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     public string Alias { get; }
 
-    protected GraphQlQueryBuilder(string alias = null)
+    protected GraphQlQueryBuilder(string alias, QueryBuilderParameter<bool> includeIf, QueryBuilderParameter<bool> skipIf)
     {
         ValidateAlias(alias);
         Alias = alias;
+
+        _includeIf = includeIf;
+        _skipIf = skipIf;
     }
 
     public virtual void Clear()
@@ -313,6 +319,25 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
                 builder.Append(")");
             }
+        }
+        else
+        {
+            void AppendDirective(string directive, QueryBuilderParameter directiveParameter)
+            {
+                if (directiveParameter == null)
+                    return;
+
+                builder.Append(indentationSpace);
+                builder.Append("@");
+                builder.Append(directive);
+                builder.Append("(if:");
+                builder.Append(indentationSpace);
+                builder.Append(directiveParameter.Name == null ? GraphQlQueryHelper.BuildArgumentValue(directiveParameter.Value, formatting, level, indentationSize) : "$" + directiveParameter.Name);
+                builder.Append(")");
+            }
+
+            AppendDirective("include", _includeIf);
+            AppendDirective("skip", _skipIf);
         }
 
         builder.Append(indentationSpace);
@@ -384,11 +409,11 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
                 parentTypes?.Add(builderType);
 
-                var constructor = field.QueryBuilderType.GetConstructor(MethodParameterTypeString);
+                var constructor = field.QueryBuilderType.GetConstructor(BuilderConstructorParameterTypes);
                 if (constructor == null)
                     throw new InvalidOperationException($"{field.QueryBuilderType.FullName} constructor not found");
 
-                var queryBuilder = (GraphQlQueryBuilder)constructor.Invoke(MethodParameterString);
+                var queryBuilder = (GraphQlQueryBuilder)constructor.Invoke(BuilderConstructorDefaultParameters);
                 queryBuilder.IncludeFields(queryBuilder.AllFields, parentTypes ?? new List<Type> { builderType });
                 IncludeObjectField(field.Name, queryBuilder, null);
             }
@@ -496,7 +521,8 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
 public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder where TQueryBuilder : GraphQlQueryBuilder<TQueryBuilder>
 {
-    protected GraphQlQueryBuilder(string alias = null) : base(alias)
+    protected GraphQlQueryBuilder(string alias, QueryBuilderParameter<bool> includeIf, QueryBuilderParameter<bool> skipIf)
+        : base(alias, includeIf, skipIf)
     {
     }
 
