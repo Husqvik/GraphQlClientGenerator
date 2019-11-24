@@ -302,8 +302,8 @@ namespace GraphQlClientGenerator.Test
 
             var stringBuilder = new StringBuilder();
             GraphQlGenerator.GenerateDataClasses(schema, stringBuilder);
-            var expectedOutput = GetTestResource("ExpectedDeprecatedAttributes");
-            stringBuilder.ToString().ShouldBe(expectedOutput);
+            var expectedOutput = GetTestResource("ExpectedDeprecatedAttributes").Replace("\r", String.Empty);
+            stringBuilder.ToString().Replace("\r", String.Empty).ShouldBe(expectedOutput);
         }
 
         private static string GetTestResource(string name)
