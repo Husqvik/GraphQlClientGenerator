@@ -137,6 +137,23 @@ internal static class GraphQlQueryHelper
         return builder.ToString();
     }
 
+    public static string BuildDirective(string directive, QueryBuilderParameter directiveParameter, Formatting formatting, int level, byte indentationSize)
+    {
+        if (directiveParameter == null)
+            return String.Empty;
+
+        var indentationSpace = formatting == Formatting.Indented ? " " : String.Empty;
+        var builder = new StringBuilder();
+        builder.Append(indentationSpace);
+        builder.Append("@");
+        builder.Append(directive);
+        builder.Append("(if:");
+        builder.Append(indentationSpace);
+        builder.Append(directiveParameter.Name == null ? BuildArgumentValue(directiveParameter.Value, formatting, level, indentationSize) : "$" + directiveParameter.Name);
+        builder.Append(")");
+        return builder.ToString();
+    }
+
     private static string ConvertEnumToString(Enum @enum)
     {
         var enumMember = @enum.GetType().GetTypeInfo().GetField(@enum.ToString());
@@ -322,22 +339,8 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         }
         else
         {
-            void AppendDirective(string directive, QueryBuilderParameter directiveParameter)
-            {
-                if (directiveParameter == null)
-                    return;
-
-                builder.Append(indentationSpace);
-                builder.Append("@");
-                builder.Append(directive);
-                builder.Append("(if:");
-                builder.Append(indentationSpace);
-                builder.Append(directiveParameter.Name == null ? GraphQlQueryHelper.BuildArgumentValue(directiveParameter.Value, formatting, level, indentationSize) : "$" + directiveParameter.Name);
-                builder.Append(")");
-            }
-
-            AppendDirective("include", _includeIf);
-            AppendDirective("skip", _skipIf);
+            builder.Append(GraphQlQueryHelper.BuildDirective("include", _includeIf, formatting, level, indentationSize));
+            builder.Append(GraphQlQueryHelper.BuildDirective("skip", _skipIf, formatting, level, indentationSize));
         }
 
         builder.Append(indentationSpace);
@@ -370,10 +373,10 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         return builder.ToString();
     }
 
-    protected void IncludeScalarField(string fieldName, string alias, IDictionary<string, QueryBuilderParameter> args)
+    protected void IncludeScalarField(string fieldName, string alias, QueryBuilderParameter<bool> includeIf, QueryBuilderParameter<bool> skipIf, IDictionary<string, QueryBuilderParameter> args)
     {
         ValidateAlias(alias);
-        _fieldCriteria[alias ?? fieldName] = new GraphQlScalarFieldCriteria(fieldName, alias, args);
+        _fieldCriteria[alias ?? fieldName] = new GraphQlScalarFieldCriteria(fieldName, alias, includeIf, skipIf, args);
     }
 
     protected void IncludeObjectField(string fieldName, GraphQlQueryBuilder objectFieldQueryBuilder, IDictionary<string, QueryBuilderParameter> args)
@@ -399,7 +402,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         foreach (var field in fields)
         {
             if (field.QueryBuilderType == null)
-                IncludeScalarField(field.Name, null, null);
+                IncludeScalarField(field.Name, null, null, null, null);
             else
             {
                 var builderType = GetType();
@@ -472,10 +475,14 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
     private class GraphQlScalarFieldCriteria : GraphQlFieldCriteria
     {
         private readonly string _alias;
+        private readonly QueryBuilderParameter<bool> _includeIf;
+        private readonly QueryBuilderParameter<bool> _skipIf;
 
-        public GraphQlScalarFieldCriteria(string fieldName, string alias, IDictionary<string, QueryBuilderParameter> args) : base(fieldName, args)
+        public GraphQlScalarFieldCriteria(string fieldName, string alias, QueryBuilderParameter<bool> includeIf, QueryBuilderParameter<bool> skipIf, IDictionary<string, QueryBuilderParameter> args) : base(fieldName, args)
         {
             _alias = alias;
+            _includeIf = includeIf;
+            _skipIf = skipIf;
         }
 
         public override string Build(Formatting formatting, int level, byte indentationSize)
@@ -487,6 +494,8 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
             builder.Append(BuildAliasPrefix(_alias, formatting));
             builder.Append(FieldName);
             builder.Append(BuildArgumentClause(formatting, level, indentationSize));
+            builder.Append(GraphQlQueryHelper.BuildDirective("include", _includeIf, formatting, level, indentationSize));
+            builder.Append(GraphQlQueryHelper.BuildDirective("skip", _skipIf, formatting, level, indentationSize));
             return builder.ToString();
         }
     }
@@ -538,9 +547,9 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
         return (TQueryBuilder)this;
     }
 
-    protected TQueryBuilder WithScalarField(string fieldName, string alias = null, IDictionary<string, QueryBuilderParameter> args = null)
+    protected TQueryBuilder WithScalarField(string fieldName, string alias, QueryBuilderParameter<bool> includeIf, QueryBuilderParameter<bool> skipIf, IDictionary<string, QueryBuilderParameter> args = null)
     {
-        IncludeScalarField(fieldName, alias, args);
+        IncludeScalarField(fieldName, alias, includeIf, skipIf, args);
         return (TQueryBuilder)this;
     }
 
@@ -635,39 +644,39 @@ public partial class MeQueryBuilderV1 : GraphQlQueryBuilder<MeQueryBuilderV1>
     {
     }
 
-    public MeQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
+    public MeQueryBuilderV1 WithId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("id", alias, includeIf, skipIf);
 
     public MeQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public MeQueryBuilderV1 WithFirstName(string alias = null) => WithScalarField("firstName", alias);
+    public MeQueryBuilderV1 WithFirstName(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("firstName", alias, includeIf, skipIf);
 
     public MeQueryBuilderV1 ExceptFirstName() => ExceptField("firstName");
 
-    public MeQueryBuilderV1 WithLastName(string alias = null) => WithScalarField("lastName", alias);
+    public MeQueryBuilderV1 WithLastName(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("lastName", alias, includeIf, skipIf);
 
     public MeQueryBuilderV1 ExceptLastName() => ExceptField("lastName");
 
-    public MeQueryBuilderV1 WithFullName(string alias = null) => WithScalarField("fullName", alias);
+    public MeQueryBuilderV1 WithFullName(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("fullName", alias, includeIf, skipIf);
 
     public MeQueryBuilderV1 ExceptFullName() => ExceptField("fullName");
 
-    public MeQueryBuilderV1 WithSsn(string alias = null) => WithScalarField("ssn", alias);
+    public MeQueryBuilderV1 WithSsn(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("ssn", alias, includeIf, skipIf);
 
     public MeQueryBuilderV1 ExceptSsn() => ExceptField("ssn");
 
-    public MeQueryBuilderV1 WithEmail(string alias = null) => WithScalarField("email", alias);
+    public MeQueryBuilderV1 WithEmail(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("email", alias, includeIf, skipIf);
 
     public MeQueryBuilderV1 ExceptEmail() => ExceptField("email");
 
-    public MeQueryBuilderV1 WithLanguage(string alias = null) => WithScalarField("language", alias);
+    public MeQueryBuilderV1 WithLanguage(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("language", alias, includeIf, skipIf);
 
     public MeQueryBuilderV1 ExceptLanguage() => ExceptField("language");
 
-    public MeQueryBuilderV1 WithTone(string alias = null) => WithScalarField("tone", alias);
+    public MeQueryBuilderV1 WithTone(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("tone", alias, includeIf, skipIf);
 
     public MeQueryBuilderV1 ExceptTone() => ExceptField("tone");
 
-    public MeQueryBuilderV1 WithMobile(string alias = null) => WithScalarField("mobile", alias);
+    public MeQueryBuilderV1 WithMobile(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("mobile", alias, includeIf, skipIf);
 
     public MeQueryBuilderV1 ExceptMobile() => ExceptField("mobile");
 
@@ -726,19 +735,19 @@ public partial class GreetingQueryBuilderV1 : GraphQlQueryBuilder<GreetingQueryB
     {
     }
 
-    public GreetingQueryBuilderV1 WithTitle(string alias = null) => WithScalarField("title", alias);
+    public GreetingQueryBuilderV1 WithTitle(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("title", alias, includeIf, skipIf);
 
     public GreetingQueryBuilderV1 ExceptTitle() => ExceptField("title");
 
-    public GreetingQueryBuilderV1 WithDescription(string alias = null) => WithScalarField("description", alias);
+    public GreetingQueryBuilderV1 WithDescription(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("description", alias, includeIf, skipIf);
 
     public GreetingQueryBuilderV1 ExceptDescription() => ExceptField("description");
 
-    public GreetingQueryBuilderV1 WithDescriptionWhenNoEnergyDeal(string alias = null) => WithScalarField("descriptionWhenNoEnergyDeal", alias);
+    public GreetingQueryBuilderV1 WithDescriptionWhenNoEnergyDeal(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("descriptionWhenNoEnergyDeal", alias, includeIf, skipIf);
 
     public GreetingQueryBuilderV1 ExceptDescriptionWhenNoEnergyDeal() => ExceptField("descriptionWhenNoEnergyDeal");
 
-    public GreetingQueryBuilderV1 WithShowUntil(string alias = null) => WithScalarField("showUntil", alias);
+    public GreetingQueryBuilderV1 WithShowUntil(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("showUntil", alias, includeIf, skipIf);
 
     public GreetingQueryBuilderV1 ExceptShowUntil() => ExceptField("showUntil");
 }
@@ -779,7 +788,7 @@ public partial class AppStateJourneyQueryBuilderV1 : GraphQlQueryBuilder<AppStat
     {
     }
 
-    public AppStateJourneyQueryBuilderV1 WithHasVisitedPairDevices(string alias = null) => WithScalarField("hasVisitedPairDevices", alias);
+    public AppStateJourneyQueryBuilderV1 WithHasVisitedPairDevices(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("hasVisitedPairDevices", alias, includeIf, skipIf);
 
     public AppStateJourneyQueryBuilderV1 ExceptHasVisitedPairDevices() => ExceptField("hasVisitedPairDevices");
 }
@@ -799,15 +808,15 @@ public partial class AppStateFronScreenQueryBuilderV1 : GraphQlQueryBuilder<AppS
     {
     }
 
-    public AppStateFronScreenQueryBuilderV1 WithHomeId(string alias = null) => WithScalarField("homeId", alias);
+    public AppStateFronScreenQueryBuilderV1 WithHomeId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("homeId", alias, includeIf, skipIf);
 
     public AppStateFronScreenQueryBuilderV1 ExceptHomeId() => ExceptField("homeId");
 
-    public AppStateFronScreenQueryBuilderV1 WithBubbles(string alias = null) => WithScalarField("bubbles", alias);
+    public AppStateFronScreenQueryBuilderV1 WithBubbles(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("bubbles", alias, includeIf, skipIf);
 
     public AppStateFronScreenQueryBuilderV1 ExceptBubbles() => ExceptField("bubbles");
 
-    public AppStateFronScreenQueryBuilderV1 WithBubblesSortOrder(string alias = null) => WithScalarField("bubblesSortOrder", alias);
+    public AppStateFronScreenQueryBuilderV1 WithBubblesSortOrder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("bubblesSortOrder", alias, includeIf, skipIf);
 
     public AppStateFronScreenQueryBuilderV1 ExceptBubblesSortOrder() => ExceptField("bubblesSortOrder");
 }
@@ -851,27 +860,27 @@ public partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1
     {
     }
 
-    public HomeQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
+    public HomeQueryBuilderV1 WithId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("id", alias, includeIf, skipIf);
 
     public HomeQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public HomeQueryBuilderV1 WithAvatar(string alias = null) => WithScalarField("avatar", alias);
+    public HomeQueryBuilderV1 WithAvatar(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("avatar", alias, includeIf, skipIf);
 
     public HomeQueryBuilderV1 ExceptAvatar() => ExceptField("avatar");
 
-    public HomeQueryBuilderV1 WithTimeZone(string alias = null) => WithScalarField("timeZone", alias);
+    public HomeQueryBuilderV1 WithTimeZone(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("timeZone", alias, includeIf, skipIf);
 
     public HomeQueryBuilderV1 ExceptTimeZone() => ExceptField("timeZone");
 
-    public HomeQueryBuilderV1 WithTitle(string alias = null) => WithScalarField("title", alias);
+    public HomeQueryBuilderV1 WithTitle(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("title", alias, includeIf, skipIf);
 
     public HomeQueryBuilderV1 ExceptTitle() => ExceptField("title");
 
-    public HomeQueryBuilderV1 WithType(string alias = null) => WithScalarField("type", alias);
+    public HomeQueryBuilderV1 WithType(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("type", alias, includeIf, skipIf);
 
     public HomeQueryBuilderV1 ExceptType() => ExceptField("type");
 
-    public HomeQueryBuilderV1 WithHasEnergyDeal(string alias = null) => WithScalarField("hasEnergyDeal", alias);
+    public HomeQueryBuilderV1 WithHasEnergyDeal(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("hasEnergyDeal", alias, includeIf, skipIf);
 
     public HomeQueryBuilderV1 ExceptHasEnergyDeal() => ExceptField("hasEnergyDeal");
 
@@ -952,7 +961,7 @@ public partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1
 
     public HomeQueryBuilderV1 ExceptProfileQuestions() => ExceptField("profileQuestions");
 
-    public HomeQueryBuilderV1 WithTemperatures(QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null, QueryBuilderParameter<string> resolution = null, QueryBuilderParameter<bool?> useDemoData = null, string alias = null)
+    public HomeQueryBuilderV1 WithTemperatures(QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null, QueryBuilderParameter<string> resolution = null, QueryBuilderParameter<bool?> useDemoData = null, string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (from != null)
@@ -967,7 +976,7 @@ public partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1
         if (useDemoData != null)
             args.Add("useDemoData", useDemoData);
 
-        return WithScalarField("temperatures", alias, args);
+        return WithScalarField("temperatures", alias, includeIf, skipIf, args);
     }
 
     public HomeQueryBuilderV1 ExceptTemperatures()
@@ -1072,43 +1081,43 @@ public partial class AddressQueryBuilderV1 : GraphQlQueryBuilder<AddressQueryBui
     {
     }
 
-    public AddressQueryBuilderV1 WithAddress1(string alias = null) => WithScalarField("address1", alias);
+    public AddressQueryBuilderV1 WithAddress1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("address1", alias, includeIf, skipIf);
 
     public AddressQueryBuilderV1 ExceptAddress1() => ExceptField("address1");
 
-    public AddressQueryBuilderV1 WithAddress2(string alias = null) => WithScalarField("address2", alias);
+    public AddressQueryBuilderV1 WithAddress2(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("address2", alias, includeIf, skipIf);
 
     public AddressQueryBuilderV1 ExceptAddress2() => ExceptField("address2");
 
-    public AddressQueryBuilderV1 WithAddress3(string alias = null) => WithScalarField("address3", alias);
+    public AddressQueryBuilderV1 WithAddress3(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("address3", alias, includeIf, skipIf);
 
     public AddressQueryBuilderV1 ExceptAddress3() => ExceptField("address3");
 
-    public AddressQueryBuilderV1 WithCity(string alias = null) => WithScalarField("city", alias);
+    public AddressQueryBuilderV1 WithCity(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("city", alias, includeIf, skipIf);
 
     public AddressQueryBuilderV1 ExceptCity() => ExceptField("city");
 
-    public AddressQueryBuilderV1 WithPostalCode(string alias = null) => WithScalarField("postalCode", alias);
+    public AddressQueryBuilderV1 WithPostalCode(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("postalCode", alias, includeIf, skipIf);
 
     public AddressQueryBuilderV1 ExceptPostalCode() => ExceptField("postalCode");
 
-    public AddressQueryBuilderV1 WithCountry(string alias = null) => WithScalarField("country", alias);
+    public AddressQueryBuilderV1 WithCountry(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("country", alias, includeIf, skipIf);
 
     public AddressQueryBuilderV1 ExceptCountry() => ExceptField("country");
 
-    public AddressQueryBuilderV1 WithLatitude(string alias = null) => WithScalarField("latitude", alias);
+    public AddressQueryBuilderV1 WithLatitude(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("latitude", alias, includeIf, skipIf);
 
     public AddressQueryBuilderV1 ExceptLatitude() => ExceptField("latitude");
 
-    public AddressQueryBuilderV1 WithLongitude(string alias = null) => WithScalarField("longitude", alias);
+    public AddressQueryBuilderV1 WithLongitude(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("longitude", alias, includeIf, skipIf);
 
     public AddressQueryBuilderV1 ExceptLongitude() => ExceptField("longitude");
 
-    public AddressQueryBuilderV1 WithElevation(string alias = null) => WithScalarField("elevation", alias);
+    public AddressQueryBuilderV1 WithElevation(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("elevation", alias, includeIf, skipIf);
 
     public AddressQueryBuilderV1 ExceptElevation() => ExceptField("elevation");
 
-    public AddressQueryBuilderV1 WithAddressText(string alias = null) => WithScalarField("addressText", alias);
+    public AddressQueryBuilderV1 WithAddressText(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("addressText", alias, includeIf, skipIf);
 
     public AddressQueryBuilderV1 ExceptAddressText() => ExceptField("addressText");
 }
@@ -1134,27 +1143,27 @@ public partial class SubscriptionQueryBuilderV1 : GraphQlQueryBuilder<Subscripti
     {
     }
 
-    public SubscriptionQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
+    public SubscriptionQueryBuilderV1 WithId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("id", alias, includeIf, skipIf);
 
     public SubscriptionQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public SubscriptionQueryBuilderV1 WithWalletId(string alias = null) => WithScalarField("walletId", alias);
+    public SubscriptionQueryBuilderV1 WithWalletId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("walletId", alias, includeIf, skipIf);
 
     public SubscriptionQueryBuilderV1 ExceptWalletId() => ExceptField("walletId");
 
-    public SubscriptionQueryBuilderV1 WithValidFrom(string alias = null) => WithScalarField("validFrom", alias);
+    public SubscriptionQueryBuilderV1 WithValidFrom(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("validFrom", alias, includeIf, skipIf);
 
     public SubscriptionQueryBuilderV1 ExceptValidFrom() => ExceptField("validFrom");
 
-    public SubscriptionQueryBuilderV1 WithValidTo(string alias = null) => WithScalarField("validTo", alias);
+    public SubscriptionQueryBuilderV1 WithValidTo(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("validTo", alias, includeIf, skipIf);
 
     public SubscriptionQueryBuilderV1 ExceptValidTo() => ExceptField("validTo");
 
-    public SubscriptionQueryBuilderV1 WithStatus(string alias = null) => WithScalarField("status", alias);
+    public SubscriptionQueryBuilderV1 WithStatus(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("status", alias, includeIf, skipIf);
 
     public SubscriptionQueryBuilderV1 ExceptStatus() => ExceptField("status");
 
-    public SubscriptionQueryBuilderV1 WithBillingRegionId(string alias = null) => WithScalarField("billingRegionId", alias);
+    public SubscriptionQueryBuilderV1 WithBillingRegionId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("billingRegionId", alias, includeIf, skipIf);
 
     public SubscriptionQueryBuilderV1 ExceptBillingRegionId() => ExceptField("billingRegionId");
 
@@ -1190,19 +1199,19 @@ public partial class PriceRatingRootQueryBuilderV1 : GraphQlQueryBuilder<PriceRa
     {
     }
 
-    public PriceRatingRootQueryBuilderV1 WithIsAvailable(string alias = null) => WithScalarField("isAvailable", alias);
+    public PriceRatingRootQueryBuilderV1 WithIsAvailable(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("isAvailable", alias, includeIf, skipIf);
 
     public PriceRatingRootQueryBuilderV1 ExceptIsAvailable() => ExceptField("isAvailable");
 
-    public PriceRatingRootQueryBuilderV1 WithUseTotalIsConfigurable(string alias = null) => WithScalarField("useTotalIsConfigurable", alias);
+    public PriceRatingRootQueryBuilderV1 WithUseTotalIsConfigurable(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("useTotalIsConfigurable", alias, includeIf, skipIf);
 
     public PriceRatingRootQueryBuilderV1 ExceptUseTotalIsConfigurable() => ExceptField("useTotalIsConfigurable");
 
-    public PriceRatingRootQueryBuilderV1 WithUseTotalAsDefault(string alias = null) => WithScalarField("useTotalAsDefault", alias);
+    public PriceRatingRootQueryBuilderV1 WithUseTotalAsDefault(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("useTotalAsDefault", alias, includeIf, skipIf);
 
     public PriceRatingRootQueryBuilderV1 ExceptUseTotalAsDefault() => ExceptField("useTotalAsDefault");
 
-    public PriceRatingRootQueryBuilderV1 WithUseTotalText(string alias = null) => WithScalarField("useTotalText", alias);
+    public PriceRatingRootQueryBuilderV1 WithUseTotalText(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("useTotalText", alias, includeIf, skipIf);
 
     public PriceRatingRootQueryBuilderV1 ExceptUseTotalText() => ExceptField("useTotalText");
 
@@ -1238,23 +1247,23 @@ public partial class PriceRatingQueryBuilderV1 : GraphQlQueryBuilder<PriceRating
     {
     }
 
-    public PriceRatingQueryBuilderV1 WithMinEnergy(string alias = null) => WithScalarField("minEnergy", alias);
+    public PriceRatingQueryBuilderV1 WithMinEnergy(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("minEnergy", alias, includeIf, skipIf);
 
     public PriceRatingQueryBuilderV1 ExceptMinEnergy() => ExceptField("minEnergy");
 
-    public PriceRatingQueryBuilderV1 WithMaxEnergy(string alias = null) => WithScalarField("maxEnergy", alias);
+    public PriceRatingQueryBuilderV1 WithMaxEnergy(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("maxEnergy", alias, includeIf, skipIf);
 
     public PriceRatingQueryBuilderV1 ExceptMaxEnergy() => ExceptField("maxEnergy");
 
-    public PriceRatingQueryBuilderV1 WithMinTotal(string alias = null) => WithScalarField("minTotal", alias);
+    public PriceRatingQueryBuilderV1 WithMinTotal(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("minTotal", alias, includeIf, skipIf);
 
     public PriceRatingQueryBuilderV1 ExceptMinTotal() => ExceptField("minTotal");
 
-    public PriceRatingQueryBuilderV1 WithMaxTotal(string alias = null) => WithScalarField("maxTotal", alias);
+    public PriceRatingQueryBuilderV1 WithMaxTotal(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("maxTotal", alias, includeIf, skipIf);
 
     public PriceRatingQueryBuilderV1 ExceptMaxTotal() => ExceptField("maxTotal");
 
-    public PriceRatingQueryBuilderV1 WithCurrency(string alias = null) => WithScalarField("currency", alias);
+    public PriceRatingQueryBuilderV1 WithCurrency(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("currency", alias, includeIf, skipIf);
 
     public PriceRatingQueryBuilderV1 ExceptCurrency() => ExceptField("currency");
 
@@ -1282,15 +1291,15 @@ public partial class PriceRatingColorOffsetQueryBuilderV1 : GraphQlQueryBuilder<
     {
     }
 
-    public PriceRatingColorOffsetQueryBuilderV1 WithFullGreenPercent(string alias = null) => WithScalarField("fullGreenPercent", alias);
+    public PriceRatingColorOffsetQueryBuilderV1 WithFullGreenPercent(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("fullGreenPercent", alias, includeIf, skipIf);
 
     public PriceRatingColorOffsetQueryBuilderV1 ExceptFullGreenPercent() => ExceptField("fullGreenPercent");
 
-    public PriceRatingColorOffsetQueryBuilderV1 WithFullYellowPercent(string alias = null) => WithScalarField("fullYellowPercent", alias);
+    public PriceRatingColorOffsetQueryBuilderV1 WithFullYellowPercent(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("fullYellowPercent", alias, includeIf, skipIf);
 
     public PriceRatingColorOffsetQueryBuilderV1 ExceptFullYellowPercent() => ExceptField("fullYellowPercent");
 
-    public PriceRatingColorOffsetQueryBuilderV1 WithFullRedPercent(string alias = null) => WithScalarField("fullRedPercent", alias);
+    public PriceRatingColorOffsetQueryBuilderV1 WithFullRedPercent(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("fullRedPercent", alias, includeIf, skipIf);
 
     public PriceRatingColorOffsetQueryBuilderV1 ExceptFullRedPercent() => ExceptField("fullRedPercent");
 }
@@ -1311,19 +1320,19 @@ public partial class PriceRatingEntryQueryBuilderV1 : GraphQlQueryBuilder<PriceR
     {
     }
 
-    public PriceRatingEntryQueryBuilderV1 WithTime(string alias = null) => WithScalarField("time", alias);
+    public PriceRatingEntryQueryBuilderV1 WithTime(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("time", alias, includeIf, skipIf);
 
     public PriceRatingEntryQueryBuilderV1 ExceptTime() => ExceptField("time");
 
-    public PriceRatingEntryQueryBuilderV1 WithEnergy(string alias = null) => WithScalarField("energy", alias);
+    public PriceRatingEntryQueryBuilderV1 WithEnergy(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("energy", alias, includeIf, skipIf);
 
     public PriceRatingEntryQueryBuilderV1 ExceptEnergy() => ExceptField("energy");
 
-    public PriceRatingEntryQueryBuilderV1 WithTotal(string alias = null) => WithScalarField("total", alias);
+    public PriceRatingEntryQueryBuilderV1 WithTotal(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("total", alias, includeIf, skipIf);
 
     public PriceRatingEntryQueryBuilderV1 ExceptTotal() => ExceptField("total");
 
-    public PriceRatingEntryQueryBuilderV1 WithDifference(string alias = null) => WithScalarField("difference", alias);
+    public PriceRatingEntryQueryBuilderV1 WithDifference(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("difference", alias, includeIf, skipIf);
 
     public PriceRatingEntryQueryBuilderV1 ExceptDifference() => ExceptField("difference");
 }
@@ -1364,83 +1373,83 @@ public partial class InvoiceQueryBuilderV1 : GraphQlQueryBuilder<InvoiceQueryBui
     {
     }
 
-    public InvoiceQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
+    public InvoiceQueryBuilderV1 WithId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("id", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public InvoiceQueryBuilderV1 WithNo(string alias = null) => WithScalarField("no", alias);
+    public InvoiceQueryBuilderV1 WithNo(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("no", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptNo() => ExceptField("no");
 
-    public InvoiceQueryBuilderV1 WithDate(string alias = null) => WithScalarField("date", alias);
+    public InvoiceQueryBuilderV1 WithDate(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("date", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptDate() => ExceptField("date");
 
-    public InvoiceQueryBuilderV1 WithDueDate(string alias = null) => WithScalarField("dueDate", alias);
+    public InvoiceQueryBuilderV1 WithDueDate(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("dueDate", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptDueDate() => ExceptField("dueDate");
 
-    public InvoiceQueryBuilderV1 WithTotalCost(string alias = null) => WithScalarField("totalCost", alias);
+    public InvoiceQueryBuilderV1 WithTotalCost(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("totalCost", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptTotalCost() => ExceptField("totalCost");
 
-    public InvoiceQueryBuilderV1 WithTotalCostLocalized(string alias = null) => WithScalarField("totalCostLocalized", alias);
+    public InvoiceQueryBuilderV1 WithTotalCostLocalized(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("totalCostLocalized", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptTotalCostLocalized() => ExceptField("totalCostLocalized");
 
-    public InvoiceQueryBuilderV1 WithTotalEnergyConsumption(string alias = null) => WithScalarField("totalEnergyConsumption", alias);
+    public InvoiceQueryBuilderV1 WithTotalEnergyConsumption(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("totalEnergyConsumption", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptTotalEnergyConsumption() => ExceptField("totalEnergyConsumption");
 
-    public InvoiceQueryBuilderV1 WithTotalEnergyConsumptionLocalized(string alias = null) => WithScalarField("totalEnergyConsumptionLocalized", alias);
+    public InvoiceQueryBuilderV1 WithTotalEnergyConsumptionLocalized(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("totalEnergyConsumptionLocalized", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptTotalEnergyConsumptionLocalized() => ExceptField("totalEnergyConsumptionLocalized");
 
-    public InvoiceQueryBuilderV1 WithTotalVat(string alias = null) => WithScalarField("totalVat", alias);
+    public InvoiceQueryBuilderV1 WithTotalVat(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("totalVat", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptTotalVat() => ExceptField("totalVat");
 
-    public InvoiceQueryBuilderV1 WithTotalVatLocalized(string alias = null) => WithScalarField("totalVatLocalized", alias);
+    public InvoiceQueryBuilderV1 WithTotalVatLocalized(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("totalVatLocalized", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptTotalVatLocalized() => ExceptField("totalVatLocalized");
 
-    public InvoiceQueryBuilderV1 WithVatPercent(string alias = null) => WithScalarField("vatPercent", alias);
+    public InvoiceQueryBuilderV1 WithVatPercent(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("vatPercent", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptVatPercent() => ExceptField("vatPercent");
 
-    public InvoiceQueryBuilderV1 WithVatPercentLocalized(string alias = null) => WithScalarField("vatPercentLocalized", alias);
+    public InvoiceQueryBuilderV1 WithVatPercentLocalized(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("vatPercentLocalized", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptVatPercentLocalized() => ExceptField("vatPercentLocalized");
 
-    public InvoiceQueryBuilderV1 WithVatIsIncluded(string alias = null) => WithScalarField("vatIsIncluded", alias);
+    public InvoiceQueryBuilderV1 WithVatIsIncluded(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("vatIsIncluded", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptVatIsIncluded() => ExceptField("vatIsIncluded");
 
-    public InvoiceQueryBuilderV1 WithMeteringPointId(string alias = null) => WithScalarField("meteringPointId", alias);
+    public InvoiceQueryBuilderV1 WithMeteringPointId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("meteringPointId", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptMeteringPointId() => ExceptField("meteringPointId");
 
-    public InvoiceQueryBuilderV1 WithPaymentReference(string alias = null) => WithScalarField("paymentReference", alias);
+    public InvoiceQueryBuilderV1 WithPaymentReference(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("paymentReference", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptPaymentReference() => ExceptField("paymentReference");
 
-    public InvoiceQueryBuilderV1 WithShowManualPaymentReferences(string alias = null) => WithScalarField("showManualPaymentReferences", alias);
+    public InvoiceQueryBuilderV1 WithShowManualPaymentReferences(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("showManualPaymentReferences", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptShowManualPaymentReferences() => ExceptField("showManualPaymentReferences");
 
-    public InvoiceQueryBuilderV1 WithBankAccount(string alias = null) => WithScalarField("bankAccount", alias);
+    public InvoiceQueryBuilderV1 WithBankAccount(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("bankAccount", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptBankAccount() => ExceptField("bankAccount");
 
-    public InvoiceQueryBuilderV1 WithPdfUrl(string alias = null) => WithScalarField("pdfUrl", alias);
+    public InvoiceQueryBuilderV1 WithPdfUrl(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("pdfUrl", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptPdfUrl() => ExceptField("pdfUrl");
 
-    public InvoiceQueryBuilderV1 WithTimeZone(string alias = null) => WithScalarField("timeZone", alias);
+    public InvoiceQueryBuilderV1 WithTimeZone(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("timeZone", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptTimeZone() => ExceptField("timeZone");
 
-    public InvoiceQueryBuilderV1 WithCurrency(string alias = null) => WithScalarField("currency", alias);
+    public InvoiceQueryBuilderV1 WithCurrency(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("currency", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptCurrency() => ExceptField("currency");
 
@@ -1452,11 +1461,11 @@ public partial class InvoiceQueryBuilderV1 : GraphQlQueryBuilder<InvoiceQueryBui
 
     public InvoiceQueryBuilderV1 ExceptSections() => ExceptField("sections");
 
-    public InvoiceQueryBuilderV1 WithFrom(string alias = null) => WithScalarField("from", alias);
+    public InvoiceQueryBuilderV1 WithFrom(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("from", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptFrom() => ExceptField("from");
 
-    public InvoiceQueryBuilderV1 WithTo(string alias = null) => WithScalarField("to", alias);
+    public InvoiceQueryBuilderV1 WithTo(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("to", alias, includeIf, skipIf);
 
     public InvoiceQueryBuilderV1 ExceptTo() => ExceptField("to");
 }
@@ -1478,19 +1487,19 @@ public partial class InvoicePaymentQueryBuilderV1 : GraphQlQueryBuilder<InvoiceP
     {
     }
 
-    public InvoicePaymentQueryBuilderV1 WithStatus(string alias = null) => WithScalarField("status", alias);
+    public InvoicePaymentQueryBuilderV1 WithStatus(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("status", alias, includeIf, skipIf);
 
     public InvoicePaymentQueryBuilderV1 ExceptStatus() => ExceptField("status");
 
-    public InvoicePaymentQueryBuilderV1 WithMethod(string alias = null) => WithScalarField("method", alias);
+    public InvoicePaymentQueryBuilderV1 WithMethod(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("method", alias, includeIf, skipIf);
 
     public InvoicePaymentQueryBuilderV1 ExceptMethod() => ExceptField("method");
 
-    public InvoicePaymentQueryBuilderV1 WithDate(string alias = null) => WithScalarField("date", alias);
+    public InvoicePaymentQueryBuilderV1 WithDate(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("date", alias, includeIf, skipIf);
 
     public InvoicePaymentQueryBuilderV1 ExceptDate() => ExceptField("date");
 
-    public InvoicePaymentQueryBuilderV1 WithFailureText(string alias = null) => WithScalarField("failureText", alias);
+    public InvoicePaymentQueryBuilderV1 WithFailureText(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("failureText", alias, includeIf, skipIf);
 
     public InvoicePaymentQueryBuilderV1 ExceptFailureText() => ExceptField("failureText");
 
@@ -1513,11 +1522,11 @@ public partial class CreditCardQueryBuilderV1 : GraphQlQueryBuilder<CreditCardQu
     {
     }
 
-    public CreditCardQueryBuilderV1 WithBrand(string alias = null) => WithScalarField("brand", alias);
+    public CreditCardQueryBuilderV1 WithBrand(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("brand", alias, includeIf, skipIf);
 
     public CreditCardQueryBuilderV1 ExceptBrand() => ExceptField("brand");
 
-    public CreditCardQueryBuilderV1 WithLast4(string alias = null) => WithScalarField("last4", alias);
+    public CreditCardQueryBuilderV1 WithLast4(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("last4", alias, includeIf, skipIf);
 
     public CreditCardQueryBuilderV1 ExceptLast4() => ExceptField("last4");
 }
@@ -1546,51 +1555,51 @@ public partial class InvoiceSectionQueryBuilderV1 : GraphQlQueryBuilder<InvoiceS
     {
     }
 
-    public InvoiceSectionQueryBuilderV1 WithType(string alias = null) => WithScalarField("type", alias);
+    public InvoiceSectionQueryBuilderV1 WithType(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("type", alias, includeIf, skipIf);
 
     public InvoiceSectionQueryBuilderV1 ExceptType() => ExceptField("type");
 
-    public InvoiceSectionQueryBuilderV1 WithText(string alias = null) => WithScalarField("text", alias);
+    public InvoiceSectionQueryBuilderV1 WithText(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("text", alias, includeIf, skipIf);
 
     public InvoiceSectionQueryBuilderV1 ExceptText() => ExceptField("text");
 
-    public InvoiceSectionQueryBuilderV1 WithSubText(string alias = null) => WithScalarField("subText", alias);
+    public InvoiceSectionQueryBuilderV1 WithSubText(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("subText", alias, includeIf, skipIf);
 
     public InvoiceSectionQueryBuilderV1 ExceptSubText() => ExceptField("subText");
 
-    public InvoiceSectionQueryBuilderV1 WithConsumption(string alias = null) => WithScalarField("consumption", alias);
+    public InvoiceSectionQueryBuilderV1 WithConsumption(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("consumption", alias, includeIf, skipIf);
 
     public InvoiceSectionQueryBuilderV1 ExceptConsumption() => ExceptField("consumption");
 
-    public InvoiceSectionQueryBuilderV1 WithConsumptionLocalized(string alias = null) => WithScalarField("consumptionLocalized", alias);
+    public InvoiceSectionQueryBuilderV1 WithConsumptionLocalized(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("consumptionLocalized", alias, includeIf, skipIf);
 
     public InvoiceSectionQueryBuilderV1 ExceptConsumptionLocalized() => ExceptField("consumptionLocalized");
 
-    public InvoiceSectionQueryBuilderV1 WithConsumptionUnit(string alias = null) => WithScalarField("consumptionUnit", alias);
+    public InvoiceSectionQueryBuilderV1 WithConsumptionUnit(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("consumptionUnit", alias, includeIf, skipIf);
 
     public InvoiceSectionQueryBuilderV1 ExceptConsumptionUnit() => ExceptField("consumptionUnit");
 
-    public InvoiceSectionQueryBuilderV1 WithPrice(string alias = null) => WithScalarField("price", alias);
+    public InvoiceSectionQueryBuilderV1 WithPrice(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("price", alias, includeIf, skipIf);
 
     public InvoiceSectionQueryBuilderV1 ExceptPrice() => ExceptField("price");
 
-    public InvoiceSectionQueryBuilderV1 WithPriceLocalized(string alias = null) => WithScalarField("priceLocalized", alias);
+    public InvoiceSectionQueryBuilderV1 WithPriceLocalized(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("priceLocalized", alias, includeIf, skipIf);
 
     public InvoiceSectionQueryBuilderV1 ExceptPriceLocalized() => ExceptField("priceLocalized");
 
-    public InvoiceSectionQueryBuilderV1 WithPriceUnit(string alias = null) => WithScalarField("priceUnit", alias);
+    public InvoiceSectionQueryBuilderV1 WithPriceUnit(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("priceUnit", alias, includeIf, skipIf);
 
     public InvoiceSectionQueryBuilderV1 ExceptPriceUnit() => ExceptField("priceUnit");
 
-    public InvoiceSectionQueryBuilderV1 WithCost(string alias = null) => WithScalarField("cost", alias);
+    public InvoiceSectionQueryBuilderV1 WithCost(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("cost", alias, includeIf, skipIf);
 
     public InvoiceSectionQueryBuilderV1 ExceptCost() => ExceptField("cost");
 
-    public InvoiceSectionQueryBuilderV1 WithCostLocalized(string alias = null) => WithScalarField("costLocalized", alias);
+    public InvoiceSectionQueryBuilderV1 WithCostLocalized(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("costLocalized", alias, includeIf, skipIf);
 
     public InvoiceSectionQueryBuilderV1 ExceptCostLocalized() => ExceptField("costLocalized");
 
-    public InvoiceSectionQueryBuilderV1 WithCostUnit(string alias = null) => WithScalarField("costUnit", alias);
+    public InvoiceSectionQueryBuilderV1 WithCostUnit(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("costUnit", alias, includeIf, skipIf);
 
     public InvoiceSectionQueryBuilderV1 ExceptCostUnit() => ExceptField("costUnit");
 }
@@ -1631,23 +1640,23 @@ public partial class ProducerQueryBuilderV1 : GraphQlQueryBuilder<ProducerQueryB
     {
     }
 
-    public ProducerQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
+    public ProducerQueryBuilderV1 WithId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("id", alias, includeIf, skipIf);
 
     public ProducerQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public ProducerQueryBuilderV1 WithName(string alias = null) => WithScalarField("name", alias);
+    public ProducerQueryBuilderV1 WithName(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("name", alias, includeIf, skipIf);
 
     public ProducerQueryBuilderV1 ExceptName() => ExceptField("name");
 
-    public ProducerQueryBuilderV1 WithTitle(string alias = null) => WithScalarField("title", alias);
+    public ProducerQueryBuilderV1 WithTitle(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("title", alias, includeIf, skipIf);
 
     public ProducerQueryBuilderV1 ExceptTitle() => ExceptField("title");
 
-    public ProducerQueryBuilderV1 WithDescription(string alias = null) => WithScalarField("description", alias);
+    public ProducerQueryBuilderV1 WithDescription(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("description", alias, includeIf, skipIf);
 
     public ProducerQueryBuilderV1 ExceptDescription() => ExceptField("description");
 
-    public ProducerQueryBuilderV1 WithImageSrc(string alias = null) => WithScalarField("imageSrc", alias);
+    public ProducerQueryBuilderV1 WithImageSrc(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("imageSrc", alias, includeIf, skipIf);
 
     public ProducerQueryBuilderV1 ExceptImageSrc() => ExceptField("imageSrc");
 
@@ -1671,15 +1680,15 @@ public partial class ProducerBulletQueryBuilderV1 : GraphQlQueryBuilder<Producer
     {
     }
 
-    public ProducerBulletQueryBuilderV1 WithTitle(string alias = null) => WithScalarField("title", alias);
+    public ProducerBulletQueryBuilderV1 WithTitle(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("title", alias, includeIf, skipIf);
 
     public ProducerBulletQueryBuilderV1 ExceptTitle() => ExceptField("title");
 
-    public ProducerBulletQueryBuilderV1 WithDescription(string alias = null) => WithScalarField("description", alias);
+    public ProducerBulletQueryBuilderV1 WithDescription(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("description", alias, includeIf, skipIf);
 
     public ProducerBulletQueryBuilderV1 ExceptDescription() => ExceptField("description");
 
-    public ProducerBulletQueryBuilderV1 WithReadMoreUrl(string alias = null) => WithScalarField("readMoreUrl", alias);
+    public ProducerBulletQueryBuilderV1 WithReadMoreUrl(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("readMoreUrl", alias, includeIf, skipIf);
 
     public ProducerBulletQueryBuilderV1 ExceptReadMoreUrl() => ExceptField("readMoreUrl");
 }
@@ -1704,35 +1713,35 @@ public partial class ConsumptionMonthQueryBuilderV1 : GraphQlQueryBuilder<Consum
     {
     }
 
-    public ConsumptionMonthQueryBuilderV1 WithYear(string alias = null) => WithScalarField("year", alias);
+    public ConsumptionMonthQueryBuilderV1 WithYear(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("year", alias, includeIf, skipIf);
 
     public ConsumptionMonthQueryBuilderV1 ExceptYear() => ExceptField("year");
 
-    public ConsumptionMonthQueryBuilderV1 WithMonth(string alias = null) => WithScalarField("month", alias);
+    public ConsumptionMonthQueryBuilderV1 WithMonth(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("month", alias, includeIf, skipIf);
 
     public ConsumptionMonthQueryBuilderV1 ExceptMonth() => ExceptField("month");
 
-    public ConsumptionMonthQueryBuilderV1 WithKwh(string alias = null) => WithScalarField("kwh", alias);
+    public ConsumptionMonthQueryBuilderV1 WithKwh(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("kwh", alias, includeIf, skipIf);
 
     public ConsumptionMonthQueryBuilderV1 ExceptKwh() => ExceptField("kwh");
 
-    public ConsumptionMonthQueryBuilderV1 WithCost(string alias = null) => WithScalarField("cost", alias);
+    public ConsumptionMonthQueryBuilderV1 WithCost(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("cost", alias, includeIf, skipIf);
 
     public ConsumptionMonthQueryBuilderV1 ExceptCost() => ExceptField("cost");
 
-    public ConsumptionMonthQueryBuilderV1 WithIsComplete(string alias = null) => WithScalarField("isComplete", alias);
+    public ConsumptionMonthQueryBuilderV1 WithIsComplete(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("isComplete", alias, includeIf, skipIf);
 
     public ConsumptionMonthQueryBuilderV1 ExceptIsComplete() => ExceptField("isComplete");
 
-    public ConsumptionMonthQueryBuilderV1 WithKwhEstimate(string alias = null) => WithScalarField("kwhEstimate", alias);
+    public ConsumptionMonthQueryBuilderV1 WithKwhEstimate(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("kwhEstimate", alias, includeIf, skipIf);
 
     public ConsumptionMonthQueryBuilderV1 ExceptKwhEstimate() => ExceptField("kwhEstimate");
 
-    public ConsumptionMonthQueryBuilderV1 WithCostEstimate(string alias = null) => WithScalarField("costEstimate", alias);
+    public ConsumptionMonthQueryBuilderV1 WithCostEstimate(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("costEstimate", alias, includeIf, skipIf);
 
     public ConsumptionMonthQueryBuilderV1 ExceptCostEstimate() => ExceptField("costEstimate");
 
-    public ConsumptionMonthQueryBuilderV1 WithCurrency(string alias = null) => WithScalarField("currency", alias);
+    public ConsumptionMonthQueryBuilderV1 WithCurrency(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("currency", alias, includeIf, skipIf);
 
     public ConsumptionMonthQueryBuilderV1 ExceptCurrency() => ExceptField("currency");
 }
@@ -1760,47 +1769,47 @@ public partial class ConsumptionQueryBuilderV1 : GraphQlQueryBuilder<Consumption
     {
     }
 
-    public ConsumptionQueryBuilderV1 WithAnnualValues(string alias = null) => WithScalarField("annualValues", alias);
+    public ConsumptionQueryBuilderV1 WithAnnualValues(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("annualValues", alias, includeIf, skipIf);
 
     public ConsumptionQueryBuilderV1 ExceptAnnualValues() => ExceptField("annualValues");
 
-    public ConsumptionQueryBuilderV1 WithMonthlyValues(string alias = null) => WithScalarField("monthlyValues", alias);
+    public ConsumptionQueryBuilderV1 WithMonthlyValues(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("monthlyValues", alias, includeIf, skipIf);
 
     public ConsumptionQueryBuilderV1 ExceptMonthlyValues() => ExceptField("monthlyValues");
 
-    public ConsumptionQueryBuilderV1 WithWeeklyValues(string alias = null) => WithScalarField("weeklyValues", alias);
+    public ConsumptionQueryBuilderV1 WithWeeklyValues(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("weeklyValues", alias, includeIf, skipIf);
 
     public ConsumptionQueryBuilderV1 ExceptWeeklyValues() => ExceptField("weeklyValues");
 
-    public ConsumptionQueryBuilderV1 WithDailyValues(string alias = null) => WithScalarField("dailyValues", alias);
+    public ConsumptionQueryBuilderV1 WithDailyValues(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("dailyValues", alias, includeIf, skipIf);
 
     public ConsumptionQueryBuilderV1 ExceptDailyValues() => ExceptField("dailyValues");
 
-    public ConsumptionQueryBuilderV1 WithHourlyValues(string alias = null) => WithScalarField("hourlyValues", alias);
+    public ConsumptionQueryBuilderV1 WithHourlyValues(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("hourlyValues", alias, includeIf, skipIf);
 
     public ConsumptionQueryBuilderV1 ExceptHourlyValues() => ExceptField("hourlyValues");
 
-    public ConsumptionQueryBuilderV1 WithTotalConsumption(string alias = null) => WithScalarField("totalConsumption", alias);
+    public ConsumptionQueryBuilderV1 WithTotalConsumption(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("totalConsumption", alias, includeIf, skipIf);
 
     public ConsumptionQueryBuilderV1 ExceptTotalConsumption() => ExceptField("totalConsumption");
 
-    public ConsumptionQueryBuilderV1 WithEnergyCost(string alias = null) => WithScalarField("energyCost", alias);
+    public ConsumptionQueryBuilderV1 WithEnergyCost(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("energyCost", alias, includeIf, skipIf);
 
     public ConsumptionQueryBuilderV1 ExceptEnergyCost() => ExceptField("energyCost");
 
-    public ConsumptionQueryBuilderV1 WithTotalCost(string alias = null) => WithScalarField("totalCost", alias);
+    public ConsumptionQueryBuilderV1 WithTotalCost(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("totalCost", alias, includeIf, skipIf);
 
     public ConsumptionQueryBuilderV1 ExceptTotalCost() => ExceptField("totalCost");
 
-    public ConsumptionQueryBuilderV1 WithCurrency(string alias = null) => WithScalarField("currency", alias);
+    public ConsumptionQueryBuilderV1 WithCurrency(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("currency", alias, includeIf, skipIf);
 
     public ConsumptionQueryBuilderV1 ExceptCurrency() => ExceptField("currency");
 
-    public ConsumptionQueryBuilderV1 WithLatestTransactionTimestamp(string alias = null) => WithScalarField("latestTransactionTimestamp", alias);
+    public ConsumptionQueryBuilderV1 WithLatestTransactionTimestamp(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("latestTransactionTimestamp", alias, includeIf, skipIf);
 
     public ConsumptionQueryBuilderV1 ExceptLatestTransactionTimestamp() => ExceptField("latestTransactionTimestamp");
 
-    public ConsumptionQueryBuilderV1 WithTimeZone(string alias = null) => WithScalarField("timeZone", alias);
+    public ConsumptionQueryBuilderV1 WithTimeZone(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("timeZone", alias, includeIf, skipIf);
 
     public ConsumptionQueryBuilderV1 ExceptTimeZone() => ExceptField("timeZone");
 }
@@ -1821,11 +1830,11 @@ public partial class PreLiveComparisonQueryBuilderV1 : GraphQlQueryBuilder<PreLi
     {
     }
 
-    public PreLiveComparisonQueryBuilderV1 WithHomeId(string alias = null) => WithScalarField("homeId", alias);
+    public PreLiveComparisonQueryBuilderV1 WithHomeId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("homeId", alias, includeIf, skipIf);
 
     public PreLiveComparisonQueryBuilderV1 ExceptHomeId() => ExceptField("homeId");
 
-    public PreLiveComparisonQueryBuilderV1 WithBasedOnActuals(string alias = null) => WithScalarField("basedOnActuals", alias);
+    public PreLiveComparisonQueryBuilderV1 WithBasedOnActuals(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("basedOnActuals", alias, includeIf, skipIf);
 
     public PreLiveComparisonQueryBuilderV1 ExceptBasedOnActuals() => ExceptField("basedOnActuals");
 
@@ -1858,23 +1867,23 @@ public partial class ComparisonQueryBuilderV1 : GraphQlQueryBuilder<ComparisonQu
     {
     }
 
-    public ComparisonQueryBuilderV1 WithYear(string alias = null) => WithScalarField("year", alias);
+    public ComparisonQueryBuilderV1 WithYear(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("year", alias, includeIf, skipIf);
 
     public ComparisonQueryBuilderV1 ExceptYear() => ExceptField("year");
 
-    public ComparisonQueryBuilderV1 WithMonth(string alias = null) => WithScalarField("month", alias);
+    public ComparisonQueryBuilderV1 WithMonth(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("month", alias, includeIf, skipIf);
 
     public ComparisonQueryBuilderV1 ExceptMonth() => ExceptField("month");
 
-    public ComparisonQueryBuilderV1 WithResolution(string alias = null) => WithScalarField("resolution", alias);
+    public ComparisonQueryBuilderV1 WithResolution(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("resolution", alias, includeIf, skipIf);
 
     public ComparisonQueryBuilderV1 ExceptResolution() => ExceptField("resolution");
 
-    public ComparisonQueryBuilderV1 WithHomeEfficency(string alias = null) => WithScalarField("homeEfficency", alias);
+    public ComparisonQueryBuilderV1 WithHomeEfficency(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("homeEfficency", alias, includeIf, skipIf);
 
     public ComparisonQueryBuilderV1 ExceptHomeEfficency() => ExceptField("homeEfficency");
 
-    public ComparisonQueryBuilderV1 WithHomeEfficencyDescription(string alias = null) => WithScalarField("homeEfficencyDescription", alias);
+    public ComparisonQueryBuilderV1 WithHomeEfficencyDescription(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("homeEfficencyDescription", alias, includeIf, skipIf);
 
     public ComparisonQueryBuilderV1 ExceptHomeEfficencyDescription() => ExceptField("homeEfficencyDescription");
 
@@ -1905,11 +1914,11 @@ public partial class ComparisonDataQueryBuilderV1 : GraphQlQueryBuilder<Comparis
     {
     }
 
-    public ComparisonDataQueryBuilderV1 WithCost(string alias = null) => WithScalarField("cost", alias);
+    public ComparisonDataQueryBuilderV1 WithCost(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("cost", alias, includeIf, skipIf);
 
     public ComparisonDataQueryBuilderV1 ExceptCost() => ExceptField("cost");
 
-    public ComparisonDataQueryBuilderV1 WithConsumption(string alias = null) => WithScalarField("consumption", alias);
+    public ComparisonDataQueryBuilderV1 WithConsumption(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("consumption", alias, includeIf, skipIf);
 
     public ComparisonDataQueryBuilderV1 ExceptConsumption() => ExceptField("consumption");
 }
@@ -1936,39 +1945,39 @@ public partial class HomeProfileQuestionQueryBuilderV1 : GraphQlQueryBuilder<Hom
     {
     }
 
-    public HomeProfileQuestionQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
+    public HomeProfileQuestionQueryBuilderV1 WithId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("id", alias, includeIf, skipIf);
 
     public HomeProfileQuestionQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public HomeProfileQuestionQueryBuilderV1 WithTitle(string alias = null) => WithScalarField("title", alias);
+    public HomeProfileQuestionQueryBuilderV1 WithTitle(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("title", alias, includeIf, skipIf);
 
     public HomeProfileQuestionQueryBuilderV1 ExceptTitle() => ExceptField("title");
 
-    public HomeProfileQuestionQueryBuilderV1 WithText(string alias = null) => WithScalarField("text", alias);
+    public HomeProfileQuestionQueryBuilderV1 WithText(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("text", alias, includeIf, skipIf);
 
     public HomeProfileQuestionQueryBuilderV1 ExceptText() => ExceptField("text");
 
-    public HomeProfileQuestionQueryBuilderV1 WithCategory(string alias = null) => WithScalarField("category", alias);
+    public HomeProfileQuestionQueryBuilderV1 WithCategory(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("category", alias, includeIf, skipIf);
 
     public HomeProfileQuestionQueryBuilderV1 ExceptCategory() => ExceptField("category");
 
-    public HomeProfileQuestionQueryBuilderV1 WithIsAnswered(string alias = null) => WithScalarField("isAnswered", alias);
+    public HomeProfileQuestionQueryBuilderV1 WithIsAnswered(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("isAnswered", alias, includeIf, skipIf);
 
     public HomeProfileQuestionQueryBuilderV1 ExceptIsAnswered() => ExceptField("isAnswered");
 
-    public HomeProfileQuestionQueryBuilderV1 WithPropertyName(string alias = null) => WithScalarField("propertyName", alias);
+    public HomeProfileQuestionQueryBuilderV1 WithPropertyName(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("propertyName", alias, includeIf, skipIf);
 
     public HomeProfileQuestionQueryBuilderV1 ExceptPropertyName() => ExceptField("propertyName");
 
-    public HomeProfileQuestionQueryBuilderV1 WithValueType(string alias = null) => WithScalarField("valueType", alias);
+    public HomeProfileQuestionQueryBuilderV1 WithValueType(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("valueType", alias, includeIf, skipIf);
 
     public HomeProfileQuestionQueryBuilderV1 ExceptValueType() => ExceptField("valueType");
 
-    public HomeProfileQuestionQueryBuilderV1 WithCurrentValue(string alias = null) => WithScalarField("currentValue", alias);
+    public HomeProfileQuestionQueryBuilderV1 WithCurrentValue(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("currentValue", alias, includeIf, skipIf);
 
     public HomeProfileQuestionQueryBuilderV1 ExceptCurrentValue() => ExceptField("currentValue");
 
-    public HomeProfileQuestionQueryBuilderV1 WithCurrentValueText(string alias = null) => WithScalarField("currentValueText", alias);
+    public HomeProfileQuestionQueryBuilderV1 WithCurrentValueText(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("currentValueText", alias, includeIf, skipIf);
 
     public HomeProfileQuestionQueryBuilderV1 ExceptCurrentValueText() => ExceptField("currentValueText");
 
@@ -1991,11 +2000,11 @@ public partial class HomeProfileQuestionInputQueryBuilderV1 : GraphQlQueryBuilde
     {
     }
 
-    public HomeProfileQuestionInputQueryBuilderV1 WithType(string alias = null) => WithScalarField("type", alias);
+    public HomeProfileQuestionInputQueryBuilderV1 WithType(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("type", alias, includeIf, skipIf);
 
     public HomeProfileQuestionInputQueryBuilderV1 ExceptType() => ExceptField("type");
 
-    public HomeProfileQuestionInputQueryBuilderV1 WithOptions(string alias = null) => WithScalarField("options", alias);
+    public HomeProfileQuestionInputQueryBuilderV1 WithOptions(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("options", alias, includeIf, skipIf);
 
     public HomeProfileQuestionInputQueryBuilderV1 ExceptOptions() => ExceptField("options");
 }
@@ -2044,19 +2053,19 @@ public partial class ProcessStepQueryBuilderV1 : GraphQlQueryBuilder<ProcessStep
     {
     }
 
-    public ProcessStepQueryBuilderV1 WithTimestamp(string alias = null) => WithScalarField("timestamp", alias);
+    public ProcessStepQueryBuilderV1 WithTimestamp(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("timestamp", alias, includeIf, skipIf);
 
     public ProcessStepQueryBuilderV1 ExceptTimestamp() => ExceptField("timestamp");
 
-    public ProcessStepQueryBuilderV1 WithIsComplete(string alias = null) => WithScalarField("isComplete", alias);
+    public ProcessStepQueryBuilderV1 WithIsComplete(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("isComplete", alias, includeIf, skipIf);
 
     public ProcessStepQueryBuilderV1 ExceptIsComplete() => ExceptField("isComplete");
 
-    public ProcessStepQueryBuilderV1 WithTitle(string alias = null) => WithScalarField("title", alias);
+    public ProcessStepQueryBuilderV1 WithTitle(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("title", alias, includeIf, skipIf);
 
     public ProcessStepQueryBuilderV1 ExceptTitle() => ExceptField("title");
 
-    public ProcessStepQueryBuilderV1 WithDescription(string alias = null) => WithScalarField("description", alias);
+    public ProcessStepQueryBuilderV1 WithDescription(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("description", alias, includeIf, skipIf);
 
     public ProcessStepQueryBuilderV1 ExceptDescription() => ExceptField("description");
 }
@@ -2088,63 +2097,63 @@ public partial class DisaggregationQueryBuilderV1 : GraphQlQueryBuilder<Disaggre
     {
     }
 
-    public DisaggregationQueryBuilderV1 WithYear(string alias = null) => WithScalarField("year", alias);
+    public DisaggregationQueryBuilderV1 WithYear(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("year", alias, includeIf, skipIf);
 
     public DisaggregationQueryBuilderV1 ExceptYear() => ExceptField("year");
 
-    public DisaggregationQueryBuilderV1 WithMonth(string alias = null) => WithScalarField("month", alias);
+    public DisaggregationQueryBuilderV1 WithMonth(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("month", alias, includeIf, skipIf);
 
     public DisaggregationQueryBuilderV1 ExceptMonth() => ExceptField("month");
 
-    public DisaggregationQueryBuilderV1 WithFixedConsumptionKwh(string alias = null) => WithScalarField("fixedConsumptionKwh", alias);
+    public DisaggregationQueryBuilderV1 WithFixedConsumptionKwh(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("fixedConsumptionKwh", alias, includeIf, skipIf);
 
     public DisaggregationQueryBuilderV1 ExceptFixedConsumptionKwh() => ExceptField("fixedConsumptionKwh");
 
-    public DisaggregationQueryBuilderV1 WithFixedConsumptionKwhPercent(string alias = null) => WithScalarField("fixedConsumptionKwhPercent", alias);
+    public DisaggregationQueryBuilderV1 WithFixedConsumptionKwhPercent(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("fixedConsumptionKwhPercent", alias, includeIf, skipIf);
 
     public DisaggregationQueryBuilderV1 ExceptFixedConsumptionKwhPercent() => ExceptField("fixedConsumptionKwhPercent");
 
-    public DisaggregationQueryBuilderV1 WithFixedConsumptionCost(string alias = null) => WithScalarField("fixedConsumptionCost", alias);
+    public DisaggregationQueryBuilderV1 WithFixedConsumptionCost(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("fixedConsumptionCost", alias, includeIf, skipIf);
 
     public DisaggregationQueryBuilderV1 ExceptFixedConsumptionCost() => ExceptField("fixedConsumptionCost");
 
-    public DisaggregationQueryBuilderV1 WithHeatingConsumptionKwh(string alias = null) => WithScalarField("heatingConsumptionKwh", alias);
+    public DisaggregationQueryBuilderV1 WithHeatingConsumptionKwh(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("heatingConsumptionKwh", alias, includeIf, skipIf);
 
     public DisaggregationQueryBuilderV1 ExceptHeatingConsumptionKwh() => ExceptField("heatingConsumptionKwh");
 
-    public DisaggregationQueryBuilderV1 WithHeatingConsumptionKwhPercent(string alias = null) => WithScalarField("heatingConsumptionKwhPercent", alias);
+    public DisaggregationQueryBuilderV1 WithHeatingConsumptionKwhPercent(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("heatingConsumptionKwhPercent", alias, includeIf, skipIf);
 
     public DisaggregationQueryBuilderV1 ExceptHeatingConsumptionKwhPercent() => ExceptField("heatingConsumptionKwhPercent");
 
-    public DisaggregationQueryBuilderV1 WithHeatingConsumptionCost(string alias = null) => WithScalarField("heatingConsumptionCost", alias);
+    public DisaggregationQueryBuilderV1 WithHeatingConsumptionCost(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("heatingConsumptionCost", alias, includeIf, skipIf);
 
     public DisaggregationQueryBuilderV1 ExceptHeatingConsumptionCost() => ExceptField("heatingConsumptionCost");
 
-    public DisaggregationQueryBuilderV1 WithBehaviorConsumptionKwh(string alias = null) => WithScalarField("behaviorConsumptionKwh", alias);
+    public DisaggregationQueryBuilderV1 WithBehaviorConsumptionKwh(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("behaviorConsumptionKwh", alias, includeIf, skipIf);
 
     public DisaggregationQueryBuilderV1 ExceptBehaviorConsumptionKwh() => ExceptField("behaviorConsumptionKwh");
 
-    public DisaggregationQueryBuilderV1 WithBehaviorConsumptionKwhPercent(string alias = null) => WithScalarField("behaviorConsumptionKwhPercent", alias);
+    public DisaggregationQueryBuilderV1 WithBehaviorConsumptionKwhPercent(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("behaviorConsumptionKwhPercent", alias, includeIf, skipIf);
 
     public DisaggregationQueryBuilderV1 ExceptBehaviorConsumptionKwhPercent() => ExceptField("behaviorConsumptionKwhPercent");
 
-    public DisaggregationQueryBuilderV1 WithBehaviorConsumptionCost(string alias = null) => WithScalarField("behaviorConsumptionCost", alias);
+    public DisaggregationQueryBuilderV1 WithBehaviorConsumptionCost(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("behaviorConsumptionCost", alias, includeIf, skipIf);
 
     public DisaggregationQueryBuilderV1 ExceptBehaviorConsumptionCost() => ExceptField("behaviorConsumptionCost");
 
-    public DisaggregationQueryBuilderV1 WithCurrency(string alias = null) => WithScalarField("currency", alias);
+    public DisaggregationQueryBuilderV1 WithCurrency(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("currency", alias, includeIf, skipIf);
 
     public DisaggregationQueryBuilderV1 ExceptCurrency() => ExceptField("currency");
 
-    public DisaggregationQueryBuilderV1 WithIsValid(string alias = null) => WithScalarField("isValid", alias);
+    public DisaggregationQueryBuilderV1 WithIsValid(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("isValid", alias, includeIf, skipIf);
 
     public DisaggregationQueryBuilderV1 ExceptIsValid() => ExceptField("isValid");
 
-    public DisaggregationQueryBuilderV1 WithTotalCost(string alias = null) => WithScalarField("totalCost", alias);
+    public DisaggregationQueryBuilderV1 WithTotalCost(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("totalCost", alias, includeIf, skipIf);
 
     public DisaggregationQueryBuilderV1 ExceptTotalCost() => ExceptField("totalCost");
 
-    public DisaggregationQueryBuilderV1 WithTotalConsumptionKwh(string alias = null) => WithScalarField("totalConsumptionKwh", alias);
+    public DisaggregationQueryBuilderV1 WithTotalConsumptionKwh(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("totalConsumptionKwh", alias, includeIf, skipIf);
 
     public DisaggregationQueryBuilderV1 ExceptTotalConsumptionKwh() => ExceptField("totalConsumptionKwh");
 }
@@ -2164,11 +2173,11 @@ public partial class WeatherQueryBuilderV1 : GraphQlQueryBuilder<WeatherQueryBui
     {
     }
 
-    public WeatherQueryBuilderV1 WithMinTemperature(string alias = null) => WithScalarField("minTemperature", alias);
+    public WeatherQueryBuilderV1 WithMinTemperature(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("minTemperature", alias, includeIf, skipIf);
 
     public WeatherQueryBuilderV1 ExceptMinTemperature() => ExceptField("minTemperature");
 
-    public WeatherQueryBuilderV1 WithMaxTemperature(string alias = null) => WithScalarField("maxTemperature", alias);
+    public WeatherQueryBuilderV1 WithMaxTemperature(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("maxTemperature", alias, includeIf, skipIf);
 
     public WeatherQueryBuilderV1 ExceptMaxTemperature() => ExceptField("maxTemperature");
 
@@ -2197,35 +2206,35 @@ public partial class WeatherEntryQueryBuilderV1 : GraphQlQueryBuilder<WeatherEnt
     {
     }
 
-    public WeatherEntryQueryBuilderV1 WithTime(string alias = null) => WithScalarField("time", alias);
+    public WeatherEntryQueryBuilderV1 WithTime(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("time", alias, includeIf, skipIf);
 
     public WeatherEntryQueryBuilderV1 ExceptTime() => ExceptField("time");
 
-    public WeatherEntryQueryBuilderV1 WithTemperature(string alias = null) => WithScalarField("temperature", alias);
+    public WeatherEntryQueryBuilderV1 WithTemperature(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("temperature", alias, includeIf, skipIf);
 
     public WeatherEntryQueryBuilderV1 ExceptTemperature() => ExceptField("temperature");
 
-    public WeatherEntryQueryBuilderV1 WithType(string alias = null) => WithScalarField("type", alias);
+    public WeatherEntryQueryBuilderV1 WithType(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("type", alias, includeIf, skipIf);
 
     public WeatherEntryQueryBuilderV1 ExceptType() => ExceptField("type");
 
-    public WeatherEntryQueryBuilderV1 WithFog(string alias = null) => WithScalarField("fog", alias);
+    public WeatherEntryQueryBuilderV1 WithFog(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("fog", alias, includeIf, skipIf);
 
     public WeatherEntryQueryBuilderV1 ExceptFog() => ExceptField("fog");
 
-    public WeatherEntryQueryBuilderV1 WithPrecipitation(string alias = null) => WithScalarField("precipitation", alias);
+    public WeatherEntryQueryBuilderV1 WithPrecipitation(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("precipitation", alias, includeIf, skipIf);
 
     public WeatherEntryQueryBuilderV1 ExceptPrecipitation() => ExceptField("precipitation");
 
-    public WeatherEntryQueryBuilderV1 WithCloudiness(string alias = null) => WithScalarField("cloudiness", alias);
+    public WeatherEntryQueryBuilderV1 WithCloudiness(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("cloudiness", alias, includeIf, skipIf);
 
     public WeatherEntryQueryBuilderV1 ExceptCloudiness() => ExceptField("cloudiness");
 
-    public WeatherEntryQueryBuilderV1 WithWindSpeed(string alias = null) => WithScalarField("windSpeed", alias);
+    public WeatherEntryQueryBuilderV1 WithWindSpeed(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("windSpeed", alias, includeIf, skipIf);
 
     public WeatherEntryQueryBuilderV1 ExceptWindSpeed() => ExceptField("windSpeed");
 
-    public WeatherEntryQueryBuilderV1 WithWindGust(string alias = null) => WithScalarField("windGust", alias);
+    public WeatherEntryQueryBuilderV1 WithWindGust(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("windGust", alias, includeIf, skipIf);
 
     public WeatherEntryQueryBuilderV1 ExceptWindGust() => ExceptField("windGust");
 }
@@ -2244,7 +2253,7 @@ public partial class AwayModeQueryBuilderV1 : GraphQlQueryBuilder<AwayModeQueryB
     {
     }
 
-    public AwayModeQueryBuilderV1 WithIsSupported(string alias = null) => WithScalarField("isSupported", alias);
+    public AwayModeQueryBuilderV1 WithIsSupported(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("isSupported", alias, includeIf, skipIf);
 
     public AwayModeQueryBuilderV1 ExceptIsSupported() => ExceptField("isSupported");
 
@@ -2267,11 +2276,11 @@ public partial class AwayModeSettingsQueryBuilderV1 : GraphQlQueryBuilder<AwayMo
     {
     }
 
-    public AwayModeSettingsQueryBuilderV1 WithFrom(string alias = null) => WithScalarField("from", alias);
+    public AwayModeSettingsQueryBuilderV1 WithFrom(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("from", alias, includeIf, skipIf);
 
     public AwayModeSettingsQueryBuilderV1 ExceptFrom() => ExceptField("from");
 
-    public AwayModeSettingsQueryBuilderV1 WithTo(string alias = null) => WithScalarField("to", alias);
+    public AwayModeSettingsQueryBuilderV1 WithTo(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("to", alias, includeIf, skipIf);
 
     public AwayModeSettingsQueryBuilderV1 ExceptTo() => ExceptField("to");
 }
@@ -2291,7 +2300,7 @@ public partial class DayNightScheduleQueryBuilderV1 : GraphQlQueryBuilder<DayNig
     {
     }
 
-    public DayNightScheduleQueryBuilderV1 WithIsSupported(string alias = null) => WithScalarField("isSupported", alias);
+    public DayNightScheduleQueryBuilderV1 WithIsSupported(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("isSupported", alias, includeIf, skipIf);
 
     public DayNightScheduleQueryBuilderV1 ExceptIsSupported() => ExceptField("isSupported");
 
@@ -2320,19 +2329,19 @@ public partial class DayNightScheduleSettingsQueryBuilderV1 : GraphQlQueryBuilde
     {
     }
 
-    public DayNightScheduleSettingsQueryBuilderV1 WithIsEnabled(string alias = null) => WithScalarField("isEnabled", alias);
+    public DayNightScheduleSettingsQueryBuilderV1 WithIsEnabled(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("isEnabled", alias, includeIf, skipIf);
 
     public DayNightScheduleSettingsQueryBuilderV1 ExceptIsEnabled() => ExceptField("isEnabled");
 
-    public DayNightScheduleSettingsQueryBuilderV1 WithLocalTimeFrom(string alias = null) => WithScalarField("localTimeFrom", alias);
+    public DayNightScheduleSettingsQueryBuilderV1 WithLocalTimeFrom(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("localTimeFrom", alias, includeIf, skipIf);
 
     public DayNightScheduleSettingsQueryBuilderV1 ExceptLocalTimeFrom() => ExceptField("localTimeFrom");
 
-    public DayNightScheduleSettingsQueryBuilderV1 WithLocalTimeTo(string alias = null) => WithScalarField("localTimeTo", alias);
+    public DayNightScheduleSettingsQueryBuilderV1 WithLocalTimeTo(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("localTimeTo", alias, includeIf, skipIf);
 
     public DayNightScheduleSettingsQueryBuilderV1 ExceptLocalTimeTo() => ExceptField("localTimeTo");
 
-    public DayNightScheduleSettingsQueryBuilderV1 WithRecurringDays(string alias = null) => WithScalarField("recurringDays", alias);
+    public DayNightScheduleSettingsQueryBuilderV1 WithRecurringDays(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("recurringDays", alias, includeIf, skipIf);
 
     public DayNightScheduleSettingsQueryBuilderV1 ExceptRecurringDays() => ExceptField("recurringDays");
 }
@@ -2373,23 +2382,23 @@ public partial class ReportQueryBuilderV1 : GraphQlQueryBuilder<ReportQueryBuild
     {
     }
 
-    public ReportQueryBuilderV1 WithAvatar(string alias = null) => WithScalarField("avatar", alias);
+    public ReportQueryBuilderV1 WithAvatar(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("avatar", alias, includeIf, skipIf);
 
     public ReportQueryBuilderV1 ExceptAvatar() => ExceptField("avatar");
 
-    public ReportQueryBuilderV1 WithTitle(string alias = null) => WithScalarField("title", alias);
+    public ReportQueryBuilderV1 WithTitle(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("title", alias, includeIf, skipIf);
 
     public ReportQueryBuilderV1 ExceptTitle() => ExceptField("title");
 
-    public ReportQueryBuilderV1 WithEfficiency(string alias = null) => WithScalarField("efficiency", alias);
+    public ReportQueryBuilderV1 WithEfficiency(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("efficiency", alias, includeIf, skipIf);
 
     public ReportQueryBuilderV1 ExceptEfficiency() => ExceptField("efficiency");
 
-    public ReportQueryBuilderV1 WithYear(string alias = null) => WithScalarField("year", alias);
+    public ReportQueryBuilderV1 WithYear(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("year", alias, includeIf, skipIf);
 
     public ReportQueryBuilderV1 ExceptYear() => ExceptField("year");
 
-    public ReportQueryBuilderV1 WithMonth(string alias = null) => WithScalarField("month", alias);
+    public ReportQueryBuilderV1 WithMonth(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("month", alias, includeIf, skipIf);
 
     public ReportQueryBuilderV1 ExceptMonth() => ExceptField("month");
 
@@ -2418,35 +2427,35 @@ public partial class ReportCellQueryBuilderV1 : GraphQlQueryBuilder<ReportCellQu
     {
     }
 
-    public ReportCellQueryBuilderV1 WithType(string alias = null) => WithScalarField("type", alias);
+    public ReportCellQueryBuilderV1 WithType(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("type", alias, includeIf, skipIf);
 
     public ReportCellQueryBuilderV1 ExceptType() => ExceptField("type");
 
-    public ReportCellQueryBuilderV1 WithStyle(string alias = null) => WithScalarField("style", alias);
+    public ReportCellQueryBuilderV1 WithStyle(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("style", alias, includeIf, skipIf);
 
     public ReportCellQueryBuilderV1 ExceptStyle() => ExceptField("style");
 
-    public ReportCellQueryBuilderV1 WithImageSrc(string alias = null) => WithScalarField("imageSrc", alias);
+    public ReportCellQueryBuilderV1 WithImageSrc(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("imageSrc", alias, includeIf, skipIf);
 
     public ReportCellQueryBuilderV1 ExceptImageSrc() => ExceptField("imageSrc");
 
-    public ReportCellQueryBuilderV1 WithTitle(string alias = null) => WithScalarField("title", alias);
+    public ReportCellQueryBuilderV1 WithTitle(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("title", alias, includeIf, skipIf);
 
     public ReportCellQueryBuilderV1 ExceptTitle() => ExceptField("title");
 
-    public ReportCellQueryBuilderV1 WithDescription(string alias = null) => WithScalarField("description", alias);
+    public ReportCellQueryBuilderV1 WithDescription(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("description", alias, includeIf, skipIf);
 
     public ReportCellQueryBuilderV1 ExceptDescription() => ExceptField("description");
 
-    public ReportCellQueryBuilderV1 WithUnitText(string alias = null) => WithScalarField("unitText", alias);
+    public ReportCellQueryBuilderV1 WithUnitText(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("unitText", alias, includeIf, skipIf);
 
     public ReportCellQueryBuilderV1 ExceptUnitText() => ExceptField("unitText");
 
-    public ReportCellQueryBuilderV1 WithLink(string alias = null) => WithScalarField("link", alias);
+    public ReportCellQueryBuilderV1 WithLink(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("link", alias, includeIf, skipIf);
 
     public ReportCellQueryBuilderV1 ExceptLink() => ExceptField("link");
 
-    public ReportCellQueryBuilderV1 WithProperties(string alias = null) => WithScalarField("properties", alias);
+    public ReportCellQueryBuilderV1 WithProperties(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("properties", alias, includeIf, skipIf);
 
     public ReportCellQueryBuilderV1 ExceptProperties() => ExceptField("properties");
 }
@@ -2473,15 +2482,15 @@ public partial class ThermostatQueryBuilderV1 : GraphQlQueryBuilder<ThermostatQu
     {
     }
 
-    public ThermostatQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
+    public ThermostatQueryBuilderV1 WithId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("id", alias, includeIf, skipIf);
 
     public ThermostatQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public ThermostatQueryBuilderV1 WithName(string alias = null) => WithScalarField("name", alias);
+    public ThermostatQueryBuilderV1 WithName(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("name", alias, includeIf, skipIf);
 
     public ThermostatQueryBuilderV1 ExceptName() => ExceptField("name");
 
-    public ThermostatQueryBuilderV1 WithConnectivity(string alias = null) => WithScalarField("connectivity", alias);
+    public ThermostatQueryBuilderV1 WithConnectivity(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("connectivity", alias, includeIf, skipIf);
 
     public ThermostatQueryBuilderV1 ExceptConnectivity() => ExceptField("connectivity");
 
@@ -2501,15 +2510,15 @@ public partial class ThermostatQueryBuilderV1 : GraphQlQueryBuilder<ThermostatQu
 
     public ThermostatQueryBuilderV1 ExceptModes() => ExceptField("modes");
 
-    public ThermostatQueryBuilderV1 WithTemplate(string alias = null) => WithScalarField("template", alias);
+    public ThermostatQueryBuilderV1 WithTemplate(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("template", alias, includeIf, skipIf);
 
     public ThermostatQueryBuilderV1 ExceptTemplate() => ExceptField("template");
 
-    public ThermostatQueryBuilderV1 WithHasSettings(string alias = null) => WithScalarField("hasSettings", alias);
+    public ThermostatQueryBuilderV1 WithHasSettings(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("hasSettings", alias, includeIf, skipIf);
 
     public ThermostatQueryBuilderV1 ExceptHasSettings() => ExceptField("hasSettings");
 
-    public ThermostatQueryBuilderV1 WithSupportsDayNightSchedule(string alias = null) => WithScalarField("supportsDayNightSchedule", alias);
+    public ThermostatQueryBuilderV1 WithSupportsDayNightSchedule(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("supportsDayNightSchedule", alias, includeIf, skipIf);
 
     public ThermostatQueryBuilderV1 ExceptSupportsDayNightSchedule() => ExceptField("supportsDayNightSchedule");
 }
@@ -2530,19 +2539,19 @@ public partial class ThermostatStateQueryBuilderV1 : GraphQlQueryBuilder<Thermos
     {
     }
 
-    public ThermostatStateQueryBuilderV1 WithMode(string alias = null) => WithScalarField("mode", alias);
+    public ThermostatStateQueryBuilderV1 WithMode(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("mode", alias, includeIf, skipIf);
 
     public ThermostatStateQueryBuilderV1 ExceptMode() => ExceptField("mode");
 
-    public ThermostatStateQueryBuilderV1 WithComfortTemperature(string alias = null) => WithScalarField("comfortTemperature", alias);
+    public ThermostatStateQueryBuilderV1 WithComfortTemperature(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("comfortTemperature", alias, includeIf, skipIf);
 
     public ThermostatStateQueryBuilderV1 ExceptComfortTemperature() => ExceptField("comfortTemperature");
 
-    public ThermostatStateQueryBuilderV1 WithFanLevel(string alias = null) => WithScalarField("fanLevel", alias);
+    public ThermostatStateQueryBuilderV1 WithFanLevel(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("fanLevel", alias, includeIf, skipIf);
 
     public ThermostatStateQueryBuilderV1 ExceptFanLevel() => ExceptField("fanLevel");
 
-    public ThermostatStateQueryBuilderV1 WithOnOff(string alias = null) => WithScalarField("onOff", alias);
+    public ThermostatStateQueryBuilderV1 WithOnOff(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("onOff", alias, includeIf, skipIf);
 
     public ThermostatStateQueryBuilderV1 ExceptOnOff() => ExceptField("onOff");
 }
@@ -2562,11 +2571,11 @@ public partial class ThermostatMeasurementsQueryBuilderV1 : GraphQlQueryBuilder<
     {
     }
 
-    public ThermostatMeasurementsQueryBuilderV1 WithTemperature(string alias = null) => WithScalarField("temperature", alias);
+    public ThermostatMeasurementsQueryBuilderV1 WithTemperature(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("temperature", alias, includeIf, skipIf);
 
     public ThermostatMeasurementsQueryBuilderV1 ExceptTemperature() => ExceptField("temperature");
 
-    public ThermostatMeasurementsQueryBuilderV1 WithTimestamp(string alias = null) => WithScalarField("timestamp", alias);
+    public ThermostatMeasurementsQueryBuilderV1 WithTimestamp(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("timestamp", alias, includeIf, skipIf);
 
     public ThermostatMeasurementsQueryBuilderV1 ExceptTimestamp() => ExceptField("timestamp");
 
@@ -2597,43 +2606,43 @@ public partial class ThermostatMeasurementQueryBuilderV1 : GraphQlQueryBuilder<T
     {
     }
 
-    public ThermostatMeasurementQueryBuilderV1 WithLabel(string alias = null) => WithScalarField("label", alias);
+    public ThermostatMeasurementQueryBuilderV1 WithLabel(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("label", alias, includeIf, skipIf);
 
     public ThermostatMeasurementQueryBuilderV1 ExceptLabel() => ExceptField("label");
 
-    public ThermostatMeasurementQueryBuilderV1 WithDescription(string alias = null) => WithScalarField("description", alias);
+    public ThermostatMeasurementQueryBuilderV1 WithDescription(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("description", alias, includeIf, skipIf);
 
     public ThermostatMeasurementQueryBuilderV1 ExceptDescription() => ExceptField("description");
 
-    public ThermostatMeasurementQueryBuilderV1 WithDescriptionLong(string alias = null) => WithScalarField("descriptionLong", alias);
+    public ThermostatMeasurementQueryBuilderV1 WithDescriptionLong(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("descriptionLong", alias, includeIf, skipIf);
 
     public ThermostatMeasurementQueryBuilderV1 ExceptDescriptionLong() => ExceptField("descriptionLong");
 
-    public ThermostatMeasurementQueryBuilderV1 WithValue(string alias = null) => WithScalarField("value", alias);
+    public ThermostatMeasurementQueryBuilderV1 WithValue(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("value", alias, includeIf, skipIf);
 
     public ThermostatMeasurementQueryBuilderV1 ExceptValue() => ExceptField("value");
 
-    public ThermostatMeasurementQueryBuilderV1 WithValueText(string alias = null) => WithScalarField("valueText", alias);
+    public ThermostatMeasurementQueryBuilderV1 WithValueText(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("valueText", alias, includeIf, skipIf);
 
     public ThermostatMeasurementQueryBuilderV1 ExceptValueText() => ExceptField("valueText");
 
-    public ThermostatMeasurementQueryBuilderV1 WithUnit(string alias = null) => WithScalarField("unit", alias);
+    public ThermostatMeasurementQueryBuilderV1 WithUnit(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("unit", alias, includeIf, skipIf);
 
     public ThermostatMeasurementQueryBuilderV1 ExceptUnit() => ExceptField("unit");
 
-    public ThermostatMeasurementQueryBuilderV1 WithUnitText(string alias = null) => WithScalarField("unitText", alias);
+    public ThermostatMeasurementQueryBuilderV1 WithUnitText(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("unitText", alias, includeIf, skipIf);
 
     public ThermostatMeasurementQueryBuilderV1 ExceptUnitText() => ExceptField("unitText");
 
-    public ThermostatMeasurementQueryBuilderV1 WithTimestamp(string alias = null) => WithScalarField("timestamp", alias);
+    public ThermostatMeasurementQueryBuilderV1 WithTimestamp(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("timestamp", alias, includeIf, skipIf);
 
     public ThermostatMeasurementQueryBuilderV1 ExceptTimestamp() => ExceptField("timestamp");
 
-    public ThermostatMeasurementQueryBuilderV1 WithType(string alias = null) => WithScalarField("type", alias);
+    public ThermostatMeasurementQueryBuilderV1 WithType(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("type", alias, includeIf, skipIf);
 
     public ThermostatMeasurementQueryBuilderV1 ExceptType() => ExceptField("type");
 
-    public ThermostatMeasurementQueryBuilderV1 WithTypeText(string alias = null) => WithScalarField("typeText", alias);
+    public ThermostatMeasurementQueryBuilderV1 WithTypeText(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("typeText", alias, includeIf, skipIf);
 
     public ThermostatMeasurementQueryBuilderV1 ExceptTypeText() => ExceptField("typeText");
 }
@@ -2653,15 +2662,15 @@ public partial class ThermostatCapabilityQueryBuilderV1 : GraphQlQueryBuilder<Th
     {
     }
 
-    public ThermostatCapabilityQueryBuilderV1 WithName(string alias = null) => WithScalarField("name", alias);
+    public ThermostatCapabilityQueryBuilderV1 WithName(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("name", alias, includeIf, skipIf);
 
     public ThermostatCapabilityQueryBuilderV1 ExceptName() => ExceptField("name");
 
-    public ThermostatCapabilityQueryBuilderV1 WithType(string alias = null) => WithScalarField("type", alias);
+    public ThermostatCapabilityQueryBuilderV1 WithType(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("type", alias, includeIf, skipIf);
 
     public ThermostatCapabilityQueryBuilderV1 ExceptType() => ExceptField("type");
 
-    public ThermostatCapabilityQueryBuilderV1 WithValues(string alias = null) => WithScalarField("values", alias);
+    public ThermostatCapabilityQueryBuilderV1 WithValues(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("values", alias, includeIf, skipIf);
 
     public ThermostatCapabilityQueryBuilderV1 ExceptValues() => ExceptField("values");
 }
@@ -2680,11 +2689,11 @@ public partial class ThermostatModeQueryBuilderV1 : GraphQlQueryBuilder<Thermost
     {
     }
 
-    public ThermostatModeQueryBuilderV1 WithName(string alias = null) => WithScalarField("name", alias);
+    public ThermostatModeQueryBuilderV1 WithName(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("name", alias, includeIf, skipIf);
 
     public ThermostatModeQueryBuilderV1 ExceptName() => ExceptField("name");
 
-    public ThermostatModeQueryBuilderV1 WithCapabilities(string alias = null) => WithScalarField("capabilities", alias);
+    public ThermostatModeQueryBuilderV1 WithCapabilities(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("capabilities", alias, includeIf, skipIf);
 
     public ThermostatModeQueryBuilderV1 ExceptCapabilities() => ExceptField("capabilities");
 }
@@ -2705,15 +2714,15 @@ public partial class SensorQueryBuilderV1 : GraphQlQueryBuilder<SensorQueryBuild
     {
     }
 
-    public SensorQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
+    public SensorQueryBuilderV1 WithId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("id", alias, includeIf, skipIf);
 
     public SensorQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public SensorQueryBuilderV1 WithIdDeprecated(string alias = null) => WithScalarField("idDeprecated", alias);
+    public SensorQueryBuilderV1 WithIdDeprecated(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("idDeprecated", alias, includeIf, skipIf);
 
     public SensorQueryBuilderV1 ExceptIdDeprecated() => ExceptField("idDeprecated");
 
-    public SensorQueryBuilderV1 WithHasHistory(string alias = null) => WithScalarField("hasHistory", alias);
+    public SensorQueryBuilderV1 WithHasHistory(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("hasHistory", alias, includeIf, skipIf);
 
     public SensorQueryBuilderV1 ExceptHasHistory() => ExceptField("hasHistory");
 
@@ -2737,11 +2746,11 @@ public partial class SensorHistoryQueryBuilderV1 : GraphQlQueryBuilder<SensorHis
     {
     }
 
-    public SensorHistoryQueryBuilderV1 WithSensorId(string alias = null) => WithScalarField("sensorId", alias);
+    public SensorHistoryQueryBuilderV1 WithSensorId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("sensorId", alias, includeIf, skipIf);
 
     public SensorHistoryQueryBuilderV1 ExceptSensorId() => ExceptField("sensorId");
 
-    public SensorHistoryQueryBuilderV1 WithDescription(string alias = null) => WithScalarField("description", alias);
+    public SensorHistoryQueryBuilderV1 WithDescription(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("description", alias, includeIf, skipIf);
 
     public SensorHistoryQueryBuilderV1 ExceptDescription() => ExceptField("description");
 
@@ -2765,15 +2774,15 @@ public partial class SensorHistoryValueQueryBuilderV1 : GraphQlQueryBuilder<Sens
     {
     }
 
-    public SensorHistoryValueQueryBuilderV1 WithTimestamp(string alias = null) => WithScalarField("timestamp", alias);
+    public SensorHistoryValueQueryBuilderV1 WithTimestamp(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("timestamp", alias, includeIf, skipIf);
 
     public SensorHistoryValueQueryBuilderV1 ExceptTimestamp() => ExceptField("timestamp");
 
-    public SensorHistoryValueQueryBuilderV1 WithValue(string alias = null) => WithScalarField("value", alias);
+    public SensorHistoryValueQueryBuilderV1 WithValue(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("value", alias, includeIf, skipIf);
 
     public SensorHistoryValueQueryBuilderV1 ExceptValue() => ExceptField("value");
 
-    public SensorHistoryValueQueryBuilderV1 WithValueText(string alias = null) => WithScalarField("valueText", alias);
+    public SensorHistoryValueQueryBuilderV1 WithValueText(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("valueText", alias, includeIf, skipIf);
 
     public SensorHistoryValueQueryBuilderV1 ExceptValueText() => ExceptField("valueText");
 }
@@ -2793,7 +2802,7 @@ public partial class PairableDeviceQueryBuilderV1 : GraphQlQueryBuilder<Pairable
     {
     }
 
-    public PairableDeviceQueryBuilderV1 WithType(string alias = null) => WithScalarField("type", alias);
+    public PairableDeviceQueryBuilderV1 WithType(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("type", alias, includeIf, skipIf);
 
     public PairableDeviceQueryBuilderV1 ExceptType() => ExceptField("type");
 
@@ -2801,7 +2810,7 @@ public partial class PairableDeviceQueryBuilderV1 : GraphQlQueryBuilder<Pairable
 
     public PairableDeviceQueryBuilderV1 ExceptOauth() => ExceptField("oauth");
 
-    public PairableDeviceQueryBuilderV1 WithReadMoreUrl(string alias = null) => WithScalarField("readMoreUrl", alias);
+    public PairableDeviceQueryBuilderV1 WithReadMoreUrl(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("readMoreUrl", alias, includeIf, skipIf);
 
     public PairableDeviceQueryBuilderV1 ExceptReadMoreUrl() => ExceptField("readMoreUrl");
 }
@@ -2820,11 +2829,11 @@ public partial class PairableDeviceOAuthQueryBuilderV1 : GraphQlQueryBuilder<Pai
     {
     }
 
-    public PairableDeviceOAuthQueryBuilderV1 WithUrl(string alias = null) => WithScalarField("url", alias);
+    public PairableDeviceOAuthQueryBuilderV1 WithUrl(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("url", alias, includeIf, skipIf);
 
     public PairableDeviceOAuthQueryBuilderV1 ExceptUrl() => ExceptField("url");
 
-    public PairableDeviceOAuthQueryBuilderV1 WithRedirectUriStartsWith(string alias = null) => WithScalarField("redirectUriStartsWith", alias);
+    public PairableDeviceOAuthQueryBuilderV1 WithRedirectUriStartsWith(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("redirectUriStartsWith", alias, includeIf, skipIf);
 
     public PairableDeviceOAuthQueryBuilderV1 ExceptRedirectUriStartsWith() => ExceptField("redirectUriStartsWith");
 }
@@ -2850,39 +2859,39 @@ public partial class ProductionMonthQueryBuilderV1 : GraphQlQueryBuilder<Product
     {
     }
 
-    public ProductionMonthQueryBuilderV1 WithYear(string alias = null) => WithScalarField("year", alias);
+    public ProductionMonthQueryBuilderV1 WithYear(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("year", alias, includeIf, skipIf);
 
     public ProductionMonthQueryBuilderV1 ExceptYear() => ExceptField("year");
 
-    public ProductionMonthQueryBuilderV1 WithMonth(string alias = null) => WithScalarField("month", alias);
+    public ProductionMonthQueryBuilderV1 WithMonth(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("month", alias, includeIf, skipIf);
 
     public ProductionMonthQueryBuilderV1 ExceptMonth() => ExceptField("month");
 
-    public ProductionMonthQueryBuilderV1 WithKwh(string alias = null) => WithScalarField("kwh", alias);
+    public ProductionMonthQueryBuilderV1 WithKwh(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("kwh", alias, includeIf, skipIf);
 
     public ProductionMonthQueryBuilderV1 ExceptKwh() => ExceptField("kwh");
 
-    public ProductionMonthQueryBuilderV1 WithCost(string alias = null) => WithScalarField("cost", alias);
+    public ProductionMonthQueryBuilderV1 WithCost(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("cost", alias, includeIf, skipIf);
 
     public ProductionMonthQueryBuilderV1 ExceptCost() => ExceptField("cost");
 
-    public ProductionMonthQueryBuilderV1 WithIsComplete(string alias = null) => WithScalarField("isComplete", alias);
+    public ProductionMonthQueryBuilderV1 WithIsComplete(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("isComplete", alias, includeIf, skipIf);
 
     public ProductionMonthQueryBuilderV1 ExceptIsComplete() => ExceptField("isComplete");
 
-    public ProductionMonthQueryBuilderV1 WithTitle(string alias = null) => WithScalarField("title", alias);
+    public ProductionMonthQueryBuilderV1 WithTitle(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("title", alias, includeIf, skipIf);
 
     public ProductionMonthQueryBuilderV1 ExceptTitle() => ExceptField("title");
 
-    public ProductionMonthQueryBuilderV1 WithCostText(string alias = null) => WithScalarField("costText", alias);
+    public ProductionMonthQueryBuilderV1 WithCostText(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("costText", alias, includeIf, skipIf);
 
     public ProductionMonthQueryBuilderV1 ExceptCostText() => ExceptField("costText");
 
-    public ProductionMonthQueryBuilderV1 WithKwhText(string alias = null) => WithScalarField("kwhText", alias);
+    public ProductionMonthQueryBuilderV1 WithKwhText(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("kwhText", alias, includeIf, skipIf);
 
     public ProductionMonthQueryBuilderV1 ExceptKwhText() => ExceptField("kwhText");
 
-    public ProductionMonthQueryBuilderV1 WithDescription(string alias = null) => WithScalarField("description", alias);
+    public ProductionMonthQueryBuilderV1 WithDescription(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("description", alias, includeIf, skipIf);
 
     public ProductionMonthQueryBuilderV1 ExceptDescription() => ExceptField("description");
 }
@@ -2930,27 +2939,27 @@ public partial class ProductionQueryBuilderV1 : GraphQlQueryBuilder<ProductionQu
 
     public ProductionQueryBuilderV1 ExceptHourlyValues() => ExceptField("hourlyValues");
 
-    public ProductionQueryBuilderV1 WithTotalConsumption(string alias = null) => WithScalarField("totalConsumption", alias);
+    public ProductionQueryBuilderV1 WithTotalConsumption(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("totalConsumption", alias, includeIf, skipIf);
 
     public ProductionQueryBuilderV1 ExceptTotalConsumption() => ExceptField("totalConsumption");
 
-    public ProductionQueryBuilderV1 WithEnergyCost(string alias = null) => WithScalarField("energyCost", alias);
+    public ProductionQueryBuilderV1 WithEnergyCost(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("energyCost", alias, includeIf, skipIf);
 
     public ProductionQueryBuilderV1 ExceptEnergyCost() => ExceptField("energyCost");
 
-    public ProductionQueryBuilderV1 WithTotalCost(string alias = null) => WithScalarField("totalCost", alias);
+    public ProductionQueryBuilderV1 WithTotalCost(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("totalCost", alias, includeIf, skipIf);
 
     public ProductionQueryBuilderV1 ExceptTotalCost() => ExceptField("totalCost");
 
-    public ProductionQueryBuilderV1 WithCurrency(string alias = null) => WithScalarField("currency", alias);
+    public ProductionQueryBuilderV1 WithCurrency(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("currency", alias, includeIf, skipIf);
 
     public ProductionQueryBuilderV1 ExceptCurrency() => ExceptField("currency");
 
-    public ProductionQueryBuilderV1 WithLatestTransactionTimestamp(string alias = null) => WithScalarField("latestTransactionTimestamp", alias);
+    public ProductionQueryBuilderV1 WithLatestTransactionTimestamp(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("latestTransactionTimestamp", alias, includeIf, skipIf);
 
     public ProductionQueryBuilderV1 ExceptLatestTransactionTimestamp() => ExceptField("latestTransactionTimestamp");
 
-    public ProductionQueryBuilderV1 WithTimeZone(string alias = null) => WithScalarField("timeZone", alias);
+    public ProductionQueryBuilderV1 WithTimeZone(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("timeZone", alias, includeIf, skipIf);
 
     public ProductionQueryBuilderV1 ExceptTimeZone() => ExceptField("timeZone");
 }
@@ -2977,43 +2986,43 @@ public partial class ProductionValueQueryBuilderV1 : GraphQlQueryBuilder<Product
     {
     }
 
-    public ProductionValueQueryBuilderV1 WithFrom(string alias = null) => WithScalarField("from", alias);
+    public ProductionValueQueryBuilderV1 WithFrom(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("from", alias, includeIf, skipIf);
 
     public ProductionValueQueryBuilderV1 ExceptFrom() => ExceptField("from");
 
-    public ProductionValueQueryBuilderV1 WithTo(string alias = null) => WithScalarField("to", alias);
+    public ProductionValueQueryBuilderV1 WithTo(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("to", alias, includeIf, skipIf);
 
     public ProductionValueQueryBuilderV1 ExceptTo() => ExceptField("to");
 
-    public ProductionValueQueryBuilderV1 WithUnitPrice(string alias = null) => WithScalarField("unitPrice", alias);
+    public ProductionValueQueryBuilderV1 WithUnitPrice(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("unitPrice", alias, includeIf, skipIf);
 
     public ProductionValueQueryBuilderV1 ExceptUnitPrice() => ExceptField("unitPrice");
 
-    public ProductionValueQueryBuilderV1 WithUnitPriceVat(string alias = null) => WithScalarField("unitPriceVAT", alias);
+    public ProductionValueQueryBuilderV1 WithUnitPriceVat(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("unitPriceVAT", alias, includeIf, skipIf);
 
     public ProductionValueQueryBuilderV1 ExceptUnitPriceVat() => ExceptField("unitPriceVAT");
 
-    public ProductionValueQueryBuilderV1 WithConsumption(string alias = null) => WithScalarField("consumption", alias);
+    public ProductionValueQueryBuilderV1 WithConsumption(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("consumption", alias, includeIf, skipIf);
 
     public ProductionValueQueryBuilderV1 ExceptConsumption() => ExceptField("consumption");
 
-    public ProductionValueQueryBuilderV1 WithConsumptionUnit(string alias = null) => WithScalarField("consumptionUnit", alias);
+    public ProductionValueQueryBuilderV1 WithConsumptionUnit(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("consumptionUnit", alias, includeIf, skipIf);
 
     public ProductionValueQueryBuilderV1 ExceptConsumptionUnit() => ExceptField("consumptionUnit");
 
-    public ProductionValueQueryBuilderV1 WithTotalCost(string alias = null) => WithScalarField("totalCost", alias);
+    public ProductionValueQueryBuilderV1 WithTotalCost(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("totalCost", alias, includeIf, skipIf);
 
     public ProductionValueQueryBuilderV1 ExceptTotalCost() => ExceptField("totalCost");
 
-    public ProductionValueQueryBuilderV1 WithUnitCost(string alias = null) => WithScalarField("unitCost", alias);
+    public ProductionValueQueryBuilderV1 WithUnitCost(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("unitCost", alias, includeIf, skipIf);
 
     public ProductionValueQueryBuilderV1 ExceptUnitCost() => ExceptField("unitCost");
 
-    public ProductionValueQueryBuilderV1 WithQuality(string alias = null) => WithScalarField("quality", alias);
+    public ProductionValueQueryBuilderV1 WithQuality(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("quality", alias, includeIf, skipIf);
 
     public ProductionValueQueryBuilderV1 ExceptQuality() => ExceptField("quality");
 
-    public ProductionValueQueryBuilderV1 WithConsumptionEntries(string alias = null) => WithScalarField("consumptionEntries", alias);
+    public ProductionValueQueryBuilderV1 WithConsumptionEntries(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("consumptionEntries", alias, includeIf, skipIf);
 
     public ProductionValueQueryBuilderV1 ExceptConsumptionEntries() => ExceptField("consumptionEntries");
 }
@@ -3033,7 +3042,7 @@ public partial class FeedQueryBuilderV1 : GraphQlQueryBuilder<FeedQueryBuilderV1
     {
     }
 
-    public FeedQueryBuilderV1 WithNumberOfItems(string alias = null) => WithScalarField("numberOfItems", alias);
+    public FeedQueryBuilderV1 WithNumberOfItems(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("numberOfItems", alias, includeIf, skipIf);
 
     public FeedQueryBuilderV1 ExceptNumberOfItems() => ExceptField("numberOfItems");
 
@@ -3077,27 +3086,27 @@ public partial class FeedItemQueryBuilderV1 : GraphQlQueryBuilder<FeedItemQueryB
     {
     }
 
-    public FeedItemQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
+    public FeedItemQueryBuilderV1 WithId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("id", alias, includeIf, skipIf);
 
     public FeedItemQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public FeedItemQueryBuilderV1 WithMessageTypeId(string alias = null) => WithScalarField("messageTypeId", alias);
+    public FeedItemQueryBuilderV1 WithMessageTypeId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("messageTypeId", alias, includeIf, skipIf);
 
     public FeedItemQueryBuilderV1 ExceptMessageTypeId() => ExceptField("messageTypeId");
 
-    public FeedItemQueryBuilderV1 WithLink(string alias = null) => WithScalarField("link", alias);
+    public FeedItemQueryBuilderV1 WithLink(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("link", alias, includeIf, skipIf);
 
     public FeedItemQueryBuilderV1 ExceptLink() => ExceptField("link");
 
-    public FeedItemQueryBuilderV1 WithText(string alias = null) => WithScalarField("text", alias);
+    public FeedItemQueryBuilderV1 WithText(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("text", alias, includeIf, skipIf);
 
     public FeedItemQueryBuilderV1 ExceptText() => ExceptField("text");
 
-    public FeedItemQueryBuilderV1 WithCreatedAt(string alias = null) => WithScalarField("createdAt", alias);
+    public FeedItemQueryBuilderV1 WithCreatedAt(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("createdAt", alias, includeIf, skipIf);
 
     public FeedItemQueryBuilderV1 ExceptCreatedAt() => ExceptField("createdAt");
 
-    public FeedItemQueryBuilderV1 WithModifiedAt(string alias = null) => WithScalarField("modifiedAt", alias);
+    public FeedItemQueryBuilderV1 WithModifiedAt(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("modifiedAt", alias, includeIf, skipIf);
 
     public FeedItemQueryBuilderV1 ExceptModifiedAt() => ExceptField("modifiedAt");
 }
@@ -3117,15 +3126,15 @@ public partial class PushNotificationQueryBuilderV1 : GraphQlQueryBuilder<PushNo
     {
     }
 
-    public PushNotificationQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
+    public PushNotificationQueryBuilderV1 WithId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("id", alias, includeIf, skipIf);
 
     public PushNotificationQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public PushNotificationQueryBuilderV1 WithLink(string alias = null) => WithScalarField("link", alias);
+    public PushNotificationQueryBuilderV1 WithLink(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("link", alias, includeIf, skipIf);
 
     public PushNotificationQueryBuilderV1 ExceptLink() => ExceptField("link");
 
-    public PushNotificationQueryBuilderV1 WithText(string alias = null) => WithScalarField("text", alias);
+    public PushNotificationQueryBuilderV1 WithText(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("text", alias, includeIf, skipIf);
 
     public PushNotificationQueryBuilderV1 ExceptText() => ExceptField("text");
 }
@@ -3145,7 +3154,7 @@ public partial class WalletQueryBuilderV1 : GraphQlQueryBuilder<WalletQueryBuild
     {
     }
 
-    public WalletQueryBuilderV1 WithId(string alias = null) => WithScalarField("id", alias);
+    public WalletQueryBuilderV1 WithId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("id", alias, includeIf, skipIf);
 
     public WalletQueryBuilderV1 ExceptId() => ExceptField("id");
 
@@ -3153,7 +3162,7 @@ public partial class WalletQueryBuilderV1 : GraphQlQueryBuilder<WalletQueryBuild
 
     public WalletQueryBuilderV1 ExceptPaymentMethods() => ExceptField("paymentMethods");
 
-    public WalletQueryBuilderV1 WithDirectDebitToPromote(string alias = null) => WithScalarField("directDebitToPromote", alias);
+    public WalletQueryBuilderV1 WithDirectDebitToPromote(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("directDebitToPromote", alias, includeIf, skipIf);
 
     public WalletQueryBuilderV1 ExceptDirectDebitToPromote() => ExceptField("directDebitToPromote");
 }
@@ -3173,15 +3182,15 @@ public partial class PaymentMethodQueryBuilderV1 : GraphQlQueryBuilder<PaymentMe
     {
     }
 
-    public PaymentMethodQueryBuilderV1 WithMethod(string alias = null) => WithScalarField("method", alias);
+    public PaymentMethodQueryBuilderV1 WithMethod(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("method", alias, includeIf, skipIf);
 
     public PaymentMethodQueryBuilderV1 ExceptMethod() => ExceptField("method");
 
-    public PaymentMethodQueryBuilderV1 WithStatus(string alias = null) => WithScalarField("status", alias);
+    public PaymentMethodQueryBuilderV1 WithStatus(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("status", alias, includeIf, skipIf);
 
     public PaymentMethodQueryBuilderV1 ExceptStatus() => ExceptField("status");
 
-    public PaymentMethodQueryBuilderV1 WithProperties(string alias = null) => WithScalarField("properties", alias);
+    public PaymentMethodQueryBuilderV1 WithProperties(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("properties", alias, includeIf, skipIf);
 
     public PaymentMethodQueryBuilderV1 ExceptProperties() => ExceptField("properties");
 }
@@ -3218,11 +3227,11 @@ public partial class AboutItemQueryBuilderV1 : GraphQlQueryBuilder<AboutItemQuer
     {
     }
 
-    public AboutItemQueryBuilderV1 WithLabel(string alias = null) => WithScalarField("label", alias);
+    public AboutItemQueryBuilderV1 WithLabel(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("label", alias, includeIf, skipIf);
 
     public AboutItemQueryBuilderV1 ExceptLabel() => ExceptField("label");
 
-    public AboutItemQueryBuilderV1 WithUrl(string alias = null) => WithScalarField("url", alias);
+    public AboutItemQueryBuilderV1 WithUrl(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("url", alias, includeIf, skipIf);
 
     public AboutItemQueryBuilderV1 ExceptUrl() => ExceptField("url");
 }
@@ -3447,7 +3456,7 @@ public partial class ThermostatMutationQueryBuilderV1 : GraphQlQueryBuilder<Ther
     {
     }
 
-    public ThermostatMutationQueryBuilderV1 WithSetState(QueryBuilderParameter<string> mode = null, QueryBuilderParameter<decimal?> comfortTemperature = null, QueryBuilderParameter<string> fanLevel = null, QueryBuilderParameter<string> onOff = null, string alias = null)
+    public ThermostatMutationQueryBuilderV1 WithSetState(QueryBuilderParameter<string> mode = null, QueryBuilderParameter<decimal?> comfortTemperature = null, QueryBuilderParameter<string> fanLevel = null, QueryBuilderParameter<string> onOff = null, string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (mode != null)
@@ -3462,7 +3471,7 @@ public partial class ThermostatMutationQueryBuilderV1 : GraphQlQueryBuilder<Ther
         if (onOff != null)
             args.Add("onOff", onOff);
 
-        return WithScalarField("setState", alias, args);
+        return WithScalarField("setState", alias, includeIf, skipIf, args);
     }
 
     public ThermostatMutationQueryBuilderV1 ExceptSetState()
@@ -3470,13 +3479,13 @@ public partial class ThermostatMutationQueryBuilderV1 : GraphQlQueryBuilder<Ther
         return ExceptField("setState");
     }
 
-    public ThermostatMutationQueryBuilderV1 WithSetName(QueryBuilderParameter<string> name = null, string alias = null)
+    public ThermostatMutationQueryBuilderV1 WithSetName(QueryBuilderParameter<string> name = null, string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (name != null)
             args.Add("name", name);
 
-        return WithScalarField("setName", alias, args);
+        return WithScalarField("setName", alias, includeIf, skipIf, args);
     }
 
     public ThermostatMutationQueryBuilderV1 ExceptSetName()
@@ -3527,11 +3536,11 @@ public partial class GQLMutationErrorQueryBuilderV1 : GraphQlQueryBuilder<GQLMut
     {
     }
 
-    public GQLMutationErrorQueryBuilderV1 WithStatusCode(string alias = null) => WithScalarField("statusCode", alias);
+    public GQLMutationErrorQueryBuilderV1 WithStatusCode(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("statusCode", alias, includeIf, skipIf);
 
     public GQLMutationErrorQueryBuilderV1 ExceptStatusCode() => ExceptField("statusCode");
 
-    public GQLMutationErrorQueryBuilderV1 WithMessage(string alias = null) => WithScalarField("message", alias);
+    public GQLMutationErrorQueryBuilderV1 WithMessage(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) => WithScalarField("message", alias, includeIf, skipIf);
 
     public GQLMutationErrorQueryBuilderV1 ExceptMessage() => ExceptField("message");
 }

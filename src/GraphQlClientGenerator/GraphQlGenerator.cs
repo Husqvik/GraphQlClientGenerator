@@ -507,9 +507,10 @@ using Newtonsoft.Json.Linq;
             builder.Append(stringDataType);
             builder.Append(" alias = null");
 
+            var directiveParameterDataType = AddQuestionMarkIfNullableReferencesEnabled("QueryBuilderParameter<bool>");
+
             if (!hasQueryPrefix)
             {
-                var directiveParameterDataType = AddQuestionMarkIfNullableReferencesEnabled("QueryBuilderParameter<bool>");
                 builder.Append(", ");
                 builder.Append(directiveParameterDataType);
                 builder.Append(" includeIf = null, ");
@@ -575,7 +576,7 @@ using Newtonsoft.Json.Linq;
 
                 if (fieldType.Kind == GraphQlTypeKindScalar || fieldType.Kind == GraphQlTypeKindEnum)
                 {
-                    builder.Append($"    public {className} With{NamingHelper.ToPascalCase(field.Name)}({methodParameters}{(String.IsNullOrEmpty(methodParameters) ? null : ", ")}{stringDataType} alias = null)");
+                    builder.Append($"    public {className} With{NamingHelper.ToPascalCase(field.Name)}({methodParameters}{(String.IsNullOrEmpty(methodParameters) ? null : ", ")}{stringDataType} alias = null, {directiveParameterDataType} includeIf = null, {directiveParameterDataType} skipIf = null)");
 
                     WriteQueryBuilderMethodBody(
                         requiresFullBody,
@@ -584,7 +585,7 @@ using Newtonsoft.Json.Linq;
                         {
                             AppendArgumentDictionary(builder, args);
 
-                            builder.Append($"{returnPrefix}WithScalarField(\"{field.Name}\", alias");
+                            builder.Append($"{returnPrefix}WithScalarField(\"{field.Name}\", alias, includeIf, skipIf");
 
                             if (args.Length > 0)
                                 builder.Append(", args");

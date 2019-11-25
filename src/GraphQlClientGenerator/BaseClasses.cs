@@ -137,6 +137,23 @@ internal static class GraphQlQueryHelper
         return builder.ToString();
     }
 
+    public static string BuildDirective(string directive, QueryBuilderParameter directiveParameter, Formatting formatting, int level, byte indentationSize)
+    {
+        if (directiveParameter == null)
+            return String.Empty;
+
+        var indentationSpace = formatting == Formatting.Indented ? " " : String.Empty;
+        var builder = new StringBuilder();
+        builder.Append(indentationSpace);
+        builder.Append("@");
+        builder.Append(directive);
+        builder.Append("(if:");
+        builder.Append(indentationSpace);
+        builder.Append(directiveParameter.Name == null ? BuildArgumentValue(directiveParameter.Value, formatting, level, indentationSize) : "$" + directiveParameter.Name);
+        builder.Append(")");
+        return builder.ToString();
+    }
+
     private static string ConvertEnumToString(Enum @enum)
     {
         var enumMember = @enum.GetType().GetTypeInfo().GetField(@enum.ToString());
@@ -322,22 +339,8 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         }
         else
         {
-            void AppendDirective(string directive, QueryBuilderParameter directiveParameter)
-            {
-                if (directiveParameter == null)
-                    return;
-
-                builder.Append(indentationSpace);
-                builder.Append("@");
-                builder.Append(directive);
-                builder.Append("(if:");
-                builder.Append(indentationSpace);
-                builder.Append(directiveParameter.Name == null ? GraphQlQueryHelper.BuildArgumentValue(directiveParameter.Value, formatting, level, indentationSize) : "$" + directiveParameter.Name);
-                builder.Append(")");
-            }
-
-            AppendDirective("include", _includeIf);
-            AppendDirective("skip", _skipIf);
+            builder.Append(GraphQlQueryHelper.BuildDirective("include", _includeIf, formatting, level, indentationSize));
+            builder.Append(GraphQlQueryHelper.BuildDirective("skip", _skipIf, formatting, level, indentationSize));
         }
 
         builder.Append(indentationSpace);
@@ -370,10 +373,10 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         return builder.ToString();
     }
 
-    protected void IncludeScalarField(string fieldName, string alias, IDictionary<string, QueryBuilderParameter> args)
+    protected void IncludeScalarField(string fieldName, string alias, QueryBuilderParameter<bool> includeIf, QueryBuilderParameter<bool> skipIf, IDictionary<string, QueryBuilderParameter> args)
     {
         ValidateAlias(alias);
-        _fieldCriteria[alias ?? fieldName] = new GraphQlScalarFieldCriteria(fieldName, alias, args);
+        _fieldCriteria[alias ?? fieldName] = new GraphQlScalarFieldCriteria(fieldName, alias, includeIf, skipIf, args);
     }
 
     protected void IncludeObjectField(string fieldName, GraphQlQueryBuilder objectFieldQueryBuilder, IDictionary<string, QueryBuilderParameter> args)
@@ -399,7 +402,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         foreach (var field in fields)
         {
             if (field.QueryBuilderType == null)
-                IncludeScalarField(field.Name, null, null);
+                IncludeScalarField(field.Name, null, null, null, null);
             else
             {
                 var builderType = GetType();
@@ -472,10 +475,14 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
     private class GraphQlScalarFieldCriteria : GraphQlFieldCriteria
     {
         private readonly string _alias;
+        private readonly QueryBuilderParameter<bool> _includeIf;
+        private readonly QueryBuilderParameter<bool> _skipIf;
 
-        public GraphQlScalarFieldCriteria(string fieldName, string alias, IDictionary<string, QueryBuilderParameter> args) : base(fieldName, args)
+        public GraphQlScalarFieldCriteria(string fieldName, string alias, QueryBuilderParameter<bool> includeIf, QueryBuilderParameter<bool> skipIf, IDictionary<string, QueryBuilderParameter> args) : base(fieldName, args)
         {
             _alias = alias;
+            _includeIf = includeIf;
+            _skipIf = skipIf;
         }
 
         public override string Build(Formatting formatting, int level, byte indentationSize)
@@ -487,6 +494,8 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
             builder.Append(BuildAliasPrefix(_alias, formatting));
             builder.Append(FieldName);
             builder.Append(BuildArgumentClause(formatting, level, indentationSize));
+            builder.Append(GraphQlQueryHelper.BuildDirective("include", _includeIf, formatting, level, indentationSize));
+            builder.Append(GraphQlQueryHelper.BuildDirective("skip", _skipIf, formatting, level, indentationSize));
             return builder.ToString();
         }
     }
@@ -538,9 +547,9 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
         return (TQueryBuilder)this;
     }
 
-    protected TQueryBuilder WithScalarField(string fieldName, string alias = null, IDictionary<string, QueryBuilderParameter> args = null)
+    protected TQueryBuilder WithScalarField(string fieldName, string alias, QueryBuilderParameter<bool> includeIf, QueryBuilderParameter<bool> skipIf, IDictionary<string, QueryBuilderParameter> args = null)
     {
-        IncludeScalarField(fieldName, alias, args);
+        IncludeScalarField(fieldName, alias, includeIf, skipIf, args);
         return (TQueryBuilder)this;
     }
 
