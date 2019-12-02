@@ -31,6 +31,11 @@ namespace GraphQlClientGenerator
         public static IdType IdType { get; set; } = IdType.Guid;
 
         /// <summary>
+        /// Determines builder class, data class and interfaces accessibility level.
+        /// </summary>
+        public static MemberAccessibility MemberAccessibility { get; set; }
+
+        /// <summary>
         /// This property is used for mapping GraphQL scalar type into specific .NET type. By default any custom GraphQL scalar type is mapped into <see cref="System.Object"/>.
         /// </summary>
         public static GetCustomScalarFieldTypeDelegate CustomScalarFieldTypeMapping { get; set; } = DefaultScalarFieldTypeMapping;
@@ -48,6 +53,7 @@ namespace GraphQlClientGenerator
             IdType = IdType.Guid;
             TreatUnknownObjectAsScalar = false;
             GeneratePartialClasses = true;
+            MemberAccessibility = MemberAccessibility.Public;
         }
 
         public static string DefaultScalarFieldTypeMapping(GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
@@ -90,6 +96,12 @@ namespace GraphQlClientGenerator
         Guid,
         Object,
         Custom
+    }
+
+    public enum MemberAccessibility
+    {
+        Public,
+        Internal
     }
 
     [Flags]

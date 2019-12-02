@@ -594,7 +594,7 @@ public enum Resolution
 #endregion
 
 #region builder classes
-public partial class QueryQueryBuilderV1 : GraphQlQueryBuilder<QueryQueryBuilderV1>
+internal partial class QueryQueryBuilderV1 : GraphQlQueryBuilder<QueryQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -616,7 +616,7 @@ public partial class QueryQueryBuilderV1 : GraphQlQueryBuilder<QueryQueryBuilder
     public QueryQueryBuilderV1 ExceptMe() => ExceptField("me");
 }
 
-public partial class MeQueryBuilderV1 : GraphQlQueryBuilder<MeQueryBuilderV1>
+internal partial class MeQueryBuilderV1 : GraphQlQueryBuilder<MeQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -719,7 +719,7 @@ public partial class MeQueryBuilderV1 : GraphQlQueryBuilder<MeQueryBuilderV1>
     public MeQueryBuilderV1 ExceptAbout() => ExceptField("about");
 }
 
-public partial class GreetingQueryBuilderV1 : GraphQlQueryBuilder<GreetingQueryBuilderV1>
+internal partial class GreetingQueryBuilderV1 : GraphQlQueryBuilder<GreetingQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -752,7 +752,7 @@ public partial class GreetingQueryBuilderV1 : GraphQlQueryBuilder<GreetingQueryB
     public GreetingQueryBuilderV1 ExceptShowUntil() => ExceptField("showUntil");
 }
 
-public partial class AppStateQueryBuilderV1 : GraphQlQueryBuilder<AppStateQueryBuilderV1>
+internal partial class AppStateQueryBuilderV1 : GraphQlQueryBuilder<AppStateQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -775,7 +775,7 @@ public partial class AppStateQueryBuilderV1 : GraphQlQueryBuilder<AppStateQueryB
     public AppStateQueryBuilderV1 ExceptFrontScreens() => ExceptField("frontScreens");
 }
 
-public partial class AppStateJourneyQueryBuilderV1 : GraphQlQueryBuilder<AppStateJourneyQueryBuilderV1>
+internal partial class AppStateJourneyQueryBuilderV1 : GraphQlQueryBuilder<AppStateJourneyQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -793,7 +793,7 @@ public partial class AppStateJourneyQueryBuilderV1 : GraphQlQueryBuilder<AppStat
     public AppStateJourneyQueryBuilderV1 ExceptHasVisitedPairDevices() => ExceptField("hasVisitedPairDevices");
 }
 
-public partial class AppStateFronScreenQueryBuilderV1 : GraphQlQueryBuilder<AppStateFronScreenQueryBuilderV1>
+internal partial class AppStateFronScreenQueryBuilderV1 : GraphQlQueryBuilder<AppStateFronScreenQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -821,7 +821,7 @@ public partial class AppStateFronScreenQueryBuilderV1 : GraphQlQueryBuilder<AppS
     public AppStateFronScreenQueryBuilderV1 ExceptBubblesSortOrder() => ExceptField("bubblesSortOrder");
 }
 
-public partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1>
+internal partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1059,7 +1059,7 @@ public partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1
     }
 }
 
-public partial class AddressQueryBuilderV1 : GraphQlQueryBuilder<AddressQueryBuilderV1>
+internal partial class AddressQueryBuilderV1 : GraphQlQueryBuilder<AddressQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1122,7 +1122,7 @@ public partial class AddressQueryBuilderV1 : GraphQlQueryBuilder<AddressQueryBui
     public AddressQueryBuilderV1 ExceptAddressText() => ExceptField("addressText");
 }
 
-public partial class SubscriptionQueryBuilderV1 : GraphQlQueryBuilder<SubscriptionQueryBuilderV1>
+internal partial class SubscriptionQueryBuilderV1 : GraphQlQueryBuilder<SubscriptionQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1180,7 +1180,7 @@ public partial class SubscriptionQueryBuilderV1 : GraphQlQueryBuilder<Subscripti
     public SubscriptionQueryBuilderV1 ExceptEnergyDeal() => ExceptField("energyDeal");
 }
 
-public partial class PriceRatingRootQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingRootQueryBuilderV1>
+internal partial class PriceRatingRootQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingRootQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1228,7 +1228,7 @@ public partial class PriceRatingRootQueryBuilderV1 : GraphQlQueryBuilder<PriceRa
     public PriceRatingRootQueryBuilderV1 ExceptMonthly() => ExceptField("monthly");
 }
 
-public partial class PriceRatingQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingQueryBuilderV1>
+internal partial class PriceRatingQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1276,7 +1276,7 @@ public partial class PriceRatingQueryBuilderV1 : GraphQlQueryBuilder<PriceRating
     public PriceRatingQueryBuilderV1 ExceptEntries() => ExceptField("entries");
 }
 
-public partial class PriceRatingColorOffsetQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingColorOffsetQueryBuilderV1>
+internal partial class PriceRatingColorOffsetQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingColorOffsetQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1304,7 +1304,7 @@ public partial class PriceRatingColorOffsetQueryBuilderV1 : GraphQlQueryBuilder<
     public PriceRatingColorOffsetQueryBuilderV1 ExceptFullRedPercent() => ExceptField("fullRedPercent");
 }
 
-public partial class PriceRatingEntryQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingEntryQueryBuilderV1>
+internal partial class PriceRatingEntryQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingEntryQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1337,7 +1337,7 @@ public partial class PriceRatingEntryQueryBuilderV1 : GraphQlQueryBuilder<PriceR
     public PriceRatingEntryQueryBuilderV1 ExceptDifference() => ExceptField("difference");
 }
 
-public partial class InvoiceQueryBuilderV1 : GraphQlQueryBuilder<InvoiceQueryBuilderV1>
+internal partial class InvoiceQueryBuilderV1 : GraphQlQueryBuilder<InvoiceQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1470,7 +1470,7 @@ public partial class InvoiceQueryBuilderV1 : GraphQlQueryBuilder<InvoiceQueryBui
     public InvoiceQueryBuilderV1 ExceptTo() => ExceptField("to");
 }
 
-public partial class InvoicePaymentQueryBuilderV1 : GraphQlQueryBuilder<InvoicePaymentQueryBuilderV1>
+internal partial class InvoicePaymentQueryBuilderV1 : GraphQlQueryBuilder<InvoicePaymentQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1508,7 +1508,7 @@ public partial class InvoicePaymentQueryBuilderV1 : GraphQlQueryBuilder<InvoiceP
     public InvoicePaymentQueryBuilderV1 ExceptCreditCard() => ExceptField("creditCard");
 }
 
-public partial class CreditCardQueryBuilderV1 : GraphQlQueryBuilder<CreditCardQueryBuilderV1>
+internal partial class CreditCardQueryBuilderV1 : GraphQlQueryBuilder<CreditCardQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1531,7 +1531,7 @@ public partial class CreditCardQueryBuilderV1 : GraphQlQueryBuilder<CreditCardQu
     public CreditCardQueryBuilderV1 ExceptLast4() => ExceptField("last4");
 }
 
-public partial class InvoiceSectionQueryBuilderV1 : GraphQlQueryBuilder<InvoiceSectionQueryBuilderV1>
+internal partial class InvoiceSectionQueryBuilderV1 : GraphQlQueryBuilder<InvoiceSectionQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1604,7 +1604,7 @@ public partial class InvoiceSectionQueryBuilderV1 : GraphQlQueryBuilder<InvoiceS
     public InvoiceSectionQueryBuilderV1 ExceptCostUnit() => ExceptField("costUnit");
 }
 
-public partial class EnergyDealQueryBuilderV1 : GraphQlQueryBuilder<EnergyDealQueryBuilderV1>
+internal partial class EnergyDealQueryBuilderV1 : GraphQlQueryBuilder<EnergyDealQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1622,7 +1622,7 @@ public partial class EnergyDealQueryBuilderV1 : GraphQlQueryBuilder<EnergyDealQu
     public EnergyDealQueryBuilderV1 ExceptCurrentProducer() => ExceptField("currentProducer");
 }
 
-public partial class ProducerQueryBuilderV1 : GraphQlQueryBuilder<ProducerQueryBuilderV1>
+internal partial class ProducerQueryBuilderV1 : GraphQlQueryBuilder<ProducerQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1665,7 +1665,7 @@ public partial class ProducerQueryBuilderV1 : GraphQlQueryBuilder<ProducerQueryB
     public ProducerQueryBuilderV1 ExceptBullets() => ExceptField("bullets");
 }
 
-public partial class ProducerBulletQueryBuilderV1 : GraphQlQueryBuilder<ProducerBulletQueryBuilderV1>
+internal partial class ProducerBulletQueryBuilderV1 : GraphQlQueryBuilder<ProducerBulletQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1693,7 +1693,7 @@ public partial class ProducerBulletQueryBuilderV1 : GraphQlQueryBuilder<Producer
     public ProducerBulletQueryBuilderV1 ExceptReadMoreUrl() => ExceptField("readMoreUrl");
 }
 
-public partial class ConsumptionMonthQueryBuilderV1 : GraphQlQueryBuilder<ConsumptionMonthQueryBuilderV1>
+internal partial class ConsumptionMonthQueryBuilderV1 : GraphQlQueryBuilder<ConsumptionMonthQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1746,7 +1746,7 @@ public partial class ConsumptionMonthQueryBuilderV1 : GraphQlQueryBuilder<Consum
     public ConsumptionMonthQueryBuilderV1 ExceptCurrency() => ExceptField("currency");
 }
 
-public partial class ConsumptionQueryBuilderV1 : GraphQlQueryBuilder<ConsumptionQueryBuilderV1>
+internal partial class ConsumptionQueryBuilderV1 : GraphQlQueryBuilder<ConsumptionQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1814,7 +1814,7 @@ public partial class ConsumptionQueryBuilderV1 : GraphQlQueryBuilder<Consumption
     public ConsumptionQueryBuilderV1 ExceptTimeZone() => ExceptField("timeZone");
 }
 
-public partial class PreLiveComparisonQueryBuilderV1 : GraphQlQueryBuilder<PreLiveComparisonQueryBuilderV1>
+internal partial class PreLiveComparisonQueryBuilderV1 : GraphQlQueryBuilder<PreLiveComparisonQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1847,7 +1847,7 @@ public partial class PreLiveComparisonQueryBuilderV1 : GraphQlQueryBuilder<PreLi
     public PreLiveComparisonQueryBuilderV1 ExceptPreviousYearMonths() => ExceptField("previousYearMonths");
 }
 
-public partial class ComparisonQueryBuilderV1 : GraphQlQueryBuilder<ComparisonQueryBuilderV1>
+internal partial class ComparisonQueryBuilderV1 : GraphQlQueryBuilder<ComparisonQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1900,7 +1900,7 @@ public partial class ComparisonQueryBuilderV1 : GraphQlQueryBuilder<ComparisonQu
     public ComparisonQueryBuilderV1 ExceptEfficient() => ExceptField("efficient");
 }
 
-public partial class ComparisonDataQueryBuilderV1 : GraphQlQueryBuilder<ComparisonDataQueryBuilderV1>
+internal partial class ComparisonDataQueryBuilderV1 : GraphQlQueryBuilder<ComparisonDataQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1923,7 +1923,7 @@ public partial class ComparisonDataQueryBuilderV1 : GraphQlQueryBuilder<Comparis
     public ComparisonDataQueryBuilderV1 ExceptConsumption() => ExceptField("consumption");
 }
 
-public partial class HomeProfileQuestionQueryBuilderV1 : GraphQlQueryBuilder<HomeProfileQuestionQueryBuilderV1>
+internal partial class HomeProfileQuestionQueryBuilderV1 : GraphQlQueryBuilder<HomeProfileQuestionQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -1986,7 +1986,7 @@ public partial class HomeProfileQuestionQueryBuilderV1 : GraphQlQueryBuilder<Hom
     public HomeProfileQuestionQueryBuilderV1 ExceptInput() => ExceptField("input");
 }
 
-public partial class HomeProfileQuestionInputQueryBuilderV1 : GraphQlQueryBuilder<HomeProfileQuestionInputQueryBuilderV1>
+internal partial class HomeProfileQuestionInputQueryBuilderV1 : GraphQlQueryBuilder<HomeProfileQuestionInputQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2009,7 +2009,7 @@ public partial class HomeProfileQuestionInputQueryBuilderV1 : GraphQlQueryBuilde
     public HomeProfileQuestionInputQueryBuilderV1 ExceptOptions() => ExceptField("options");
 }
 
-public partial class SignupStatusQueryBuilderV1 : GraphQlQueryBuilder<SignupStatusQueryBuilderV1>
+internal partial class SignupStatusQueryBuilderV1 : GraphQlQueryBuilder<SignupStatusQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2037,7 +2037,7 @@ public partial class SignupStatusQueryBuilderV1 : GraphQlQueryBuilder<SignupStat
     public SignupStatusQueryBuilderV1 ExceptSteps() => ExceptField("steps");
 }
 
-public partial class ProcessStepQueryBuilderV1 : GraphQlQueryBuilder<ProcessStepQueryBuilderV1>
+internal partial class ProcessStepQueryBuilderV1 : GraphQlQueryBuilder<ProcessStepQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2070,7 +2070,7 @@ public partial class ProcessStepQueryBuilderV1 : GraphQlQueryBuilder<ProcessStep
     public ProcessStepQueryBuilderV1 ExceptDescription() => ExceptField("description");
 }
 
-public partial class DisaggregationQueryBuilderV1 : GraphQlQueryBuilder<DisaggregationQueryBuilderV1>
+internal partial class DisaggregationQueryBuilderV1 : GraphQlQueryBuilder<DisaggregationQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2158,7 +2158,7 @@ public partial class DisaggregationQueryBuilderV1 : GraphQlQueryBuilder<Disaggre
     public DisaggregationQueryBuilderV1 ExceptTotalConsumptionKwh() => ExceptField("totalConsumptionKwh");
 }
 
-public partial class WeatherQueryBuilderV1 : GraphQlQueryBuilder<WeatherQueryBuilderV1>
+internal partial class WeatherQueryBuilderV1 : GraphQlQueryBuilder<WeatherQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2186,7 +2186,7 @@ public partial class WeatherQueryBuilderV1 : GraphQlQueryBuilder<WeatherQueryBui
     public WeatherQueryBuilderV1 ExceptEntries() => ExceptField("entries");
 }
 
-public partial class WeatherEntryQueryBuilderV1 : GraphQlQueryBuilder<WeatherEntryQueryBuilderV1>
+internal partial class WeatherEntryQueryBuilderV1 : GraphQlQueryBuilder<WeatherEntryQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2239,7 +2239,7 @@ public partial class WeatherEntryQueryBuilderV1 : GraphQlQueryBuilder<WeatherEnt
     public WeatherEntryQueryBuilderV1 ExceptWindGust() => ExceptField("windGust");
 }
 
-public partial class AwayModeQueryBuilderV1 : GraphQlQueryBuilder<AwayModeQueryBuilderV1>
+internal partial class AwayModeQueryBuilderV1 : GraphQlQueryBuilder<AwayModeQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2262,7 +2262,7 @@ public partial class AwayModeQueryBuilderV1 : GraphQlQueryBuilder<AwayModeQueryB
     public AwayModeQueryBuilderV1 ExceptSettings() => ExceptField("settings");
 }
 
-public partial class AwayModeSettingsQueryBuilderV1 : GraphQlQueryBuilder<AwayModeSettingsQueryBuilderV1>
+internal partial class AwayModeSettingsQueryBuilderV1 : GraphQlQueryBuilder<AwayModeSettingsQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2285,7 +2285,7 @@ public partial class AwayModeSettingsQueryBuilderV1 : GraphQlQueryBuilder<AwayMo
     public AwayModeSettingsQueryBuilderV1 ExceptTo() => ExceptField("to");
 }
 
-public partial class DayNightScheduleQueryBuilderV1 : GraphQlQueryBuilder<DayNightScheduleQueryBuilderV1>
+internal partial class DayNightScheduleQueryBuilderV1 : GraphQlQueryBuilder<DayNightScheduleQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2313,7 +2313,7 @@ public partial class DayNightScheduleQueryBuilderV1 : GraphQlQueryBuilder<DayNig
     public DayNightScheduleQueryBuilderV1 ExceptNight() => ExceptField("night");
 }
 
-public partial class DayNightScheduleSettingsQueryBuilderV1 : GraphQlQueryBuilder<DayNightScheduleSettingsQueryBuilderV1>
+internal partial class DayNightScheduleSettingsQueryBuilderV1 : GraphQlQueryBuilder<DayNightScheduleSettingsQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2346,7 +2346,7 @@ public partial class DayNightScheduleSettingsQueryBuilderV1 : GraphQlQueryBuilde
     public DayNightScheduleSettingsQueryBuilderV1 ExceptRecurringDays() => ExceptField("recurringDays");
 }
 
-public partial class ReportRootQueryBuilderV1 : GraphQlQueryBuilder<ReportRootQueryBuilderV1>
+internal partial class ReportRootQueryBuilderV1 : GraphQlQueryBuilder<ReportRootQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2364,7 +2364,7 @@ public partial class ReportRootQueryBuilderV1 : GraphQlQueryBuilder<ReportRootQu
     public ReportRootQueryBuilderV1 ExceptReports() => ExceptField("reports");
 }
 
-public partial class ReportQueryBuilderV1 : GraphQlQueryBuilder<ReportQueryBuilderV1>
+internal partial class ReportQueryBuilderV1 : GraphQlQueryBuilder<ReportQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2407,7 +2407,7 @@ public partial class ReportQueryBuilderV1 : GraphQlQueryBuilder<ReportQueryBuild
     public ReportQueryBuilderV1 ExceptItems() => ExceptField("items");
 }
 
-public partial class ReportCellQueryBuilderV1 : GraphQlQueryBuilder<ReportCellQueryBuilderV1>
+internal partial class ReportCellQueryBuilderV1 : GraphQlQueryBuilder<ReportCellQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2460,7 +2460,7 @@ public partial class ReportCellQueryBuilderV1 : GraphQlQueryBuilder<ReportCellQu
     public ReportCellQueryBuilderV1 ExceptProperties() => ExceptField("properties");
 }
 
-public partial class ThermostatQueryBuilderV1 : GraphQlQueryBuilder<ThermostatQueryBuilderV1>
+internal partial class ThermostatQueryBuilderV1 : GraphQlQueryBuilder<ThermostatQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2523,7 +2523,7 @@ public partial class ThermostatQueryBuilderV1 : GraphQlQueryBuilder<ThermostatQu
     public ThermostatQueryBuilderV1 ExceptSupportsDayNightSchedule() => ExceptField("supportsDayNightSchedule");
 }
 
-public partial class ThermostatStateQueryBuilderV1 : GraphQlQueryBuilder<ThermostatStateQueryBuilderV1>
+internal partial class ThermostatStateQueryBuilderV1 : GraphQlQueryBuilder<ThermostatStateQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2556,7 +2556,7 @@ public partial class ThermostatStateQueryBuilderV1 : GraphQlQueryBuilder<Thermos
     public ThermostatStateQueryBuilderV1 ExceptOnOff() => ExceptField("onOff");
 }
 
-public partial class ThermostatMeasurementsQueryBuilderV1 : GraphQlQueryBuilder<ThermostatMeasurementsQueryBuilderV1>
+internal partial class ThermostatMeasurementsQueryBuilderV1 : GraphQlQueryBuilder<ThermostatMeasurementsQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2584,7 +2584,7 @@ public partial class ThermostatMeasurementsQueryBuilderV1 : GraphQlQueryBuilder<
     public ThermostatMeasurementsQueryBuilderV1 ExceptDisplay() => ExceptField("display");
 }
 
-public partial class ThermostatMeasurementQueryBuilderV1 : GraphQlQueryBuilder<ThermostatMeasurementQueryBuilderV1>
+internal partial class ThermostatMeasurementQueryBuilderV1 : GraphQlQueryBuilder<ThermostatMeasurementQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2647,7 +2647,7 @@ public partial class ThermostatMeasurementQueryBuilderV1 : GraphQlQueryBuilder<T
     public ThermostatMeasurementQueryBuilderV1 ExceptTypeText() => ExceptField("typeText");
 }
 
-public partial class ThermostatCapabilityQueryBuilderV1 : GraphQlQueryBuilder<ThermostatCapabilityQueryBuilderV1>
+internal partial class ThermostatCapabilityQueryBuilderV1 : GraphQlQueryBuilder<ThermostatCapabilityQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2675,7 +2675,7 @@ public partial class ThermostatCapabilityQueryBuilderV1 : GraphQlQueryBuilder<Th
     public ThermostatCapabilityQueryBuilderV1 ExceptValues() => ExceptField("values");
 }
 
-public partial class ThermostatModeQueryBuilderV1 : GraphQlQueryBuilder<ThermostatModeQueryBuilderV1>
+internal partial class ThermostatModeQueryBuilderV1 : GraphQlQueryBuilder<ThermostatModeQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2698,7 +2698,7 @@ public partial class ThermostatModeQueryBuilderV1 : GraphQlQueryBuilder<Thermost
     public ThermostatModeQueryBuilderV1 ExceptCapabilities() => ExceptField("capabilities");
 }
 
-public partial class SensorQueryBuilderV1 : GraphQlQueryBuilder<SensorQueryBuilderV1>
+internal partial class SensorQueryBuilderV1 : GraphQlQueryBuilder<SensorQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2731,7 +2731,7 @@ public partial class SensorQueryBuilderV1 : GraphQlQueryBuilder<SensorQueryBuild
     public SensorQueryBuilderV1 ExceptMeasurement() => ExceptField("measurement");
 }
 
-public partial class SensorHistoryQueryBuilderV1 : GraphQlQueryBuilder<SensorHistoryQueryBuilderV1>
+internal partial class SensorHistoryQueryBuilderV1 : GraphQlQueryBuilder<SensorHistoryQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2759,7 +2759,7 @@ public partial class SensorHistoryQueryBuilderV1 : GraphQlQueryBuilder<SensorHis
     public SensorHistoryQueryBuilderV1 ExceptValues() => ExceptField("values");
 }
 
-public partial class SensorHistoryValueQueryBuilderV1 : GraphQlQueryBuilder<SensorHistoryValueQueryBuilderV1>
+internal partial class SensorHistoryValueQueryBuilderV1 : GraphQlQueryBuilder<SensorHistoryValueQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2787,7 +2787,7 @@ public partial class SensorHistoryValueQueryBuilderV1 : GraphQlQueryBuilder<Sens
     public SensorHistoryValueQueryBuilderV1 ExceptValueText() => ExceptField("valueText");
 }
 
-public partial class PairableDeviceQueryBuilderV1 : GraphQlQueryBuilder<PairableDeviceQueryBuilderV1>
+internal partial class PairableDeviceQueryBuilderV1 : GraphQlQueryBuilder<PairableDeviceQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2815,7 +2815,7 @@ public partial class PairableDeviceQueryBuilderV1 : GraphQlQueryBuilder<Pairable
     public PairableDeviceQueryBuilderV1 ExceptReadMoreUrl() => ExceptField("readMoreUrl");
 }
 
-public partial class PairableDeviceOAuthQueryBuilderV1 : GraphQlQueryBuilder<PairableDeviceOAuthQueryBuilderV1>
+internal partial class PairableDeviceOAuthQueryBuilderV1 : GraphQlQueryBuilder<PairableDeviceOAuthQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2838,7 +2838,7 @@ public partial class PairableDeviceOAuthQueryBuilderV1 : GraphQlQueryBuilder<Pai
     public PairableDeviceOAuthQueryBuilderV1 ExceptRedirectUriStartsWith() => ExceptField("redirectUriStartsWith");
 }
 
-public partial class ProductionMonthQueryBuilderV1 : GraphQlQueryBuilder<ProductionMonthQueryBuilderV1>
+internal partial class ProductionMonthQueryBuilderV1 : GraphQlQueryBuilder<ProductionMonthQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2896,7 +2896,7 @@ public partial class ProductionMonthQueryBuilderV1 : GraphQlQueryBuilder<Product
     public ProductionMonthQueryBuilderV1 ExceptDescription() => ExceptField("description");
 }
 
-public partial class ProductionQueryBuilderV1 : GraphQlQueryBuilder<ProductionQueryBuilderV1>
+internal partial class ProductionQueryBuilderV1 : GraphQlQueryBuilder<ProductionQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -2964,7 +2964,7 @@ public partial class ProductionQueryBuilderV1 : GraphQlQueryBuilder<ProductionQu
     public ProductionQueryBuilderV1 ExceptTimeZone() => ExceptField("timeZone");
 }
 
-public partial class ProductionValueQueryBuilderV1 : GraphQlQueryBuilder<ProductionValueQueryBuilderV1>
+internal partial class ProductionValueQueryBuilderV1 : GraphQlQueryBuilder<ProductionValueQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -3027,7 +3027,7 @@ public partial class ProductionValueQueryBuilderV1 : GraphQlQueryBuilder<Product
     public ProductionValueQueryBuilderV1 ExceptConsumptionEntries() => ExceptField("consumptionEntries");
 }
 
-public partial class FeedQueryBuilderV1 : GraphQlQueryBuilder<FeedQueryBuilderV1>
+internal partial class FeedQueryBuilderV1 : GraphQlQueryBuilder<FeedQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -3068,7 +3068,7 @@ public partial class FeedQueryBuilderV1 : GraphQlQueryBuilder<FeedQueryBuilderV1
     public FeedQueryBuilderV1 ExceptPushNotifications() => ExceptField("pushNotifications");
 }
 
-public partial class FeedItemQueryBuilderV1 : GraphQlQueryBuilder<FeedItemQueryBuilderV1>
+internal partial class FeedItemQueryBuilderV1 : GraphQlQueryBuilder<FeedItemQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -3111,7 +3111,7 @@ public partial class FeedItemQueryBuilderV1 : GraphQlQueryBuilder<FeedItemQueryB
     public FeedItemQueryBuilderV1 ExceptModifiedAt() => ExceptField("modifiedAt");
 }
 
-public partial class PushNotificationQueryBuilderV1 : GraphQlQueryBuilder<PushNotificationQueryBuilderV1>
+internal partial class PushNotificationQueryBuilderV1 : GraphQlQueryBuilder<PushNotificationQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -3139,7 +3139,7 @@ public partial class PushNotificationQueryBuilderV1 : GraphQlQueryBuilder<PushNo
     public PushNotificationQueryBuilderV1 ExceptText() => ExceptField("text");
 }
 
-public partial class WalletQueryBuilderV1 : GraphQlQueryBuilder<WalletQueryBuilderV1>
+internal partial class WalletQueryBuilderV1 : GraphQlQueryBuilder<WalletQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -3167,7 +3167,7 @@ public partial class WalletQueryBuilderV1 : GraphQlQueryBuilder<WalletQueryBuild
     public WalletQueryBuilderV1 ExceptDirectDebitToPromote() => ExceptField("directDebitToPromote");
 }
 
-public partial class PaymentMethodQueryBuilderV1 : GraphQlQueryBuilder<PaymentMethodQueryBuilderV1>
+internal partial class PaymentMethodQueryBuilderV1 : GraphQlQueryBuilder<PaymentMethodQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -3195,7 +3195,7 @@ public partial class PaymentMethodQueryBuilderV1 : GraphQlQueryBuilder<PaymentMe
     public PaymentMethodQueryBuilderV1 ExceptProperties() => ExceptField("properties");
 }
 
-public partial class AboutQueryBuilderV1 : GraphQlQueryBuilder<AboutQueryBuilderV1>
+internal partial class AboutQueryBuilderV1 : GraphQlQueryBuilder<AboutQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -3213,7 +3213,7 @@ public partial class AboutQueryBuilderV1 : GraphQlQueryBuilder<AboutQueryBuilder
     public AboutQueryBuilderV1 ExceptItems() => ExceptField("items");
 }
 
-public partial class AboutItemQueryBuilderV1 : GraphQlQueryBuilder<AboutItemQueryBuilderV1>
+internal partial class AboutItemQueryBuilderV1 : GraphQlQueryBuilder<AboutItemQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -3236,7 +3236,7 @@ public partial class AboutItemQueryBuilderV1 : GraphQlQueryBuilder<AboutItemQuer
     public AboutItemQueryBuilderV1 ExceptUrl() => ExceptField("url");
 }
 
-public partial class MutationQueryBuilderV1 : GraphQlQueryBuilder<MutationQueryBuilderV1>
+internal partial class MutationQueryBuilderV1 : GraphQlQueryBuilder<MutationQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -3258,7 +3258,7 @@ public partial class MutationQueryBuilderV1 : GraphQlQueryBuilder<MutationQueryB
     public MutationQueryBuilderV1 ExceptMe() => ExceptField("me");
 }
 
-public partial class MeMutationQueryBuilderV1 : GraphQlQueryBuilder<MeMutationQueryBuilderV1>
+internal partial class MeMutationQueryBuilderV1 : GraphQlQueryBuilder<MeMutationQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -3319,7 +3319,7 @@ public partial class MeMutationQueryBuilderV1 : GraphQlQueryBuilder<MeMutationQu
     }
 }
 
-public partial class HomeMutationQueryBuilderV1 : GraphQlQueryBuilder<HomeMutationQueryBuilderV1>
+internal partial class HomeMutationQueryBuilderV1 : GraphQlQueryBuilder<HomeMutationQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -3442,7 +3442,7 @@ public partial class HomeMutationQueryBuilderV1 : GraphQlQueryBuilder<HomeMutati
     public HomeMutationQueryBuilderV1 ExceptRestartSubscription() => ExceptField("restartSubscription");
 }
 
-public partial class ThermostatMutationQueryBuilderV1 : GraphQlQueryBuilder<ThermostatMutationQueryBuilderV1>
+internal partial class ThermostatMutationQueryBuilderV1 : GraphQlQueryBuilder<ThermostatMutationQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -3494,7 +3494,7 @@ public partial class ThermostatMutationQueryBuilderV1 : GraphQlQueryBuilder<Ther
     }
 }
 
-public partial class PairDeviceResultQueryBuilderV1 : GraphQlQueryBuilder<PairDeviceResultQueryBuilderV1>
+internal partial class PairDeviceResultQueryBuilderV1 : GraphQlQueryBuilder<PairDeviceResultQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -3522,7 +3522,7 @@ public partial class PairDeviceResultQueryBuilderV1 : GraphQlQueryBuilder<PairDe
     public PairDeviceResultQueryBuilderV1 ExceptError() => ExceptField("error");
 }
 
-public partial class GQLMutationErrorQueryBuilderV1 : GraphQlQueryBuilder<GQLMutationErrorQueryBuilderV1>
+internal partial class GQLMutationErrorQueryBuilderV1 : GraphQlQueryBuilder<GQLMutationErrorQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -3545,7 +3545,7 @@ public partial class GQLMutationErrorQueryBuilderV1 : GraphQlQueryBuilder<GQLMut
     public GQLMutationErrorQueryBuilderV1 ExceptMessage() => ExceptField("message");
 }
 
-public partial class GQLMutationGeneralResponseQueryBuilderV1 : GraphQlQueryBuilder<GQLMutationGeneralResponseQueryBuilderV1>
+internal partial class GQLMutationGeneralResponseQueryBuilderV1 : GraphQlQueryBuilder<GQLMutationGeneralResponseQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -3565,7 +3565,7 @@ public partial class GQLMutationGeneralResponseQueryBuilderV1 : GraphQlQueryBuil
 #endregion
 
 #region input classes
-public partial class HomeProfileQuestionAnswerV1 : IGraphQlInputObject
+internal partial class HomeProfileQuestionAnswerV1 : IGraphQlInputObject
 {
     public string PropertyName { get; set; }
     public object Value { get; set; }
@@ -3577,7 +3577,7 @@ public partial class HomeProfileQuestionAnswerV1 : IGraphQlInputObject
     }
 }
 
-public partial class AppStateMutationV1 : IGraphQlInputObject
+internal partial class AppStateMutationV1 : IGraphQlInputObject
 {
     public AppStateJourneyMutationV1 Journey { get; set; }
     public ICollection<AppStateFronScreenMutationV1> FrontScreens { get; set; }
@@ -3589,7 +3589,7 @@ public partial class AppStateMutationV1 : IGraphQlInputObject
     }
 }
 
-public partial class AppStateJourneyMutationV1 : IGraphQlInputObject
+internal partial class AppStateJourneyMutationV1 : IGraphQlInputObject
 {
     public bool? HasVisitedPairDevices { get; set; }
 
@@ -3599,7 +3599,7 @@ public partial class AppStateJourneyMutationV1 : IGraphQlInputObject
     }
 }
 
-public partial class AppStateFronScreenMutationV1 : IGraphQlInputObject
+internal partial class AppStateFronScreenMutationV1 : IGraphQlInputObject
 {
     public string HomeId { get; set; }
     public ICollection<string> Bubbles { get; set; }
@@ -3615,12 +3615,12 @@ public partial class AppStateFronScreenMutationV1 : IGraphQlInputObject
 #endregion
 
 #region data classes
-public partial class QueryV1
+internal partial class QueryV1
 {
     public MeV1 Me { get; set; }
 }
 
-public partial class MeV1
+internal partial class MeV1
 {
     public Guid? Id { get; set; }
     public string FirstName { get; set; }
@@ -3640,7 +3640,7 @@ public partial class MeV1
     public AboutV1 About { get; set; }
 }
 
-public partial class GreetingV1
+internal partial class GreetingV1
 {
     public string Title { get; set; }
     public string Description { get; set; }
@@ -3648,25 +3648,25 @@ public partial class GreetingV1
     public string ShowUntil { get; set; }
 }
 
-public partial class AppStateV1
+internal partial class AppStateV1
 {
     public AppStateJourneyV1 Journey { get; set; }
     public ICollection<AppStateFronScreenV1> FrontScreens { get; set; }
 }
 
-public partial class AppStateJourneyV1
+internal partial class AppStateJourneyV1
 {
     public bool? HasVisitedPairDevices { get; set; }
 }
 
-public partial class AppStateFronScreenV1
+internal partial class AppStateFronScreenV1
 {
     public string HomeId { get; set; }
     public ICollection<string> Bubbles { get; set; }
     public ICollection<string> BubblesSortOrder { get; set; }
 }
 
-public partial class HomeV1
+internal partial class HomeV1
 {
     public Guid? Id { get; set; }
     public Avatar? Avatar { get; set; }
@@ -3697,7 +3697,7 @@ public partial class HomeV1
     public ProductionV1 Production { get; set; }
 }
 
-public partial class AddressV1
+internal partial class AddressV1
 {
     public string Address1 { get; set; }
     public string Address2 { get; set; }
@@ -3711,7 +3711,7 @@ public partial class AddressV1
     public string AddressText { get; set; }
 }
 
-public partial class SubscriptionV1
+internal partial class SubscriptionV1
 {
     public Guid? Id { get; set; }
     public Guid? WalletId { get; set; }
@@ -3724,7 +3724,7 @@ public partial class SubscriptionV1
     public EnergyDealV1 EnergyDeal { get; set; }
 }
 
-public partial class PriceRatingRootV1
+internal partial class PriceRatingRootV1
 {
     public bool? IsAvailable { get; set; }
     public bool? UseTotalIsConfigurable { get; set; }
@@ -3735,7 +3735,7 @@ public partial class PriceRatingRootV1
     public PriceRatingV1 Monthly { get; set; }
 }
 
-public partial class PriceRatingV1
+internal partial class PriceRatingV1
 {
     public decimal? MinEnergy { get; set; }
     public decimal? MaxEnergy { get; set; }
@@ -3746,14 +3746,14 @@ public partial class PriceRatingV1
     public ICollection<PriceRatingEntryV1> Entries { get; set; }
 }
 
-public partial class PriceRatingColorOffsetV1
+internal partial class PriceRatingColorOffsetV1
 {
     public decimal? FullGreenPercent { get; set; }
     public decimal? FullYellowPercent { get; set; }
     public decimal? FullRedPercent { get; set; }
 }
 
-public partial class PriceRatingEntryV1
+internal partial class PriceRatingEntryV1
 {
     public string Time { get; set; }
     public decimal? Energy { get; set; }
@@ -3761,7 +3761,7 @@ public partial class PriceRatingEntryV1
     public decimal? Difference { get; set; }
 }
 
-public partial class InvoiceV1
+internal partial class InvoiceV1
 {
     public int? Id { get; set; }
     public string No { get; set; }
@@ -3789,7 +3789,7 @@ public partial class InvoiceV1
     public DateTimeOffset? To { get; set; }
 }
 
-public partial class InvoicePaymentV1
+internal partial class InvoicePaymentV1
 {
     public string Status { get; set; }
     public string Method { get; set; }
@@ -3798,13 +3798,13 @@ public partial class InvoicePaymentV1
     public CreditCardV1 CreditCard { get; set; }
 }
 
-public partial class CreditCardV1
+internal partial class CreditCardV1
 {
     public string Brand { get; set; }
     public string Last4 { get; set; }
 }
 
-public partial class InvoiceSectionV1
+internal partial class InvoiceSectionV1
 {
     public string Type { get; set; }
     public string Text { get; set; }
@@ -3820,12 +3820,12 @@ public partial class InvoiceSectionV1
     public string CostUnit { get; set; }
 }
 
-public partial class EnergyDealV1
+internal partial class EnergyDealV1
 {
     public ProducerV1 CurrentProducer { get; set; }
 }
 
-public partial class ProducerV1
+internal partial class ProducerV1
 {
     public string Id { get; set; }
     public string Name { get; set; }
@@ -3835,14 +3835,14 @@ public partial class ProducerV1
     public ICollection<ProducerBulletV1> Bullets { get; set; }
 }
 
-public partial class ProducerBulletV1
+internal partial class ProducerBulletV1
 {
     public string Title { get; set; }
     public string Description { get; set; }
     public string ReadMoreUrl { get; set; }
 }
 
-public partial class ConsumptionMonthV1
+internal partial class ConsumptionMonthV1
 {
     public int? Year { get; set; }
     public int? Month { get; set; }
@@ -3854,7 +3854,7 @@ public partial class ConsumptionMonthV1
     public string Currency { get; set; }
 }
 
-public partial class ConsumptionV1
+internal partial class ConsumptionV1
 {
     public object AnnualValues { get; set; }
     public object MonthlyValues { get; set; }
@@ -3869,7 +3869,7 @@ public partial class ConsumptionV1
     public string TimeZone { get; set; }
 }
 
-public partial class PreLiveComparisonV1
+internal partial class PreLiveComparisonV1
 {
     public string HomeId { get; set; }
     public bool? BasedOnActuals { get; set; }
@@ -3877,7 +3877,7 @@ public partial class PreLiveComparisonV1
     public ICollection<ComparisonV1> PreviousYearMonths { get; set; }
 }
 
-public partial class ComparisonV1
+internal partial class ComparisonV1
 {
     public int? Year { get; set; }
     public int? Month { get; set; }
@@ -3889,13 +3889,13 @@ public partial class ComparisonV1
     public ComparisonDataV1 Efficient { get; set; }
 }
 
-public partial class ComparisonDataV1
+internal partial class ComparisonDataV1
 {
     public decimal? Cost { get; set; }
     public decimal? Consumption { get; set; }
 }
 
-public partial class HomeProfileQuestionV1
+internal partial class HomeProfileQuestionV1
 {
     public int? Id { get; set; }
     public string Title { get; set; }
@@ -3909,20 +3909,20 @@ public partial class HomeProfileQuestionV1
     public HomeProfileQuestionInputV1 Input { get; set; }
 }
 
-public partial class HomeProfileQuestionInputV1
+internal partial class HomeProfileQuestionInputV1
 {
     public string Type { get; set; }
     public object Options { get; set; }
 }
 
-public partial class SignupStatusV1
+internal partial class SignupStatusV1
 {
     public ProcessStepV1 FeedStep { get; set; }
     public ProcessStepV1 AvatarStep { get; set; }
     public ICollection<ProcessStepV1> Steps { get; set; }
 }
 
-public partial class ProcessStepV1
+internal partial class ProcessStepV1
 {
     public DateTimeOffset? Timestamp { get; set; }
     public bool? IsComplete { get; set; }
@@ -3930,7 +3930,7 @@ public partial class ProcessStepV1
     public string Description { get; set; }
 }
 
-public partial class DisaggregationV1
+internal partial class DisaggregationV1
 {
     public int? Year { get; set; }
     public int? Month { get; set; }
@@ -3949,14 +3949,14 @@ public partial class DisaggregationV1
     public int? TotalConsumptionKwh { get; set; }
 }
 
-public partial class WeatherV1
+internal partial class WeatherV1
 {
     public decimal? MinTemperature { get; set; }
     public decimal? MaxTemperature { get; set; }
     public ICollection<WeatherEntryV1> Entries { get; set; }
 }
 
-public partial class WeatherEntryV1
+internal partial class WeatherEntryV1
 {
     public string Time { get; set; }
     public decimal? Temperature { get; set; }
@@ -3968,26 +3968,26 @@ public partial class WeatherEntryV1
     public decimal? WindGust { get; set; }
 }
 
-public partial class AwayModeV1
+internal partial class AwayModeV1
 {
     public bool? IsSupported { get; set; }
     public AwayModeSettingsV1 Settings { get; set; }
 }
 
-public partial class AwayModeSettingsV1
+internal partial class AwayModeSettingsV1
 {
     public DateTimeOffset? From { get; set; }
     public DateTimeOffset? To { get; set; }
 }
 
-public partial class DayNightScheduleV1
+internal partial class DayNightScheduleV1
 {
     public bool? IsSupported { get; set; }
     public DayNightScheduleSettingsV1 Day { get; set; }
     public DayNightScheduleSettingsV1 Night { get; set; }
 }
 
-public partial class DayNightScheduleSettingsV1
+internal partial class DayNightScheduleSettingsV1
 {
     public bool? IsEnabled { get; set; }
     public string LocalTimeFrom { get; set; }
@@ -3995,12 +3995,12 @@ public partial class DayNightScheduleSettingsV1
     public ICollection<int> RecurringDays { get; set; }
 }
 
-public partial class ReportRootV1
+internal partial class ReportRootV1
 {
     public ICollection<ReportV1> Reports { get; set; }
 }
 
-public partial class ReportV1
+internal partial class ReportV1
 {
     public string Avatar { get; set; }
     public string Title { get; set; }
@@ -4010,7 +4010,7 @@ public partial class ReportV1
     public ICollection<ReportCellV1> Items { get; set; }
 }
 
-public partial class ReportCellV1
+internal partial class ReportCellV1
 {
     public string Type { get; set; }
     public string Style { get; set; }
@@ -4022,7 +4022,7 @@ public partial class ReportCellV1
     public object Properties { get; set; }
 }
 
-public partial class ThermostatV1
+internal partial class ThermostatV1
 {
     public string Id { get; set; }
     public string Name { get; set; }
@@ -4036,7 +4036,7 @@ public partial class ThermostatV1
     public bool? SupportsDayNightSchedule { get; set; }
 }
 
-public partial class ThermostatStateV1
+internal partial class ThermostatStateV1
 {
     public string Mode { get; set; }
     public decimal? ComfortTemperature { get; set; }
@@ -4044,14 +4044,14 @@ public partial class ThermostatStateV1
     public string OnOff { get; set; }
 }
 
-public partial class ThermostatMeasurementsV1
+internal partial class ThermostatMeasurementsV1
 {
     public decimal? Temperature { get; set; }
     public DateTimeOffset? Timestamp { get; set; }
     public ICollection<ThermostatMeasurementV1> Display { get; set; }
 }
 
-public partial class ThermostatMeasurementV1
+internal partial class ThermostatMeasurementV1
 {
     public string Label { get; set; }
     public string Description { get; set; }
@@ -4065,20 +4065,20 @@ public partial class ThermostatMeasurementV1
     public string TypeText { get; set; }
 }
 
-public partial class ThermostatCapabilityV1
+internal partial class ThermostatCapabilityV1
 {
     public string Name { get; set; }
     public string Type { get; set; }
     public object Values { get; set; }
 }
 
-public partial class ThermostatModeV1
+internal partial class ThermostatModeV1
 {
     public string Name { get; set; }
     public ICollection<string> Capabilities { get; set; }
 }
 
-public partial class SensorV1
+internal partial class SensorV1
 {
     public string Id { get; set; }
     public string IdDeprecated { get; set; }
@@ -4086,34 +4086,34 @@ public partial class SensorV1
     public ThermostatMeasurementV1 Measurement { get; set; }
 }
 
-public partial class SensorHistoryV1
+internal partial class SensorHistoryV1
 {
     public string SensorId { get; set; }
     public string Description { get; set; }
     public ICollection<SensorHistoryValueV1> Values { get; set; }
 }
 
-public partial class SensorHistoryValueV1
+internal partial class SensorHistoryValueV1
 {
     public DateTimeOffset? Timestamp { get; set; }
     public decimal? Value { get; set; }
     public string ValueText { get; set; }
 }
 
-public partial class PairableDeviceV1
+internal partial class PairableDeviceV1
 {
     public string Type { get; set; }
     public PairableDeviceOAuthV1 Oauth { get; set; }
     public string ReadMoreUrl { get; set; }
 }
 
-public partial class PairableDeviceOAuthV1
+internal partial class PairableDeviceOAuthV1
 {
     public string Url { get; set; }
     public string RedirectUriStartsWith { get; set; }
 }
 
-public partial class ProductionMonthV1
+internal partial class ProductionMonthV1
 {
     public int? Year { get; set; }
     public int? Month { get; set; }
@@ -4126,7 +4126,7 @@ public partial class ProductionMonthV1
     public string Description { get; set; }
 }
 
-public partial class ProductionV1
+internal partial class ProductionV1
 {
     public ICollection<ProductionValueV1> AnnualValues { get; set; }
     public ICollection<ProductionValueV1> MonthlyValues { get; set; }
@@ -4141,7 +4141,7 @@ public partial class ProductionV1
     public string TimeZone { get; set; }
 }
 
-public partial class ProductionValueV1
+internal partial class ProductionValueV1
 {
     public DateTimeOffset? From { get; set; }
     public DateTimeOffset? To { get; set; }
@@ -4155,14 +4155,14 @@ public partial class ProductionValueV1
     public int? ConsumptionEntries { get; set; }
 }
 
-public partial class FeedV1
+internal partial class FeedV1
 {
     public int? NumberOfItems { get; set; }
     public ICollection<FeedItemV1> Items { get; set; }
     public ICollection<PushNotificationV1> PushNotifications { get; set; }
 }
 
-public partial class FeedItemV1
+internal partial class FeedItemV1
 {
     public int? Id { get; set; }
     public string MessageTypeId { get; set; }
@@ -4172,51 +4172,51 @@ public partial class FeedItemV1
     public DateTimeOffset? ModifiedAt { get; set; }
 }
 
-public partial class PushNotificationV1
+internal partial class PushNotificationV1
 {
     public int? Id { get; set; }
     public string Link { get; set; }
     public string Text { get; set; }
 }
 
-public partial class WalletV1
+internal partial class WalletV1
 {
     public string Id { get; set; }
     public ICollection<PaymentMethodV1> PaymentMethods { get; set; }
     public string DirectDebitToPromote { get; set; }
 }
 
-public partial class PaymentMethodV1
+internal partial class PaymentMethodV1
 {
     public string Method { get; set; }
     public string Status { get; set; }
     public object Properties { get; set; }
 }
 
-public partial class AboutV1
+internal partial class AboutV1
 {
     public ICollection<AboutItemV1> Items { get; set; }
 }
 
-public partial class AboutItemV1
+internal partial class AboutItemV1
 {
     public string Label { get; set; }
     public string Url { get; set; }
 }
 
-public partial class MutationV1
+internal partial class MutationV1
 {
     public MeMutationV1 Me { get; set; }
 }
 
-public partial class MeMutationV1
+internal partial class MeMutationV1
 {
     public MeV1 Update { get; set; }
     public HomeMutationV1 Home { get; set; }
     public GQLMutationGeneralResponseV1 UpdateAppState { get; set; }
 }
 
-public partial class HomeMutationV1
+internal partial class HomeMutationV1
 {
     public ThermostatMutationV1 Thermostat { get; set; }
     public PairDeviceResultV1 PairDeviceWithOAuth { get; set; }
@@ -4227,26 +4227,26 @@ public partial class HomeMutationV1
     public GQLMutationGeneralResponseV1 RestartSubscription { get; set; }
 }
 
-public partial class ThermostatMutationV1
+internal partial class ThermostatMutationV1
 {
     public bool? SetState { get; set; }
     public bool? SetName { get; set; }
 }
 
-public partial class PairDeviceResultV1
+internal partial class PairDeviceResultV1
 {
     public ICollection<ThermostatV1> Thermostats { get; set; }
     public ICollection<SensorV1> Sensors { get; set; }
     public GQLMutationErrorV1 Error { get; set; }
 }
 
-public partial class GQLMutationErrorV1
+internal partial class GQLMutationErrorV1
 {
     public int? StatusCode { get; set; }
     public string Message { get; set; }
 }
 
-public partial class GQLMutationGeneralResponseV1
+internal partial class GQLMutationGeneralResponseV1
 {
     public GQLMutationErrorV1 Error { get; set; }
 }

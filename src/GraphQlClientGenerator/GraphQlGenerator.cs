@@ -281,7 +281,8 @@ using Newtonsoft.Json.Linq;
 
             GenerateCodeComments(builder, typeDescription, 0);
 
-            builder.Append("public ");
+            builder.Append(GetMemberAccessibility());
+            builder.Append(" ");
             builder.Append(memberType);
             builder.Append(" ");
             builder.Append(memberName);
@@ -324,6 +325,8 @@ using Newtonsoft.Json.Linq;
 
         private static string UseCustomClassNameIfDefined(string typeName) =>
             GraphQlGeneratorConfiguration.CustomClassNameMapping.TryGetValue(typeName, out var customTypeName) ? customTypeName : typeName;
+
+        private static string GetMemberAccessibility() => GraphQlGeneratorConfiguration.MemberAccessibility == MemberAccessibility.Internal ? "internal" : "public";
 
         internal static bool FilterDeprecatedFields(GraphQlField field) =>
             !field.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields;
@@ -448,7 +451,15 @@ using Newtonsoft.Json.Linq;
             var className = $"{typeName}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix}";
             ValidateClassName(className);
 
-            builder.AppendLine($"public {(GraphQlGeneratorConfiguration.GeneratePartialClasses ? "partial " : null)}class {className} : GraphQlQueryBuilder<{className}>");
+            builder.Append(GetMemberAccessibility());
+            builder.Append(" ");
+
+            if (GraphQlGeneratorConfiguration.GeneratePartialClasses)
+                builder.Append("partial ");
+
+            builder.Append("class ");
+            builder.Append(className);
+            builder.AppendLine($" : GraphQlQueryBuilder<{className}>");
             builder.AppendLine("{");
 
             builder.AppendLine("    private static readonly FieldMetadata[] AllFieldMetadata =");

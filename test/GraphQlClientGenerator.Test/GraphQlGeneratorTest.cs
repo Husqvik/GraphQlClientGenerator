@@ -84,6 +84,7 @@ namespace GraphQlClientGenerator.Test
         {
             GraphQlGeneratorConfiguration.CSharpVersion = CSharpVersion.Newest;
             GraphQlGeneratorConfiguration.ClassPostfix = "V1";
+            GraphQlGeneratorConfiguration.MemberAccessibility = MemberAccessibility.Internal;
             var schema = DeserializeTestSchema("TestSchema2");
 
             var stringBuilder = new StringBuilder();
