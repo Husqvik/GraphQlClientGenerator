@@ -35,7 +35,8 @@ or
 
 ```csharp
 var schema = await GraphQlGenerator.RetrieveSchema(url);
-await File.WriteAllTextAsync("MyGqlApiClient.cs", GraphQlGenerator.GenerateFullClientCSharpFile(schema, "MyGqlApiClient"));
+var csharpCode = GraphQlGenerator.GenerateFullClientCSharpFile(schema, "MyGqlApiClient");
+await File.WriteAllTextAsync("MyGqlApiClient.cs", csharpCode);
 ```
 
 Query builder usage
@@ -63,7 +64,7 @@ var builder =
 var query = builder.Build(Formatting.Indented);
 ```
 results into
-```
+```graphql
 query {
   me {
     id
@@ -121,7 +122,7 @@ var mutation =
     .Build(Formatting.Indented, 2);
 ```
 result:
-```
+```graphql
 mutation {
   updateHome (input: {
       homeId: "00000000-0000-0000-0000-000000000000"
@@ -159,7 +160,7 @@ new ViewerQueryBuilder()
   .Build(Formatting.Indented);
 ```
 result:
-```
+```graphql
 query {
   homes {
     id
@@ -195,7 +196,7 @@ new ViewerQueryBuilder()
   .Build(Formatting.Indented);
 ```
 result:
-```
+```graphql
 query {
   primaryHome: home (id: "120efe4a-6839-45fc-beed-27455d29212f") {
     type
@@ -230,7 +231,7 @@ var builder =
     .WithParameter(homeIdParameter);
 ```
 result:
-```
+```graphql
 query ($homeId: ID = "c70dcbe5-4485-4821-933d-a8a86452737b") {
   viewer{
     home(id: $homeId) {
@@ -264,7 +265,7 @@ var builder =
     .WithParameter(includeDirectParameter);
 ```
 result:
-```
+```graphql
 query ($direct: Boolean = true) {
   viewer {
     name @include(if: $direct)
