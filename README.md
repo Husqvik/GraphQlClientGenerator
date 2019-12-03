@@ -22,13 +22,20 @@ Install-Package GraphQlClientGenerator
 
 Code example for class generation:
 ```csharp
-var schema = await GraphQlGenerator.RetrieveSchema(Url);
+var schema = await GraphQlGenerator.RetrieveSchema(url);
 
 var builder = new StringBuilder();
 GraphQlGenerator.GenerateQueryBuilder(schema, builder);
 GraphQlGenerator.GenerateDataClasses(schema, builder);
 	
 var generatedClasses = builder.ToString();
+```
+
+or
+
+```csharp
+var schema = await GraphQlGenerator.RetrieveSchema(url);
+await File.WriteAllTextAsync("MyGqlApiClient.cs", GraphQlGenerator.GenerateFullClientCSharpFile(schema, "MyGqlApiClient"));
 ```
 
 Query builder usage
@@ -106,12 +113,12 @@ Mutation
 -------------
 ```csharp
 var mutation =
-	new MutationQueryBuilder()
-		.WithUpdateHome(
-			new HomeQueryBuilder().WithAllScalarFields(),
-			new UpdateHomeInput { HomeId = Guid.Empty, AppNickname = "My nickname", Type = HomeType.House, NumberOfResidents = 4, Size = 160, AppAvatar = HomeAvatar.Floorhouse1, PrimaryHeatingSource = HeatingSource.Electricity }
-		)
-	.Build(Formatting.Indented, 2);
+  new MutationQueryBuilder()
+    .WithUpdateHome(
+      new HomeQueryBuilder().WithAllScalarFields(),
+      new UpdateHomeInput { HomeId = Guid.Empty, AppNickname = "My nickname", Type = HomeType.House, NumberOfResidents = 4, Size = 160, AppAvatar = HomeAvatar.Floorhouse1, PrimaryHeatingSource = HeatingSource.Electricity }
+    )
+    .Build(Formatting.Indented, 2);
 ```
 result:
 ```
@@ -143,13 +150,13 @@ Field exclusion
 Sometimes there is a need to select almost all fields of a queried object except few. In that case `Except` methods can be used often in conjunction with `WithAllFields` or `WithAllScalarFields`.
 ```csharp
 new ViewerQueryBuilder()
-	.WithHomes(
-		new HomeQueryBuilder()
-			.WithAllScalarFields()
-			.ExceptPrimaryHeatingSource()
-			.ExceptMainFuseSize()
-	)
-	.Build(Formatting.Indented);
+  .WithHomes(
+    new HomeQueryBuilder()
+      .WithAllScalarFields()
+      .ExceptPrimaryHeatingSource()
+      .ExceptMainFuseSize()
+  )
+  .Build(Formatting.Indented);
 ```
 result:
 ```
@@ -173,19 +180,19 @@ Aliases
 Queried fields can be freely renamed to match target data classes using GraphQL aliases.
 ```csharp
 new ViewerQueryBuilder()
-	.WithHome(
-		new HomeQueryBuilder("primaryHome")
-			.WithType()
-			.WithSize()
-			.WithAddress(new AddressQueryBuilder("primaryAddress").WithAddress1("primaryAddressText").WithCountry()),
-		Guid.NewGuid())
-	.WithHome(
-		new HomeQueryBuilder("secondaryHome")
-			.WithType()
-			.WithSize()
-			.WithAddress(new AddressQueryBuilder("secondaryAddress").WithAddress1("secondaryAddressText").WithCountry()),
-		Guid.NewGuid())
-	.Build(Formatting.Indented);
+  .WithHome(
+    new HomeQueryBuilder("primaryHome")
+      .WithType()
+      .WithSize()
+      .WithAddress(new AddressQueryBuilder("primaryAddress").WithAddress1("primaryAddressText").WithCountry()),
+    Guid.NewGuid())
+  .WithHome(
+    new HomeQueryBuilder("secondaryHome")
+      .WithType()
+      .WithSize()
+      .WithAddress(new AddressQueryBuilder("secondaryAddress").WithAddress1("secondaryAddressText").WithCountry()),
+    Guid.NewGuid())
+  .Build(Formatting.Indented);
 ```
 result:
 ```
@@ -238,6 +245,30 @@ query ($homeId: ID = "c70dcbe5-4485-4821-933d-a8a86452737b") {
       hasVentilationSystem
       mainFuseSize
     }
+  }
+}
+```
+
+@include and @skip directives
+-------------
+```csharp
+var includeDirectParameter = new GraphQlQueryParameter<bool>("direct", "Boolean", true);
+
+var builder =
+  new TibberQueryBuilder()
+    .WithViewer(
+      new ViewerQueryBuilder()
+        .WithName(includeIf: includeDirectParameter)
+        .WithAccountType(skipIf: true)
+    )
+    .WithParameter(includeDirectParameter);
+```
+result:
+```
+query ($direct: Boolean = true) {
+  viewer {
+    name @include(if: $direct)
+    accountType @skip(if: true)
   }
 }
 ```
