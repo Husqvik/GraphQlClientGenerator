@@ -19,8 +19,8 @@ namespace GraphQlClientGenerator.Console
 
             try
             {
-                await GraphQlCSharpFileHelper.GenerateGraphQlClient(url, targetFileName, @namespace);
-                System.Console.WriteLine($"File {targetFileName} generated successfully. ");
+                var fileInfo = await GraphQlCSharpFileHelper.GenerateClientCSharpFile(url, targetFileName, @namespace);
+                System.Console.WriteLine($"File {targetFileName} generated successfully ({fileInfo.Length:N0} B). ");
             }
             catch (Exception exception)
             {

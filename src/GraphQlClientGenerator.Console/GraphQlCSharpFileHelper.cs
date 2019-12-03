@@ -5,10 +5,11 @@ namespace GraphQlClientGenerator.Console
 {
     internal static class GraphQlCSharpFileHelper
     {
-        public static async Task GenerateGraphQlClient(string url, string targetFileName, string @namespace)
+        public static async Task<FileInfo> GenerateClientCSharpFile(string url, string targetFileName, string @namespace)
         {
             var schema = await GraphQlGenerator.RetrieveSchema(url);
             await File.WriteAllTextAsync(targetFileName, GraphQlGenerator.GenerateFullClientCSharpFile(schema, @namespace));
+            return new FileInfo(targetFileName);
         }
     }
 }
