@@ -29,6 +29,8 @@ namespace GraphQlClientGenerator
         public static FloatType FloatType { get; set; }
 
         public static IdType IdType { get; set; } = IdType.Guid;
+        
+        public static JsonPropertyGenerationOption JsonPropertyGeneration { get; set; } = JsonPropertyGenerationOption.CaseInsensitive;
 
         /// <summary>
         /// Determines builder class, data class and interfaces accessibility level.
@@ -54,6 +56,7 @@ namespace GraphQlClientGenerator
             TreatUnknownObjectAsScalar = false;
             GeneratePartialClasses = true;
             MemberAccessibility = MemberAccessibility.Public;
+            JsonPropertyGeneration = JsonPropertyGenerationOption.CaseInsensitive;
         }
 
         public static string DefaultScalarFieldTypeMapping(GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
@@ -102,6 +105,14 @@ namespace GraphQlClientGenerator
     {
         Public,
         Internal
+    }
+
+    public enum JsonPropertyGenerationOption
+    {
+        Never,
+        Always,
+        CaseInsensitive,
+        CaseSensitive
     }
 
     [Flags]

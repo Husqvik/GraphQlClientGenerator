@@ -35,6 +35,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 ";
 
@@ -433,7 +434,17 @@ using Newtonsoft.Json.Linq;
                 builder.AppendLine($"    [Obsolete{deprecationReason}]");
             }
 
-            if (!isInterfaceMember && !String.Equals(member.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+            var decorateWithJsonProperty =
+                GraphQlGeneratorConfiguration.JsonPropertyGeneration == JsonPropertyGenerationOption.Always ||
+                !String.Equals(
+                    member.Name,
+                    propertyName,
+                    GraphQlGeneratorConfiguration.JsonPropertyGeneration  == JsonPropertyGenerationOption.CaseInsensitive ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+
+            if (GraphQlGeneratorConfiguration.JsonPropertyGeneration == JsonPropertyGenerationOption.Never)
+                decorateWithJsonProperty = false;
+
+            if (!isInterfaceMember && decorateWithJsonProperty)
                 builder.AppendLine($"    [JsonProperty(\"{member.Name}\")]");
             
             builder.AppendLine($"    {(isInterfaceMember ? null : "public ")}{propertyType} {propertyName} {{ get; set; }}");

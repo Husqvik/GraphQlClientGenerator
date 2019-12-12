@@ -118,6 +118,8 @@ namespace GraphQlClientGenerator.Test
         [Fact]
         public void GeneratedQuery()
         {
+            GraphQlGeneratorConfiguration.JsonPropertyGeneration = JsonPropertyGenerationOption.Always;
+
             var schema = DeserializeTestSchema("TestSchema2");
             var stringBuilder = new StringBuilder();
             GraphQlGenerator.GenerateQueryBuilder(schema, stringBuilder);
