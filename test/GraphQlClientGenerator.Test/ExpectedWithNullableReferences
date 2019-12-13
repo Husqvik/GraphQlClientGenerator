@@ -692,7 +692,7 @@ public partial class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
 
     public MeQueryBuilder ExceptAppState() => ExceptField("appState");
 
-    public MeQueryBuilder WithHome(HomeQueryBuilder homeQueryBuilder, QueryBuilderParameter<string?> id = null)
+    public MeQueryBuilder WithHome(HomeQueryBuilder homeQueryBuilder, QueryBuilderParameter<string?>? id = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (id != null)
@@ -896,7 +896,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder ExceptSubscription() => ExceptField("subscription");
 
-    public HomeQueryBuilder WithConsumptionMonths(ConsumptionMonthQueryBuilder consumptionMonthQueryBuilder, QueryBuilderParameter<bool?> useDemoData = null)
+    public HomeQueryBuilder WithConsumptionMonths(ConsumptionMonthQueryBuilder consumptionMonthQueryBuilder, QueryBuilderParameter<bool?>? useDemoData = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (useDemoData != null)
@@ -910,7 +910,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return ExceptField("consumptionMonths");
     }
 
-    public HomeQueryBuilder WithConsumption(ConsumptionQueryBuilder consumptionQueryBuilder, QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null, QueryBuilderParameter<bool?> useDemoData = null)
+    public HomeQueryBuilder WithConsumption(ConsumptionQueryBuilder consumptionQueryBuilder, QueryBuilderParameter<DateTimeOffset?>? from = null, QueryBuilderParameter<DateTimeOffset?>? to = null, QueryBuilderParameter<bool?>? useDemoData = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (from != null)
@@ -934,7 +934,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder ExceptPreLiveComparison() => ExceptField("preLiveComparison");
 
-    public HomeQueryBuilder WithComparisons(ComparisonQueryBuilder comparisonQueryBuilder, QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null, QueryBuilderParameter<Resolution?> resolution = null, QueryBuilderParameter<bool?> useDemoData = null)
+    public HomeQueryBuilder WithComparisons(ComparisonQueryBuilder comparisonQueryBuilder, QueryBuilderParameter<DateTimeOffset?>? from = null, QueryBuilderParameter<DateTimeOffset?>? to = null, QueryBuilderParameter<Resolution?>? resolution = null, QueryBuilderParameter<bool?>? useDemoData = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (from != null)
@@ -965,7 +965,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder ExceptProfileQuestions() => ExceptField("profileQuestions");
 
-    public HomeQueryBuilder WithTemperatures(QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null, QueryBuilderParameter<string?> resolution = null, QueryBuilderParameter<bool?> useDemoData = null, string? alias = null, QueryBuilderParameter<bool>? includeIf = null, QueryBuilderParameter<bool>? skipIf = null)
+    public HomeQueryBuilder WithTemperatures(QueryBuilderParameter<DateTimeOffset?>? from = null, QueryBuilderParameter<DateTimeOffset?>? to = null, QueryBuilderParameter<string?>? resolution = null, QueryBuilderParameter<bool?>? useDemoData = null, string? alias = null, QueryBuilderParameter<bool>? includeIf = null, QueryBuilderParameter<bool>? skipIf = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (from != null)
@@ -992,7 +992,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder ExceptSignupStatus() => ExceptField("signupStatus");
 
-    public HomeQueryBuilder WithDisaggregation(DisaggregationQueryBuilder disaggregationQueryBuilder, QueryBuilderParameter<Resolution?> resolution = null, QueryBuilderParameter<bool?> useDemoData = null)
+    public HomeQueryBuilder WithDisaggregation(DisaggregationQueryBuilder disaggregationQueryBuilder, QueryBuilderParameter<Resolution?>? resolution = null, QueryBuilderParameter<bool?>? useDemoData = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (resolution != null)
@@ -1045,7 +1045,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder ExceptProductionMonths() => ExceptField("productionMonths");
 
-    public HomeQueryBuilder WithProduction(ProductionQueryBuilder productionQueryBuilder, QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null)
+    public HomeQueryBuilder WithProduction(ProductionQueryBuilder productionQueryBuilder, QueryBuilderParameter<DateTimeOffset?>? from = null, QueryBuilderParameter<DateTimeOffset?>? to = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (from != null)
@@ -3050,7 +3050,7 @@ public partial class FeedQueryBuilder : GraphQlQueryBuilder<FeedQueryBuilder>
 
     public FeedQueryBuilder ExceptNumberOfItems() => ExceptField("numberOfItems");
 
-    public FeedQueryBuilder WithItems(FeedItemQueryBuilder feedItemQueryBuilder, QueryBuilderParameter<int?> page = null, QueryBuilderParameter<int?> pageSize = null)
+    public FeedQueryBuilder WithItems(FeedItemQueryBuilder feedItemQueryBuilder, QueryBuilderParameter<int?>? page = null, QueryBuilderParameter<int?>? pageSize = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (page != null)
@@ -3277,7 +3277,7 @@ public partial class MeMutationQueryBuilder : GraphQlQueryBuilder<MeMutationQuer
     {
     }
 
-    public MeMutationQueryBuilder WithUpdate(MeQueryBuilder meQueryBuilder, QueryBuilderParameter<string?> email = null, QueryBuilderParameter<string?> mobile = null)
+    public MeMutationQueryBuilder WithUpdate(MeQueryBuilder meQueryBuilder, QueryBuilderParameter<string?>? email = null, QueryBuilderParameter<string?>? mobile = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (email != null)
@@ -3294,7 +3294,7 @@ public partial class MeMutationQueryBuilder : GraphQlQueryBuilder<MeMutationQuer
         return ExceptField("update");
     }
 
-    public MeMutationQueryBuilder WithHome(HomeMutationQueryBuilder homeMutationQueryBuilder, QueryBuilderParameter<string?> id = null)
+    public MeMutationQueryBuilder WithHome(HomeMutationQueryBuilder homeMutationQueryBuilder, QueryBuilderParameter<string?>? id = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (id != null)
@@ -3342,7 +3342,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
     {
     }
 
-    public HomeMutationQueryBuilder WithThermostat(ThermostatMutationQueryBuilder thermostatMutationQueryBuilder, QueryBuilderParameter<string?> id = null)
+    public HomeMutationQueryBuilder WithThermostat(ThermostatMutationQueryBuilder thermostatMutationQueryBuilder, QueryBuilderParameter<string?>? id = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (id != null)
@@ -3356,7 +3356,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
         return ExceptField("thermostat");
     }
 
-    public HomeMutationQueryBuilder WithPairDeviceWithOAuth(PairDeviceResultQueryBuilder pairDeviceResultQueryBuilder, QueryBuilderParameter<string?> deviceType = null, QueryBuilderParameter<string?> authorizationCode = null)
+    public HomeMutationQueryBuilder WithPairDeviceWithOAuth(PairDeviceResultQueryBuilder pairDeviceResultQueryBuilder, QueryBuilderParameter<string?>? deviceType = null, QueryBuilderParameter<string?>? authorizationCode = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (deviceType != null)
@@ -3373,7 +3373,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
         return ExceptField("pairDeviceWithOAuth");
     }
 
-    public HomeMutationQueryBuilder WithPairDeviceWithCredentials(PairDeviceResultQueryBuilder pairDeviceResultQueryBuilder, QueryBuilderParameter<string?> deviceType = null, QueryBuilderParameter<string?> username = null, QueryBuilderParameter<string?> password = null)
+    public HomeMutationQueryBuilder WithPairDeviceWithCredentials(PairDeviceResultQueryBuilder pairDeviceResultQueryBuilder, QueryBuilderParameter<string?>? deviceType = null, QueryBuilderParameter<string?>? username = null, QueryBuilderParameter<string?>? password = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (deviceType != null)
@@ -3407,7 +3407,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
         return ExceptField("answerProfileQuestions");
     }
 
-    public HomeMutationQueryBuilder WithSendMeterReading(GQLMutationGeneralResponseQueryBuilder gQLMutationGeneralResponseQueryBuilder, QueryBuilderParameter<int?> meterReading = null)
+    public HomeMutationQueryBuilder WithSendMeterReading(GQLMutationGeneralResponseQueryBuilder gQLMutationGeneralResponseQueryBuilder, QueryBuilderParameter<int?>? meterReading = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (meterReading != null)
@@ -3421,7 +3421,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
         return ExceptField("sendMeterReading");
     }
 
-    public HomeMutationQueryBuilder WithSetMeteringPointIdAndBindingTime(GQLMutationGeneralResponseQueryBuilder gQLMutationGeneralResponseQueryBuilder, QueryBuilderParameter<string?> meteringPointId = null, QueryBuilderParameter<string?> bindingTime = null, QueryBuilderParameter<bool?> isMovingIn = null)
+    public HomeMutationQueryBuilder WithSetMeteringPointIdAndBindingTime(GQLMutationGeneralResponseQueryBuilder gQLMutationGeneralResponseQueryBuilder, QueryBuilderParameter<string?>? meteringPointId = null, QueryBuilderParameter<string?>? bindingTime = null, QueryBuilderParameter<bool?>? isMovingIn = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (meteringPointId != null)
@@ -3460,7 +3460,7 @@ public partial class ThermostatMutationQueryBuilder : GraphQlQueryBuilder<Thermo
     {
     }
 
-    public ThermostatMutationQueryBuilder WithSetState(QueryBuilderParameter<string?> mode = null, QueryBuilderParameter<decimal?> comfortTemperature = null, QueryBuilderParameter<string?> fanLevel = null, QueryBuilderParameter<string?> onOff = null, string? alias = null, QueryBuilderParameter<bool>? includeIf = null, QueryBuilderParameter<bool>? skipIf = null)
+    public ThermostatMutationQueryBuilder WithSetState(QueryBuilderParameter<string?>? mode = null, QueryBuilderParameter<decimal?>? comfortTemperature = null, QueryBuilderParameter<string?>? fanLevel = null, QueryBuilderParameter<string?>? onOff = null, string? alias = null, QueryBuilderParameter<bool>? includeIf = null, QueryBuilderParameter<bool>? skipIf = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (mode != null)
@@ -3483,7 +3483,7 @@ public partial class ThermostatMutationQueryBuilder : GraphQlQueryBuilder<Thermo
         return ExceptField("setState");
     }
 
-    public ThermostatMutationQueryBuilder WithSetName(QueryBuilderParameter<string?> name = null, string? alias = null, QueryBuilderParameter<bool>? includeIf = null, QueryBuilderParameter<bool>? skipIf = null)
+    public ThermostatMutationQueryBuilder WithSetName(QueryBuilderParameter<string?>? name = null, string? alias = null, QueryBuilderParameter<bool>? includeIf = null, QueryBuilderParameter<bool>? skipIf = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (name != null)
