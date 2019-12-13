@@ -39,6 +39,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 ";
 
+        private delegate void WriteDataClassPropertyBodyDelegate(string netType);
+
         internal static readonly JsonSerializerSettings SerializerSettings =
             new JsonSerializerSettings
             {
@@ -235,7 +237,7 @@ using Newtonsoft.Json.Linq;
                             GenerateInputDataClassBody(type, (ICollection<IGraphQlMember>)fieldsToGenerate, builder);
                         else if (fieldsToGenerate != null)
                             foreach (var field in fieldsToGenerate)
-                                GenerateDataProperty(type, field, isInterfaceMember, field.IsDeprecated, field.DeprecationReason, builder);
+                                GenerateDataProperty(type, field, isInterfaceMember, field.IsDeprecated, field.DeprecationReason, true, _ => builder.Append(" { get; set; }"), builder);
                     }
 
                     var interfacesToImplement = new List<string>();
@@ -277,23 +279,74 @@ using Newtonsoft.Json.Linq;
                 builder.AppendLine("#nullable disable");
         }
 
-        private static void GenerateInputDataClassBody(GraphQlType type, ICollection<IGraphQlMember> members, StringBuilder builder)
+        private static void GenerateInputDataClassBody(GraphQlType type, IEnumerable<IGraphQlMember> members, StringBuilder builder)
         {
-            foreach (var member in members)
-                GenerateDataProperty(type, member, false, false, null, builder);
-
-            builder.AppendLine();
-            builder.AppendLine("    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()");
-            builder.AppendLine("    {");
-
+            var fieldNameMembers = new Dictionary<string, IGraphQlMember>();
             foreach (var member in members)
             {
                 var propertyName = NamingHelper.ToPascalCase(member.Name);
-                builder.Append("        yield return new InputPropertyInfo { Name = \"");
-                builder.Append(member.Name);
-                builder.Append("\", Value = ");
-                builder.Append(propertyName);
-                builder.AppendLine(" };");
+                var fieldName = "_" + Char.ToLower(propertyName[0]) + propertyName.Substring(1);
+                fieldNameMembers.Add(fieldName, member);
+
+                builder.Append("    private InputPropertyInfo ");
+                builder.Append(fieldName);
+                builder.AppendLine(";");
+            }
+
+            builder.AppendLine();
+
+            var useCompatibleSyntax = GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.Compatible;
+
+            foreach (var kvp in fieldNameMembers)
+                GenerateDataProperty(
+                    type,
+                    kvp.Value,
+                    false,
+                    false,
+                    null,
+                    false,
+                    t =>
+                    {
+                        builder.AppendLine();
+                        builder.AppendLine("    {");
+                        builder.Append("        get");
+                        builder.Append(useCompatibleSyntax ? " { return " : " => ");
+                        builder.Append("(");
+                        builder.Append(t);
+                        builder.Append(")");
+                        builder.Append(kvp.Key);
+                        builder.Append(".Value;");
+
+                        if (useCompatibleSyntax)
+                            builder.Append(" }");
+
+                        builder.AppendLine();
+
+                        builder.Append("        set");
+                        builder.Append(useCompatibleSyntax ? " { " : " => ");
+                        builder.Append(kvp.Key);
+                        builder.Append(" = new InputPropertyInfo { Name = \"");
+                        builder.Append(kvp.Value.Name);
+                        builder.Append("\", Value = value };");
+
+                        if (useCompatibleSyntax)
+                            builder.Append(" }");
+
+                        builder.AppendLine();
+                        builder.AppendLine("    }");
+                    },
+                    builder);
+
+            builder.AppendLine("    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()");
+            builder.AppendLine("    {");
+
+            foreach (var fieldName in fieldNameMembers.Keys)
+            {
+                builder.Append("        if (");
+                builder.Append(fieldName);
+                builder.Append(".Name != null) yield return ");
+                builder.Append(fieldName);
+                builder.AppendLine(";");
             }
 
             builder.AppendLine("    }");
@@ -364,7 +417,15 @@ using Newtonsoft.Json.Linq;
         internal static bool FilterDeprecatedFields(GraphQlField field) =>
             !field.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields;
 
-        private static void GenerateDataProperty(GraphQlType baseType, IGraphQlMember member, bool isInterfaceMember, bool isDeprecated, string deprecationReason, StringBuilder builder)
+        private static void GenerateDataProperty(
+            GraphQlType baseType,
+            IGraphQlMember member,
+            bool isInterfaceMember,
+            bool isDeprecated,
+            string deprecationReason,
+            bool decorateWithJsonProperty,
+            WriteDataClassPropertyBodyDelegate writeBody,
+            StringBuilder builder)
         {
             var propertyName = NamingHelper.ToPascalCase(member.Name);
 
@@ -434,20 +495,27 @@ using Newtonsoft.Json.Linq;
                 builder.AppendLine($"    [Obsolete{deprecationReason}]");
             }
 
-            var decorateWithJsonProperty =
-                GraphQlGeneratorConfiguration.JsonPropertyGeneration == JsonPropertyGenerationOption.Always ||
-                !String.Equals(
-                    member.Name,
-                    propertyName,
-                    GraphQlGeneratorConfiguration.JsonPropertyGeneration  == JsonPropertyGenerationOption.CaseInsensitive ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
+            if (decorateWithJsonProperty)
+            {
+                decorateWithJsonProperty =
+                    GraphQlGeneratorConfiguration.JsonPropertyGeneration == JsonPropertyGenerationOption.Always ||
+                    !String.Equals(
+                        member.Name,
+                        propertyName,
+                        GraphQlGeneratorConfiguration.JsonPropertyGeneration == JsonPropertyGenerationOption.CaseInsensitive ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
 
-            if (GraphQlGeneratorConfiguration.JsonPropertyGeneration == JsonPropertyGenerationOption.Never)
-                decorateWithJsonProperty = false;
+                if (GraphQlGeneratorConfiguration.JsonPropertyGeneration == JsonPropertyGenerationOption.Never)
+                    decorateWithJsonProperty = false;
+            }
 
             if (!isInterfaceMember && decorateWithJsonProperty)
                 builder.AppendLine($"    [JsonProperty(\"{member.Name}\")]");
             
-            builder.AppendLine($"    {(isInterfaceMember ? null : "public ")}{propertyType} {propertyName} {{ get; set; }}");
+            builder.Append($"    {(isInterfaceMember ? null : "public ")}{propertyType} {propertyName}");
+
+            writeBody(propertyType);
+
+            builder.AppendLine();
         }
 
         private static string GetFloatNetType() =>

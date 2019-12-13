@@ -17,7 +17,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>GraphGL C# Client</PackageTags>
     <PackageReleaseNotes>
-      support for @include and @skip directives
+      support for @include and @skip directives; support for explicit input object field null values
     </PackageReleaseNotes>
   </PropertyGroup>
 

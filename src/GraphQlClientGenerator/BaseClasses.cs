@@ -23,6 +23,9 @@ internal static class GraphQlQueryHelper
 
     public static string BuildArgumentValue(object value, Formatting formatting, int level, byte indentationSize)
     {
+        if (value is null)
+            return "null";
+
         if (value is JValue jValue)
         {
             switch (jValue.Type)
@@ -115,7 +118,7 @@ internal static class GraphQlQueryHelper
             valueSeparator = ":";
 
         var separator = String.Empty;
-        foreach (var propertyValue in inputObject.GetPropertyValues().Where(p => p.Value != null))
+        foreach (var propertyValue in inputObject.GetPropertyValues())
         {
             var value = BuildArgumentValue(propertyValue.Value, formatting, level, indentationSize);
             builder.Append(isIndentedFormatting ? GetIndentation(level, indentationSize) : separator);
@@ -168,7 +171,7 @@ internal static class GraphQlQueryHelper
     }
 }
 
-public struct InputPropertyInfo
+internal struct InputPropertyInfo
 {
     public string Name { get; set; }
     public object Value { get; set; }

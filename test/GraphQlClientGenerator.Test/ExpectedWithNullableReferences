@@ -23,6 +23,9 @@ internal static class GraphQlQueryHelper
 
     public static string BuildArgumentValue(object value, Formatting formatting, int level, byte indentationSize)
     {
+        if (value is null)
+            return "null";
+
         if (value is JValue jValue)
         {
             switch (jValue.Type)
@@ -115,7 +118,7 @@ internal static class GraphQlQueryHelper
             valueSeparator = ":";
 
         var separator = String.Empty;
-        foreach (var propertyValue in inputObject.GetPropertyValues().Where(p => p.Value != null))
+        foreach (var propertyValue in inputObject.GetPropertyValues())
         {
             var value = BuildArgumentValue(propertyValue.Value, formatting, level, indentationSize);
             builder.Append(isIndentedFormatting ? GetIndentation(level, indentationSize) : separator);
@@ -168,7 +171,7 @@ internal static class GraphQlQueryHelper
     }
 }
 
-public struct InputPropertyInfo
+internal struct InputPropertyInfo
 {
     public string Name { get; set; }
     public object Value { get; set; }
@@ -3570,49 +3573,97 @@ public partial class GQLMutationGeneralResponseQueryBuilder : GraphQlQueryBuilde
 #region input classes
 public partial class HomeProfileQuestionAnswer : IGraphQlInputObject
 {
-    public string? PropertyName { get; set; }
-    public object? Value { get; set; }
+    private InputPropertyInfo _propertyName;
+    private InputPropertyInfo _value;
+
+    public string? PropertyName
+    {
+        get => (string?)_propertyName.Value;
+        set => _propertyName = new InputPropertyInfo { Name = "propertyName", Value = value };
+    }
+
+    public object? Value
+    {
+        get => (object?)_value.Value;
+        set => _value = new InputPropertyInfo { Name = "value", Value = value };
+    }
 
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
-        yield return new InputPropertyInfo { Name = "propertyName", Value = PropertyName };
-        yield return new InputPropertyInfo { Name = "value", Value = Value };
+        if (_propertyName.Name != null) yield return _propertyName;
+        if (_value.Name != null) yield return _value;
     }
 }
 
 public partial class AppStateMutation : IGraphQlInputObject
 {
-    public AppStateJourneyMutation? Journey { get; set; }
-    public ICollection<AppStateFronScreenMutation>? FrontScreens { get; set; }
+    private InputPropertyInfo _journey;
+    private InputPropertyInfo _frontScreens;
+
+    public AppStateJourneyMutation? Journey
+    {
+        get => (AppStateJourneyMutation?)_journey.Value;
+        set => _journey = new InputPropertyInfo { Name = "journey", Value = value };
+    }
+
+    public ICollection<AppStateFronScreenMutation>? FrontScreens
+    {
+        get => (ICollection<AppStateFronScreenMutation>?)_frontScreens.Value;
+        set => _frontScreens = new InputPropertyInfo { Name = "frontScreens", Value = value };
+    }
 
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
-        yield return new InputPropertyInfo { Name = "journey", Value = Journey };
-        yield return new InputPropertyInfo { Name = "frontScreens", Value = FrontScreens };
+        if (_journey.Name != null) yield return _journey;
+        if (_frontScreens.Name != null) yield return _frontScreens;
     }
 }
 
 public partial class AppStateJourneyMutation : IGraphQlInputObject
 {
-    public bool? HasVisitedPairDevices { get; set; }
+    private InputPropertyInfo _hasVisitedPairDevices;
+
+    public bool? HasVisitedPairDevices
+    {
+        get => (bool?)_hasVisitedPairDevices.Value;
+        set => _hasVisitedPairDevices = new InputPropertyInfo { Name = "hasVisitedPairDevices", Value = value };
+    }
 
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
-        yield return new InputPropertyInfo { Name = "hasVisitedPairDevices", Value = HasVisitedPairDevices };
+        if (_hasVisitedPairDevices.Name != null) yield return _hasVisitedPairDevices;
     }
 }
 
 public partial class AppStateFronScreenMutation : IGraphQlInputObject
 {
-    public string? HomeId { get; set; }
-    public ICollection<string>? Bubbles { get; set; }
-    public ICollection<string>? BubblesSortOrder { get; set; }
+    private InputPropertyInfo _homeId;
+    private InputPropertyInfo _bubbles;
+    private InputPropertyInfo _bubblesSortOrder;
+
+    public string? HomeId
+    {
+        get => (string?)_homeId.Value;
+        set => _homeId = new InputPropertyInfo { Name = "homeId", Value = value };
+    }
+
+    public ICollection<string>? Bubbles
+    {
+        get => (ICollection<string>?)_bubbles.Value;
+        set => _bubbles = new InputPropertyInfo { Name = "bubbles", Value = value };
+    }
+
+    public ICollection<string>? BubblesSortOrder
+    {
+        get => (ICollection<string>?)_bubblesSortOrder.Value;
+        set => _bubblesSortOrder = new InputPropertyInfo { Name = "bubblesSortOrder", Value = value };
+    }
 
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
-        yield return new InputPropertyInfo { Name = "homeId", Value = HomeId };
-        yield return new InputPropertyInfo { Name = "bubbles", Value = Bubbles };
-        yield return new InputPropertyInfo { Name = "bubblesSortOrder", Value = BubblesSortOrder };
+        if (_homeId.Name != null) yield return _homeId;
+        if (_bubbles.Name != null) yield return _bubbles;
+        if (_bubblesSortOrder.Name != null) yield return _bubblesSortOrder;
     }
 }
 #endregion

@@ -2,55 +2,145 @@
 #region input classes
 public partial class MeterReadingInput : IGraphQlInputObject
 {
-    public Guid? HomeId { get; set; }
-    public string Time { get; set; }
-    public int? Reading { get; set; }
+    private InputPropertyInfo _homeId;
+    private InputPropertyInfo _time;
+    private InputPropertyInfo _reading;
+
+    public Guid? HomeId
+    {
+        get { return (Guid?)_homeId.Value; }
+        set { _homeId = new InputPropertyInfo { Name = "homeId", Value = value }; }
+    }
+
+    public string Time
+    {
+        get { return (string)_time.Value; }
+        set { _time = new InputPropertyInfo { Name = "time", Value = value }; }
+    }
+
+    public int? Reading
+    {
+        get { return (int?)_reading.Value; }
+        set { _reading = new InputPropertyInfo { Name = "reading", Value = value }; }
+    }
 
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
-        yield return new InputPropertyInfo { Name = "homeId", Value = HomeId };
-        yield return new InputPropertyInfo { Name = "time", Value = Time };
-        yield return new InputPropertyInfo { Name = "reading", Value = Reading };
+        if (_homeId.Name != null) yield return _homeId;
+        if (_time.Name != null) yield return _time;
+        if (_reading.Name != null) yield return _reading;
     }
 }
 
 public partial class UpdateHomeInput : IGraphQlInputObject
 {
-    public Guid? HomeId { get; set; }
-    public string AppNickname { get; set; }
-    public HomeAvatar? AppAvatar { get; set; }
-    public int? Size { get; set; }
-    public HomeType? Type { get; set; }
-    public int? NumberOfResidents { get; set; }
-    public HeatingSource? PrimaryHeatingSource { get; set; }
-    public bool? HasVentilationSystem { get; set; }
-    public int? MainFuseSize { get; set; }
+    private InputPropertyInfo _homeId;
+    private InputPropertyInfo _appNickname;
+    private InputPropertyInfo _appAvatar;
+    private InputPropertyInfo _size;
+    private InputPropertyInfo _type;
+    private InputPropertyInfo _numberOfResidents;
+    private InputPropertyInfo _primaryHeatingSource;
+    private InputPropertyInfo _hasVentilationSystem;
+    private InputPropertyInfo _mainFuseSize;
+
+    public Guid? HomeId
+    {
+        get { return (Guid?)_homeId.Value; }
+        set { _homeId = new InputPropertyInfo { Name = "homeId", Value = value }; }
+    }
+
+    public string AppNickname
+    {
+        get { return (string)_appNickname.Value; }
+        set { _appNickname = new InputPropertyInfo { Name = "appNickname", Value = value }; }
+    }
+
+    public HomeAvatar? AppAvatar
+    {
+        get { return (HomeAvatar?)_appAvatar.Value; }
+        set { _appAvatar = new InputPropertyInfo { Name = "appAvatar", Value = value }; }
+    }
+
+    public int? Size
+    {
+        get { return (int?)_size.Value; }
+        set { _size = new InputPropertyInfo { Name = "size", Value = value }; }
+    }
+
+    public HomeType? Type
+    {
+        get { return (HomeType?)_type.Value; }
+        set { _type = new InputPropertyInfo { Name = "type", Value = value }; }
+    }
+
+    public int? NumberOfResidents
+    {
+        get { return (int?)_numberOfResidents.Value; }
+        set { _numberOfResidents = new InputPropertyInfo { Name = "numberOfResidents", Value = value }; }
+    }
+
+    public HeatingSource? PrimaryHeatingSource
+    {
+        get { return (HeatingSource?)_primaryHeatingSource.Value; }
+        set { _primaryHeatingSource = new InputPropertyInfo { Name = "primaryHeatingSource", Value = value }; }
+    }
+
+    public bool? HasVentilationSystem
+    {
+        get { return (bool?)_hasVentilationSystem.Value; }
+        set { _hasVentilationSystem = new InputPropertyInfo { Name = "hasVentilationSystem", Value = value }; }
+    }
+
+    public int? MainFuseSize
+    {
+        get { return (int?)_mainFuseSize.Value; }
+        set { _mainFuseSize = new InputPropertyInfo { Name = "mainFuseSize", Value = value }; }
+    }
 
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
-        yield return new InputPropertyInfo { Name = "homeId", Value = HomeId };
-        yield return new InputPropertyInfo { Name = "appNickname", Value = AppNickname };
-        yield return new InputPropertyInfo { Name = "appAvatar", Value = AppAvatar };
-        yield return new InputPropertyInfo { Name = "size", Value = Size };
-        yield return new InputPropertyInfo { Name = "type", Value = Type };
-        yield return new InputPropertyInfo { Name = "numberOfResidents", Value = NumberOfResidents };
-        yield return new InputPropertyInfo { Name = "primaryHeatingSource", Value = PrimaryHeatingSource };
-        yield return new InputPropertyInfo { Name = "hasVentilationSystem", Value = HasVentilationSystem };
-        yield return new InputPropertyInfo { Name = "mainFuseSize", Value = MainFuseSize };
+        if (_homeId.Name != null) yield return _homeId;
+        if (_appNickname.Name != null) yield return _appNickname;
+        if (_appAvatar.Name != null) yield return _appAvatar;
+        if (_size.Name != null) yield return _size;
+        if (_type.Name != null) yield return _type;
+        if (_numberOfResidents.Name != null) yield return _numberOfResidents;
+        if (_primaryHeatingSource.Name != null) yield return _primaryHeatingSource;
+        if (_hasVentilationSystem.Name != null) yield return _hasVentilationSystem;
+        if (_mainFuseSize.Name != null) yield return _mainFuseSize;
     }
 }
 
 public partial class PushNotificationInput : IGraphQlInputObject
 {
-    public string Title { get; set; }
-    public string Message { get; set; }
-    public AppScreen? ScreenToOpen { get; set; }
+    private InputPropertyInfo _title;
+    private InputPropertyInfo _message;
+    private InputPropertyInfo _screenToOpen;
+
+    public string Title
+    {
+        get { return (string)_title.Value; }
+        set { _title = new InputPropertyInfo { Name = "title", Value = value }; }
+    }
+
+    public string Message
+    {
+        get { return (string)_message.Value; }
+        set { _message = new InputPropertyInfo { Name = "message", Value = value }; }
+    }
+
+    public AppScreen? ScreenToOpen
+    {
+        get { return (AppScreen?)_screenToOpen.Value; }
+        set { _screenToOpen = new InputPropertyInfo { Name = "screenToOpen", Value = value }; }
+    }
 
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
-        yield return new InputPropertyInfo { Name = "title", Value = Title };
-        yield return new InputPropertyInfo { Name = "message", Value = Message };
-        yield return new InputPropertyInfo { Name = "screenToOpen", Value = ScreenToOpen };
+        if (_title.Name != null) yield return _title;
+        if (_message.Name != null) yield return _message;
+        if (_screenToOpen.Name != null) yield return _screenToOpen;
     }
 }
 #endregion
