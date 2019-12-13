@@ -822,7 +822,7 @@ using Newtonsoft.Json.Linq;
 
             argumentNetType = isCollection ? $"QueryBuilderParameter<IEnumerable<{argumentNetType}>>" : $"QueryBuilderParameter<{argumentNetType}>";
 
-            if ((isInputObject || isCollection) && !isTypeNotNull)
+            if (!isArgumentNotNull)
                 argumentNetType = AddQuestionMarkIfNullableReferencesEnabled(argumentNetType);
 
             var argumentDefinition = $"{argumentNetType} {NamingHelper.ToValidVariableName(argument.Name)}";
