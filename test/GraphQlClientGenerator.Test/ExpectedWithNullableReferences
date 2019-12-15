@@ -208,9 +208,11 @@ public abstract class QueryBuilderParameter
 
     protected QueryBuilderParameter(string name, string graphQlTypeName, object value)
     {
-        Name = name;
+        Name = name?.Trim();
 
-        ValidateParameterValue(nameof(graphQlTypeName), graphQlTypeName);
+        graphQlTypeName = graphQlTypeName?.Trim();
+
+        ValidateParameterValue(nameof(graphQlTypeName), graphQlTypeName.EndsWith("!") ? graphQlTypeName.Substring(0, graphQlTypeName.Length - 1) : graphQlTypeName);
 
         GraphQlTypeName = graphQlTypeName;
         Value = value;
@@ -329,10 +331,14 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
                     builder.Append(indentationSpace);
 
                     builder.Append(queryParameter.GraphQlTypeName);
-                    builder.Append(indentationSpace);
-                    builder.Append("=");
-                    builder.Append(indentationSpace);
-                    builder.Append(GraphQlQueryHelper.BuildArgumentValue(queryParameter.Value, formatting, 0, indentationSize));
+
+                    if (!queryParameter.GraphQlTypeName.EndsWith("!"))
+                    {
+                        builder.Append(indentationSpace);
+                        builder.Append("=");
+                        builder.Append(indentationSpace);
+                        builder.Append(GraphQlQueryHelper.BuildArgumentValue(queryParameter.Value, formatting, 0, indentationSize));
+                    }
 
                     separator = " ";
                 }
