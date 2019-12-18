@@ -462,16 +462,16 @@ using Newtonsoft.Json.Linq;
                     switch (fieldType.Name)
                     {
                         case GraphQlTypeBase.GraphQlTypeScalarInteger:
-                            propertyType = GetIntegerNetType();
+                            propertyType = GetIntegerNetType(baseType, fieldType, member.Name);
                             break;
                         case GraphQlTypeBase.GraphQlTypeScalarString:
                             propertyType = GetCustomScalarType(baseType, fieldType, member.Name);
                             break;
                         case GraphQlTypeBase.GraphQlTypeScalarFloat:
-                            propertyType = GetFloatNetType();
+                            propertyType = GetFloatNetType(baseType, fieldType, member.Name);
                             break;
                         case GraphQlTypeBase.GraphQlTypeScalarBoolean:
-                            propertyType = "bool?";
+                            propertyType = GetBooleanNetType(baseType, fieldType, member.Name);
                             break;
                         case GraphQlTypeBase.GraphQlTypeScalarId:
                             propertyType = GetIdNetType(baseType, fieldType, member.Name);
@@ -518,28 +518,38 @@ using Newtonsoft.Json.Linq;
             builder.AppendLine();
         }
 
-        private static string GetFloatNetType() =>
+        private static string GetBooleanNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
+            GraphQlGeneratorConfiguration.BooleanType switch
+            {
+                BooleanType.Boolean => "bool?",
+                BooleanType.Custom => GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName),
+                _ => throw new InvalidOperationException($"'{GraphQlGeneratorConfiguration.BooleanType}' not supported")
+            };
+
+        private static string GetFloatNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
             GraphQlGeneratorConfiguration.FloatType switch
             {
                 FloatType.Decimal => "decimal?",
                 FloatType.Float => "float?",
                 FloatType.Double => "double?",
+                FloatType.Custom => GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName),
                 _ => throw new InvalidOperationException($"'{GraphQlGeneratorConfiguration.FloatType}' not supported")
             };
 
-        private static string GetIntegerNetType() =>
+        private static string GetIntegerNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
             GraphQlGeneratorConfiguration.IntegerType switch
             {
                 IntegerType.Int32 => "int?",
                 IntegerType.Int16 => "short?",
                 IntegerType.Int64 => "long?",
+                IntegerType.Custom => GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName),
                 _ => throw new InvalidOperationException($"'{GraphQlGeneratorConfiguration.IntegerType}' not supported")
             };
 
         private static string GetIdNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
             GraphQlGeneratorConfiguration.IdType switch
             {
-                IdType.String => (GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.NewestWithNullableReferences ? "string?" : "string"),
+                IdType.String => AddQuestionMarkIfNullableReferencesEnabled("string"),
                 IdType.Guid => "Guid?",
                 IdType.Object => "object",
                 IdType.Custom => GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName),
@@ -933,10 +943,10 @@ using Newtonsoft.Json.Linq;
         private static string ScalarToNetType(GraphQlType baseType, string valueName, GraphQlTypeBase valueType) =>
             valueType.Name switch
             {
-                GraphQlTypeBase.GraphQlTypeScalarInteger => GetIntegerNetType(),
+                GraphQlTypeBase.GraphQlTypeScalarInteger => GetIntegerNetType(baseType, valueType, valueName),
                 GraphQlTypeBase.GraphQlTypeScalarString => GetCustomScalarType(baseType, valueType, valueName),
-                GraphQlTypeBase.GraphQlTypeScalarFloat => GetFloatNetType(),
-                GraphQlTypeBase.GraphQlTypeScalarBoolean => "bool?",
+                GraphQlTypeBase.GraphQlTypeScalarFloat => GetFloatNetType(baseType, valueType, valueName),
+                GraphQlTypeBase.GraphQlTypeScalarBoolean => GetBooleanNetType(baseType, valueType, valueName),
                 GraphQlTypeBase.GraphQlTypeScalarId => GetIdNetType(baseType, valueType, valueName),
                 _ => GetCustomScalarType(baseType, valueType, valueName)
             };

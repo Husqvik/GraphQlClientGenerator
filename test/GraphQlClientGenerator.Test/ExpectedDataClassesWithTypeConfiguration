@@ -76,7 +76,7 @@ public class ConsumptionMonth
     public long? Month { get; set; }
     public double? Kwh { get; set; }
     public double? Cost { get; set; }
-    public bool? IsComplete { get; set; }
+    public bool IsComplete { get; set; }
     public double? KwhEstimate { get; set; }
     public double? CostEstimate { get; set; }
 }
@@ -99,7 +99,7 @@ public class Consumption
 public class PreLiveComparison
 {
     public string HomeId { get; set; }
-    public bool? BasedOnActuals { get; set; }
+    public bool BasedOnActuals { get; set; }
     public Comparison PreviousYear { get; set; }
     public ICollection<Comparison> PreviousYearMonths { get; set; }
 }
@@ -132,7 +132,7 @@ public class SignupStatus
 public class ProcessStep
 {
     public DateTimeOffset? Timestamp { get; set; }
-    public bool? IsComplete { get; set; }
+    public bool IsComplete { get; set; }
     public string Title { get; set; }
     public string Description { get; set; }
 }
@@ -151,19 +151,19 @@ public class Disaggregation
     public long? BehaviorConsumptionKwhPercent { get; set; }
     public double? BehaviorConsumptionCost { get; set; }
     public string Currency { get; set; }
-    public bool? IsValid { get; set; }
+    public bool IsValid { get; set; }
 }
 
 public class Device
 {
     public string DeviceId { get; set; }
     public string Type { get; set; }
-    public bool? IsControllable { get; set; }
+    public bool IsControllable { get; set; }
     public string ExternalId { get; set; }
     public string Name { get; set; }
-    public bool? IsBatteryLow { get; set; }
-    public bool? IsSignalLow { get; set; }
-    public bool? IsAlive { get; set; }
+    public bool IsBatteryLow { get; set; }
+    public bool IsSignalLow { get; set; }
+    public bool IsAlive { get; set; }
     public ICollection<string> Capabilities { get; set; }
     public object Properties { get; set; }
 }
@@ -178,7 +178,7 @@ public class Weather
 
 public class AwayMode
 {
-    public bool? IsSupported { get; set; }
+    public bool IsSupported { get; set; }
     public AwayModeSettings Settings { get; set; }
 }
 

@@ -28,6 +28,8 @@ namespace GraphQlClientGenerator
 
         public static FloatType FloatType { get; set; }
 
+        public static BooleanType BooleanType { get; set; }
+
         public static IdType IdType { get; set; } = IdType.Guid;
         
         public static JsonPropertyGenerationOption JsonPropertyGeneration { get; set; } = JsonPropertyGenerationOption.CaseInsensitive;
@@ -51,6 +53,7 @@ namespace GraphQlClientGenerator
             CommentGeneration = CommentGenerationOption.Disabled;
             IncludeDeprecatedFields = false;
             FloatType = FloatType.Decimal;
+            BooleanType = BooleanType.Boolean;
             IntegerType = IntegerType.Int32;
             IdType = IdType.Guid;
             TreatUnknownObjectAsScalar = false;
@@ -83,14 +86,22 @@ namespace GraphQlClientGenerator
     {
         Decimal,
         Float,
-        Double
+        Double,
+        Custom
+    }
+
+    public enum BooleanType
+    {
+        Boolean,
+        Custom
     }
 
     public enum IntegerType
     {
         Int16,
         Int32,
-        Int64
+        Int64,
+        Custom
     }
 
     public enum IdType

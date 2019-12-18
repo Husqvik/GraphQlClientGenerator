@@ -59,8 +59,11 @@ namespace GraphQlClientGenerator.Test
         {
             GraphQlGeneratorConfiguration.IntegerType = IntegerType.Int64;
             GraphQlGeneratorConfiguration.FloatType = FloatType.Double;
+            GraphQlGeneratorConfiguration.BooleanType = BooleanType.Custom;
             GraphQlGeneratorConfiguration.IdType = IdType.String;
             GraphQlGeneratorConfiguration.GeneratePartialClasses = false;
+            GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping =
+                (baseType, valueType, valueName) => valueType.Name == "Boolean" ? "bool" : GraphQlGeneratorConfiguration.DefaultScalarFieldTypeMapping(baseType, valueType, valueName);
 
             var stringBuilder = new StringBuilder();
             GraphQlGenerator.GenerateDataClasses(TestSchema, stringBuilder);
