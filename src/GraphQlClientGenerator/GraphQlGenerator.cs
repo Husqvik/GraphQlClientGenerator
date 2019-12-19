@@ -449,7 +449,7 @@ using Newtonsoft.Json.Linq;
                     var itemTypeName = fieldType.OfType.UnwrapIfNonNull().Name;
                     itemTypeName = UseCustomClassNameIfDefined(itemTypeName);
                     var itemType = IsUnknownObjectScalar(baseType, member.Name, fieldType.OfType) ? "object" : $"{itemTypeName}{GraphQlGeneratorConfiguration.ClassPostfix}";
-                    var suggestedNetType = ScalarToNetType(baseType, member.Name, fieldType.OfType.UnwrapIfNonNull()).TrimEnd('?');
+                    var suggestedNetType = ScalarToNetType(baseType, member.Name, fieldType.OfType).TrimEnd('?');
                     if (!String.Equals(suggestedNetType, "object") && !String.Equals(suggestedNetType, "object?") && !suggestedNetType.TrimEnd().EndsWith("System.Object") && !suggestedNetType.TrimEnd().EndsWith("System.Object?"))
                         itemType = suggestedNetType;
 
@@ -462,22 +462,22 @@ using Newtonsoft.Json.Linq;
                     switch (fieldType.Name)
                     {
                         case GraphQlTypeBase.GraphQlTypeScalarInteger:
-                            propertyType = GetIntegerNetType(baseType, fieldType, member.Name);
+                            propertyType = GetIntegerNetType(baseType, member.Type, member.Name);
                             break;
                         case GraphQlTypeBase.GraphQlTypeScalarString:
-                            propertyType = GetCustomScalarType(baseType, fieldType, member.Name);
+                            propertyType = GetCustomScalarType(baseType, member.Type, member.Name);
                             break;
                         case GraphQlTypeBase.GraphQlTypeScalarFloat:
-                            propertyType = GetFloatNetType(baseType, fieldType, member.Name);
+                            propertyType = GetFloatNetType(baseType, member.Type, member.Name);
                             break;
                         case GraphQlTypeBase.GraphQlTypeScalarBoolean:
-                            propertyType = GetBooleanNetType(baseType, fieldType, member.Name);
+                            propertyType = GetBooleanNetType(baseType, member.Type, member.Name);
                             break;
                         case GraphQlTypeBase.GraphQlTypeScalarId:
-                            propertyType = GetIdNetType(baseType, fieldType, member.Name);
+                            propertyType = GetIdNetType(baseType, member.Type, member.Name);
                             break;
                         default:
-                            propertyType = GetCustomScalarType(baseType, fieldType, member.Name);
+                            propertyType = GetCustomScalarType(baseType, member.Type, member.Name);
                             break;
                     }
 
@@ -822,7 +822,7 @@ using Newtonsoft.Json.Linq;
                 unwrappedType = unwrappedType.OfType.UnwrapIfNonNull();
             }
 
-            var argumentNetType = unwrappedType.Kind == GraphQlTypeKindEnum ? unwrappedType.Name + "?" : ScalarToNetType(baseType, argument.Name, unwrappedType);
+            var argumentNetType = unwrappedType.Kind == GraphQlTypeKindEnum ? unwrappedType.Name + "?" : ScalarToNetType(baseType, argument.Name, argument.Type);
             if (isTypeNotNull)
                 argumentNetType = argumentNetType.TrimEnd('?');
 
@@ -931,17 +931,15 @@ using Newtonsoft.Json.Linq;
 
         private static bool IsUnknownObjectScalar(GraphQlType baseType, string valueName, GraphQlFieldType fieldType)
         {
-            fieldType = fieldType.UnwrapIfNonNull();
-
-            if (fieldType.Kind != GraphQlTypeKindScalar)
+            if (fieldType.UnwrapIfNonNull().Kind != GraphQlTypeKindScalar)
                 return false;
 
             var netType = ScalarToNetType(baseType, valueName, fieldType);
             return netType == "object" || netType.TrimEnd().EndsWith("System.Object") || netType == "object?" || netType.TrimEnd().EndsWith("System.Object?");
         }
 
-        private static string ScalarToNetType(GraphQlType baseType, string valueName, GraphQlTypeBase valueType) =>
-            valueType.Name switch
+        private static string ScalarToNetType(GraphQlType baseType, string valueName, GraphQlFieldType valueType) =>
+            valueType.UnwrapIfNonNull().Name switch
             {
                 GraphQlTypeBase.GraphQlTypeScalarInteger => GetIntegerNetType(baseType, valueType, valueName),
                 GraphQlTypeBase.GraphQlTypeScalarString => GetCustomScalarType(baseType, valueType, valueName),
