@@ -17,7 +17,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>GraphGL C# Client</PackageTags>
     <PackageReleaseNotes>
-      customer .NET type mapping support for GraphQL built-in scalar data types
+      custom .NET type mapping support for GraphQL built-in scalar data types
     </PackageReleaseNotes>
   </PropertyGroup>
 
