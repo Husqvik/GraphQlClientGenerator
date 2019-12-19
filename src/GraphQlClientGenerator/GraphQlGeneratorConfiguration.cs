@@ -24,13 +24,13 @@ namespace GraphQlClientGenerator
         /// </summary>
         public static bool TreatUnknownObjectAsScalar { get; set; }
 
-        public static IntegerType IntegerType { get; set; } = IntegerType.Int32;
+        public static IntegerTypeMapping IntegerTypeMapping { get; set; } = IntegerTypeMapping.Int32;
 
-        public static FloatType FloatType { get; set; }
+        public static FloatTypeMapping FloatTypeMapping { get; set; }
 
-        public static BooleanType BooleanType { get; set; }
+        public static BooleanTypeMapping BooleanTypeMapping { get; set; }
 
-        public static IdType IdType { get; set; } = IdType.Guid;
+        public static IdTypeMapping IdTypeMapping { get; set; } = IdTypeMapping.Guid;
         
         public static JsonPropertyGenerationOption JsonPropertyGeneration { get; set; } = JsonPropertyGenerationOption.CaseInsensitive;
 
@@ -52,10 +52,10 @@ namespace GraphQlClientGenerator
             CustomScalarFieldTypeMapping = DefaultScalarFieldTypeMapping;
             CommentGeneration = CommentGenerationOption.Disabled;
             IncludeDeprecatedFields = false;
-            FloatType = FloatType.Decimal;
-            BooleanType = BooleanType.Boolean;
-            IntegerType = IntegerType.Int32;
-            IdType = IdType.Guid;
+            FloatTypeMapping = FloatTypeMapping.Decimal;
+            BooleanTypeMapping = BooleanTypeMapping.Boolean;
+            IntegerTypeMapping = IntegerTypeMapping.Int32;
+            IdTypeMapping = IdTypeMapping.Guid;
             TreatUnknownObjectAsScalar = false;
             GeneratePartialClasses = true;
             MemberAccessibility = MemberAccessibility.Public;
@@ -82,7 +82,7 @@ namespace GraphQlClientGenerator
         NewestWithNullableReferences
     }
 
-    public enum FloatType
+    public enum FloatTypeMapping
     {
         Decimal,
         Float,
@@ -90,13 +90,13 @@ namespace GraphQlClientGenerator
         Custom
     }
 
-    public enum BooleanType
+    public enum BooleanTypeMapping
     {
         Boolean,
         Custom
     }
 
-    public enum IntegerType
+    public enum IntegerTypeMapping
     {
         Int16,
         Int32,
@@ -104,7 +104,7 @@ namespace GraphQlClientGenerator
         Custom
     }
 
-    public enum IdType
+    public enum IdTypeMapping
     {
         String,
         Guid,

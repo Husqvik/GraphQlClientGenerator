@@ -519,41 +519,41 @@ using Newtonsoft.Json.Linq;
         }
 
         private static string GetBooleanNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
-            GraphQlGeneratorConfiguration.BooleanType switch
+            GraphQlGeneratorConfiguration.BooleanTypeMapping switch
             {
-                BooleanType.Boolean => "bool?",
-                BooleanType.Custom => GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName),
-                _ => throw new InvalidOperationException($"'{GraphQlGeneratorConfiguration.BooleanType}' not supported")
+                BooleanTypeMapping.Boolean => "bool?",
+                BooleanTypeMapping.Custom => GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName),
+                _ => throw new InvalidOperationException($"'{GraphQlGeneratorConfiguration.BooleanTypeMapping}' not supported")
             };
 
         private static string GetFloatNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
-            GraphQlGeneratorConfiguration.FloatType switch
+            GraphQlGeneratorConfiguration.FloatTypeMapping switch
             {
-                FloatType.Decimal => "decimal?",
-                FloatType.Float => "float?",
-                FloatType.Double => "double?",
-                FloatType.Custom => GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName),
-                _ => throw new InvalidOperationException($"'{GraphQlGeneratorConfiguration.FloatType}' not supported")
+                FloatTypeMapping.Decimal => "decimal?",
+                FloatTypeMapping.Float => "float?",
+                FloatTypeMapping.Double => "double?",
+                FloatTypeMapping.Custom => GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName),
+                _ => throw new InvalidOperationException($"'{GraphQlGeneratorConfiguration.FloatTypeMapping}' not supported")
             };
 
         private static string GetIntegerNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
-            GraphQlGeneratorConfiguration.IntegerType switch
+            GraphQlGeneratorConfiguration.IntegerTypeMapping switch
             {
-                IntegerType.Int32 => "int?",
-                IntegerType.Int16 => "short?",
-                IntegerType.Int64 => "long?",
-                IntegerType.Custom => GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName),
-                _ => throw new InvalidOperationException($"'{GraphQlGeneratorConfiguration.IntegerType}' not supported")
+                IntegerTypeMapping.Int32 => "int?",
+                IntegerTypeMapping.Int16 => "short?",
+                IntegerTypeMapping.Int64 => "long?",
+                IntegerTypeMapping.Custom => GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName),
+                _ => throw new InvalidOperationException($"'{GraphQlGeneratorConfiguration.IntegerTypeMapping}' not supported")
             };
 
         private static string GetIdNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
-            GraphQlGeneratorConfiguration.IdType switch
+            GraphQlGeneratorConfiguration.IdTypeMapping switch
             {
-                IdType.String => AddQuestionMarkIfNullableReferencesEnabled("string"),
-                IdType.Guid => "Guid?",
-                IdType.Object => "object",
-                IdType.Custom => GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName),
-                _ => throw new InvalidOperationException($"'{GraphQlGeneratorConfiguration.IdType}' not supported")
+                IdTypeMapping.String => AddQuestionMarkIfNullableReferencesEnabled("string"),
+                IdTypeMapping.Guid => "Guid?",
+                IdTypeMapping.Object => "object",
+                IdTypeMapping.Custom => GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName),
+                _ => throw new InvalidOperationException($"'{GraphQlGeneratorConfiguration.IdTypeMapping}' not supported")
             };
 
         private static void ThrowFieldTypeResolutionFailed(string typeName, string fieldName) =>
