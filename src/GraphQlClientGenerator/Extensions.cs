@@ -3,6 +3,6 @@
     public static class Extensions
     {
         public static GraphQlFieldType UnwrapIfNonNull(this GraphQlFieldType graphQlType) =>
-            graphQlType.Kind == GraphQlGenerator.GraphQlTypeKindNonNull ? graphQlType.OfType : graphQlType;
+            graphQlType.Kind == GraphQlTypeKind.NonNull ? graphQlType.OfType : graphQlType;
     }
 }

@@ -83,7 +83,7 @@ namespace GraphQlClientGenerator
         public const string GraphQlTypeScalarInteger = "Int";
         public const string GraphQlTypeScalarString = "String";
 
-        public string Kind { get; set; }
+        public GraphQlTypeKind Kind { get; set; }
         public string Name { get; set; }
     }
 
