@@ -228,8 +228,10 @@ using Newtonsoft.Json.Linq;
                         if (hasInputReference)
                             GenerateInputDataClassBody(type, (ICollection<IGraphQlMember>)fieldsToGenerate, builder);
                         else if (fieldsToGenerate != null)
+                        {
                             foreach (var field in fieldsToGenerate)
                                 GenerateDataProperty(type, field, isInterfaceMember, field.IsDeprecated, field.DeprecationReason, true, _ => builder.Append(" { get; set; }"), builder);
+                        }
                     }
 
                     var interfacesToImplement = new List<string>();
@@ -421,63 +423,7 @@ using Newtonsoft.Json.Linq;
         {
             var propertyName = NamingHelper.ToPascalCase(member.Name);
 
-            string propertyType;
-            var fieldType = member.Type.UnwrapIfNonNull();
-            switch (fieldType.Kind)
-            {
-                case GraphQlTypeKind.Object:
-                case GraphQlTypeKind.Interface:
-                case GraphQlTypeKind.Union:
-                case GraphQlTypeKind.InputObject:
-                    var fieldTypeName = fieldType.Name;
-                    fieldTypeName = UseCustomClassNameIfDefined(fieldTypeName);
-                    propertyType = $"{fieldTypeName}{GraphQlGeneratorConfiguration.ClassPostfix}";
-                    propertyType = AddQuestionMarkIfNullableReferencesEnabled(propertyType);
-                    break;
-                case GraphQlTypeKind.Enum:
-                    propertyType = $"{fieldType.Name}?";
-                    break;
-                case GraphQlTypeKind.List:
-                    var itemTypeName = fieldType.OfType.UnwrapIfNonNull().Name;
-                    itemTypeName = UseCustomClassNameIfDefined(itemTypeName);
-                    var itemType = IsUnknownObjectScalar(baseType, member.Name, fieldType.OfType) ? "object" : $"{itemTypeName}{GraphQlGeneratorConfiguration.ClassPostfix}";
-                    var suggestedNetType = ScalarToNetType(baseType, member.Name, fieldType.OfType).TrimEnd('?');
-                    if (!String.Equals(suggestedNetType, "object") && !String.Equals(suggestedNetType, "object?") && !suggestedNetType.TrimEnd().EndsWith("System.Object") && !suggestedNetType.TrimEnd().EndsWith("System.Object?"))
-                        itemType = suggestedNetType;
-
-                    propertyType = $"ICollection<{itemType}>";
-
-                    propertyType = AddQuestionMarkIfNullableReferencesEnabled(propertyType);
-
-                    break;
-                case GraphQlTypeKind.Scalar:
-                    switch (fieldType.Name)
-                    {
-                        case GraphQlTypeBase.GraphQlTypeScalarInteger:
-                            propertyType = GetIntegerNetType(baseType, member.Type, member.Name);
-                            break;
-                        case GraphQlTypeBase.GraphQlTypeScalarString:
-                            propertyType = GetCustomScalarType(baseType, member.Type, member.Name);
-                            break;
-                        case GraphQlTypeBase.GraphQlTypeScalarFloat:
-                            propertyType = GetFloatNetType(baseType, member.Type, member.Name);
-                            break;
-                        case GraphQlTypeBase.GraphQlTypeScalarBoolean:
-                            propertyType = GetBooleanNetType(baseType, member.Type, member.Name);
-                            break;
-                        case GraphQlTypeBase.GraphQlTypeScalarId:
-                            propertyType = GetIdNetType(baseType, member.Type, member.Name);
-                            break;
-                        default:
-                            propertyType = GetCustomScalarType(baseType, member.Type, member.Name);
-                            break;
-                    }
-
-                    break;
-                default:
-                    propertyType = AddQuestionMarkIfNullableReferencesEnabled("string");
-                    break;
-            }
+            var propertyType = GetDataPropertyType(baseType, member);
 
             GenerateCodeComments(builder, member.Description, 4);
 
@@ -508,6 +454,63 @@ using Newtonsoft.Json.Linq;
             writeBody(propertyType);
 
             builder.AppendLine();
+        }
+
+        private static string GetDataPropertyType(GraphQlType baseType, IGraphQlMember member)
+        {
+            string propertyType;
+            var fieldType = member.Type.UnwrapIfNonNull();
+            switch (fieldType.Kind)
+            {
+                case GraphQlTypeKind.Object:
+                case GraphQlTypeKind.Interface:
+                case GraphQlTypeKind.Union:
+                case GraphQlTypeKind.InputObject:
+                    var fieldTypeName = fieldType.Name;
+                    fieldTypeName = UseCustomClassNameIfDefined(fieldTypeName);
+                    propertyType = $"{fieldTypeName}{GraphQlGeneratorConfiguration.ClassPostfix}";
+                    return AddQuestionMarkIfNullableReferencesEnabled(propertyType);
+
+                case GraphQlTypeKind.Enum:
+                    return fieldType.Name + "?";
+
+                case GraphQlTypeKind.List:
+                    var itemTypeName = fieldType.OfType.UnwrapIfNonNull().Name;
+                    itemTypeName = UseCustomClassNameIfDefined(itemTypeName);
+                    var itemType = IsUnknownObjectScalar(baseType, member.Name, fieldType.OfType) ? "object" : $"{itemTypeName}{GraphQlGeneratorConfiguration.ClassPostfix}";
+                    var suggestedNetType = ScalarToNetType(baseType, member.Name, fieldType.OfType).TrimEnd('?');
+                    if (!String.Equals(suggestedNetType, "object") && !String.Equals(suggestedNetType, "object?") && !suggestedNetType.TrimEnd().EndsWith("System.Object") && !suggestedNetType.TrimEnd().EndsWith("System.Object?"))
+                        itemType = suggestedNetType;
+
+                    propertyType = $"ICollection<{itemType}>";
+
+                    return AddQuestionMarkIfNullableReferencesEnabled(propertyType);
+
+                case GraphQlTypeKind.Scalar:
+                    switch (fieldType.Name)
+                    {
+                        case GraphQlTypeBase.GraphQlTypeScalarInteger:
+                            return GetIntegerNetType(baseType, member.Type, member.Name);
+
+                        case GraphQlTypeBase.GraphQlTypeScalarString:
+                            return GetCustomScalarType(baseType, member.Type, member.Name);
+
+                        case GraphQlTypeBase.GraphQlTypeScalarFloat:
+                            return GetFloatNetType(baseType, member.Type, member.Name);
+
+                        case GraphQlTypeBase.GraphQlTypeScalarBoolean:
+                            return GetBooleanNetType(baseType, member.Type, member.Name);
+
+                        case GraphQlTypeBase.GraphQlTypeScalarId:
+                            return GetIdNetType(baseType, member.Type, member.Name);
+
+                        default:
+                            return GetCustomScalarType(baseType, member.Type, member.Name);
+                    }
+
+                default:
+                    return AddQuestionMarkIfNullableReferencesEnabled("string");
+            }
         }
 
         private static string GetBooleanNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
