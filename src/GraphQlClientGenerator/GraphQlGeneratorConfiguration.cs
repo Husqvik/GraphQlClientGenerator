@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace GraphQlClientGenerator
 {
     public delegate string GetCustomScalarFieldTypeDelegate(GraphQlType baseType, GraphQlTypeBase valueType, string valueName);
+    
+    public delegate string GetDataPropertyAccessorBodiesDelegate(string backingFieldName, string backingFieldType);
 
     public static class GraphQlGeneratorConfiguration
     {
@@ -46,12 +49,18 @@ namespace GraphQlClientGenerator
         /// </summary>
         public static GetCustomScalarFieldTypeDelegate CustomScalarFieldTypeMapping { get; set; } = DefaultScalarFieldTypeMapping;
 
+        /// <summary>
+        /// Used for custom data property accessor bodies generation; applicable only when <code>PropertyGeneration = PropertyGenerationOption.BackingField</code>.
+        /// </summary>
+        public static GetDataPropertyAccessorBodiesDelegate PropertyAccessorBodyWriter { get; set; } = GeneratePropertyAccessors;
+
         public static void Reset()
         {
             ClassPostfix = null;
             CustomClassNameMapping.Clear();
             CSharpVersion = CSharpVersion.Compatible;
             CustomScalarFieldTypeMapping = DefaultScalarFieldTypeMapping;
+            PropertyAccessorBodyWriter = GeneratePropertyAccessors;
             CommentGeneration = CommentGenerationOption.Disabled;
             IncludeDeprecatedFields = false;
             FloatTypeMapping = FloatTypeMapping.Decimal;
@@ -79,6 +88,31 @@ namespace GraphQlClientGenerator
 
             var dataType = valueType.Name == GraphQlTypeBase.GraphQlTypeScalarString ? "string" : "object";
             return GraphQlGenerator.AddQuestionMarkIfNullableReferencesEnabled(dataType);
+        }
+
+        public static string GeneratePropertyAccessors(string backingFieldName, string backingFieldType)
+        {
+            var useCompatibleVersion = CSharpVersion == CSharpVersion.Compatible;
+            var builder = new StringBuilder();
+            builder.Append(" { get");
+            builder.Append(useCompatibleVersion ? " { return " : " => ");
+            builder.Append(backingFieldName);
+            builder.Append(";");
+
+            if (useCompatibleVersion)
+                builder.Append(" }");
+
+            builder.Append(" set");
+            builder.Append(useCompatibleVersion ? " { " : " => ");
+            builder.Append(backingFieldName);
+            builder.Append(" = value;");
+
+            if (useCompatibleVersion)
+                builder.Append(" }");
+
+            builder.Append(" }");
+
+            return builder.ToString();
         }
     }
 
