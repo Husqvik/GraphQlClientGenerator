@@ -5,7 +5,7 @@
     <Description>A simple strongly typed C# GraphQL client generator. </Description>
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
-    <VersionPrefix>0.4.4</VersionPrefix>
+    <VersionPrefix>0.4.5</VersionPrefix>
     <TargetFrameworks>netstandard1.3;net452</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <Copyright>Copyright 2017-2019</Copyright>
@@ -17,7 +17,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>GraphGL C# Client</PackageTags>
     <PackageReleaseNotes>
-      custom .NET type mapping support for GraphQL built-in scalar data types
+      custom .NET type mapping support for GraphQL enums
     </PackageReleaseNotes>
   </PropertyGroup>
 

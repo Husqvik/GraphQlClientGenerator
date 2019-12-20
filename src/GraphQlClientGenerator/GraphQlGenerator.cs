@@ -31,7 +31,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 ";
 
-        private delegate void WriteDataClassPropertyBodyDelegate(string netType);
+        private delegate void WriteDataClassPropertyBodyDelegate(string netType, string backingFieldName);
 
         internal static readonly JsonSerializerSettings SerializerSettings =
             new JsonSerializerSettings
@@ -229,8 +229,56 @@ using Newtonsoft.Json.Linq;
                             GenerateInputDataClassBody(type, (ICollection<IGraphQlMember>)fieldsToGenerate, builder);
                         else if (fieldsToGenerate != null)
                         {
+                            var generateBackingFields = GraphQlGeneratorConfiguration.PropertyGeneration == PropertyGenerationOption.BackingField && !isInterfaceMember;
+                            if (generateBackingFields)
+                            {
+                                foreach (var field in fieldsToGenerate)
+                                {
+                                    builder.Append("    private ");
+                                    builder.Append(GetDataPropertyType(type, field));
+                                    builder.Append(" ");
+                                    builder.Append(GetBackingFieldName(field.Name));
+                                    builder.AppendLine(";");
+                                }
+
+                                builder.AppendLine();
+                            }
+
                             foreach (var field in fieldsToGenerate)
-                                GenerateDataProperty(type, field, isInterfaceMember, field.IsDeprecated, field.DeprecationReason, true, _ => builder.Append(" { get; set; }"), builder);
+                                GenerateDataProperty(
+                                    type,
+                                    field,
+                                    isInterfaceMember,
+                                    field.IsDeprecated,
+                                    field.DeprecationReason,
+                                    true,
+                                    (_, backingFieldName) =>
+                                    {
+                                        if (generateBackingFields)
+                                        {
+                                            var useCompatibleVersion = GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.Compatible;
+                                            builder.Append(" { get");
+                                            builder.Append(useCompatibleVersion ? " { return " : " => ");
+                                            builder.Append(backingFieldName);
+                                            builder.Append(";");
+
+                                            if(useCompatibleVersion)
+                                                builder.Append(" }");
+
+                                            builder.Append(" set");
+                                            builder.Append(useCompatibleVersion ? " { " : " => ");
+                                            builder.Append(backingFieldName);
+                                            builder.Append(" = value;");
+
+                                            if (useCompatibleVersion)
+                                                builder.Append(" }");
+
+                                            builder.Append(" }");
+                                        }
+                                        else
+                                            builder.Append(" { get; set; }");
+                                    },
+                                    builder);
                         }
                     }
 
@@ -273,13 +321,18 @@ using Newtonsoft.Json.Linq;
                 builder.AppendLine("#nullable disable");
         }
 
+        private static string GetBackingFieldName(string graphQlFieldName)
+        {
+            var propertyName = NamingHelper.ToPascalCase(graphQlFieldName);
+            return "_" + Char.ToLower(propertyName[0]) + propertyName.Substring(1);
+        }
+
         private static void GenerateInputDataClassBody(GraphQlType type, IEnumerable<IGraphQlMember> members, StringBuilder builder)
         {
             var fieldNameMembers = new Dictionary<string, IGraphQlMember>();
             foreach (var member in members)
             {
-                var propertyName = NamingHelper.ToPascalCase(member.Name);
-                var fieldName = "_" + Char.ToLower(propertyName[0]) + propertyName.Substring(1);
+                var fieldName = GetBackingFieldName(member.Name);
                 fieldNameMembers.Add(fieldName, member);
 
                 builder.Append("    private InputPropertyInfo ");
@@ -299,7 +352,7 @@ using Newtonsoft.Json.Linq;
                     false,
                     null,
                     false,
-                    t =>
+                    (t, _) =>
                     {
                         builder.AppendLine();
                         builder.AppendLine("    {");
@@ -451,7 +504,7 @@ using Newtonsoft.Json.Linq;
             
             builder.Append($"    {(isInterfaceMember ? null : "public ")}{propertyType} {propertyName}");
 
-            writeBody(propertyType);
+            writeBody(propertyType, GetBackingFieldName(member.Name));
 
             builder.AppendLine();
         }

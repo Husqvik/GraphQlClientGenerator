@@ -32,6 +32,8 @@ namespace GraphQlClientGenerator
 
         public static IdTypeMapping IdTypeMapping { get; set; } = IdTypeMapping.Guid;
         
+        public static PropertyGenerationOption PropertyGeneration { get; set; } = PropertyGenerationOption.AutoProperty;
+
         public static JsonPropertyGenerationOption JsonPropertyGeneration { get; set; } = JsonPropertyGenerationOption.CaseInsensitive;
 
         /// <summary>
@@ -60,6 +62,7 @@ namespace GraphQlClientGenerator
             GeneratePartialClasses = true;
             MemberAccessibility = MemberAccessibility.Public;
             JsonPropertyGeneration = JsonPropertyGenerationOption.CaseInsensitive;
+            PropertyGeneration = PropertyGenerationOption.AutoProperty;
         }
 
         public static string DefaultScalarFieldTypeMapping(GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
@@ -128,6 +131,12 @@ namespace GraphQlClientGenerator
         Always,
         CaseInsensitive,
         CaseSensitive
+    }
+
+    public enum PropertyGenerationOption
+    {
+        AutoProperty,
+        BackingField
     }
 
     [Flags]

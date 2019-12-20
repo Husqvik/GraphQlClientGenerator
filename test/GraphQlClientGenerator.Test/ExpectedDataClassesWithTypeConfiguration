@@ -1,214 +1,363 @@
 #region data classes
 public class Query
 {
-    public Me Me { get; set; }
+    private Me _me;
+
+    public Me Me { get { return _me; } set { _me = value; } }
 }
 
 public class Me
 {
-    public string Id { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string FullName { get; set; }
-    public string Ssn { get; set; }
-    public string Email { get; set; }
-    public string Language { get; set; }
-    public string Tone { get; set; }
-    public ICollection<Avatar> Avatars { get; set; }
-    public Home Home { get; set; }
-    public ICollection<Home> Homes { get; set; }
-    public Feed Feed { get; set; }
-    public ICollection<object> EnergyStatements { get; set; }
+    private string _id;
+    private string _firstName;
+    private string _lastName;
+    private string _fullName;
+    private string _ssn;
+    private string _email;
+    private string _language;
+    private string _tone;
+    private ICollection<Avatar> _avatars;
+    private Home _home;
+    private ICollection<Home> _homes;
+    private Feed _feed;
+    private ICollection<object> _energyStatements;
+
+    public string Id { get { return _id; } set { _id = value; } }
+    public string FirstName { get { return _firstName; } set { _firstName = value; } }
+    public string LastName { get { return _lastName; } set { _lastName = value; } }
+    public string FullName { get { return _fullName; } set { _fullName = value; } }
+    public string Ssn { get { return _ssn; } set { _ssn = value; } }
+    public string Email { get { return _email; } set { _email = value; } }
+    public string Language { get { return _language; } set { _language = value; } }
+    public string Tone { get { return _tone; } set { _tone = value; } }
+    public ICollection<Avatar> Avatars { get { return _avatars; } set { _avatars = value; } }
+    public Home Home { get { return _home; } set { _home = value; } }
+    public ICollection<Home> Homes { get { return _homes; } set { _homes = value; } }
+    public Feed Feed { get { return _feed; } set { _feed = value; } }
+    public ICollection<object> EnergyStatements { get { return _energyStatements; } set { _energyStatements = value; } }
 }
 
 public class Home
 {
-    public string Id { get; set; }
-    public Avatar? Avatar { get; set; }
-    public string TimeZone { get; set; }
-    public Subscription Subscription { get; set; }
-    public ICollection<ConsumptionMonth> ConsumptionMonths { get; set; }
-    public Consumption Consumption { get; set; }
-    public PreLiveComparison PreLiveComparison { get; set; }
-    public ICollection<Comparison> Comparisons { get; set; }
+    private string _id;
+    private Avatar? _avatar;
+    private string _timeZone;
+    private Subscription _subscription;
+    private ICollection<ConsumptionMonth> _consumptionMonths;
+    private Consumption _consumption;
+    private PreLiveComparison _preLiveComparison;
+    private ICollection<Comparison> _comparisons;
+    private Comparison _comparisonCurrentMonth;
+    private object _profile;
+    private object _profileQuestions;
+    private object _thermostat;
+    private ICollection<object> _temperatures;
+    private SignupStatus _signupStatus;
+    private ICollection<Disaggregation> _disaggregation;
+    private ICollection<Device> _devices;
+    private Weather _weather;
+    private AwayMode _awayMode;
+
+    public string Id { get { return _id; } set { _id = value; } }
+    public Avatar? Avatar { get { return _avatar; } set { _avatar = value; } }
+    public string TimeZone { get { return _timeZone; } set { _timeZone = value; } }
+    public Subscription Subscription { get { return _subscription; } set { _subscription = value; } }
+    public ICollection<ConsumptionMonth> ConsumptionMonths { get { return _consumptionMonths; } set { _consumptionMonths = value; } }
+    public Consumption Consumption { get { return _consumption; } set { _consumption = value; } }
+    public PreLiveComparison PreLiveComparison { get { return _preLiveComparison; } set { _preLiveComparison = value; } }
+    public ICollection<Comparison> Comparisons { get { return _comparisons; } set { _comparisons = value; } }
     [JsonProperty("comparison_current_month")]
-    public Comparison ComparisonCurrentMonth { get; set; }
-    public object Profile { get; set; }
-    public object ProfileQuestions { get; set; }
-    public object Thermostat { get; set; }
-    public ICollection<object> Temperatures { get; set; }
-    public SignupStatus SignupStatus { get; set; }
-    public ICollection<Disaggregation> Disaggregation { get; set; }
-    public ICollection<Device> Devices { get; set; }
-    public Weather Weather { get; set; }
-    public AwayMode AwayMode { get; set; }
+    public Comparison ComparisonCurrentMonth { get { return _comparisonCurrentMonth; } set { _comparisonCurrentMonth = value; } }
+    public object Profile { get { return _profile; } set { _profile = value; } }
+    public object ProfileQuestions { get { return _profileQuestions; } set { _profileQuestions = value; } }
+    public object Thermostat { get { return _thermostat; } set { _thermostat = value; } }
+    public ICollection<object> Temperatures { get { return _temperatures; } set { _temperatures = value; } }
+    public SignupStatus SignupStatus { get { return _signupStatus; } set { _signupStatus = value; } }
+    public ICollection<Disaggregation> Disaggregation { get { return _disaggregation; } set { _disaggregation = value; } }
+    public ICollection<Device> Devices { get { return _devices; } set { _devices = value; } }
+    public Weather Weather { get { return _weather; } set { _weather = value; } }
+    public AwayMode AwayMode { get { return _awayMode; } set { _awayMode = value; } }
 }
 
 public class Subscription
 {
-    public string Id { get; set; }
-    public DateTimeOffset? ValidFrom { get; set; }
-    public DateTimeOffset? ValidTo { get; set; }
-    public string Status { get; set; }
-    public long? BillingRegionId { get; set; }
-    public ICollection<object> EnergyStatements { get; set; }
-    public PriceRating PriceRating { get; set; }
+    private string _id;
+    private DateTimeOffset? _validFrom;
+    private DateTimeOffset? _validTo;
+    private string _status;
+    private long? _billingRegionId;
+    private ICollection<object> _energyStatements;
+    private PriceRating _priceRating;
+
+    public string Id { get { return _id; } set { _id = value; } }
+    public DateTimeOffset? ValidFrom { get { return _validFrom; } set { _validFrom = value; } }
+    public DateTimeOffset? ValidTo { get { return _validTo; } set { _validTo = value; } }
+    public string Status { get { return _status; } set { _status = value; } }
+    public long? BillingRegionId { get { return _billingRegionId; } set { _billingRegionId = value; } }
+    public ICollection<object> EnergyStatements { get { return _energyStatements; } set { _energyStatements = value; } }
+    public PriceRating PriceRating { get { return _priceRating; } set { _priceRating = value; } }
 }
 
 public class PriceRating
 {
-    public double? MinPrice { get; set; }
-    public double? MaxPrice { get; set; }
-    public ICollection<PriceRatingEntry> Entries { get; set; }
+    private double? _minPrice;
+    private double? _maxPrice;
+    private ICollection<PriceRatingEntry> _entries;
+
+    public double? MinPrice { get { return _minPrice; } set { _minPrice = value; } }
+    public double? MaxPrice { get { return _maxPrice; } set { _maxPrice = value; } }
+    public ICollection<PriceRatingEntry> Entries { get { return _entries; } set { _entries = value; } }
 }
 
 public class PriceRatingEntry
 {
-    public string Time { get; set; }
-    public double? Price { get; set; }
-    public PriceLevel? Level { get; set; }
-    public double? Difference { get; set; }
+    private string _time;
+    private double? _price;
+    private PriceLevel? _level;
+    private double? _difference;
+
+    public string Time { get { return _time; } set { _time = value; } }
+    public double? Price { get { return _price; } set { _price = value; } }
+    public PriceLevel? Level { get { return _level; } set { _level = value; } }
+    public double? Difference { get { return _difference; } set { _difference = value; } }
 }
 
 public class ConsumptionMonth
 {
-    public long? Year { get; set; }
-    public long? Month { get; set; }
-    public double? Kwh { get; set; }
-    public double? Cost { get; set; }
-    public bool IsComplete { get; set; }
-    public double? KwhEstimate { get; set; }
-    public double? CostEstimate { get; set; }
+    private long? _year;
+    private long? _month;
+    private double? _kwh;
+    private double? _cost;
+    private bool _isComplete;
+    private double? _kwhEstimate;
+    private double? _costEstimate;
+
+    public long? Year { get { return _year; } set { _year = value; } }
+    public long? Month { get { return _month; } set { _month = value; } }
+    public double? Kwh { get { return _kwh; } set { _kwh = value; } }
+    public double? Cost { get { return _cost; } set { _cost = value; } }
+    public bool IsComplete { get { return _isComplete; } set { _isComplete = value; } }
+    public double? KwhEstimate { get { return _kwhEstimate; } set { _kwhEstimate = value; } }
+    public double? CostEstimate { get { return _costEstimate; } set { _costEstimate = value; } }
 }
 
 public class Consumption
 {
-    public object AnnualValues { get; set; }
-    public object MonthlyValues { get; set; }
-    public object WeeklyValues { get; set; }
-    public object DailyValues { get; set; }
-    public object HourlyValues { get; set; }
-    public double? TotalConsumption { get; set; }
-    public double? EnergyCost { get; set; }
-    public double? TotalCost { get; set; }
-    public string Currency { get; set; }
-    public DateTimeOffset? LatestTransactionTimestamp { get; set; }
-    public string TimeZone { get; set; }
+    private object _annualValues;
+    private object _monthlyValues;
+    private object _weeklyValues;
+    private object _dailyValues;
+    private object _hourlyValues;
+    private double? _totalConsumption;
+    private double? _energyCost;
+    private double? _totalCost;
+    private string _currency;
+    private DateTimeOffset? _latestTransactionTimestamp;
+    private string _timeZone;
+
+    public object AnnualValues { get { return _annualValues; } set { _annualValues = value; } }
+    public object MonthlyValues { get { return _monthlyValues; } set { _monthlyValues = value; } }
+    public object WeeklyValues { get { return _weeklyValues; } set { _weeklyValues = value; } }
+    public object DailyValues { get { return _dailyValues; } set { _dailyValues = value; } }
+    public object HourlyValues { get { return _hourlyValues; } set { _hourlyValues = value; } }
+    public double? TotalConsumption { get { return _totalConsumption; } set { _totalConsumption = value; } }
+    public double? EnergyCost { get { return _energyCost; } set { _energyCost = value; } }
+    public double? TotalCost { get { return _totalCost; } set { _totalCost = value; } }
+    public string Currency { get { return _currency; } set { _currency = value; } }
+    public DateTimeOffset? LatestTransactionTimestamp { get { return _latestTransactionTimestamp; } set { _latestTransactionTimestamp = value; } }
+    public string TimeZone { get { return _timeZone; } set { _timeZone = value; } }
 }
 
 public class PreLiveComparison
 {
-    public string HomeId { get; set; }
-    public bool BasedOnActuals { get; set; }
-    public Comparison PreviousYear { get; set; }
-    public ICollection<Comparison> PreviousYearMonths { get; set; }
+    private string _homeId;
+    private bool _basedOnActuals;
+    private Comparison _previousYear;
+    private ICollection<Comparison> _previousYearMonths;
+
+    public string HomeId { get { return _homeId; } set { _homeId = value; } }
+    public bool BasedOnActuals { get { return _basedOnActuals; } set { _basedOnActuals = value; } }
+    public Comparison PreviousYear { get { return _previousYear; } set { _previousYear = value; } }
+    public ICollection<Comparison> PreviousYearMonths { get { return _previousYearMonths; } set { _previousYearMonths = value; } }
 }
 
 public class Comparison
 {
-    public long? Year { get; set; }
-    public long? Month { get; set; }
-    public string Resolution { get; set; }
-    public string HomeEfficency { get; set; }
-    public string HomeEfficencyDescription { get; set; }
-    public ComparisonData Home { get; set; }
-    public ComparisonData Average { get; set; }
-    public ComparisonData Efficient { get; set; }
+    private long? _year;
+    private long? _month;
+    private string _resolution;
+    private string _homeEfficency;
+    private string _homeEfficencyDescription;
+    private ComparisonData _home;
+    private ComparisonData _average;
+    private ComparisonData _efficient;
+
+    public long? Year { get { return _year; } set { _year = value; } }
+    public long? Month { get { return _month; } set { _month = value; } }
+    public string Resolution { get { return _resolution; } set { _resolution = value; } }
+    public string HomeEfficency { get { return _homeEfficency; } set { _homeEfficency = value; } }
+    public string HomeEfficencyDescription { get { return _homeEfficencyDescription; } set { _homeEfficencyDescription = value; } }
+    public ComparisonData Home { get { return _home; } set { _home = value; } }
+    public ComparisonData Average { get { return _average; } set { _average = value; } }
+    public ComparisonData Efficient { get { return _efficient; } set { _efficient = value; } }
 }
 
 public class ComparisonData
 {
-    public double? Cost { get; set; }
-    public double? Consumption { get; set; }
+    private double? _cost;
+    private double? _consumption;
+
+    public double? Cost { get { return _cost; } set { _cost = value; } }
+    public double? Consumption { get { return _consumption; } set { _consumption = value; } }
 }
 
 public class SignupStatus
 {
-    public ProcessStep FeedStep { get; set; }
-    public ProcessStep AvatarStep { get; set; }
-    public ICollection<ProcessStep> Steps { get; set; }
+    private ProcessStep _feedStep;
+    private ProcessStep _avatarStep;
+    private ICollection<ProcessStep> _steps;
+
+    public ProcessStep FeedStep { get { return _feedStep; } set { _feedStep = value; } }
+    public ProcessStep AvatarStep { get { return _avatarStep; } set { _avatarStep = value; } }
+    public ICollection<ProcessStep> Steps { get { return _steps; } set { _steps = value; } }
 }
 
 public class ProcessStep
 {
-    public DateTimeOffset? Timestamp { get; set; }
-    public bool IsComplete { get; set; }
-    public string Title { get; set; }
-    public string Description { get; set; }
+    private DateTimeOffset? _timestamp;
+    private bool _isComplete;
+    private string _title;
+    private string _description;
+
+    public DateTimeOffset? Timestamp { get { return _timestamp; } set { _timestamp = value; } }
+    public bool IsComplete { get { return _isComplete; } set { _isComplete = value; } }
+    public string Title { get { return _title; } set { _title = value; } }
+    public string Description { get { return _description; } set { _description = value; } }
 }
 
 public class Disaggregation
 {
-    public long? Year { get; set; }
-    public long? Month { get; set; }
-    public double? FixedConsumptionKwh { get; set; }
-    public long? FixedConsumptionKwhPercent { get; set; }
-    public double? FixedConsumptionCost { get; set; }
-    public double? HeatingConsumptionKwh { get; set; }
-    public long? HeatingConsumptionKwhPercent { get; set; }
-    public double? HeatingConsumptionCost { get; set; }
-    public double? BehaviorConsumptionKwh { get; set; }
-    public long? BehaviorConsumptionKwhPercent { get; set; }
-    public double? BehaviorConsumptionCost { get; set; }
-    public string Currency { get; set; }
-    public bool IsValid { get; set; }
+    private long? _year;
+    private long? _month;
+    private double? _fixedConsumptionKwh;
+    private long? _fixedConsumptionKwhPercent;
+    private double? _fixedConsumptionCost;
+    private double? _heatingConsumptionKwh;
+    private long? _heatingConsumptionKwhPercent;
+    private double? _heatingConsumptionCost;
+    private double? _behaviorConsumptionKwh;
+    private long? _behaviorConsumptionKwhPercent;
+    private double? _behaviorConsumptionCost;
+    private string _currency;
+    private bool _isValid;
+
+    public long? Year { get { return _year; } set { _year = value; } }
+    public long? Month { get { return _month; } set { _month = value; } }
+    public double? FixedConsumptionKwh { get { return _fixedConsumptionKwh; } set { _fixedConsumptionKwh = value; } }
+    public long? FixedConsumptionKwhPercent { get { return _fixedConsumptionKwhPercent; } set { _fixedConsumptionKwhPercent = value; } }
+    public double? FixedConsumptionCost { get { return _fixedConsumptionCost; } set { _fixedConsumptionCost = value; } }
+    public double? HeatingConsumptionKwh { get { return _heatingConsumptionKwh; } set { _heatingConsumptionKwh = value; } }
+    public long? HeatingConsumptionKwhPercent { get { return _heatingConsumptionKwhPercent; } set { _heatingConsumptionKwhPercent = value; } }
+    public double? HeatingConsumptionCost { get { return _heatingConsumptionCost; } set { _heatingConsumptionCost = value; } }
+    public double? BehaviorConsumptionKwh { get { return _behaviorConsumptionKwh; } set { _behaviorConsumptionKwh = value; } }
+    public long? BehaviorConsumptionKwhPercent { get { return _behaviorConsumptionKwhPercent; } set { _behaviorConsumptionKwhPercent = value; } }
+    public double? BehaviorConsumptionCost { get { return _behaviorConsumptionCost; } set { _behaviorConsumptionCost = value; } }
+    public string Currency { get { return _currency; } set { _currency = value; } }
+    public bool IsValid { get { return _isValid; } set { _isValid = value; } }
 }
 
 public class Device
 {
-    public string DeviceId { get; set; }
-    public string Type { get; set; }
-    public bool IsControllable { get; set; }
-    public string ExternalId { get; set; }
-    public string Name { get; set; }
-    public bool IsBatteryLow { get; set; }
-    public bool IsSignalLow { get; set; }
-    public bool IsAlive { get; set; }
-    public ICollection<string> Capabilities { get; set; }
-    public object Properties { get; set; }
+    private string _deviceId;
+    private string _type;
+    private bool _isControllable;
+    private string _externalId;
+    private string _name;
+    private bool _isBatteryLow;
+    private bool _isSignalLow;
+    private bool _isAlive;
+    private ICollection<string> _capabilities;
+    private object _properties;
+
+    public string DeviceId { get { return _deviceId; } set { _deviceId = value; } }
+    public string Type { get { return _type; } set { _type = value; } }
+    public bool IsControllable { get { return _isControllable; } set { _isControllable = value; } }
+    public string ExternalId { get { return _externalId; } set { _externalId = value; } }
+    public string Name { get { return _name; } set { _name = value; } }
+    public bool IsBatteryLow { get { return _isBatteryLow; } set { _isBatteryLow = value; } }
+    public bool IsSignalLow { get { return _isSignalLow; } set { _isSignalLow = value; } }
+    public bool IsAlive { get { return _isAlive; } set { _isAlive = value; } }
+    public ICollection<string> Capabilities { get { return _capabilities; } set { _capabilities = value; } }
+    public object Properties { get { return _properties; } set { _properties = value; } }
 }
 
 public class Weather
 {
-    public double? Temperature { get; set; }
-    public DateTimeOffset? Timestamp { get; set; }
-    public string Summary { get; set; }
-    public string Type { get; set; }
+    private double? _temperature;
+    private DateTimeOffset? _timestamp;
+    private string _summary;
+    private string _type;
+
+    public double? Temperature { get { return _temperature; } set { _temperature = value; } }
+    public DateTimeOffset? Timestamp { get { return _timestamp; } set { _timestamp = value; } }
+    public string Summary { get { return _summary; } set { _summary = value; } }
+    public string Type { get { return _type; } set { _type = value; } }
 }
 
 public class AwayMode
 {
-    public bool IsSupported { get; set; }
-    public AwayModeSettings Settings { get; set; }
+    private bool _isSupported;
+    private AwayModeSettings _settings;
+
+    public bool IsSupported { get { return _isSupported; } set { _isSupported = value; } }
+    public AwayModeSettings Settings { get { return _settings; } set { _settings = value; } }
 }
 
 public class AwayModeSettings
 {
-    public DateTimeOffset? From { get; set; }
-    public DateTimeOffset? To { get; set; }
+    private DateTimeOffset? _from;
+    private DateTimeOffset? _to;
+
+    public DateTimeOffset? From { get { return _from; } set { _from = value; } }
+    public DateTimeOffset? To { get { return _to; } set { _to = value; } }
 }
 
 public class Feed
 {
-    public long? NumberOfItems { get; set; }
-    public ICollection<FeedItem> Items { get; set; }
-    public ICollection<PushNotification> PushNotifications { get; set; }
+    private long? _numberOfItems;
+    private ICollection<FeedItem> _items;
+    private ICollection<PushNotification> _pushNotifications;
+
+    public long? NumberOfItems { get { return _numberOfItems; } set { _numberOfItems = value; } }
+    public ICollection<FeedItem> Items { get { return _items; } set { _items = value; } }
+    public ICollection<PushNotification> PushNotifications { get { return _pushNotifications; } set { _pushNotifications = value; } }
 }
 
 public class FeedItem
 {
-    public long? Id { get; set; }
-    public string MessageTypeId { get; set; }
-    public string Link { get; set; }
-    public string Text { get; set; }
-    public DateTimeOffset? CreatedAt { get; set; }
-    public DateTimeOffset? ModifiedAt { get; set; }
+    private long? _id;
+    private string _messageTypeId;
+    private string _link;
+    private string _text;
+    private DateTimeOffset? _createdAt;
+    private DateTimeOffset? _modifiedAt;
+
+    public long? Id { get { return _id; } set { _id = value; } }
+    public string MessageTypeId { get { return _messageTypeId; } set { _messageTypeId = value; } }
+    public string Link { get { return _link; } set { _link = value; } }
+    public string Text { get { return _text; } set { _text = value; } }
+    public DateTimeOffset? CreatedAt { get { return _createdAt; } set { _createdAt = value; } }
+    public DateTimeOffset? ModifiedAt { get { return _modifiedAt; } set { _modifiedAt = value; } }
 }
 
 public class PushNotification
 {
-    public long? Id { get; set; }
-    public string Link { get; set; }
-    public string Text { get; set; }
+    private long? _id;
+    private string _link;
+    private string _text;
+
+    public long? Id { get { return _id; } set { _id = value; } }
+    public string Link { get { return _link; } set { _link = value; } }
+    public string Text { get { return _text; } set { _text = value; } }
 }
 #endregion

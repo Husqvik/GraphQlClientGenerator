@@ -62,6 +62,7 @@ namespace GraphQlClientGenerator.Test
             GraphQlGeneratorConfiguration.BooleanTypeMapping = BooleanTypeMapping.Custom;
             GraphQlGeneratorConfiguration.IdTypeMapping = IdTypeMapping.String;
             GraphQlGeneratorConfiguration.GeneratePartialClasses = false;
+            GraphQlGeneratorConfiguration.PropertyGeneration = PropertyGenerationOption.BackingField;
             GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping =
                 (baseType, valueType, valueName) => valueType.Name == "Boolean" ? "bool" : GraphQlGeneratorConfiguration.DefaultScalarFieldTypeMapping(baseType, valueType, valueName);
 
