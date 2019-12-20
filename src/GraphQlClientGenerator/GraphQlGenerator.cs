@@ -472,7 +472,7 @@ using Newtonsoft.Json.Linq;
                     return AddQuestionMarkIfNullableReferencesEnabled(propertyType);
 
                 case GraphQlTypeKind.Enum:
-                    return fieldType.Name + "?";
+                    return GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, member.Type, member.Name);
 
                 case GraphQlTypeKind.List:
                     var itemTypeName = fieldType.OfType.UnwrapIfNonNull().Name;

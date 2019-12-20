@@ -70,8 +70,11 @@ namespace GraphQlClientGenerator
                 valueName.EndsWith("Timestamp"))
                 return "DateTimeOffset?";
 
-            var valueTypeName = valueType is GraphQlFieldType fieldType ? fieldType.UnwrapIfNonNull().Name : valueType.Name;
-            var dataType = valueTypeName == GraphQlTypeBase.GraphQlTypeScalarString ? "string" : "object";
+            valueType = (valueType as GraphQlFieldType)?.UnwrapIfNonNull() ?? valueType;
+            if (valueType.Kind == GraphQlTypeKind.Enum)
+                return valueType.Name + "?";
+
+            var dataType = valueType.Name == GraphQlTypeBase.GraphQlTypeScalarString ? "string" : "object";
             return GraphQlGenerator.AddQuestionMarkIfNullableReferencesEnabled(dataType);
         }
     }
