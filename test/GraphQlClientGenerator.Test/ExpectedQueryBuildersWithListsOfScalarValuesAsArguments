@@ -1,0 +1,2949 @@
+#region base classes
+public class FieldMetadata
+{
+    public string Name { get; set; }
+    public bool IsComplex { get; set; }
+    public Type QueryBuilderType { get; set; }
+}
+
+public enum Formatting
+{
+    None,
+    Indented
+}
+
+internal static class GraphQlQueryHelper
+{
+    private static readonly Regex RegexWhiteSpace = new Regex(@"\s", RegexOptions.Compiled);
+
+    public static string GetIndentation(int level, byte indentationSize)
+    {
+        return new String(' ', level * indentationSize);
+    }
+
+    public static string BuildArgumentValue(object value, Formatting formatting, int level, byte indentationSize)
+    {
+        if (value is null)
+            return "null";
+
+        if (value is JValue jValue)
+        {
+            switch (jValue.Type)
+            {
+                case JTokenType.Null: return "null";
+                case JTokenType.Integer:
+                case JTokenType.Float:
+                case JTokenType.Boolean:
+                    return BuildArgumentValue(jValue.Value, formatting, level, indentationSize);
+                default:
+                    return $"\"{jValue.Value}\"";
+            }
+        }
+
+        if (value is Enum @enum)
+            return ConvertEnumToString(@enum);
+
+        if (value is bool @bool)
+            return @bool ? "true" : "false";
+
+        if (value is DateTime dateTime)
+            return $"\"{dateTime:O}\"";
+
+        if (value is DateTimeOffset dateTimeOffset)
+            return $"\"{dateTimeOffset:O}\"";
+
+        if (value is IGraphQlInputObject inputObject)
+            return BuildInputObject(inputObject, formatting, level + 2, indentationSize);
+
+        if (value is String || value is Guid)
+            return $"\"{value}\"";
+
+        if (value is JProperty jProperty)
+        {
+            if (RegexWhiteSpace.IsMatch(jProperty.Name))
+			    throw new ArgumentException($"JSON object keys used as GraphQL arguments must not contain whitespace; key: {jProperty.Name}");
+
+            return $"{jProperty.Name}:{(formatting == Formatting.Indented ? " " : null)}{BuildArgumentValue(jProperty.Value, formatting, level, indentationSize)}";
+        }
+
+        if (value is JObject jObject)
+            return BuildEnumerableArgument(jObject, formatting, level + 1, indentationSize, '{', '}');
+
+        if (value is IEnumerable enumerable)
+            return BuildEnumerableArgument(enumerable, formatting, level, indentationSize, '[', ']');
+
+        if (value is short || value is ushort || value is byte || value is int || value is uint || value is long || value is ulong || value is float || value is double || value is decimal)
+            return Convert.ToString(value, CultureInfo.InvariantCulture);
+
+        var argumentValue = Convert.ToString(value, CultureInfo.InvariantCulture);
+        return $"\"{argumentValue}\"";
+    }
+
+    private static string BuildEnumerableArgument(IEnumerable enumerable, Formatting formatting, int level, byte indentationSize, char openingSymbol, char closingSymbol)
+    {
+        var builder = new StringBuilder();
+        builder.Append(openingSymbol);
+        var delimiter = String.Empty;
+        foreach (var item in enumerable)
+        {
+            builder.Append(delimiter);
+
+            if (formatting == Formatting.Indented)
+            {
+                builder.AppendLine();
+                builder.Append(GetIndentation(level + 1, indentationSize));
+            }
+
+            builder.Append(BuildArgumentValue(item, formatting, level, indentationSize));
+            delimiter = ",";
+        }
+
+        builder.Append(closingSymbol);
+        return builder.ToString();
+    }
+
+    public static string BuildInputObject(IGraphQlInputObject inputObject, Formatting formatting, int level, byte indentationSize)
+    {
+        var builder = new StringBuilder();
+        builder.Append("{");
+
+        var isIndentedFormatting = formatting == Formatting.Indented;
+        string valueSeparator;
+        if (isIndentedFormatting)
+        {
+            builder.AppendLine();
+            valueSeparator = ": ";
+        }
+        else
+            valueSeparator = ":";
+
+        var separator = String.Empty;
+        foreach (var propertyValue in inputObject.GetPropertyValues())
+        {
+            var value = BuildArgumentValue(propertyValue.Value, formatting, level, indentationSize);
+            builder.Append(isIndentedFormatting ? GetIndentation(level, indentationSize) : separator);
+            builder.Append(propertyValue.Name);
+            builder.Append(valueSeparator);
+            builder.Append(value);
+
+            separator = ",";
+
+            if (isIndentedFormatting)
+                builder.AppendLine();
+        }
+
+        if (isIndentedFormatting)
+            builder.Append(GetIndentation(level - 1, indentationSize));
+
+        builder.Append("}");
+
+        return builder.ToString();
+    }
+
+    public static string BuildDirective(string directive, QueryBuilderParameter directiveParameter, Formatting formatting, int level, byte indentationSize)
+    {
+        if (directiveParameter == null)
+            return String.Empty;
+
+        var indentationSpace = formatting == Formatting.Indented ? " " : String.Empty;
+        var builder = new StringBuilder();
+        builder.Append(indentationSpace);
+        builder.Append("@");
+        builder.Append(directive);
+        builder.Append("(if:");
+        builder.Append(indentationSpace);
+        builder.Append(directiveParameter.Name == null ? BuildArgumentValue(directiveParameter.Value, formatting, level, indentationSize) : "$" + directiveParameter.Name);
+        builder.Append(")");
+        return builder.ToString();
+    }
+
+    private static string ConvertEnumToString(Enum @enum)
+    {
+        var enumMember = @enum.GetType().GetTypeInfo().GetField(@enum.ToString());
+            if (enumMember == null)
+                throw new InvalidOperationException("enum member resolution failed");
+
+        var enumMemberAttribute = (EnumMemberAttribute)enumMember.GetCustomAttribute(typeof(EnumMemberAttribute));
+
+        return enumMemberAttribute == null
+            ? @enum.ToString()
+            : enumMemberAttribute.Value;
+    }
+}
+
+internal struct InputPropertyInfo
+{
+    public string Name { get; set; }
+    public object Value { get; set; }
+}
+
+internal interface IGraphQlInputObject
+{
+    IEnumerable<InputPropertyInfo> GetPropertyValues();
+}
+
+public interface IGraphQlQueryBuilder
+{
+    void Clear();
+    void IncludeAllFields();
+    string Build(Formatting formatting = Formatting.None, byte indentationSize = 2);
+}
+
+public abstract class QueryBuilderParameter
+{
+    private string _name;
+
+    internal string GraphQlTypeName { get; }
+    internal object Value { get; set; }
+
+    public string Name
+    {
+        get => _name;
+        set
+        {
+            ValidateParameterValue(nameof(Name), value);
+            _name = value;
+        }
+    }
+
+    protected QueryBuilderParameter(string name, string graphQlTypeName, object value)
+    {
+        Name = name?.Trim();
+
+        graphQlTypeName = graphQlTypeName?.Trim();
+
+        ValidateParameterValue(nameof(graphQlTypeName), graphQlTypeName.EndsWith("!") ? graphQlTypeName.Substring(0, graphQlTypeName.Length - 1) : graphQlTypeName);
+
+        GraphQlTypeName = graphQlTypeName;
+        Value = value;
+    }
+
+    protected QueryBuilderParameter(object value) => Value = value;
+
+    private void ValidateParameterValue(string parameterName, string value)
+    {
+        if (String.IsNullOrWhiteSpace(value) || !value.All(Char.IsLetterOrDigit))
+            throw new ArgumentException("invalid value", parameterName);
+    }
+}
+
+public class QueryBuilderParameter<T> : QueryBuilderParameter
+{
+    public QueryBuilderParameter(string name, string graphQlTypeName, T value) : base(name, graphQlTypeName, value)
+    {
+    }
+
+    private QueryBuilderParameter(T value) : base(value)
+    {
+    }
+
+    public static implicit operator QueryBuilderParameter<T>(T value) => new QueryBuilderParameter<T>(value);
+}
+
+public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
+{
+    public new T Value
+    {
+        get => (T)base.Value;
+        set => base.Value = value;
+    }
+
+    public GraphQlQueryParameter(string name, string graphQlTypeName, T value) : base(name, graphQlTypeName, value)
+    {
+    }
+}
+
+public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
+{
+    private static readonly Type[] BuilderConstructorParameterTypes = { typeof(String), typeof(QueryBuilderParameter<bool>), typeof(QueryBuilderParameter<bool>) };
+    private static readonly object[] BuilderConstructorDefaultParameters = { null, null, null };
+
+    private readonly Dictionary<string, GraphQlFieldCriteria> _fieldCriteria = new Dictionary<string, GraphQlFieldCriteria>();
+
+    private readonly QueryBuilderParameter<bool> _includeIf;
+    private readonly QueryBuilderParameter<bool> _skipIf;
+
+    private Dictionary<string, QueryBuilderParameter> _queryParameters;
+
+    protected virtual string Prefix { get { return null; } }
+
+    protected abstract IList<FieldMetadata> AllFields { get; }
+
+    public string Alias { get; }
+
+    protected GraphQlQueryBuilder(string alias, QueryBuilderParameter<bool> includeIf, QueryBuilderParameter<bool> skipIf)
+    {
+        ValidateAlias(alias);
+        Alias = alias;
+
+        _includeIf = includeIf;
+        _skipIf = skipIf;
+    }
+
+    public virtual void Clear()
+    {
+        _fieldCriteria.Clear();
+    }
+
+    void IGraphQlQueryBuilder.IncludeAllFields()
+    {
+        IncludeAllFields();
+    }
+
+    public string Build(Formatting formatting = Formatting.None, byte indentationSize = 2)
+    {
+        return Build(formatting, 1, indentationSize);
+    }
+
+    protected void IncludeAllFields()
+    {
+        IncludeFields(AllFields);
+    }
+
+    protected virtual string Build(Formatting formatting, int level, byte indentationSize)
+    {
+        var isIndentedFormatting = formatting == Formatting.Indented;
+        var separator = String.Empty;
+        var indentationSpace = isIndentedFormatting ? " " : String.Empty;
+        var builder = new StringBuilder();
+
+        if (!String.IsNullOrEmpty(Prefix))
+        {
+            builder.Append(Prefix);
+
+            if (!String.IsNullOrEmpty(Alias))
+            {
+                builder.Append(" ");
+                builder.Append(Alias);
+            }
+
+            if (_queryParameters?.Count > 0)
+            {
+                builder.Append(indentationSpace);
+                builder.Append("(");
+
+                foreach (var queryParameter in _queryParameters.Values)
+                {
+                    builder.Append(separator);
+                    builder.Append("$");
+                    builder.Append(queryParameter.Name);
+                    builder.Append(":");
+                    builder.Append(indentationSpace);
+
+                    builder.Append(queryParameter.GraphQlTypeName);
+
+                    if (!queryParameter.GraphQlTypeName.EndsWith("!"))
+                    {
+                        builder.Append(indentationSpace);
+                        builder.Append("=");
+                        builder.Append(indentationSpace);
+                        builder.Append(GraphQlQueryHelper.BuildArgumentValue(queryParameter.Value, formatting, 0, indentationSize));
+                    }
+
+                    separator = " ";
+                }
+
+                builder.Append(")");
+            }
+        }
+        else
+        {
+            builder.Append(GraphQlQueryHelper.BuildDirective("include", _includeIf, formatting, level, indentationSize));
+            builder.Append(GraphQlQueryHelper.BuildDirective("skip", _skipIf, formatting, level, indentationSize));
+        }
+
+        builder.Append(indentationSpace);
+        builder.Append("{");
+
+        if (isIndentedFormatting)
+            builder.AppendLine();
+
+        separator = String.Empty;
+        
+        foreach (var criteria in _fieldCriteria.Values)
+        {
+            var fieldCriteria = criteria.Build(formatting, level, indentationSize);
+            if (isIndentedFormatting)
+                builder.AppendLine(fieldCriteria);
+            else if (!String.IsNullOrEmpty(fieldCriteria))
+            {
+                builder.Append(separator);
+                builder.Append(fieldCriteria);
+            }
+
+            separator = ",";
+        }
+
+        if (isIndentedFormatting)
+            builder.Append(GraphQlQueryHelper.GetIndentation(level - 1, indentationSize));
+        
+        builder.Append("}");
+
+        return builder.ToString();
+    }
+
+    protected void IncludeScalarField(string fieldName, string alias, QueryBuilderParameter<bool> includeIf, QueryBuilderParameter<bool> skipIf, IDictionary<string, QueryBuilderParameter> args)
+    {
+        ValidateAlias(alias);
+        _fieldCriteria[alias ?? fieldName] = new GraphQlScalarFieldCriteria(fieldName, alias, includeIf, skipIf, args);
+    }
+
+    protected void IncludeObjectField(string fieldName, GraphQlQueryBuilder objectFieldQueryBuilder, IDictionary<string, QueryBuilderParameter> args)
+    {
+        _fieldCriteria[objectFieldQueryBuilder.Alias ?? fieldName] = new GraphQlObjectFieldCriteria(fieldName, objectFieldQueryBuilder, args);
+    }
+
+    protected void ExcludeField(string fieldName)
+    {
+        if (fieldName == null)
+            throw new ArgumentNullException(nameof(fieldName));
+
+        _fieldCriteria.Remove(fieldName);
+    }
+
+    protected void IncludeFields(IEnumerable<FieldMetadata> fields)
+    {
+        IncludeFields(fields, null);
+    }
+
+    private void IncludeFields(IEnumerable<FieldMetadata> fields, List<Type> parentTypes)
+    {
+        foreach (var field in fields)
+        {
+            if (field.QueryBuilderType == null)
+                IncludeScalarField(field.Name, null, null, null, null);
+            else
+            {
+                var builderType = GetType();
+
+                if (parentTypes != null && parentTypes.Any(t => t.IsAssignableFrom(field.QueryBuilderType)))
+                    continue;
+
+                parentTypes?.Add(builderType);
+
+                var constructor = field.QueryBuilderType.GetConstructor(BuilderConstructorParameterTypes);
+                if (constructor == null)
+                    throw new InvalidOperationException($"{field.QueryBuilderType.FullName} constructor not found");
+
+                var queryBuilder = (GraphQlQueryBuilder)constructor.Invoke(BuilderConstructorDefaultParameters);
+                queryBuilder.IncludeFields(queryBuilder.AllFields, parentTypes ?? new List<Type> { builderType });
+                IncludeObjectField(field.Name, queryBuilder, null);
+            }
+        }
+    }
+
+    protected void AddParameter<T>(GraphQlQueryParameter<T> parameter)
+    {
+        if (_queryParameters == null)
+            _queryParameters = new Dictionary<string, QueryBuilderParameter>();
+        
+        _queryParameters.Add(parameter.Name, parameter);
+    }
+
+    private static void ValidateAlias(string alias)
+    {
+        if (alias != null && String.IsNullOrWhiteSpace(alias))
+            throw new ArgumentException("Value must not be white space. ", nameof(alias));
+    }
+
+    private abstract class GraphQlFieldCriteria
+    {
+        private readonly IDictionary<string, QueryBuilderParameter> _args;
+
+        protected readonly string FieldName;
+
+        protected GraphQlFieldCriteria(string fieldName, IDictionary<string, QueryBuilderParameter> args)
+        {
+            FieldName = fieldName;
+            _args = args;
+        }
+
+        public abstract string Build(Formatting formatting, int level, byte indentationSize);
+
+        protected string BuildArgumentClause(Formatting formatting, int level, byte indentationSize)
+        {
+            var separator = formatting == Formatting.Indented ? " " : null;
+            var argumentCount = _args?.Count ?? 0;
+            if (argumentCount == 0)
+                return String.Empty;
+
+            var arguments =
+                _args.Select(
+                    kvp => $"{kvp.Key}:{separator}{(kvp.Value.Name == null ? GraphQlQueryHelper.BuildArgumentValue(kvp.Value.Value, formatting, level, indentationSize) : "$" + kvp.Value.Name)}");
+
+            return $"({String.Join($",{separator}", arguments)})";
+        }
+
+        protected static string BuildAliasPrefix(string alias, Formatting formatting)
+        {
+            var separator = formatting == Formatting.Indented ? " " : String.Empty;
+            return String.IsNullOrWhiteSpace(alias) ? null : alias + ':' + separator;
+        }
+    }
+
+    private class GraphQlScalarFieldCriteria : GraphQlFieldCriteria
+    {
+        private readonly string _alias;
+        private readonly QueryBuilderParameter<bool> _includeIf;
+        private readonly QueryBuilderParameter<bool> _skipIf;
+
+        public GraphQlScalarFieldCriteria(string fieldName, string alias, QueryBuilderParameter<bool> includeIf, QueryBuilderParameter<bool> skipIf, IDictionary<string, QueryBuilderParameter> args) : base(fieldName, args)
+        {
+            _alias = alias;
+            _includeIf = includeIf;
+            _skipIf = skipIf;
+        }
+
+        public override string Build(Formatting formatting, int level, byte indentationSize)
+        {
+            var builder = new StringBuilder();
+            if (formatting == Formatting.Indented)
+                builder.Append(GraphQlQueryHelper.GetIndentation(level, indentationSize));
+
+            builder.Append(BuildAliasPrefix(_alias, formatting));
+            builder.Append(FieldName);
+            builder.Append(BuildArgumentClause(formatting, level, indentationSize));
+            builder.Append(GraphQlQueryHelper.BuildDirective("include", _includeIf, formatting, level, indentationSize));
+            builder.Append(GraphQlQueryHelper.BuildDirective("skip", _skipIf, formatting, level, indentationSize));
+            return builder.ToString();
+        }
+    }
+
+    private class GraphQlObjectFieldCriteria : GraphQlFieldCriteria
+    {
+        private readonly GraphQlQueryBuilder _objectQueryBuilder;
+
+        public GraphQlObjectFieldCriteria(string fieldName, GraphQlQueryBuilder objectQueryBuilder, IDictionary<string, QueryBuilderParameter> args) : base(fieldName, args)
+        {
+            _objectQueryBuilder = objectQueryBuilder;
+        }
+
+        public override string Build(Formatting formatting, int level, byte indentationSize)
+        {
+            if (_objectQueryBuilder._fieldCriteria.Count == 0)
+                return String.Empty;
+
+            var builder = new StringBuilder();
+            var isIndentedFormatting = formatting == Formatting.Indented;
+            if (isIndentedFormatting)
+                builder.Append(GraphQlQueryHelper.GetIndentation(level, indentationSize));
+
+            builder.Append(BuildAliasPrefix(_objectQueryBuilder.Alias, formatting));
+            builder.Append(FieldName);
+            builder.Append(BuildArgumentClause(formatting, level, indentationSize));
+            builder.Append(_objectQueryBuilder.Build(formatting, level + 1, indentationSize));
+            return builder.ToString();
+        }
+    }
+}
+
+public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder where TQueryBuilder : GraphQlQueryBuilder<TQueryBuilder>
+{
+    protected GraphQlQueryBuilder(string alias, QueryBuilderParameter<bool> includeIf, QueryBuilderParameter<bool> skipIf)
+        : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public TQueryBuilder WithAllFields()
+    {
+        IncludeAllFields();
+        return (TQueryBuilder)this;
+    }
+
+    public TQueryBuilder WithAllScalarFields()
+    {
+        IncludeFields(AllFields.Where(f => !f.IsComplex));
+        return (TQueryBuilder)this;
+    }
+
+    protected TQueryBuilder WithScalarField(string fieldName, string alias, QueryBuilderParameter<bool> includeIf, QueryBuilderParameter<bool> skipIf, IDictionary<string, QueryBuilderParameter> args = null)
+    {
+        IncludeScalarField(fieldName, alias, includeIf, skipIf, args);
+        return (TQueryBuilder)this;
+    }
+
+    protected TQueryBuilder WithObjectField(string fieldName, GraphQlQueryBuilder queryBuilder, IDictionary<string, QueryBuilderParameter> args = null)
+    {
+        IncludeObjectField(fieldName, queryBuilder, args);
+        return (TQueryBuilder)this;
+    }
+
+    public TQueryBuilder ExceptField(string fieldName)
+    {
+        ExcludeField(fieldName);
+        return (TQueryBuilder)this;
+    }
+
+    protected TQueryBuilder WithParameterInternal<T>(GraphQlQueryParameter<T> parameter)
+    {
+        AddParameter(parameter);
+        return (TQueryBuilder)this;
+    }
+}
+#endregion
+
+#region shared types
+public enum HomeAvatar
+{
+    [EnumMember(Value="APARTMENT")] Apartment,
+    [EnumMember(Value="ROWHOUSE")] Rowhouse,
+    [EnumMember(Value="FLOORHOUSE1")] Floorhouse1,
+    [EnumMember(Value="FLOORHOUSE2")] Floorhouse2,
+    [EnumMember(Value="FLOORHOUSE3")] Floorhouse3,
+    [EnumMember(Value="COTTAGE")] Cottage,
+    [EnumMember(Value="CASTLE")] Castle
+}
+
+public enum HomeType
+{
+    [EnumMember(Value="APARTMENT")] Apartment,
+    [EnumMember(Value="ROWHOUSE")] Rowhouse,
+    [EnumMember(Value="HOUSE")] House,
+    [EnumMember(Value="COTTAGE")] Cottage
+}
+
+public enum HeatingSource
+{
+    [EnumMember(Value="AIR2AIR_HEATPUMP")] Air2AirHeatpump,
+    [EnumMember(Value="ELECTRICITY")] Electricity,
+    [EnumMember(Value="GROUND")] Ground,
+    [EnumMember(Value="DISTRICT_HEATING")] DistrictHeating,
+    [EnumMember(Value="ELECTRIC_BOILER")] ElectricBoiler,
+    [EnumMember(Value="AIR2WATER_HEATPUMP")] Air2WaterHeatpump,
+    [EnumMember(Value="OTHER")] Other
+}
+
+public enum PriceLevel
+{
+    [EnumMember(Value="NORMAL")] Normal,
+    [EnumMember(Value="CHEAP")] Cheap,
+    [EnumMember(Value="VERY_CHEAP")] VeryCheap,
+    [EnumMember(Value="EXPENSIVE")] Expensive,
+    [EnumMember(Value="VERY_EXPENSIVE")] VeryExpensive
+}
+
+public enum PriceResolution
+{
+    [EnumMember(Value="HOURLY")] Hourly,
+    [EnumMember(Value="DAILY")] Daily
+}
+
+public enum EnergyResolution
+{
+    [EnumMember(Value="HOURLY")] Hourly,
+    [EnumMember(Value="DAILY")] Daily,
+    [EnumMember(Value="WEEKLY")] Weekly,
+    [EnumMember(Value="MONTHLY")] Monthly,
+    [EnumMember(Value="ANNUAL")] Annual
+}
+
+public enum AppScreen
+{
+    [EnumMember(Value="HOME")] Home,
+    [EnumMember(Value="REPORTS")] Reports,
+    [EnumMember(Value="CONSUMPTION")] Consumption,
+    [EnumMember(Value="COMPARISON")] Comparison,
+    [EnumMember(Value="DISAGGREGATION")] Disaggregation,
+    [EnumMember(Value="HOME_PROFILE")] HomeProfile,
+    [EnumMember(Value="CUSTOMER_PROFILE")] CustomerProfile,
+    [EnumMember(Value="METER_READING")] MeterReading,
+    [EnumMember(Value="NOTIFICATIONS")] Notifications,
+    [EnumMember(Value="INVOICES")] Invoices
+}
+
+#endregion
+
+#region builder classes
+public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "viewer", IsComplex = true, QueryBuilderType = typeof(ViewerQueryBuilder) }
+        };
+
+    protected override string Prefix { get { return "query"; } } 
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public QueryQueryBuilder(string alias = null) : base(alias, null, null)
+    {
+    }
+
+    public QueryQueryBuilder WithParameter<T>(GraphQlQueryParameter<T> parameter)
+    {
+        return WithParameterInternal(parameter);
+    }
+
+    public QueryQueryBuilder WithViewer(ViewerQueryBuilder viewerQueryBuilder)
+    {
+        return WithObjectField("viewer", viewerQueryBuilder);
+    }
+
+    public QueryQueryBuilder ExceptViewer()
+    {
+        return ExceptField("viewer");
+    }
+}
+
+public partial class ViewerQueryBuilder : GraphQlQueryBuilder<ViewerQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "login" },
+            new FieldMetadata { Name = "name" },
+            new FieldMetadata { Name = "accountType", IsComplex = true },
+            new FieldMetadata { Name = "homes", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilder) },
+            new FieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public ViewerQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public ViewerQueryBuilder WithLogin(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("login", alias, includeIf, skipIf);
+    }
+
+    public ViewerQueryBuilder ExceptLogin()
+    {
+        return ExceptField("login");
+    }
+
+    public ViewerQueryBuilder WithName(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("name", alias, includeIf, skipIf);
+    }
+
+    public ViewerQueryBuilder ExceptName()
+    {
+        return ExceptField("name");
+    }
+
+    public ViewerQueryBuilder WithAccountType(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("accountType", alias, includeIf, skipIf);
+    }
+
+    public ViewerQueryBuilder ExceptAccountType()
+    {
+        return ExceptField("accountType");
+    }
+
+    public ViewerQueryBuilder WithHomes(HomeQueryBuilder homeQueryBuilder)
+    {
+        return WithObjectField("homes", homeQueryBuilder);
+    }
+
+    public ViewerQueryBuilder ExceptHomes()
+    {
+        return ExceptField("homes");
+    }
+
+    public ViewerQueryBuilder WithHome(HomeQueryBuilder homeQueryBuilder, QueryBuilderParameter<Guid> id)
+    {
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
+        args.Add("id", id);
+        return WithObjectField("home", homeQueryBuilder, args);
+    }
+
+    public ViewerQueryBuilder ExceptHome()
+    {
+        return ExceptField("home");
+    }
+}
+
+public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "id" },
+            new FieldMetadata { Name = "timeZone" },
+            new FieldMetadata { Name = "appNickname" },
+            new FieldMetadata { Name = "appAvatar" },
+            new FieldMetadata { Name = "size" },
+            new FieldMetadata { Name = "type" },
+            new FieldMetadata { Name = "numberOfResidents" },
+            new FieldMetadata { Name = "primaryHeatingSource" },
+            new FieldMetadata { Name = "hasVentilationSystem" },
+            new FieldMetadata { Name = "mainFuseSize" },
+            new FieldMetadata { Name = "address", IsComplex = true, QueryBuilderType = typeof(AddressQueryBuilder) },
+            new FieldMetadata { Name = "owner", IsComplex = true, QueryBuilderType = typeof(LegalEntityQueryBuilder) },
+            new FieldMetadata { Name = "meteringPointData", IsComplex = true, QueryBuilderType = typeof(MeteringPointDataQueryBuilder) },
+            new FieldMetadata { Name = "currentSubscription", IsComplex = true, QueryBuilderType = typeof(SubscriptionQueryBuilder) },
+            new FieldMetadata { Name = "subscriptions", IsComplex = true, QueryBuilderType = typeof(SubscriptionQueryBuilder) },
+            new FieldMetadata { Name = "consumption", IsComplex = true, QueryBuilderType = typeof(HomeConsumptionConnectionQueryBuilder) },
+            new FieldMetadata { Name = "production", IsComplex = true, QueryBuilderType = typeof(HomeProductionConnectionQueryBuilder) },
+            new FieldMetadata { Name = "features", IsComplex = true, QueryBuilderType = typeof(HomeFeaturesQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public HomeQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public HomeQueryBuilder WithId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("id", alias, includeIf, skipIf);
+    }
+
+    public HomeQueryBuilder ExceptId()
+    {
+        return ExceptField("id");
+    }
+
+    public HomeQueryBuilder WithTimeZone(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("timeZone", alias, includeIf, skipIf);
+    }
+
+    public HomeQueryBuilder ExceptTimeZone()
+    {
+        return ExceptField("timeZone");
+    }
+
+    public HomeQueryBuilder WithAppNickname(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("appNickname", alias, includeIf, skipIf);
+    }
+
+    public HomeQueryBuilder ExceptAppNickname()
+    {
+        return ExceptField("appNickname");
+    }
+
+    public HomeQueryBuilder WithAppAvatar(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("appAvatar", alias, includeIf, skipIf);
+    }
+
+    public HomeQueryBuilder ExceptAppAvatar()
+    {
+        return ExceptField("appAvatar");
+    }
+
+    public HomeQueryBuilder WithSize(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("size", alias, includeIf, skipIf);
+    }
+
+    public HomeQueryBuilder ExceptSize()
+    {
+        return ExceptField("size");
+    }
+
+    public HomeQueryBuilder WithType(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("type", alias, includeIf, skipIf);
+    }
+
+    public HomeQueryBuilder ExceptType()
+    {
+        return ExceptField("type");
+    }
+
+    public HomeQueryBuilder WithNumberOfResidents(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("numberOfResidents", alias, includeIf, skipIf);
+    }
+
+    public HomeQueryBuilder ExceptNumberOfResidents()
+    {
+        return ExceptField("numberOfResidents");
+    }
+
+    public HomeQueryBuilder WithPrimaryHeatingSource(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("primaryHeatingSource", alias, includeIf, skipIf);
+    }
+
+    public HomeQueryBuilder ExceptPrimaryHeatingSource()
+    {
+        return ExceptField("primaryHeatingSource");
+    }
+
+    public HomeQueryBuilder WithHasVentilationSystem(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("hasVentilationSystem", alias, includeIf, skipIf);
+    }
+
+    public HomeQueryBuilder ExceptHasVentilationSystem()
+    {
+        return ExceptField("hasVentilationSystem");
+    }
+
+    public HomeQueryBuilder WithMainFuseSize(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("mainFuseSize", alias, includeIf, skipIf);
+    }
+
+    public HomeQueryBuilder ExceptMainFuseSize()
+    {
+        return ExceptField("mainFuseSize");
+    }
+
+    public HomeQueryBuilder WithAddress(AddressQueryBuilder addressQueryBuilder)
+    {
+        return WithObjectField("address", addressQueryBuilder);
+    }
+
+    public HomeQueryBuilder ExceptAddress()
+    {
+        return ExceptField("address");
+    }
+
+    public HomeQueryBuilder WithOwner(LegalEntityQueryBuilder legalEntityQueryBuilder)
+    {
+        return WithObjectField("owner", legalEntityQueryBuilder);
+    }
+
+    public HomeQueryBuilder ExceptOwner()
+    {
+        return ExceptField("owner");
+    }
+
+    public HomeQueryBuilder WithMeteringPointData(MeteringPointDataQueryBuilder meteringPointDataQueryBuilder)
+    {
+        return WithObjectField("meteringPointData", meteringPointDataQueryBuilder);
+    }
+
+    public HomeQueryBuilder ExceptMeteringPointData()
+    {
+        return ExceptField("meteringPointData");
+    }
+
+    public HomeQueryBuilder WithCurrentSubscription(SubscriptionQueryBuilder subscriptionQueryBuilder)
+    {
+        return WithObjectField("currentSubscription", subscriptionQueryBuilder);
+    }
+
+    public HomeQueryBuilder ExceptCurrentSubscription()
+    {
+        return ExceptField("currentSubscription");
+    }
+
+    public HomeQueryBuilder WithSubscriptions(SubscriptionQueryBuilder subscriptionQueryBuilder)
+    {
+        return WithObjectField("subscriptions", subscriptionQueryBuilder);
+    }
+
+    public HomeQueryBuilder ExceptSubscriptions()
+    {
+        return ExceptField("subscriptions");
+    }
+
+    public HomeQueryBuilder WithConsumption(HomeConsumptionConnectionQueryBuilder homeConsumptionConnectionQueryBuilder, QueryBuilderParameter<EnergyResolution> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<string> before = null, QueryBuilderParameter<string> after = null, QueryBuilderParameter<bool?> filterEmptyNodes = null)
+    {
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
+        args.Add("resolution", resolution);
+        if (first != null)
+            args.Add("first", first);
+
+        if (last != null)
+            args.Add("last", last);
+
+        if (before != null)
+            args.Add("before", before);
+
+        if (after != null)
+            args.Add("after", after);
+
+        if (filterEmptyNodes != null)
+            args.Add("filterEmptyNodes", filterEmptyNodes);
+
+        return WithObjectField("consumption", homeConsumptionConnectionQueryBuilder, args);
+    }
+
+    public HomeQueryBuilder ExceptConsumption()
+    {
+        return ExceptField("consumption");
+    }
+
+    public HomeQueryBuilder WithProduction(HomeProductionConnectionQueryBuilder homeProductionConnectionQueryBuilder, QueryBuilderParameter<EnergyResolution> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<string> before = null, QueryBuilderParameter<string> after = null, QueryBuilderParameter<bool?> filterEmptyNodes = null)
+    {
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
+        args.Add("resolution", resolution);
+        if (first != null)
+            args.Add("first", first);
+
+        if (last != null)
+            args.Add("last", last);
+
+        if (before != null)
+            args.Add("before", before);
+
+        if (after != null)
+            args.Add("after", after);
+
+        if (filterEmptyNodes != null)
+            args.Add("filterEmptyNodes", filterEmptyNodes);
+
+        return WithObjectField("production", homeProductionConnectionQueryBuilder, args);
+    }
+
+    public HomeQueryBuilder ExceptProduction()
+    {
+        return ExceptField("production");
+    }
+
+    public HomeQueryBuilder WithFeatures(HomeFeaturesQueryBuilder homeFeaturesQueryBuilder)
+    {
+        return WithObjectField("features", homeFeaturesQueryBuilder);
+    }
+
+    public HomeQueryBuilder ExceptFeatures()
+    {
+        return ExceptField("features");
+    }
+}
+
+public partial class AddressQueryBuilder : GraphQlQueryBuilder<AddressQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "address1" },
+            new FieldMetadata { Name = "address2" },
+            new FieldMetadata { Name = "address3" },
+            new FieldMetadata { Name = "city" },
+            new FieldMetadata { Name = "postalCode" },
+            new FieldMetadata { Name = "country" },
+            new FieldMetadata { Name = "latitude" },
+            new FieldMetadata { Name = "longitude" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public AddressQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public AddressQueryBuilder WithAddress1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("address1", alias, includeIf, skipIf);
+    }
+
+    public AddressQueryBuilder ExceptAddress1()
+    {
+        return ExceptField("address1");
+    }
+
+    public AddressQueryBuilder WithAddress2(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("address2", alias, includeIf, skipIf);
+    }
+
+    public AddressQueryBuilder ExceptAddress2()
+    {
+        return ExceptField("address2");
+    }
+
+    public AddressQueryBuilder WithAddress3(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("address3", alias, includeIf, skipIf);
+    }
+
+    public AddressQueryBuilder ExceptAddress3()
+    {
+        return ExceptField("address3");
+    }
+
+    public AddressQueryBuilder WithCity(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("city", alias, includeIf, skipIf);
+    }
+
+    public AddressQueryBuilder ExceptCity()
+    {
+        return ExceptField("city");
+    }
+
+    public AddressQueryBuilder WithPostalCode(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("postalCode", alias, includeIf, skipIf);
+    }
+
+    public AddressQueryBuilder ExceptPostalCode()
+    {
+        return ExceptField("postalCode");
+    }
+
+    public AddressQueryBuilder WithCountry(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("country", alias, includeIf, skipIf);
+    }
+
+    public AddressQueryBuilder ExceptCountry()
+    {
+        return ExceptField("country");
+    }
+
+    public AddressQueryBuilder WithLatitude(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("latitude", alias, includeIf, skipIf);
+    }
+
+    public AddressQueryBuilder ExceptLatitude()
+    {
+        return ExceptField("latitude");
+    }
+
+    public AddressQueryBuilder WithLongitude(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("longitude", alias, includeIf, skipIf);
+    }
+
+    public AddressQueryBuilder ExceptLongitude()
+    {
+        return ExceptField("longitude");
+    }
+}
+
+public partial class LegalEntityQueryBuilder : GraphQlQueryBuilder<LegalEntityQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "id" },
+            new FieldMetadata { Name = "firstName" },
+            new FieldMetadata { Name = "isCompany" },
+            new FieldMetadata { Name = "name" },
+            new FieldMetadata { Name = "middleName" },
+            new FieldMetadata { Name = "lastName" },
+            new FieldMetadata { Name = "organizationNo" },
+            new FieldMetadata { Name = "language" },
+            new FieldMetadata { Name = "contactInfo", IsComplex = true, QueryBuilderType = typeof(ContactInfoQueryBuilder) },
+            new FieldMetadata { Name = "address", IsComplex = true, QueryBuilderType = typeof(AddressQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public LegalEntityQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public LegalEntityQueryBuilder WithId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("id", alias, includeIf, skipIf);
+    }
+
+    public LegalEntityQueryBuilder ExceptId()
+    {
+        return ExceptField("id");
+    }
+
+    public LegalEntityQueryBuilder WithFirstName(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("firstName", alias, includeIf, skipIf);
+    }
+
+    public LegalEntityQueryBuilder ExceptFirstName()
+    {
+        return ExceptField("firstName");
+    }
+
+    public LegalEntityQueryBuilder WithIsCompany(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("isCompany", alias, includeIf, skipIf);
+    }
+
+    public LegalEntityQueryBuilder ExceptIsCompany()
+    {
+        return ExceptField("isCompany");
+    }
+
+    public LegalEntityQueryBuilder WithName(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("name", alias, includeIf, skipIf);
+    }
+
+    public LegalEntityQueryBuilder ExceptName()
+    {
+        return ExceptField("name");
+    }
+
+    public LegalEntityQueryBuilder WithMiddleName(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("middleName", alias, includeIf, skipIf);
+    }
+
+    public LegalEntityQueryBuilder ExceptMiddleName()
+    {
+        return ExceptField("middleName");
+    }
+
+    public LegalEntityQueryBuilder WithLastName(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("lastName", alias, includeIf, skipIf);
+    }
+
+    public LegalEntityQueryBuilder ExceptLastName()
+    {
+        return ExceptField("lastName");
+    }
+
+    public LegalEntityQueryBuilder WithOrganizationNo(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("organizationNo", alias, includeIf, skipIf);
+    }
+
+    public LegalEntityQueryBuilder ExceptOrganizationNo()
+    {
+        return ExceptField("organizationNo");
+    }
+
+    public LegalEntityQueryBuilder WithLanguage(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("language", alias, includeIf, skipIf);
+    }
+
+    public LegalEntityQueryBuilder ExceptLanguage()
+    {
+        return ExceptField("language");
+    }
+
+    public LegalEntityQueryBuilder WithContactInfo(ContactInfoQueryBuilder contactInfoQueryBuilder)
+    {
+        return WithObjectField("contactInfo", contactInfoQueryBuilder);
+    }
+
+    public LegalEntityQueryBuilder ExceptContactInfo()
+    {
+        return ExceptField("contactInfo");
+    }
+
+    public LegalEntityQueryBuilder WithAddress(AddressQueryBuilder addressQueryBuilder)
+    {
+        return WithObjectField("address", addressQueryBuilder);
+    }
+
+    public LegalEntityQueryBuilder ExceptAddress()
+    {
+        return ExceptField("address");
+    }
+}
+
+public partial class ContactInfoQueryBuilder : GraphQlQueryBuilder<ContactInfoQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "email" },
+            new FieldMetadata { Name = "mobile" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public ContactInfoQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public ContactInfoQueryBuilder WithEmail(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("email", alias, includeIf, skipIf);
+    }
+
+    public ContactInfoQueryBuilder ExceptEmail()
+    {
+        return ExceptField("email");
+    }
+
+    public ContactInfoQueryBuilder WithMobile(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("mobile", alias, includeIf, skipIf);
+    }
+
+    public ContactInfoQueryBuilder ExceptMobile()
+    {
+        return ExceptField("mobile");
+    }
+}
+
+public partial class MeteringPointDataQueryBuilder : GraphQlQueryBuilder<MeteringPointDataQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "consumptionEan" },
+            new FieldMetadata { Name = "gridCompany" },
+            new FieldMetadata { Name = "gridAreaCode" },
+            new FieldMetadata { Name = "priceAreaCode" },
+            new FieldMetadata { Name = "productionEan" },
+            new FieldMetadata { Name = "energyTaxType" },
+            new FieldMetadata { Name = "vatType" },
+            new FieldMetadata { Name = "estimatedAnnualConsumption" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public MeteringPointDataQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public MeteringPointDataQueryBuilder WithConsumptionEan(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("consumptionEan", alias, includeIf, skipIf);
+    }
+
+    public MeteringPointDataQueryBuilder ExceptConsumptionEan()
+    {
+        return ExceptField("consumptionEan");
+    }
+
+    public MeteringPointDataQueryBuilder WithGridCompany(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("gridCompany", alias, includeIf, skipIf);
+    }
+
+    public MeteringPointDataQueryBuilder ExceptGridCompany()
+    {
+        return ExceptField("gridCompany");
+    }
+
+    public MeteringPointDataQueryBuilder WithGridAreaCode(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("gridAreaCode", alias, includeIf, skipIf);
+    }
+
+    public MeteringPointDataQueryBuilder ExceptGridAreaCode()
+    {
+        return ExceptField("gridAreaCode");
+    }
+
+    public MeteringPointDataQueryBuilder WithPriceAreaCode(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("priceAreaCode", alias, includeIf, skipIf);
+    }
+
+    public MeteringPointDataQueryBuilder ExceptPriceAreaCode()
+    {
+        return ExceptField("priceAreaCode");
+    }
+
+    public MeteringPointDataQueryBuilder WithProductionEan(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("productionEan", alias, includeIf, skipIf);
+    }
+
+    public MeteringPointDataQueryBuilder ExceptProductionEan()
+    {
+        return ExceptField("productionEan");
+    }
+
+    public MeteringPointDataQueryBuilder WithEnergyTaxType(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("energyTaxType", alias, includeIf, skipIf);
+    }
+
+    public MeteringPointDataQueryBuilder ExceptEnergyTaxType()
+    {
+        return ExceptField("energyTaxType");
+    }
+
+    public MeteringPointDataQueryBuilder WithVatType(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("vatType", alias, includeIf, skipIf);
+    }
+
+    public MeteringPointDataQueryBuilder ExceptVatType()
+    {
+        return ExceptField("vatType");
+    }
+
+    public MeteringPointDataQueryBuilder WithEstimatedAnnualConsumption(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("estimatedAnnualConsumption", alias, includeIf, skipIf);
+    }
+
+    public MeteringPointDataQueryBuilder ExceptEstimatedAnnualConsumption()
+    {
+        return ExceptField("estimatedAnnualConsumption");
+    }
+}
+
+public partial class SubscriptionQueryBuilder : GraphQlQueryBuilder<SubscriptionQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "id" },
+            new FieldMetadata { Name = "subscriber", IsComplex = true, QueryBuilderType = typeof(LegalEntityQueryBuilder) },
+            new FieldMetadata { Name = "validFrom" },
+            new FieldMetadata { Name = "validTo" },
+            new FieldMetadata { Name = "status" },
+            new FieldMetadata { Name = "priceInfo", IsComplex = true, QueryBuilderType = typeof(PriceInfoQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public SubscriptionQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public SubscriptionQueryBuilder WithId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("id", alias, includeIf, skipIf);
+    }
+
+    public SubscriptionQueryBuilder ExceptId()
+    {
+        return ExceptField("id");
+    }
+
+    public SubscriptionQueryBuilder WithSubscriber(LegalEntityQueryBuilder legalEntityQueryBuilder)
+    {
+        return WithObjectField("subscriber", legalEntityQueryBuilder);
+    }
+
+    public SubscriptionQueryBuilder ExceptSubscriber()
+    {
+        return ExceptField("subscriber");
+    }
+
+    public SubscriptionQueryBuilder WithValidFrom(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("validFrom", alias, includeIf, skipIf);
+    }
+
+    public SubscriptionQueryBuilder ExceptValidFrom()
+    {
+        return ExceptField("validFrom");
+    }
+
+    public SubscriptionQueryBuilder WithValidTo(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("validTo", alias, includeIf, skipIf);
+    }
+
+    public SubscriptionQueryBuilder ExceptValidTo()
+    {
+        return ExceptField("validTo");
+    }
+
+    public SubscriptionQueryBuilder WithStatus(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("status", alias, includeIf, skipIf);
+    }
+
+    public SubscriptionQueryBuilder ExceptStatus()
+    {
+        return ExceptField("status");
+    }
+
+    public SubscriptionQueryBuilder WithPriceInfo(PriceInfoQueryBuilder priceInfoQueryBuilder)
+    {
+        return WithObjectField("priceInfo", priceInfoQueryBuilder);
+    }
+
+    public SubscriptionQueryBuilder ExceptPriceInfo()
+    {
+        return ExceptField("priceInfo");
+    }
+}
+
+public partial class PriceInfoQueryBuilder : GraphQlQueryBuilder<PriceInfoQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "current", IsComplex = true, QueryBuilderType = typeof(PriceQueryBuilder) },
+            new FieldMetadata { Name = "today", IsComplex = true, QueryBuilderType = typeof(PriceQueryBuilder) },
+            new FieldMetadata { Name = "tomorrow", IsComplex = true, QueryBuilderType = typeof(PriceQueryBuilder) },
+            new FieldMetadata { Name = "range", IsComplex = true, QueryBuilderType = typeof(SubscriptionPriceConnectionQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public PriceInfoQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public PriceInfoQueryBuilder WithCurrent(PriceQueryBuilder priceQueryBuilder)
+    {
+        return WithObjectField("current", priceQueryBuilder);
+    }
+
+    public PriceInfoQueryBuilder ExceptCurrent()
+    {
+        return ExceptField("current");
+    }
+
+    public PriceInfoQueryBuilder WithToday(PriceQueryBuilder priceQueryBuilder)
+    {
+        return WithObjectField("today", priceQueryBuilder);
+    }
+
+    public PriceInfoQueryBuilder ExceptToday()
+    {
+        return ExceptField("today");
+    }
+
+    public PriceInfoQueryBuilder WithTomorrow(PriceQueryBuilder priceQueryBuilder)
+    {
+        return WithObjectField("tomorrow", priceQueryBuilder);
+    }
+
+    public PriceInfoQueryBuilder ExceptTomorrow()
+    {
+        return ExceptField("tomorrow");
+    }
+
+    public PriceInfoQueryBuilder WithRange(SubscriptionPriceConnectionQueryBuilder subscriptionPriceConnectionQueryBuilder, QueryBuilderParameter<PriceResolution> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<string> before = null, QueryBuilderParameter<string> after = null)
+    {
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
+        args.Add("resolution", resolution);
+        if (first != null)
+            args.Add("first", first);
+
+        if (last != null)
+            args.Add("last", last);
+
+        if (before != null)
+            args.Add("before", before);
+
+        if (after != null)
+            args.Add("after", after);
+
+        return WithObjectField("range", subscriptionPriceConnectionQueryBuilder, args);
+    }
+
+    public PriceInfoQueryBuilder ExceptRange()
+    {
+        return ExceptField("range");
+    }
+}
+
+public partial class PriceQueryBuilder : GraphQlQueryBuilder<PriceQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "total" },
+            new FieldMetadata { Name = "energy" },
+            new FieldMetadata { Name = "tax" },
+            new FieldMetadata { Name = "startsAt" },
+            new FieldMetadata { Name = "currency" },
+            new FieldMetadata { Name = "level" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public PriceQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public PriceQueryBuilder WithTotal(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("total", alias, includeIf, skipIf);
+    }
+
+    public PriceQueryBuilder ExceptTotal()
+    {
+        return ExceptField("total");
+    }
+
+    public PriceQueryBuilder WithEnergy(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("energy", alias, includeIf, skipIf);
+    }
+
+    public PriceQueryBuilder ExceptEnergy()
+    {
+        return ExceptField("energy");
+    }
+
+    public PriceQueryBuilder WithTax(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("tax", alias, includeIf, skipIf);
+    }
+
+    public PriceQueryBuilder ExceptTax()
+    {
+        return ExceptField("tax");
+    }
+
+    public PriceQueryBuilder WithStartsAt(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("startsAt", alias, includeIf, skipIf);
+    }
+
+    public PriceQueryBuilder ExceptStartsAt()
+    {
+        return ExceptField("startsAt");
+    }
+
+    public PriceQueryBuilder WithCurrency(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("currency", alias, includeIf, skipIf);
+    }
+
+    public PriceQueryBuilder ExceptCurrency()
+    {
+        return ExceptField("currency");
+    }
+
+    public PriceQueryBuilder WithLevel(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("level", alias, includeIf, skipIf);
+    }
+
+    public PriceQueryBuilder ExceptLevel()
+    {
+        return ExceptField("level");
+    }
+}
+
+public partial class SubscriptionPriceConnectionQueryBuilder : GraphQlQueryBuilder<SubscriptionPriceConnectionQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "pageInfo", IsComplex = true, QueryBuilderType = typeof(SubscriptionPriceConnectionPageInfoQueryBuilder) },
+            new FieldMetadata { Name = "edges", IsComplex = true, QueryBuilderType = typeof(SubscriptionPriceEdgeQueryBuilder) },
+            new FieldMetadata { Name = "nodes", IsComplex = true, QueryBuilderType = typeof(PriceQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public SubscriptionPriceConnectionQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public SubscriptionPriceConnectionQueryBuilder WithPageInfo(SubscriptionPriceConnectionPageInfoQueryBuilder subscriptionPriceConnectionPageInfoQueryBuilder)
+    {
+        return WithObjectField("pageInfo", subscriptionPriceConnectionPageInfoQueryBuilder);
+    }
+
+    public SubscriptionPriceConnectionQueryBuilder ExceptPageInfo()
+    {
+        return ExceptField("pageInfo");
+    }
+
+    public SubscriptionPriceConnectionQueryBuilder WithEdges(SubscriptionPriceEdgeQueryBuilder subscriptionPriceEdgeQueryBuilder)
+    {
+        return WithObjectField("edges", subscriptionPriceEdgeQueryBuilder);
+    }
+
+    public SubscriptionPriceConnectionQueryBuilder ExceptEdges()
+    {
+        return ExceptField("edges");
+    }
+
+    public SubscriptionPriceConnectionQueryBuilder WithNodes(PriceQueryBuilder priceQueryBuilder)
+    {
+        return WithObjectField("nodes", priceQueryBuilder);
+    }
+
+    public SubscriptionPriceConnectionQueryBuilder ExceptNodes()
+    {
+        return ExceptField("nodes");
+    }
+}
+
+public partial class SubscriptionPriceConnectionPageInfoQueryBuilder : GraphQlQueryBuilder<SubscriptionPriceConnectionPageInfoQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "endCursor" },
+            new FieldMetadata { Name = "hasNextPage" },
+            new FieldMetadata { Name = "hasPreviousPage" },
+            new FieldMetadata { Name = "startCursor" },
+            new FieldMetadata { Name = "resolution" },
+            new FieldMetadata { Name = "currency" },
+            new FieldMetadata { Name = "count" },
+            new FieldMetadata { Name = "precision" },
+            new FieldMetadata { Name = "minEnergy" },
+            new FieldMetadata { Name = "minTotal" },
+            new FieldMetadata { Name = "maxEnergy" },
+            new FieldMetadata { Name = "maxTotal" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder WithEndCursor(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("endCursor", alias, includeIf, skipIf);
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder ExceptEndCursor()
+    {
+        return ExceptField("endCursor");
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder WithHasNextPage(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("hasNextPage", alias, includeIf, skipIf);
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder ExceptHasNextPage()
+    {
+        return ExceptField("hasNextPage");
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder WithHasPreviousPage(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("hasPreviousPage", alias, includeIf, skipIf);
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder ExceptHasPreviousPage()
+    {
+        return ExceptField("hasPreviousPage");
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder WithStartCursor(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("startCursor", alias, includeIf, skipIf);
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder ExceptStartCursor()
+    {
+        return ExceptField("startCursor");
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder WithResolution(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("resolution", alias, includeIf, skipIf);
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder ExceptResolution()
+    {
+        return ExceptField("resolution");
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder WithCurrency(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("currency", alias, includeIf, skipIf);
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder ExceptCurrency()
+    {
+        return ExceptField("currency");
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder WithCount(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("count", alias, includeIf, skipIf);
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder ExceptCount()
+    {
+        return ExceptField("count");
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder WithPrecision(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("precision", alias, includeIf, skipIf);
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder ExceptPrecision()
+    {
+        return ExceptField("precision");
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder WithMinEnergy(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("minEnergy", alias, includeIf, skipIf);
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder ExceptMinEnergy()
+    {
+        return ExceptField("minEnergy");
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder WithMinTotal(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("minTotal", alias, includeIf, skipIf);
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder ExceptMinTotal()
+    {
+        return ExceptField("minTotal");
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder WithMaxEnergy(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("maxEnergy", alias, includeIf, skipIf);
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder ExceptMaxEnergy()
+    {
+        return ExceptField("maxEnergy");
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder WithMaxTotal(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("maxTotal", alias, includeIf, skipIf);
+    }
+
+    public SubscriptionPriceConnectionPageInfoQueryBuilder ExceptMaxTotal()
+    {
+        return ExceptField("maxTotal");
+    }
+}
+
+public partial class PageInfoQueryBuilder : GraphQlQueryBuilder<PageInfoQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "unimplementedField" },
+            new FieldMetadata { Name = "endCursor" },
+            new FieldMetadata { Name = "hasNextPage" },
+            new FieldMetadata { Name = "hasPreviousPage" },
+            new FieldMetadata { Name = "startCursor" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public PageInfoQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public PageInfoQueryBuilder WithUnimplementedField(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("unimplementedField", alias, includeIf, skipIf);
+    }
+
+    public PageInfoQueryBuilder ExceptUnimplementedField()
+    {
+        return ExceptField("unimplementedField");
+    }
+
+    public PageInfoQueryBuilder WithEndCursor(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("endCursor", alias, includeIf, skipIf);
+    }
+
+    public PageInfoQueryBuilder ExceptEndCursor()
+    {
+        return ExceptField("endCursor");
+    }
+
+    public PageInfoQueryBuilder WithHasNextPage(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("hasNextPage", alias, includeIf, skipIf);
+    }
+
+    public PageInfoQueryBuilder ExceptHasNextPage()
+    {
+        return ExceptField("hasNextPage");
+    }
+
+    public PageInfoQueryBuilder WithHasPreviousPage(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("hasPreviousPage", alias, includeIf, skipIf);
+    }
+
+    public PageInfoQueryBuilder ExceptHasPreviousPage()
+    {
+        return ExceptField("hasPreviousPage");
+    }
+
+    public PageInfoQueryBuilder WithStartCursor(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("startCursor", alias, includeIf, skipIf);
+    }
+
+    public PageInfoQueryBuilder ExceptStartCursor()
+    {
+        return ExceptField("startCursor");
+    }
+}
+
+public partial class SubscriptionPriceEdgeQueryBuilder : GraphQlQueryBuilder<SubscriptionPriceEdgeQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "cursor" },
+            new FieldMetadata { Name = "node", IsComplex = true, QueryBuilderType = typeof(PriceQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public SubscriptionPriceEdgeQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public SubscriptionPriceEdgeQueryBuilder WithCursor(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("cursor", alias, includeIf, skipIf);
+    }
+
+    public SubscriptionPriceEdgeQueryBuilder ExceptCursor()
+    {
+        return ExceptField("cursor");
+    }
+
+    public SubscriptionPriceEdgeQueryBuilder WithNode(PriceQueryBuilder priceQueryBuilder)
+    {
+        return WithObjectField("node", priceQueryBuilder);
+    }
+
+    public SubscriptionPriceEdgeQueryBuilder ExceptNode()
+    {
+        return ExceptField("node");
+    }
+}
+
+public partial class HomeConsumptionConnectionQueryBuilder : GraphQlQueryBuilder<HomeConsumptionConnectionQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "pageInfo", IsComplex = true, QueryBuilderType = typeof(HomeConsumptionPageInfoQueryBuilder) },
+            new FieldMetadata { Name = "nodes", IsComplex = true, QueryBuilderType = typeof(ConsumptionQueryBuilder) },
+            new FieldMetadata { Name = "edges", IsComplex = true, QueryBuilderType = typeof(HomeConsumptionEdgeQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public HomeConsumptionConnectionQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public HomeConsumptionConnectionQueryBuilder WithPageInfo(HomeConsumptionPageInfoQueryBuilder homeConsumptionPageInfoQueryBuilder)
+    {
+        return WithObjectField("pageInfo", homeConsumptionPageInfoQueryBuilder);
+    }
+
+    public HomeConsumptionConnectionQueryBuilder ExceptPageInfo()
+    {
+        return ExceptField("pageInfo");
+    }
+
+    public HomeConsumptionConnectionQueryBuilder WithNodes(ConsumptionQueryBuilder consumptionQueryBuilder)
+    {
+        return WithObjectField("nodes", consumptionQueryBuilder);
+    }
+
+    public HomeConsumptionConnectionQueryBuilder ExceptNodes()
+    {
+        return ExceptField("nodes");
+    }
+
+    public HomeConsumptionConnectionQueryBuilder WithEdges(HomeConsumptionEdgeQueryBuilder homeConsumptionEdgeQueryBuilder)
+    {
+        return WithObjectField("edges", homeConsumptionEdgeQueryBuilder);
+    }
+
+    public HomeConsumptionConnectionQueryBuilder ExceptEdges()
+    {
+        return ExceptField("edges");
+    }
+}
+
+public partial class HomeConsumptionPageInfoQueryBuilder : GraphQlQueryBuilder<HomeConsumptionPageInfoQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "endCursor" },
+            new FieldMetadata { Name = "hasNextPage" },
+            new FieldMetadata { Name = "hasPreviousPage" },
+            new FieldMetadata { Name = "startCursor" },
+            new FieldMetadata { Name = "count" },
+            new FieldMetadata { Name = "currency" },
+            new FieldMetadata { Name = "totalCost" },
+            new FieldMetadata { Name = "totalConsumption" },
+            new FieldMetadata { Name = "filtered" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public HomeConsumptionPageInfoQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public HomeConsumptionPageInfoQueryBuilder WithEndCursor(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("endCursor", alias, includeIf, skipIf);
+    }
+
+    public HomeConsumptionPageInfoQueryBuilder ExceptEndCursor()
+    {
+        return ExceptField("endCursor");
+    }
+
+    public HomeConsumptionPageInfoQueryBuilder WithHasNextPage(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("hasNextPage", alias, includeIf, skipIf);
+    }
+
+    public HomeConsumptionPageInfoQueryBuilder ExceptHasNextPage()
+    {
+        return ExceptField("hasNextPage");
+    }
+
+    public HomeConsumptionPageInfoQueryBuilder WithHasPreviousPage(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("hasPreviousPage", alias, includeIf, skipIf);
+    }
+
+    public HomeConsumptionPageInfoQueryBuilder ExceptHasPreviousPage()
+    {
+        return ExceptField("hasPreviousPage");
+    }
+
+    public HomeConsumptionPageInfoQueryBuilder WithStartCursor(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("startCursor", alias, includeIf, skipIf);
+    }
+
+    public HomeConsumptionPageInfoQueryBuilder ExceptStartCursor()
+    {
+        return ExceptField("startCursor");
+    }
+
+    public HomeConsumptionPageInfoQueryBuilder WithCount(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("count", alias, includeIf, skipIf);
+    }
+
+    public HomeConsumptionPageInfoQueryBuilder ExceptCount()
+    {
+        return ExceptField("count");
+    }
+
+    public HomeConsumptionPageInfoQueryBuilder WithCurrency(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("currency", alias, includeIf, skipIf);
+    }
+
+    public HomeConsumptionPageInfoQueryBuilder ExceptCurrency()
+    {
+        return ExceptField("currency");
+    }
+
+    public HomeConsumptionPageInfoQueryBuilder WithTotalCost(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("totalCost", alias, includeIf, skipIf);
+    }
+
+    public HomeConsumptionPageInfoQueryBuilder ExceptTotalCost()
+    {
+        return ExceptField("totalCost");
+    }
+
+    public HomeConsumptionPageInfoQueryBuilder WithTotalConsumption(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("totalConsumption", alias, includeIf, skipIf);
+    }
+
+    public HomeConsumptionPageInfoQueryBuilder ExceptTotalConsumption()
+    {
+        return ExceptField("totalConsumption");
+    }
+
+    public HomeConsumptionPageInfoQueryBuilder WithFiltered(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("filtered", alias, includeIf, skipIf);
+    }
+
+    public HomeConsumptionPageInfoQueryBuilder ExceptFiltered()
+    {
+        return ExceptField("filtered");
+    }
+}
+
+public partial class ConsumptionQueryBuilder : GraphQlQueryBuilder<ConsumptionQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "from" },
+            new FieldMetadata { Name = "to" },
+            new FieldMetadata { Name = "unitPrice" },
+            new FieldMetadata { Name = "unitPriceVAT" },
+            new FieldMetadata { Name = "consumption" },
+            new FieldMetadata { Name = "consumptionUnit" },
+            new FieldMetadata { Name = "cost" },
+            new FieldMetadata { Name = "currency" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public ConsumptionQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public ConsumptionQueryBuilder WithFrom(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("from", alias, includeIf, skipIf);
+    }
+
+    public ConsumptionQueryBuilder ExceptFrom()
+    {
+        return ExceptField("from");
+    }
+
+    public ConsumptionQueryBuilder WithTo(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("to", alias, includeIf, skipIf);
+    }
+
+    public ConsumptionQueryBuilder ExceptTo()
+    {
+        return ExceptField("to");
+    }
+
+    public ConsumptionQueryBuilder WithUnitPrice(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("unitPrice", alias, includeIf, skipIf);
+    }
+
+    public ConsumptionQueryBuilder ExceptUnitPrice()
+    {
+        return ExceptField("unitPrice");
+    }
+
+    public ConsumptionQueryBuilder WithUnitPriceVat(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("unitPriceVAT", alias, includeIf, skipIf);
+    }
+
+    public ConsumptionQueryBuilder ExceptUnitPriceVat()
+    {
+        return ExceptField("unitPriceVAT");
+    }
+
+    public ConsumptionQueryBuilder WithConsumption(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("consumption", alias, includeIf, skipIf);
+    }
+
+    public ConsumptionQueryBuilder ExceptConsumption()
+    {
+        return ExceptField("consumption");
+    }
+
+    public ConsumptionQueryBuilder WithConsumptionUnit(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("consumptionUnit", alias, includeIf, skipIf);
+    }
+
+    public ConsumptionQueryBuilder ExceptConsumptionUnit()
+    {
+        return ExceptField("consumptionUnit");
+    }
+
+    public ConsumptionQueryBuilder WithCost(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("cost", alias, includeIf, skipIf);
+    }
+
+    public ConsumptionQueryBuilder ExceptCost()
+    {
+        return ExceptField("cost");
+    }
+
+    public ConsumptionQueryBuilder WithCurrency(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("currency", alias, includeIf, skipIf);
+    }
+
+    public ConsumptionQueryBuilder ExceptCurrency()
+    {
+        return ExceptField("currency");
+    }
+}
+
+public partial class HomeConsumptionEdgeQueryBuilder : GraphQlQueryBuilder<HomeConsumptionEdgeQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "cursor" },
+            new FieldMetadata { Name = "node", IsComplex = true, QueryBuilderType = typeof(ConsumptionQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public HomeConsumptionEdgeQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public HomeConsumptionEdgeQueryBuilder WithCursor(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("cursor", alias, includeIf, skipIf);
+    }
+
+    public HomeConsumptionEdgeQueryBuilder ExceptCursor()
+    {
+        return ExceptField("cursor");
+    }
+
+    public HomeConsumptionEdgeQueryBuilder WithNode(ConsumptionQueryBuilder consumptionQueryBuilder)
+    {
+        return WithObjectField("node", consumptionQueryBuilder);
+    }
+
+    public HomeConsumptionEdgeQueryBuilder ExceptNode()
+    {
+        return ExceptField("node");
+    }
+}
+
+public partial class HomeProductionConnectionQueryBuilder : GraphQlQueryBuilder<HomeProductionConnectionQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "pageInfo", IsComplex = true, QueryBuilderType = typeof(HomeProductionPageInfoQueryBuilder) },
+            new FieldMetadata { Name = "nodes", IsComplex = true, QueryBuilderType = typeof(ProductionQueryBuilder) },
+            new FieldMetadata { Name = "edges", IsComplex = true, QueryBuilderType = typeof(HomeProductionEdgeQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public HomeProductionConnectionQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public HomeProductionConnectionQueryBuilder WithPageInfo(HomeProductionPageInfoQueryBuilder homeProductionPageInfoQueryBuilder)
+    {
+        return WithObjectField("pageInfo", homeProductionPageInfoQueryBuilder);
+    }
+
+    public HomeProductionConnectionQueryBuilder ExceptPageInfo()
+    {
+        return ExceptField("pageInfo");
+    }
+
+    public HomeProductionConnectionQueryBuilder WithNodes(ProductionQueryBuilder productionQueryBuilder)
+    {
+        return WithObjectField("nodes", productionQueryBuilder);
+    }
+
+    public HomeProductionConnectionQueryBuilder ExceptNodes()
+    {
+        return ExceptField("nodes");
+    }
+
+    public HomeProductionConnectionQueryBuilder WithEdges(HomeProductionEdgeQueryBuilder homeProductionEdgeQueryBuilder)
+    {
+        return WithObjectField("edges", homeProductionEdgeQueryBuilder);
+    }
+
+    public HomeProductionConnectionQueryBuilder ExceptEdges()
+    {
+        return ExceptField("edges");
+    }
+}
+
+public partial class HomeProductionPageInfoQueryBuilder : GraphQlQueryBuilder<HomeProductionPageInfoQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "endCursor" },
+            new FieldMetadata { Name = "hasNextPage" },
+            new FieldMetadata { Name = "hasPreviousPage" },
+            new FieldMetadata { Name = "startCursor" },
+            new FieldMetadata { Name = "count" },
+            new FieldMetadata { Name = "currency" },
+            new FieldMetadata { Name = "totalProfit" },
+            new FieldMetadata { Name = "totalProduction" },
+            new FieldMetadata { Name = "filtered" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public HomeProductionPageInfoQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public HomeProductionPageInfoQueryBuilder WithEndCursor(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("endCursor", alias, includeIf, skipIf);
+    }
+
+    public HomeProductionPageInfoQueryBuilder ExceptEndCursor()
+    {
+        return ExceptField("endCursor");
+    }
+
+    public HomeProductionPageInfoQueryBuilder WithHasNextPage(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("hasNextPage", alias, includeIf, skipIf);
+    }
+
+    public HomeProductionPageInfoQueryBuilder ExceptHasNextPage()
+    {
+        return ExceptField("hasNextPage");
+    }
+
+    public HomeProductionPageInfoQueryBuilder WithHasPreviousPage(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("hasPreviousPage", alias, includeIf, skipIf);
+    }
+
+    public HomeProductionPageInfoQueryBuilder ExceptHasPreviousPage()
+    {
+        return ExceptField("hasPreviousPage");
+    }
+
+    public HomeProductionPageInfoQueryBuilder WithStartCursor(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("startCursor", alias, includeIf, skipIf);
+    }
+
+    public HomeProductionPageInfoQueryBuilder ExceptStartCursor()
+    {
+        return ExceptField("startCursor");
+    }
+
+    public HomeProductionPageInfoQueryBuilder WithCount(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("count", alias, includeIf, skipIf);
+    }
+
+    public HomeProductionPageInfoQueryBuilder ExceptCount()
+    {
+        return ExceptField("count");
+    }
+
+    public HomeProductionPageInfoQueryBuilder WithCurrency(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("currency", alias, includeIf, skipIf);
+    }
+
+    public HomeProductionPageInfoQueryBuilder ExceptCurrency()
+    {
+        return ExceptField("currency");
+    }
+
+    public HomeProductionPageInfoQueryBuilder WithTotalProfit(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("totalProfit", alias, includeIf, skipIf);
+    }
+
+    public HomeProductionPageInfoQueryBuilder ExceptTotalProfit()
+    {
+        return ExceptField("totalProfit");
+    }
+
+    public HomeProductionPageInfoQueryBuilder WithTotalProduction(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("totalProduction", alias, includeIf, skipIf);
+    }
+
+    public HomeProductionPageInfoQueryBuilder ExceptTotalProduction()
+    {
+        return ExceptField("totalProduction");
+    }
+
+    public HomeProductionPageInfoQueryBuilder WithFiltered(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("filtered", alias, includeIf, skipIf);
+    }
+
+    public HomeProductionPageInfoQueryBuilder ExceptFiltered()
+    {
+        return ExceptField("filtered");
+    }
+}
+
+public partial class ProductionQueryBuilder : GraphQlQueryBuilder<ProductionQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "from" },
+            new FieldMetadata { Name = "to" },
+            new FieldMetadata { Name = "unitPrice" },
+            new FieldMetadata { Name = "unitPriceVAT" },
+            new FieldMetadata { Name = "production" },
+            new FieldMetadata { Name = "productionUnit" },
+            new FieldMetadata { Name = "profit" },
+            new FieldMetadata { Name = "currency" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public ProductionQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public ProductionQueryBuilder WithFrom(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("from", alias, includeIf, skipIf);
+    }
+
+    public ProductionQueryBuilder ExceptFrom()
+    {
+        return ExceptField("from");
+    }
+
+    public ProductionQueryBuilder WithTo(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("to", alias, includeIf, skipIf);
+    }
+
+    public ProductionQueryBuilder ExceptTo()
+    {
+        return ExceptField("to");
+    }
+
+    public ProductionQueryBuilder WithUnitPrice(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("unitPrice", alias, includeIf, skipIf);
+    }
+
+    public ProductionQueryBuilder ExceptUnitPrice()
+    {
+        return ExceptField("unitPrice");
+    }
+
+    public ProductionQueryBuilder WithUnitPriceVat(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("unitPriceVAT", alias, includeIf, skipIf);
+    }
+
+    public ProductionQueryBuilder ExceptUnitPriceVat()
+    {
+        return ExceptField("unitPriceVAT");
+    }
+
+    public ProductionQueryBuilder WithProduction(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("production", alias, includeIf, skipIf);
+    }
+
+    public ProductionQueryBuilder ExceptProduction()
+    {
+        return ExceptField("production");
+    }
+
+    public ProductionQueryBuilder WithProductionUnit(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("productionUnit", alias, includeIf, skipIf);
+    }
+
+    public ProductionQueryBuilder ExceptProductionUnit()
+    {
+        return ExceptField("productionUnit");
+    }
+
+    public ProductionQueryBuilder WithProfit(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("profit", alias, includeIf, skipIf);
+    }
+
+    public ProductionQueryBuilder ExceptProfit()
+    {
+        return ExceptField("profit");
+    }
+
+    public ProductionQueryBuilder WithCurrency(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("currency", alias, includeIf, skipIf);
+    }
+
+    public ProductionQueryBuilder ExceptCurrency()
+    {
+        return ExceptField("currency");
+    }
+}
+
+public partial class HomeProductionEdgeQueryBuilder : GraphQlQueryBuilder<HomeProductionEdgeQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "cursor" },
+            new FieldMetadata { Name = "node", IsComplex = true, QueryBuilderType = typeof(ProductionQueryBuilder) }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public HomeProductionEdgeQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public HomeProductionEdgeQueryBuilder WithCursor(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("cursor", alias, includeIf, skipIf);
+    }
+
+    public HomeProductionEdgeQueryBuilder ExceptCursor()
+    {
+        return ExceptField("cursor");
+    }
+
+    public HomeProductionEdgeQueryBuilder WithNode(ProductionQueryBuilder productionQueryBuilder)
+    {
+        return WithObjectField("node", productionQueryBuilder);
+    }
+
+    public HomeProductionEdgeQueryBuilder ExceptNode()
+    {
+        return ExceptField("node");
+    }
+}
+
+public partial class HomeFeaturesQueryBuilder : GraphQlQueryBuilder<HomeFeaturesQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "realTimeConsumptionEnabled" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public HomeFeaturesQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public HomeFeaturesQueryBuilder WithRealTimeConsumptionEnabled(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("realTimeConsumptionEnabled", alias, includeIf, skipIf);
+    }
+
+    public HomeFeaturesQueryBuilder ExceptRealTimeConsumptionEnabled()
+    {
+        return ExceptField("realTimeConsumptionEnabled");
+    }
+}
+
+public partial class RootMutationQueryBuilder : GraphQlQueryBuilder<RootMutationQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "sendMeterReading", IsComplex = true, QueryBuilderType = typeof(MeterReadingResponseQueryBuilder) },
+            new FieldMetadata { Name = "updateHome", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilder) },
+            new FieldMetadata { Name = "sendPushNotification", IsComplex = true, QueryBuilderType = typeof(PushNotificationResponseQueryBuilder) }
+        };
+
+    protected override string Prefix { get { return "mutation"; } } 
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public RootMutationQueryBuilder(string alias = null) : base(alias, null, null)
+    {
+    }
+
+    public RootMutationQueryBuilder WithParameter<T>(GraphQlQueryParameter<T> parameter)
+    {
+        return WithParameterInternal(parameter);
+    }
+
+    public RootMutationQueryBuilder WithSendMeterReading(MeterReadingResponseQueryBuilder meterReadingResponseQueryBuilder, QueryBuilderParameter<MeterReadingInput> input)
+    {
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
+        args.Add("input", input);
+        return WithObjectField("sendMeterReading", meterReadingResponseQueryBuilder, args);
+    }
+
+    public RootMutationQueryBuilder ExceptSendMeterReading()
+    {
+        return ExceptField("sendMeterReading");
+    }
+
+    public RootMutationQueryBuilder WithUpdateHome(HomeQueryBuilder homeQueryBuilder, QueryBuilderParameter<UpdateHomeInput> input)
+    {
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
+        args.Add("input", input);
+        return WithObjectField("updateHome", homeQueryBuilder, args);
+    }
+
+    public RootMutationQueryBuilder ExceptUpdateHome()
+    {
+        return ExceptField("updateHome");
+    }
+
+    public RootMutationQueryBuilder WithSendPushNotification(PushNotificationResponseQueryBuilder pushNotificationResponseQueryBuilder, QueryBuilderParameter<PushNotificationInput> input, QueryBuilderParameter<IEnumerable<bool>> flags, QueryBuilderParameter<IEnumerable<Guid?>> tags = null, QueryBuilderParameter<IEnumerable<int?>> references = null)
+    {
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
+        args.Add("input", input);
+        if (tags != null)
+            args.Add("tags", tags);
+
+        if (references != null)
+            args.Add("references", references);
+
+        args.Add("flags", flags);
+        return WithObjectField("sendPushNotification", pushNotificationResponseQueryBuilder, args);
+    }
+
+    public RootMutationQueryBuilder ExceptSendPushNotification()
+    {
+        return ExceptField("sendPushNotification");
+    }
+}
+
+public partial class MeterReadingResponseQueryBuilder : GraphQlQueryBuilder<MeterReadingResponseQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "homeId" },
+            new FieldMetadata { Name = "time" },
+            new FieldMetadata { Name = "reading" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public MeterReadingResponseQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public MeterReadingResponseQueryBuilder WithHomeId(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("homeId", alias, includeIf, skipIf);
+    }
+
+    public MeterReadingResponseQueryBuilder ExceptHomeId()
+    {
+        return ExceptField("homeId");
+    }
+
+    public MeterReadingResponseQueryBuilder WithTime(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("time", alias, includeIf, skipIf);
+    }
+
+    public MeterReadingResponseQueryBuilder ExceptTime()
+    {
+        return ExceptField("time");
+    }
+
+    public MeterReadingResponseQueryBuilder WithReading(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("reading", alias, includeIf, skipIf);
+    }
+
+    public MeterReadingResponseQueryBuilder ExceptReading()
+    {
+        return ExceptField("reading");
+    }
+}
+
+public partial class PushNotificationResponseQueryBuilder : GraphQlQueryBuilder<PushNotificationResponseQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "successful" },
+            new FieldMetadata { Name = "pushedToNumberOfDevices" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public PushNotificationResponseQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public PushNotificationResponseQueryBuilder WithSuccessful(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("successful", alias, includeIf, skipIf);
+    }
+
+    public PushNotificationResponseQueryBuilder ExceptSuccessful()
+    {
+        return ExceptField("successful");
+    }
+
+    public PushNotificationResponseQueryBuilder WithPushedToNumberOfDevices(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("pushedToNumberOfDevices", alias, includeIf, skipIf);
+    }
+
+    public PushNotificationResponseQueryBuilder ExceptPushedToNumberOfDevices()
+    {
+        return ExceptField("pushedToNumberOfDevices");
+    }
+}
+
+public partial class RootSubscriptionQueryBuilder : GraphQlQueryBuilder<RootSubscriptionQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "liveMeasurement", IsComplex = true, QueryBuilderType = typeof(LiveMeasurementQueryBuilder) }
+        };
+
+    protected override string Prefix { get { return "subscription"; } } 
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public RootSubscriptionQueryBuilder(string alias = null) : base(alias, null, null)
+    {
+    }
+
+    public RootSubscriptionQueryBuilder WithParameter<T>(GraphQlQueryParameter<T> parameter)
+    {
+        return WithParameterInternal(parameter);
+    }
+
+    public RootSubscriptionQueryBuilder WithLiveMeasurement(LiveMeasurementQueryBuilder liveMeasurementQueryBuilder, QueryBuilderParameter<Guid> homeId)
+    {
+        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
+        args.Add("homeId", homeId);
+        return WithObjectField("liveMeasurement", liveMeasurementQueryBuilder, args);
+    }
+
+    public RootSubscriptionQueryBuilder ExceptLiveMeasurement()
+    {
+        return ExceptField("liveMeasurement");
+    }
+}
+
+public partial class LiveMeasurementQueryBuilder : GraphQlQueryBuilder<LiveMeasurementQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "timestamp" },
+            new FieldMetadata { Name = "power" },
+            new FieldMetadata { Name = "lastMeterConsumption" },
+            new FieldMetadata { Name = "accumulatedConsumption" },
+            new FieldMetadata { Name = "accumulatedProduction" },
+            new FieldMetadata { Name = "accumulatedCost" },
+            new FieldMetadata { Name = "accumulatedReward" },
+            new FieldMetadata { Name = "currency" },
+            new FieldMetadata { Name = "minPower" },
+            new FieldMetadata { Name = "averagePower" },
+            new FieldMetadata { Name = "maxPower" },
+            new FieldMetadata { Name = "powerProduction" },
+            new FieldMetadata { Name = "minPowerProduction" },
+            new FieldMetadata { Name = "maxPowerProduction" },
+            new FieldMetadata { Name = "lastMeterProduction" },
+            new FieldMetadata { Name = "voltagePhase1" },
+            new FieldMetadata { Name = "voltagePhase2" },
+            new FieldMetadata { Name = "voltagePhase3" },
+            new FieldMetadata { Name = "currentPhase1" },
+            new FieldMetadata { Name = "currentPhase2" },
+            new FieldMetadata { Name = "currentPhase3" }
+        };
+
+    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public LiveMeasurementQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null) : base(alias, includeIf, skipIf)
+    {
+    }
+
+    public LiveMeasurementQueryBuilder WithTimestamp(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("timestamp", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptTimestamp()
+    {
+        return ExceptField("timestamp");
+    }
+
+    public LiveMeasurementQueryBuilder WithPower(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("power", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptPower()
+    {
+        return ExceptField("power");
+    }
+
+    public LiveMeasurementQueryBuilder WithLastMeterConsumption(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("lastMeterConsumption", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptLastMeterConsumption()
+    {
+        return ExceptField("lastMeterConsumption");
+    }
+
+    public LiveMeasurementQueryBuilder WithAccumulatedConsumption(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("accumulatedConsumption", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptAccumulatedConsumption()
+    {
+        return ExceptField("accumulatedConsumption");
+    }
+
+    public LiveMeasurementQueryBuilder WithAccumulatedProduction(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("accumulatedProduction", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptAccumulatedProduction()
+    {
+        return ExceptField("accumulatedProduction");
+    }
+
+    public LiveMeasurementQueryBuilder WithAccumulatedCost(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("accumulatedCost", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptAccumulatedCost()
+    {
+        return ExceptField("accumulatedCost");
+    }
+
+    public LiveMeasurementQueryBuilder WithAccumulatedReward(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("accumulatedReward", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptAccumulatedReward()
+    {
+        return ExceptField("accumulatedReward");
+    }
+
+    public LiveMeasurementQueryBuilder WithCurrency(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("currency", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptCurrency()
+    {
+        return ExceptField("currency");
+    }
+
+    public LiveMeasurementQueryBuilder WithMinPower(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("minPower", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptMinPower()
+    {
+        return ExceptField("minPower");
+    }
+
+    public LiveMeasurementQueryBuilder WithAveragePower(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("averagePower", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptAveragePower()
+    {
+        return ExceptField("averagePower");
+    }
+
+    public LiveMeasurementQueryBuilder WithMaxPower(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("maxPower", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptMaxPower()
+    {
+        return ExceptField("maxPower");
+    }
+
+    public LiveMeasurementQueryBuilder WithPowerProduction(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("powerProduction", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptPowerProduction()
+    {
+        return ExceptField("powerProduction");
+    }
+
+    public LiveMeasurementQueryBuilder WithMinPowerProduction(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("minPowerProduction", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptMinPowerProduction()
+    {
+        return ExceptField("minPowerProduction");
+    }
+
+    public LiveMeasurementQueryBuilder WithMaxPowerProduction(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("maxPowerProduction", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptMaxPowerProduction()
+    {
+        return ExceptField("maxPowerProduction");
+    }
+
+    public LiveMeasurementQueryBuilder WithLastMeterProduction(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("lastMeterProduction", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptLastMeterProduction()
+    {
+        return ExceptField("lastMeterProduction");
+    }
+
+    public LiveMeasurementQueryBuilder WithVoltagePhase1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("voltagePhase1", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptVoltagePhase1()
+    {
+        return ExceptField("voltagePhase1");
+    }
+
+    public LiveMeasurementQueryBuilder WithVoltagePhase2(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("voltagePhase2", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptVoltagePhase2()
+    {
+        return ExceptField("voltagePhase2");
+    }
+
+    public LiveMeasurementQueryBuilder WithVoltagePhase3(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("voltagePhase3", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptVoltagePhase3()
+    {
+        return ExceptField("voltagePhase3");
+    }
+
+    public LiveMeasurementQueryBuilder WithCurrentPhase1(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("currentPhase1", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptCurrentPhase1()
+    {
+        return ExceptField("currentPhase1");
+    }
+
+    public LiveMeasurementQueryBuilder WithCurrentPhase2(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("currentPhase2", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptCurrentPhase2()
+    {
+        return ExceptField("currentPhase2");
+    }
+
+    public LiveMeasurementQueryBuilder WithCurrentPhase3(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
+    {
+        return WithScalarField("currentPhase3", alias, includeIf, skipIf);
+    }
+
+    public LiveMeasurementQueryBuilder ExceptCurrentPhase3()
+    {
+        return ExceptField("currentPhase3");
+    }
+}
+#endregion

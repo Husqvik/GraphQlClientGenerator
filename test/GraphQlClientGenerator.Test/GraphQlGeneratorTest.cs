@@ -84,6 +84,16 @@ namespace GraphQlClientGenerator.Test
         }
 
         [Fact]
+        public void GenerateQueryBuildersWithListsOfScalarValuesAsArguments()
+        {
+            var stringBuilder = new StringBuilder();
+            GraphQlGenerator.GenerateQueryBuilder(DeserializeTestSchema("TestSchema3"), stringBuilder);
+
+            var expectedQueryBuilders = GetTestResource("ExpectedQueryBuildersWithListsOfScalarValuesAsArguments");
+            stringBuilder.ToString().ShouldBe(expectedQueryBuilders);
+        }
+
+        [Fact]
         public void NewCSharpSyntaxWithClassPostfix()
         {
             GraphQlGeneratorConfiguration.CSharpVersion = CSharpVersion.Newest;

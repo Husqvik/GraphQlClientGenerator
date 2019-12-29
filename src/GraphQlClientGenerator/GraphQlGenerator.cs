@@ -576,7 +576,7 @@ using Newtonsoft.Json.Linq;
             {
                 IdTypeMapping.String => AddQuestionMarkIfNullableReferencesEnabled("string"),
                 IdTypeMapping.Guid => "Guid?",
-                IdTypeMapping.Object => "object",
+                IdTypeMapping.Object => AddQuestionMarkIfNullableReferencesEnabled("object"),
                 IdTypeMapping.Custom => GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping(baseType, valueType, valueName),
                 _ => throw new InvalidOperationException($"'{GraphQlGeneratorConfiguration.IdTypeMapping}' not supported")
             };
@@ -701,17 +701,15 @@ using Newtonsoft.Json.Linq;
                 static bool IsCompatibleArgument(GraphQlFieldType argumentType)
                 {
                     argumentType = argumentType.UnwrapIfNonNull();
-                    switch (argumentType.Kind)
-                    {
-                        case GraphQlTypeKind.Scalar:
-                        case GraphQlTypeKind.Enum:
-                        case GraphQlTypeKind.InputObject:
-                            return true;
-                        case GraphQlTypeKind.List:
-                            return IsCompatibleArgument(argumentType.OfType);
-                        default:
-                            return false;
-                    }
+                    return
+                        argumentType.Kind switch
+                        {
+                            GraphQlTypeKind.Scalar => true,
+                            GraphQlTypeKind.Enum => true,
+                            GraphQlTypeKind.InputObject => true,
+                            GraphQlTypeKind.List => IsCompatibleArgument(argumentType.OfType),
+                            _ => false
+                        };
                 }
 
                 var args = field.Args?.Where(a => IsCompatibleArgument(a.Type)).ToArray() ?? new GraphQlArgument[0];
@@ -837,17 +835,19 @@ using Newtonsoft.Json.Linq;
 
         private static string BuildMethodParameterDefinition(GraphQlType baseType, GraphQlArgument argument)
         {
-            var isArgumentNotNull = argument.Type.Kind == GraphQlTypeKind.NonNull;
+            var argumentType = argument.Type;
+            var isArgumentNotNull = argumentType.Kind == GraphQlTypeKind.NonNull;
             var isTypeNotNull = isArgumentNotNull;
-            var unwrappedType = argument.Type.UnwrapIfNonNull();
+            var unwrappedType = argumentType.UnwrapIfNonNull();
             var isCollection = unwrappedType.Kind == GraphQlTypeKind.List;
             if (isCollection)
             {
                 isTypeNotNull = unwrappedType.OfType.Kind == GraphQlTypeKind.NonNull;
-                unwrappedType = unwrappedType.OfType.UnwrapIfNonNull();
+                argumentType = unwrappedType.OfType;
+                unwrappedType = argumentType.UnwrapIfNonNull();
             }
 
-            var argumentNetType = unwrappedType.Kind == GraphQlTypeKind.Enum ? unwrappedType.Name + "?" : ScalarToNetType(baseType, argument.Name, argument.Type);
+            var argumentNetType = unwrappedType.Kind == GraphQlTypeKind.Enum ? unwrappedType.Name + "?" : ScalarToNetType(baseType, argument.Name, argumentType);
             if (isTypeNotNull)
                 argumentNetType = argumentNetType.TrimEnd('?');
 
