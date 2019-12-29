@@ -10,9 +10,9 @@
     <LangVersion>latest</LangVersion>
     <Copyright>Copyright 2017-2019</Copyright>
     <Title>GraphQL C# Client Generator</Title>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/Husqvik/GraphQlClientGenerator/master/License.md</PackageLicenseUrl>
+    <PackageLicense>https://raw.githubusercontent.com/Husqvik/GraphQlClientGenerator/master/License.md</PackageLicense>
     <PackageProjectUrl>https://github.com/Husqvik/GraphQlClientGenerator</PackageProjectUrl>
-    <PackageIconUrl>https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/GraphQL_Logo.svg/1024px-GraphQL_Logo.svg.png</PackageIconUrl>
+    <PackageIcon>GraphQlLogo.png</PackageIcon>
     <RepositoryUrl>https://github.com/Husqvik/GraphQlClientGenerator</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>GraphGL C# Client</PackageTags>
@@ -33,6 +33,10 @@
   <ItemGroup>
     <Compile Remove="BaseClasses.cs" />
     <EmbeddedResource Include="BaseClasses.cs" />
+    <None Include="GraphQlLogo.png">
+      <Pack>True</Pack>
+      <PackagePath />
+    </None>
   </ItemGroup>
 
 </Project>

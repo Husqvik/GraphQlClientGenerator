@@ -105,37 +105,12 @@ namespace GraphQlClientGenerator
             return name;
         }
 
+        /// <remarks>https://stackoverflow.com/questions/18627112/how-can-i-convert-text-to-pascal-case</remarks>>
         public static string ToPascalCase(string value)
         {
-            /*
-             * Source: https://stackoverflow.com/questions/18627112/how-can-i-convert-text-to-pascal-case
-             * Credits: chviLadislav
-             * 
-             * Example Output:
-             * "WARD_VS_VITAL_SIGNS"          "WardVsVitalSigns"
-             * "Who am I?"                    "WhoAmI"
-             * "I ate before you got here"    "IAteBeforeYouGotHere"
-             * "Hello|Who|Am|I?"              "HelloWhoAmI"
-             * "Live long and prosper"        "LiveLongAndProsper"
-             * "Lorem ipsum dolor..."         "LoremIpsumDolor"
-             * "CoolSP"                       "CoolSp"
-             * "AB9CD"                        "Ab9Cd"
-             * "CCCTrigger"                   "CccTrigger"
-             * "CIRC"                         "Circ"
-             * "ID_SOME"                      "IdSome"
-             * "ID_SomeOther"                 "IdSomeOther"
-             * "ID_SOMEOther"                 "IdSomeOther"
-             * "CCC_SOME_2Phases"             "CccSome2Phases"
-             * "AlreadyGoodPascalCase"        "AlreadyGoodPascalCase"
-             * "999 999 99 9 "                "999999999"
-             * "1 2 3 "                       "123"
-             * "1 AB cd EFDDD 8"              "1AbCdEfddd8"
-             * "INVALID VALUE AND _2THINGS"   "InvalidValueAnd2Things"
-             */
-            
             var invalidCharsRegex = new Regex("[^_a-zA-Z0-9]");
             var whiteSpace = new Regex(@"(?<=\s)");
-            var startsWithLowerCaseChar = new Regex("^[a-z]");
+            var upperCaseFirstLetter = new Regex("^[a-z]");
             var firstCharFollowedByUpperCasesOnly = new Regex("(?<=[A-Z])[A-Z0-9]+$");
             var lowerCaseNextToNumber = new Regex("(?<=[0-9])[a-z]");
             var upperCaseInside = new Regex("(?<=[A-Z])[A-Z]+?((?=[A-Z][a-z])|(?=[0-9]))");
@@ -143,11 +118,9 @@ namespace GraphQlClientGenerator
             var pascalCase =
                 invalidCharsRegex
                     // Replaces white spaces with underscore, then replace all invalid chars with an empty string.
-                    .Replace(whiteSpace.Replace(value, "_"), string.Empty)
-                    // Split by underscores.
+                    .Replace(whiteSpace.Replace(value, "_"), String.Empty)
                     .Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries)
-                    // Set first letter to uppercase.
-                    .Select(w => startsWithLowerCaseChar.Replace(w, m => m.Value.ToUpper()))
+                    .Select(w => upperCaseFirstLetter.Replace(w, m => m.Value.ToUpper()))
                     // Replace second and all following upper case letters to lower if there is no next lower (ABC -> Abc).
                     .Select(w => firstCharFollowedByUpperCasesOnly.Replace(w, m => m.Value.ToLower()))
                     // Set upper case the first lower case following a number (Ab9cd -> Ab9Cd).
