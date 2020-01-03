@@ -452,6 +452,9 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
         protected readonly string FieldName;
 
+        protected string GetIndentation(Formatting formatting, int level, byte indentationSize) =>
+            formatting == Formatting.Indented ? GraphQlQueryHelper.GetIndentation(level, indentationSize) : null;
+
         protected GraphQlFieldCriteria(string fieldName, IDictionary<string, QueryBuilderParameter> args)
         {
             FieldName = fieldName;
@@ -494,19 +497,10 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
             _skipIf = skipIf;
         }
 
-        public override string Build(Formatting formatting, int level, byte indentationSize)
-        {
-            var builder = new StringBuilder();
-            if (formatting == Formatting.Indented)
-                builder.Append(GraphQlQueryHelper.GetIndentation(level, indentationSize));
-
-            builder.Append(BuildAliasPrefix(_alias, formatting));
-            builder.Append(FieldName);
-            builder.Append(BuildArgumentClause(formatting, level, indentationSize));
-            builder.Append(GraphQlQueryHelper.BuildDirective("include", _includeIf, formatting, level, indentationSize));
-            builder.Append(GraphQlQueryHelper.BuildDirective("skip", _skipIf, formatting, level, indentationSize));
-            return builder.ToString();
-        }
+        public override string Build(Formatting formatting, int level, byte indentationSize) =>
+            GetIndentation(formatting, level, indentationSize) + BuildAliasPrefix(_alias, formatting) + FieldName + BuildArgumentClause(formatting, level, indentationSize) +
+            GraphQlQueryHelper.BuildDirective("include", _includeIf, formatting, level, indentationSize) +
+            GraphQlQueryHelper.BuildDirective("skip", _skipIf, formatting, level, indentationSize);
     }
 
     private class GraphQlObjectFieldCriteria : GraphQlFieldCriteria
@@ -518,22 +512,11 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
             _objectQueryBuilder = objectQueryBuilder;
         }
 
-        public override string Build(Formatting formatting, int level, byte indentationSize)
-        {
-            if (_objectQueryBuilder._fieldCriteria.Count == 0)
-                return String.Empty;
-
-            var builder = new StringBuilder();
-            var isIndentedFormatting = formatting == Formatting.Indented;
-            if (isIndentedFormatting)
-                builder.Append(GraphQlQueryHelper.GetIndentation(level, indentationSize));
-
-            builder.Append(BuildAliasPrefix(_objectQueryBuilder.Alias, formatting));
-            builder.Append(FieldName);
-            builder.Append(BuildArgumentClause(formatting, level, indentationSize));
-            builder.Append(_objectQueryBuilder.Build(formatting, level + 1, indentationSize));
-            return builder.ToString();
-        }
+        public override string Build(Formatting formatting, int level, byte indentationSize) =>
+            _objectQueryBuilder._fieldCriteria.Count == 0
+                ? null
+                : GetIndentation(formatting, level, indentationSize) + BuildAliasPrefix(_objectQueryBuilder.Alias, formatting) + FieldName +
+                  BuildArgumentClause(formatting, level, indentationSize) + _objectQueryBuilder.Build(formatting, level + 1, indentationSize);
     }
 }
 
