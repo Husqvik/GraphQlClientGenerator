@@ -6,21 +6,24 @@ public partial class MeterReadingInput : IGraphQlInputObject
     private InputPropertyInfo _time;
     private InputPropertyInfo _reading;
 
-    public Guid? HomeId
+    [JsonConverter(typeof(QueryBuilderParameterConverter<Guid?>))]
+    public QueryBuilderParameter<Guid?> HomeId
     {
-        get { return (Guid?)_homeId.Value; }
+        get { return (QueryBuilderParameter<Guid?>)_homeId.Value; }
         set { _homeId = new InputPropertyInfo { Name = "homeId", Value = value }; }
     }
 
-    public string Time
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    public QueryBuilderParameter<string> Time
     {
-        get { return (string)_time.Value; }
+        get { return (QueryBuilderParameter<string>)_time.Value; }
         set { _time = new InputPropertyInfo { Name = "time", Value = value }; }
     }
 
-    public int? Reading
+    [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    public QueryBuilderParameter<int?> Reading
     {
-        get { return (int?)_reading.Value; }
+        get { return (QueryBuilderParameter<int?>)_reading.Value; }
         set { _reading = new InputPropertyInfo { Name = "reading", Value = value }; }
     }
 
@@ -44,57 +47,66 @@ public partial class UpdateHomeInput : IGraphQlInputObject
     private InputPropertyInfo _hasVentilationSystem;
     private InputPropertyInfo _mainFuseSize;
 
-    public Guid? HomeId
+    [JsonConverter(typeof(QueryBuilderParameterConverter<Guid?>))]
+    public QueryBuilderParameter<Guid?> HomeId
     {
-        get { return (Guid?)_homeId.Value; }
+        get { return (QueryBuilderParameter<Guid?>)_homeId.Value; }
         set { _homeId = new InputPropertyInfo { Name = "homeId", Value = value }; }
     }
 
-    public string AppNickname
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    public QueryBuilderParameter<string> AppNickname
     {
-        get { return (string)_appNickname.Value; }
+        get { return (QueryBuilderParameter<string>)_appNickname.Value; }
         set { _appNickname = new InputPropertyInfo { Name = "appNickname", Value = value }; }
     }
 
-    public HomeAvatar? AppAvatar
+    [JsonConverter(typeof(QueryBuilderParameterConverter<HomeAvatar?>))]
+    public QueryBuilderParameter<HomeAvatar?> AppAvatar
     {
-        get { return (HomeAvatar?)_appAvatar.Value; }
+        get { return (QueryBuilderParameter<HomeAvatar?>)_appAvatar.Value; }
         set { _appAvatar = new InputPropertyInfo { Name = "appAvatar", Value = value }; }
     }
 
-    public int? Size
+    [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    public QueryBuilderParameter<int?> Size
     {
-        get { return (int?)_size.Value; }
+        get { return (QueryBuilderParameter<int?>)_size.Value; }
         set { _size = new InputPropertyInfo { Name = "size", Value = value }; }
     }
 
-    public HomeType? Type
+    [JsonConverter(typeof(QueryBuilderParameterConverter<HomeType?>))]
+    public QueryBuilderParameter<HomeType?> Type
     {
-        get { return (HomeType?)_type.Value; }
+        get { return (QueryBuilderParameter<HomeType?>)_type.Value; }
         set { _type = new InputPropertyInfo { Name = "type", Value = value }; }
     }
 
-    public int? NumberOfResidents
+    [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    public QueryBuilderParameter<int?> NumberOfResidents
     {
-        get { return (int?)_numberOfResidents.Value; }
+        get { return (QueryBuilderParameter<int?>)_numberOfResidents.Value; }
         set { _numberOfResidents = new InputPropertyInfo { Name = "numberOfResidents", Value = value }; }
     }
 
-    public HeatingSource? PrimaryHeatingSource
+    [JsonConverter(typeof(QueryBuilderParameterConverter<HeatingSource?>))]
+    public QueryBuilderParameter<HeatingSource?> PrimaryHeatingSource
     {
-        get { return (HeatingSource?)_primaryHeatingSource.Value; }
+        get { return (QueryBuilderParameter<HeatingSource?>)_primaryHeatingSource.Value; }
         set { _primaryHeatingSource = new InputPropertyInfo { Name = "primaryHeatingSource", Value = value }; }
     }
 
-    public bool? HasVentilationSystem
+    [JsonConverter(typeof(QueryBuilderParameterConverter<bool?>))]
+    public QueryBuilderParameter<bool?> HasVentilationSystem
     {
-        get { return (bool?)_hasVentilationSystem.Value; }
+        get { return (QueryBuilderParameter<bool?>)_hasVentilationSystem.Value; }
         set { _hasVentilationSystem = new InputPropertyInfo { Name = "hasVentilationSystem", Value = value }; }
     }
 
-    public int? MainFuseSize
+    [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    public QueryBuilderParameter<int?> MainFuseSize
     {
-        get { return (int?)_mainFuseSize.Value; }
+        get { return (QueryBuilderParameter<int?>)_mainFuseSize.Value; }
         set { _mainFuseSize = new InputPropertyInfo { Name = "mainFuseSize", Value = value }; }
     }
 
@@ -118,21 +130,24 @@ public partial class PushNotificationInput : IGraphQlInputObject
     private InputPropertyInfo _message;
     private InputPropertyInfo _screenToOpen;
 
-    public string Title
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    public QueryBuilderParameter<string> Title
     {
-        get { return (string)_title.Value; }
+        get { return (QueryBuilderParameter<string>)_title.Value; }
         set { _title = new InputPropertyInfo { Name = "title", Value = value }; }
     }
 
-    public string Message
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    public QueryBuilderParameter<string> Message
     {
-        get { return (string)_message.Value; }
+        get { return (QueryBuilderParameter<string>)_message.Value; }
         set { _message = new InputPropertyInfo { Name = "message", Value = value }; }
     }
 
-    public AppScreen? ScreenToOpen
+    [JsonConverter(typeof(QueryBuilderParameterConverter<AppScreen?>))]
+    public QueryBuilderParameter<AppScreen?> ScreenToOpen
     {
-        get { return (AppScreen?)_screenToOpen.Value; }
+        get { return (QueryBuilderParameter<AppScreen?>)_screenToOpen.Value; }
         set { _screenToOpen = new InputPropertyInfo { Name = "screenToOpen", Value = value }; }
     }
 

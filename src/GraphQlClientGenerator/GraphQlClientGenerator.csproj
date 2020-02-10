@@ -5,10 +5,10 @@
     <Description>A simple strongly typed C# GraphQL client generator. </Description>
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
-    <VersionPrefix>0.4.6</VersionPrefix>
+    <VersionPrefix>0.4.7</VersionPrefix>
     <TargetFrameworks>netstandard1.3;net452</TargetFrameworks>
     <LangVersion>latest</LangVersion>
-    <Copyright>Copyright 2017-2019</Copyright>
+    <Copyright>Copyright 2017-2020</Copyright>
     <Title>GraphQL C# Client Generator</Title>
     <PackageLicense>https://raw.githubusercontent.com/Husqvik/GraphQlClientGenerator/master/License.md</PackageLicense>
     <PackageProjectUrl>https://github.com/Husqvik/GraphQlClientGenerator</PackageProjectUrl>
@@ -17,7 +17,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>GraphGL C# Client</PackageTags>
     <PackageReleaseNotes>
-      fixed query builder list of scalars argument type generation
+      support for input object query parameters
     </PackageReleaseNotes>
   </PropertyGroup>
 

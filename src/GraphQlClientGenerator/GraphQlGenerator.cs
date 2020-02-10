@@ -328,7 +328,7 @@ using Newtonsoft.Json.Linq;
                     false,
                     false,
                     null,
-                    false,
+                    true,
                     (t, _) =>
                     {
                         builder.AppendLine();
@@ -436,7 +436,8 @@ using Newtonsoft.Json.Linq;
         private static string UseCustomClassNameIfDefined(string typeName) =>
             GraphQlGeneratorConfiguration.CustomClassNameMapping.TryGetValue(typeName, out var customTypeName) ? customTypeName : typeName;
 
-        private static string GetMemberAccessibility() => GraphQlGeneratorConfiguration.MemberAccessibility == MemberAccessibility.Internal ? "internal" : "public";
+        private static string GetMemberAccessibility() =>
+            GraphQlGeneratorConfiguration.MemberAccessibility == MemberAccessibility.Internal ? "internal" : "public";
 
         internal static bool FilterDeprecatedFields(GraphQlField field) =>
             !field.IsDeprecated || GraphQlGeneratorConfiguration.IncludeDeprecatedFields;
@@ -478,6 +479,12 @@ using Newtonsoft.Json.Linq;
 
             if (!isInterfaceMember && decorateWithJsonProperty)
                 builder.AppendLine($"    [JsonProperty(\"{member.Name}\")]");
+
+            if (baseType.Kind == GraphQlTypeKind.InputObject)
+            {
+                builder.AppendLine($"    [JsonConverter(typeof(QueryBuilderParameterConverter<{propertyType}>))]");
+                propertyType = AddQuestionMarkIfNullableReferencesEnabled($"QueryBuilderParameter<{propertyType}>");
+            }
             
             builder.Append($"    {(isInterfaceMember ? null : "public ")}{propertyType} {propertyName}");
 
@@ -490,6 +497,7 @@ using Newtonsoft.Json.Linq;
         {
             string propertyType;
             var fieldType = member.Type.UnwrapIfNonNull();
+
             switch (fieldType.Kind)
             {
                 case GraphQlTypeKind.Object:

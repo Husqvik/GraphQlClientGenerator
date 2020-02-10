@@ -350,7 +350,8 @@ namespace {assemblyName}
             var systemReference = MetadataReference.CreateFromFile(typeof(DateTimeOffset).Assembly.Location);
             var systemObjectModelReference = MetadataReference.CreateFromFile(Assembly.Load("System.ObjectModel").Location);
             var systemTextRegularExpressionsReference = MetadataReference.CreateFromFile(Assembly.Load("System.Text.RegularExpressions").Location);
-            var runtimeReference = MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location);
+            var systemRuntimeReference = MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location);
+            var systemRuntimeExtensionsReference = MetadataReference.CreateFromFile(Assembly.Load("System.Runtime.Extensions").Location);
             var netStandardReference = MetadataReference.CreateFromFile(Assembly.Load("netstandard").Location);
             var linqReference = MetadataReference.CreateFromFile(Assembly.Load("System.Linq").Location);
             var linqExpressionsReference = MetadataReference.CreateFromFile(Assembly.Load("System.Linq.Expressions").Location);
@@ -371,7 +372,8 @@ namespace {assemblyName}
                         systemTextRegularExpressionsReference,
                         componentModelReference,
                         componentModelTypeConverterReference,
-                        runtimeReference,
+                        systemRuntimeReference,
+                        systemRuntimeExtensionsReference,
                         jsonNetReference,
                         linqReference,
                         linqExpressionsReference,

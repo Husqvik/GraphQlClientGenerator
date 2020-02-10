@@ -120,7 +120,12 @@ internal static class GraphQlQueryHelper
         var separator = String.Empty;
         foreach (var propertyValue in inputObject.GetPropertyValues())
         {
-            var value = BuildArgumentValue(propertyValue.Value, formatting, level, indentationSize);
+            var queryBuilderParameter = propertyValue.Value as QueryBuilderParameter;
+            var value =
+                queryBuilderParameter?.Name != null
+                    ? "$" + queryBuilderParameter.Name
+                    : BuildArgumentValue(queryBuilderParameter?.Value ?? propertyValue.Value, formatting, level, indentationSize);
+
             builder.Append(isIndentedFormatting ? GetIndentation(level, indentationSize) : separator);
             builder.Append(propertyValue.Name);
             builder.Append(valueSeparator);
@@ -229,6 +234,12 @@ public abstract class QueryBuilderParameter
 
 public class QueryBuilderParameter<T> : QueryBuilderParameter
 {
+    public new T Value
+    {
+        get => (T)base.Value;
+        set => base.Value = value;
+    }
+
     public QueryBuilderParameter(string name, string graphQlTypeName, T value) : base(name, graphQlTypeName, value)
     {
     }
@@ -240,14 +251,33 @@ public class QueryBuilderParameter<T> : QueryBuilderParameter
     public static implicit operator QueryBuilderParameter<T>(T value) => new QueryBuilderParameter<T>(value);
 }
 
-public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
+public class QueryBuilderParameterConverter<T> : JsonConverter
 {
-    public new T Value
+    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
     {
-        get => (T)base.Value;
-        set => base.Value = value;
+        switch (reader.TokenType)
+        {
+            case JsonToken.Null:
+                return null;
+
+            default:
+                return (QueryBuilderParameter<T>)(T)serializer.Deserialize(reader, typeof(T));
+        }
     }
 
+    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    {
+        if (value == null)
+            writer.WriteNull();
+        else
+            serializer.Serialize(writer, ((QueryBuilderParameter<T>)value).Value, typeof(T));
+    }
+
+    public override bool CanConvert(Type objectType) => objectType.IsSubclassOf(typeof(QueryBuilderParameter));
+}
+
+public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
+{
     public GraphQlQueryParameter(string name, string graphQlTypeName, T value) : base(name, graphQlTypeName, value)
     {
     }
@@ -3565,15 +3595,17 @@ public partial class HomeProfileQuestionAnswer : IGraphQlInputObject
     private InputPropertyInfo _propertyName;
     private InputPropertyInfo _value;
 
-    public string? PropertyName
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string?>))]
+    public QueryBuilderParameter<string?>? PropertyName
     {
-        get => (string?)_propertyName.Value;
+        get => (QueryBuilderParameter<string?>?)_propertyName.Value;
         set => _propertyName = new InputPropertyInfo { Name = "propertyName", Value = value };
     }
 
-    public object? Value
+    [JsonConverter(typeof(QueryBuilderParameterConverter<object?>))]
+    public QueryBuilderParameter<object?>? Value
     {
-        get => (object?)_value.Value;
+        get => (QueryBuilderParameter<object?>?)_value.Value;
         set => _value = new InputPropertyInfo { Name = "value", Value = value };
     }
 
@@ -3589,15 +3621,17 @@ public partial class AppStateMutation : IGraphQlInputObject
     private InputPropertyInfo _journey;
     private InputPropertyInfo _frontScreens;
 
-    public AppStateJourneyMutation? Journey
+    [JsonConverter(typeof(QueryBuilderParameterConverter<AppStateJourneyMutation?>))]
+    public QueryBuilderParameter<AppStateJourneyMutation?>? Journey
     {
-        get => (AppStateJourneyMutation?)_journey.Value;
+        get => (QueryBuilderParameter<AppStateJourneyMutation?>?)_journey.Value;
         set => _journey = new InputPropertyInfo { Name = "journey", Value = value };
     }
 
-    public ICollection<AppStateFronScreenMutation>? FrontScreens
+    [JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<AppStateFronScreenMutation>?>))]
+    public QueryBuilderParameter<ICollection<AppStateFronScreenMutation>?>? FrontScreens
     {
-        get => (ICollection<AppStateFronScreenMutation>?)_frontScreens.Value;
+        get => (QueryBuilderParameter<ICollection<AppStateFronScreenMutation>?>?)_frontScreens.Value;
         set => _frontScreens = new InputPropertyInfo { Name = "frontScreens", Value = value };
     }
 
@@ -3612,9 +3646,10 @@ public partial class AppStateJourneyMutation : IGraphQlInputObject
 {
     private InputPropertyInfo _hasVisitedPairDevices;
 
-    public bool? HasVisitedPairDevices
+    [JsonConverter(typeof(QueryBuilderParameterConverter<bool?>))]
+    public QueryBuilderParameter<bool?>? HasVisitedPairDevices
     {
-        get => (bool?)_hasVisitedPairDevices.Value;
+        get => (QueryBuilderParameter<bool?>?)_hasVisitedPairDevices.Value;
         set => _hasVisitedPairDevices = new InputPropertyInfo { Name = "hasVisitedPairDevices", Value = value };
     }
 
@@ -3630,21 +3665,24 @@ public partial class AppStateFronScreenMutation : IGraphQlInputObject
     private InputPropertyInfo _bubbles;
     private InputPropertyInfo _bubblesSortOrder;
 
-    public string? HomeId
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string?>))]
+    public QueryBuilderParameter<string?>? HomeId
     {
-        get => (string?)_homeId.Value;
+        get => (QueryBuilderParameter<string?>?)_homeId.Value;
         set => _homeId = new InputPropertyInfo { Name = "homeId", Value = value };
     }
 
-    public ICollection<string>? Bubbles
+    [JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<string>?>))]
+    public QueryBuilderParameter<ICollection<string>?>? Bubbles
     {
-        get => (ICollection<string>?)_bubbles.Value;
+        get => (QueryBuilderParameter<ICollection<string>?>?)_bubbles.Value;
         set => _bubbles = new InputPropertyInfo { Name = "bubbles", Value = value };
     }
 
-    public ICollection<string>? BubblesSortOrder
+    [JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<string>?>))]
+    public QueryBuilderParameter<ICollection<string>?>? BubblesSortOrder
     {
-        get => (ICollection<string>?)_bubblesSortOrder.Value;
+        get => (QueryBuilderParameter<ICollection<string>?>?)_bubblesSortOrder.Value;
         set => _bubblesSortOrder = new InputPropertyInfo { Name = "bubblesSortOrder", Value = value };
     }
 

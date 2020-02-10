@@ -120,7 +120,12 @@ internal static class GraphQlQueryHelper
         var separator = String.Empty;
         foreach (var propertyValue in inputObject.GetPropertyValues())
         {
-            var value = BuildArgumentValue(propertyValue.Value, formatting, level, indentationSize);
+            var queryBuilderParameter = propertyValue.Value as QueryBuilderParameter;
+            var value =
+                queryBuilderParameter?.Name != null
+                    ? "$" + queryBuilderParameter.Name
+                    : BuildArgumentValue(queryBuilderParameter?.Value ?? propertyValue.Value, formatting, level, indentationSize);
+
             builder.Append(isIndentedFormatting ? GetIndentation(level, indentationSize) : separator);
             builder.Append(propertyValue.Name);
             builder.Append(valueSeparator);
@@ -229,6 +234,12 @@ public abstract class QueryBuilderParameter
 
 public class QueryBuilderParameter<T> : QueryBuilderParameter
 {
+    public new T Value
+    {
+        get => (T)base.Value;
+        set => base.Value = value;
+    }
+
     public QueryBuilderParameter(string name, string graphQlTypeName, T value) : base(name, graphQlTypeName, value)
     {
     }
@@ -240,14 +251,33 @@ public class QueryBuilderParameter<T> : QueryBuilderParameter
     public static implicit operator QueryBuilderParameter<T>(T value) => new QueryBuilderParameter<T>(value);
 }
 
-public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
+public class QueryBuilderParameterConverter<T> : JsonConverter
 {
-    public new T Value
+    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
     {
-        get => (T)base.Value;
-        set => base.Value = value;
+        switch (reader.TokenType)
+        {
+            case JsonToken.Null:
+                return null;
+
+            default:
+                return (QueryBuilderParameter<T>)(T)serializer.Deserialize(reader, typeof(T));
+        }
     }
 
+    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    {
+        if (value == null)
+            writer.WriteNull();
+        else
+            serializer.Serialize(writer, ((QueryBuilderParameter<T>)value).Value, typeof(T));
+    }
+
+    public override bool CanConvert(Type objectType) => objectType.IsSubclassOf(typeof(QueryBuilderParameter));
+}
+
+public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
+{
     public GraphQlQueryParameter(string name, string graphQlTypeName, T value) : base(name, graphQlTypeName, value)
     {
     }
