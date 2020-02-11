@@ -162,6 +162,12 @@ internal static class GraphQlQueryHelper
         return builder.ToString();
     }
 
+    public static void ValidateGraphQlIdentifer(string name, string identifier)
+    {
+        if (identifier != null && !identifier.All(c => Char.IsLetterOrDigit(c) || c == '_'))
+            throw new ArgumentException("Value must match [_A-Za-z][_0-9A-Za-z]*. ", nameof(name));
+    }
+
     private static string ConvertEnumToString(Enum @enum)
     {
         var enumMember = @enum.GetType().GetTypeInfo().GetField(@enum.ToString());
@@ -206,7 +212,7 @@ public abstract class QueryBuilderParameter
         get => _name;
         set
         {
-            ValidateParameterValue(nameof(Name), value);
+            GraphQlQueryHelper.ValidateGraphQlIdentifer(nameof(Name), value);
             _name = value;
         }
     }
@@ -214,22 +220,11 @@ public abstract class QueryBuilderParameter
     protected QueryBuilderParameter(string name, string graphQlTypeName, object value)
     {
         Name = name?.Trim();
-
-        graphQlTypeName = graphQlTypeName?.Trim();
-
-        ValidateParameterValue(nameof(graphQlTypeName), graphQlTypeName.EndsWith("!") ? graphQlTypeName.Substring(0, graphQlTypeName.Length - 1) : graphQlTypeName);
-
-        GraphQlTypeName = graphQlTypeName;
+        GraphQlTypeName = graphQlTypeName?.Replace(" ", null).Replace("\t", null).Replace("\n", null).Replace("\r", null);
         Value = value;
     }
 
     protected QueryBuilderParameter(object value) => Value = value;
-
-    private void ValidateParameterValue(string parameterName, string value)
-    {
-        if (String.IsNullOrWhiteSpace(value) || !value.All(Char.IsLetterOrDigit))
-            throw new ArgumentException("invalid value", parameterName);
-    }
 }
 
 public class QueryBuilderParameter<T> : QueryBuilderParameter
@@ -303,7 +298,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     protected GraphQlQueryBuilder(string alias, QueryBuilderParameter<bool> includeIf, QueryBuilderParameter<bool> skipIf)
     {
-        ValidateAlias(alias);
+        GraphQlQueryHelper.ValidateGraphQlIdentifer(nameof(alias), alias);
         Alias = alias;
 
         _includeIf = includeIf;
@@ -354,7 +349,14 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
                 foreach (var queryParameter in _queryParameters.Values)
                 {
-                    builder.Append(separator);
+                    if (isIndentedFormatting)
+                    {
+                        builder.AppendLine();
+                        builder.Append(GraphQlQueryHelper.GetIndentation(level, indentationSize));
+                    }
+                    else
+                        builder.Append(separator);
+                    
                     builder.Append("$");
                     builder.Append(queryParameter.Name);
                     builder.Append(":");
@@ -414,7 +416,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     protected void IncludeScalarField(string fieldName, string alias, QueryBuilderParameter<bool> includeIf, QueryBuilderParameter<bool> skipIf, IDictionary<string, QueryBuilderParameter> args)
     {
-        ValidateAlias(alias);
+        GraphQlQueryHelper.ValidateGraphQlIdentifer(nameof(alias), alias);
         _fieldCriteria[alias ?? fieldName] = new GraphQlScalarFieldCriteria(fieldName, alias, includeIf, skipIf, args);
     }
 
@@ -468,12 +470,6 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
             _queryParameters = new Dictionary<string, QueryBuilderParameter>();
         
         _queryParameters.Add(parameter.Name, parameter);
-    }
-
-    private static void ValidateAlias(string alias)
-    {
-        if (alias != null && String.IsNullOrWhiteSpace(alias))
-            throw new ArgumentException("Value must not be white space. ", nameof(alias));
     }
 
     private abstract class GraphQlFieldCriteria
