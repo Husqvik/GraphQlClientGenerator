@@ -489,12 +489,13 @@ namespace {assemblyName}
             var queryParameter2Value = Activator.CreateInstance(inputObjectType);
             var queryParameter1 = CreateParameter(assemblyName, "Test Value", "stringParameter", "String");
             var queryParameter2 = CreateParameter(assemblyName, queryParameter2Value, "objectParameter", "[TestInput!]");
-            inputObjectType.GetProperty("TestProperty").SetValue(queryParameter2Value, CreateParameter(assemblyName, "Input Object Parameter Value"));
+            var testPropertyInfo = inputObjectType.GetProperty("TestProperty");
+            testPropertyInfo.SetValue(queryParameter2Value, CreateParameter(assemblyName, "Input Object Parameter Value"));
 
             var inputObject = Activator.CreateInstance(inputObjectType);
-            inputObjectType.GetProperty("TestProperty").SetValue(inputObject, queryParameter1);
+            testPropertyInfo.SetValue(inputObject, queryParameter1);
             var nestedObject = Activator.CreateInstance(inputObjectType);
-            inputObjectType.GetProperty("TestProperty").SetValue(nestedObject, CreateParameter(assemblyName, "Nested Value"));
+            testPropertyInfo.SetValue(nestedObject, CreateParameter(assemblyName, "Nested Value"));
             inputObjectType.GetProperty("InputObject1").SetValue(inputObject, CreateParameter(assemblyName, nestedObject));
             inputObjectType.GetProperty("InputObject2").SetValue(inputObject, queryParameter2);
 
@@ -517,6 +518,15 @@ namespace {assemblyName}
                     .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
 
             mutation.ShouldBe("mutation($stringParameter:String=\"Test Value\" $objectParameter:[TestInput!]={testProperty:\"Input Object Parameter Value\"}){testAction(objectParameter:{inputObject1:{testProperty:\"Nested Value\"},inputObject2:$objectParameter,testProperty:$stringParameter})}");
+
+            var inputObjectJson = JsonConvert.SerializeObject(inputObject);
+            inputObjectJson.ShouldBe("{\"TestProperty\":\"Test Value\",\"InputObject1\":{\"TestProperty\":\"Nested Value\",\"InputObject1\":null,\"InputObject2\":null},\"InputObject2\":{\"TestProperty\":\"Input Object Parameter Value\",\"InputObject1\":null,\"InputObject2\":null}}");
+
+            var deserializedInputObject = JsonConvert.DeserializeObject(inputObjectJson, inputObjectType);
+            var testPropertyValue = testPropertyInfo.GetValue(deserializedInputObject);
+            var converter = testPropertyValue.GetType().GetMethod("op_Implicit", new[] { testPropertyValue.GetType() });
+            var testPropertyPlainValue = converter.Invoke(null, new[] { testPropertyValue });
+            testPropertyPlainValue.ShouldBe("Test Value");
         }
     }
 }

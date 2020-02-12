@@ -244,6 +244,8 @@ public class QueryBuilderParameter<T> : QueryBuilderParameter
     }
 
     public static implicit operator QueryBuilderParameter<T>(T value) => new QueryBuilderParameter<T>(value);
+
+    public static implicit operator T(QueryBuilderParameter<T> parameter) => parameter.Value;
 }
 
 public class QueryBuilderParameterConverter<T> : JsonConverter
