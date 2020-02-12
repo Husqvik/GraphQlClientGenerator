@@ -229,11 +229,12 @@ namespace GraphQlClientGenerator.Test
     }
 }");
 
-            CompileIntoAssembly(stringBuilder.ToString(), "GeneratedQueryTestAssembly");
+            const string assemblyName = "GeneratedQueryTestAssembly";
+            CompileIntoAssembly(stringBuilder.ToString(), assemblyName);
 
-            var builderType = Type.GetType("GeneratedQueryTestAssembly.TestQueryBuilder, GeneratedQueryTestAssembly");
+            var builderType = Type.GetType($"{assemblyName}.TestQueryBuilder, {assemblyName}");
             builderType.ShouldNotBeNull();
-            var formattingType = Type.GetType("GeneratedQueryTestAssembly.Formatting, GeneratedQueryTestAssembly");
+            var formattingType = Type.GetType($"{assemblyName}.Formatting, {assemblyName}");
             formattingType.ShouldNotBeNull();
 
             var builderInstance = Activator.CreateInstance(builderType, null, null, null);
@@ -257,7 +258,7 @@ namespace GraphQlClientGenerator.Test
                         new DateTimeOffset(2019, 6, 30, 2, 27, 47, TimeSpan.FromHours(2)),
                         Guid.Empty,
                         "string value"
-                    }.Select(CreateParameter).ToArray());
+                    }.Select(p => CreateParameter(assemblyName, p)).ToArray());
 
             builderType
                 .GetMethod("WithObjectParameterField", BindingFlags.Instance | BindingFlags.Public)
@@ -270,7 +271,7 @@ namespace GraphQlClientGenerator.Test
                             JsonConvert.DeserializeObject("{ \"rootProperty1\": \"root value 1\", \"rootProperty2\": 123.456, \"rootProperty3\": true, \"rootProperty4\": null, \"rootProperty5\": { \"nestedProperty\": 987 } }"),
                             JsonConvert.DeserializeObject("[{ \"rootProperty1\": \"root value 2\" }, { \"rootProperty1\": false }]")
                         }
-                    }.Select(CreateParameter).ToArray());
+                    }.Select(p => CreateParameter(assemblyName, p)).ToArray());
 
             var query =
                 builderType
@@ -285,21 +286,7 @@ namespace GraphQlClientGenerator.Test
 
             query.ShouldBe($" {{{Environment.NewLine}  testField(valueInt16: 1, valueUInt16: 2, valueByte: 3, valueInt32: 4, valueUInt32: 5, valueInt64: 6, valueUInt64: 7, valueSingle: 8.123, valueDouble: 9.456, valueDecimal: 10.789, valueDateTime: \"2019-06-30T00:27:47.0000000Z\", valueDateTimeOffset: \"2019-06-30T02:27:47.0000000+02:00\", valueGuid: \"00000000-0000-0000-0000-000000000000\", valueString: \"string value\"){Environment.NewLine}  fieldAlias: objectParameter(objectParameter: [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 1\",{Environment.NewLine}      rootProperty2: 123.456,{Environment.NewLine}      rootProperty3: true,{Environment.NewLine}      rootProperty4: null,{Environment.NewLine}      rootProperty5: {{{Environment.NewLine}        nestedProperty: 987}}}},{Environment.NewLine}    [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 2\"}},{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: false}}]]) @include(if: $direct) @skip(if: false){Environment.NewLine}}}");
 
-            static object CreateParameter(object value)
-            {
-                var genericType = value.GetType();
-                if (genericType.IsValueType)
-                    genericType = typeof(Nullable<>).MakeGenericType(value.GetType());
-
-                if (value is object[])
-                    genericType = typeof(object);
-
-                var makeGenericType = Type.GetType("GeneratedQueryTestAssembly.QueryBuilderParameter`1, GeneratedQueryTestAssembly").MakeGenericType(genericType);
-                var parameter = Activator.CreateInstance(makeGenericType, BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { value }, CultureInfo.InvariantCulture);
-                return parameter;
-            }
-
-            builderType = Type.GetType("GeneratedQueryTestAssembly.QueryQueryBuilder, GeneratedQueryTestAssembly");
+            builderType = Type.GetType($"{assemblyName}.QueryQueryBuilder, {assemblyName}");
             builderType.ShouldNotBeNull();
             builderInstance = builderType.GetConstructor(new [] { typeof(string) }).Invoke(new object[1]);
             builderType.GetMethod("WithAllFields", BindingFlags.Instance | BindingFlags.Public).Invoke(builderInstance, null);
@@ -321,6 +308,30 @@ namespace GraphQlClientGenerator.Test
             GraphQlGenerator.GenerateDataClasses(schema, stringBuilder);
             var expectedOutput = GetTestResource("ExpectedDeprecatedAttributes").Replace("\r", String.Empty);
             stringBuilder.ToString().Replace("\r", String.Empty).ShouldBe(expectedOutput);
+        }
+
+        private static object CreateParameter(string sourceAssembly, object value, string name = null, string graphQlType = null)
+        {
+            var genericType = value.GetType();
+            if (genericType.IsValueType)
+                genericType = typeof(Nullable<>).MakeGenericType(value.GetType());
+
+            if (value is object[])
+                genericType = typeof(object);
+
+            object parameter;
+            if (name == null)
+            {
+                var makeGenericType = Type.GetType($"{sourceAssembly}.QueryBuilderParameter`1, {sourceAssembly}").MakeGenericType(genericType);
+                parameter = Activator.CreateInstance(makeGenericType, BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { value }, CultureInfo.InvariantCulture);
+            }
+            else
+            {
+                var makeGenericType = Type.GetType($"{sourceAssembly}.GraphQlQueryParameter`1, {sourceAssembly}").MakeGenericType(genericType);
+                parameter = Activator.CreateInstance(makeGenericType, BindingFlags.Instance | BindingFlags.Public, null, new[] { name, graphQlType, value }, CultureInfo.InvariantCulture);
+            }
+
+            return parameter;
         }
 
         private static string GetTestResource(string name)
@@ -387,6 +398,125 @@ namespace {assemblyName}
             errorReport.ShouldBeNullOrEmpty();
 
             Assembly.LoadFrom(assemblyFileName);
+        }
+
+        [Fact]
+        public void GeneratedMutation()
+        {
+            var schema = DeserializeTestSchema("TestSchema2");
+            var stringBuilder = new StringBuilder();
+            GraphQlGenerator.GenerateQueryBuilder(schema, stringBuilder);
+            GraphQlGenerator.GenerateDataClasses(schema, stringBuilder);
+
+            stringBuilder.AppendLine();
+            stringBuilder.AppendLine(
+                @"public class TestMutationBuilder : GraphQlQueryBuilder<TestMutationBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = ""testAction"" },
+        };
+
+    protected override string Prefix { get; } = ""mutation"";
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public TestMutationBuilder(string alias = null) : base(alias, null, null)
+    {
+    }
+
+    public TestMutationBuilder WithParameter<T>(GraphQlQueryParameter<T> parameter) => WithParameterInternal(parameter);
+
+	public TestMutationBuilder WithTestAction(QueryBuilderParameter<TestInput> input = null)
+	{
+		var args = new Dictionary<string, QueryBuilderParameter>();
+		if (input != null)
+			args.Add(""objectParameter"", input);
+
+        return WithScalarField(""testAction"", null, null, null, args);
+    }
+}
+
+    public partial class TestInput : IGraphQlInputObject
+    {
+	    private InputPropertyInfo _inputObject1;
+	    private InputPropertyInfo _inputObject2;
+        private InputPropertyInfo _testProperty;
+
+	    [JsonConverter(typeof(QueryBuilderParameterConverter<TestInput>))]
+	    public QueryBuilderParameter<TestInput> InputObject1
+	    {
+		    get => (QueryBuilderParameter<TestInput>)_inputObject1.Value;
+		    set => _inputObject1 = new InputPropertyInfo { Name = ""inputObject1"", Value = value };
+	    }
+
+	    [JsonConverter(typeof(QueryBuilderParameterConverter<TestInput>))]
+	    public QueryBuilderParameter<TestInput> InputObject2
+	    {
+		    get => (QueryBuilderParameter<TestInput>)_inputObject2.Value;
+		    set => _inputObject2 = new InputPropertyInfo { Name = ""inputObject2"", Value = value };
+	    }
+
+        [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+	    public QueryBuilderParameter<string> TestProperty
+	    {
+		    get => (QueryBuilderParameter<string>)_testProperty.Value;
+		    set => _testProperty = new InputPropertyInfo { Name = ""testProperty"", Value = value };
+	    }
+
+	    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
+	    {
+		    if (_inputObject1.Name != null) yield return _inputObject1;
+		    if (_inputObject2.Name != null) yield return _inputObject2;
+            if (_testProperty.Name != null) yield return _testProperty;
+	    }
+    }");
+
+            const string assemblyName = "GeneratedMutationTestAssembly";
+            CompileIntoAssembly(stringBuilder.ToString(), assemblyName);
+
+            var builderType = Type.GetType($"{assemblyName}.TestMutationBuilder, {assemblyName}");
+            builderType.ShouldNotBeNull();
+            var formattingType = Type.GetType($"{assemblyName}.Formatting, {assemblyName}");
+            formattingType.ShouldNotBeNull();
+
+            var builderInstance = Activator.CreateInstance(builderType, new object[] { null });
+
+            var inputObjectType = Type.GetType($"{assemblyName}.TestInput, {assemblyName}");
+            inputObjectType.ShouldNotBeNull();
+
+            var queryParameter2Value = Activator.CreateInstance(inputObjectType);
+            var queryParameter1 = CreateParameter(assemblyName, "Test Value", "stringParameter", "String");
+            var queryParameter2 = CreateParameter(assemblyName, queryParameter2Value, "objectParameter", "[TestInput!]");
+            inputObjectType.GetProperty("TestProperty").SetValue(queryParameter2Value, CreateParameter(assemblyName, "Input Object Parameter Value"));
+
+            var inputObject = Activator.CreateInstance(inputObjectType);
+            inputObjectType.GetProperty("TestProperty").SetValue(inputObject, queryParameter1);
+            var nestedObject = Activator.CreateInstance(inputObjectType);
+            inputObjectType.GetProperty("TestProperty").SetValue(nestedObject, CreateParameter(assemblyName, "Nested Value"));
+            inputObjectType.GetProperty("InputObject1").SetValue(inputObject, CreateParameter(assemblyName, nestedObject));
+            inputObjectType.GetProperty("InputObject2").SetValue(inputObject, queryParameter2);
+
+            builderType
+                .GetMethod("WithTestAction", BindingFlags.Instance | BindingFlags.Public)
+                .Invoke(
+                    builderInstance,
+                    new []
+                    {
+                        inputObject
+                    }.Select(p => CreateParameter(assemblyName, p)).ToArray());
+
+            var withParameterMethod = builderType.GetMethod("WithParameter", BindingFlags.Instance | BindingFlags.Public);
+            withParameterMethod.MakeGenericMethod(typeof(String)).Invoke(builderInstance, new[] { queryParameter1 });
+            withParameterMethod.MakeGenericMethod(queryParameter2Value.GetType()).Invoke(builderInstance, new[] { queryParameter2 });
+
+            var mutation =
+                builderType
+                    .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
+                    .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
+
+            mutation.ShouldBe("mutation($stringParameter:String=\"Test Value\" $objectParameter:[TestInput!]={testProperty:\"Input Object Parameter Value\"}){testAction(objectParameter:{inputObject1:{testProperty:\"Nested Value\"},inputObject2:$objectParameter,testProperty:$stringParameter})}");
         }
     }
 }
