@@ -186,12 +186,14 @@ using Newtonsoft.Json.Linq;
             var hasInputType = inputTypes.Any();
             var referencedObjectTypes = new HashSet<string>();
 
+            if (hasInputType)
+                builder.AppendLine();
+
             if (GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.NewestWithNullableReferences)
                 builder.AppendLine("#nullable enable");
 
             if (hasInputType)
             {
-                builder.AppendLine();
                 builder.AppendLine("#region input classes");
 
                 for (var i = 0; i < inputTypes.Length; i++)
@@ -297,7 +299,7 @@ using Newtonsoft.Json.Linq;
             }
 
             if (GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.NewestWithNullableReferences)
-                builder.AppendLine("#nullable disable");
+                builder.AppendLine("#nullable restore");
         }
 
         private static string GetBackingFieldName(string graphQlFieldName)

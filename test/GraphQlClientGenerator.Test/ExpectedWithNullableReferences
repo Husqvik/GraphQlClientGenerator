@@ -3645,9 +3645,9 @@ public partial class GQLMutationGeneralResponseQueryBuilder : GraphQlQueryBuilde
     public GQLMutationGeneralResponseQueryBuilder ExceptError() => ExceptField("error");
 }
 #endregion
-#nullable disable
-#nullable enable
+#nullable restore
 
+#nullable enable
 #region input classes
 public partial class HomeProfileQuestionAnswer : IGraphQlInputObject
 {
@@ -4391,4 +4391,4 @@ public partial class GQLMutationGeneralResponse
     public GQLMutationError? Error { get; set; }
 }
 #endregion
-#nullable disable
+#nullable restore
