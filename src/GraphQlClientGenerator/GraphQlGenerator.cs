@@ -150,7 +150,7 @@ using Newtonsoft.Json.Linq;
             builder.AppendLine("#endregion");
 
             if (GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.NewestWithNullableReferences)
-                builder.AppendLine("#nullable disable");
+                builder.AppendLine("#nullable restore");
         }
 
         private static void FindAllReferencedObjectTypes(GraphQlSchema schema, GraphQlType type, ISet<string> objectTypes)
