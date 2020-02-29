@@ -250,26 +250,33 @@ query ($homeId: ID = "c70dcbe5-4485-4821-933d-a8a86452737b") {
 }
 ```
 
-@include and @skip directives
+Directives
 -------------
 ```csharp
 var includeDirectParameter = new GraphQlQueryParameter<bool>("direct", "Boolean", true);
+var includeDirective = new IncludeDirective(includeDirectParameter);
+var skipDirective = new SkipDirective(true);
 
 var builder =
   new TibberQueryBuilder()
     .WithViewer(
-      new ViewerQueryBuilder()
-        .WithName(includeIf: includeDirectParameter)
-        .WithAccountType(skipIf: true)
+       new ViewerQueryBuilder()
+         .WithName(includeDirective: includeDirective)
+         .WithAccountType(skipDirective: skipDirective)
+         .WithHomes(new HomeQueryBuilder(skipDirective: skipDirective).WithId())
     )
     .WithParameter(includeDirectParameter);
 ```
 result:
 ```graphql
-query ($direct: Boolean = true) {
+query (
+  $direct: Boolean = true) {
   viewer {
     name @include(if: $direct)
     accountType @skip(if: true)
+    homes @skip(if: true) {
+      id
+    }
   }
 }
 ```
