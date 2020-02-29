@@ -61,11 +61,18 @@ using Newtonsoft.Json.Linq;
 
         public static GraphQlSchema DeserializeGraphQlSchema(string content)
         {
-            var result = JsonConvert.DeserializeObject<GraphQlResult>(content, SerializerSettings);
-            if (result.Data?.Schema == null)
-                throw new ArgumentException("not a GraphQL schema", nameof(content));
+            try
+            {
+                var result = JsonConvert.DeserializeObject<GraphQlResult>(content, SerializerSettings);
+                if (result.Data?.Schema == null)
+                    throw new ArgumentException("not a GraphQL schema", nameof(content));
 
-            return result.Data.Schema;
+                return result.Data.Schema;
+            }
+            catch (JsonReaderException exception)
+            {
+                throw new ArgumentException("not a GraphQL schema", nameof(content), exception);
+            }
         }
 
         public static string GenerateFullClientCSharpFile(GraphQlSchema schema, string @namespace)
@@ -121,6 +128,12 @@ using Newtonsoft.Json.Linq;
             if (GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.NewestWithNullableReferences)
                 builder.AppendLine("#nullable enable");
 
+            builder.AppendLine("#region directives");
+            GenerateDirectives(schema, builder);
+            builder.AppendLine("#endregion");
+
+            builder.AppendLine();
+
             builder.AppendLine("#region builder classes");
 
             var complexTypes = schema.Types.Where(t => IsComplexType(t.Kind) && !t.Name.StartsWith("__")).ToArray();
@@ -128,18 +141,7 @@ using Newtonsoft.Json.Linq;
             for (var i = 0; i < complexTypes.Length; i++)
             {
                 var type = complexTypes[i];
-
-                string queryPrefix;
-                if (type.Name == schema.QueryType?.Name)
-                    queryPrefix = "query";
-                else if (type.Name == schema.MutationType?.Name)
-                    queryPrefix = "mutation";
-                else if (type.Name == schema.SubscriptionType?.Name)
-                    queryPrefix = "subscription";
-                else
-                    queryPrefix = null;
-
-                GenerateTypeQueryBuilder(type, complexTypeDictionary, queryPrefix, builder);
+                GenerateTypeQueryBuilder(type, complexTypeDictionary, schema, builder);
 
                 if (i < complexTypes.Length - 1)
                     builder.AppendLine();
@@ -525,26 +527,15 @@ using Newtonsoft.Json.Linq;
                     return AddQuestionMarkIfNullableReferencesEnabled(propertyType);
 
                 case GraphQlTypeKind.Scalar:
-                    switch (fieldType.Name)
+                    return fieldType.Name switch
                     {
-                        case GraphQlTypeBase.GraphQlTypeScalarInteger:
-                            return GetIntegerNetType(baseType, member.Type, member.Name);
-
-                        case GraphQlTypeBase.GraphQlTypeScalarString:
-                            return GetCustomScalarType(baseType, member.Type, member.Name);
-
-                        case GraphQlTypeBase.GraphQlTypeScalarFloat:
-                            return GetFloatNetType(baseType, member.Type, member.Name);
-
-                        case GraphQlTypeBase.GraphQlTypeScalarBoolean:
-                            return GetBooleanNetType(baseType, member.Type, member.Name);
-
-                        case GraphQlTypeBase.GraphQlTypeScalarId:
-                            return GetIdNetType(baseType, member.Type, member.Name);
-
-                        default:
-                            return GetCustomScalarType(baseType, member.Type, member.Name);
-                    }
+                        GraphQlTypeBase.GraphQlTypeScalarInteger => GetIntegerNetType(baseType, member.Type, member.Name),
+                        GraphQlTypeBase.GraphQlTypeScalarString => GetCustomScalarType(baseType, member.Type, member.Name),
+                        GraphQlTypeBase.GraphQlTypeScalarFloat => GetFloatNetType(baseType, member.Type, member.Name),
+                        GraphQlTypeBase.GraphQlTypeScalarBoolean => GetBooleanNetType(baseType, member.Type, member.Name),
+                        GraphQlTypeBase.GraphQlTypeScalarId => GetIdNetType(baseType, member.Type, member.Name),
+                        _ => GetCustomScalarType(baseType, member.Type, member.Name)
+                    };
 
                 default:
                     return AddQuestionMarkIfNullableReferencesEnabled("string");
@@ -592,11 +583,11 @@ using Newtonsoft.Json.Linq;
         private static void ThrowFieldTypeResolutionFailed(string typeName, string fieldName) =>
             throw new InvalidOperationException($"field type resolution failed - type: {typeName}; field: {fieldName}");
 
-        private static void GenerateTypeQueryBuilder(GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary, string queryPrefix, StringBuilder builder)
+        private static void GenerateTypeQueryBuilder(GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary, GraphQlSchema schema, StringBuilder builder)
         {
             var typeName = type.Name;
             typeName = UseCustomClassNameIfDefined(typeName);
-            var className = $"{typeName}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix}";
+            var className = typeName + "QueryBuilder" + GraphQlGeneratorConfiguration.ClassPostfix;
             ValidateClassName(className);
 
             builder.Append(GetMemberAccessibility());
@@ -652,9 +643,19 @@ using Newtonsoft.Json.Linq;
             builder.AppendLine("        };");
             builder.AppendLine();
 
-            var hasQueryPrefix = !String.IsNullOrEmpty(queryPrefix);
+            GraphQlDirectiveLocation directiveLocation;
+            if (type.Name == schema.QueryType?.Name)
+                directiveLocation = GraphQlDirectiveLocation.Query;
+            else if (type.Name == schema.MutationType?.Name)
+                directiveLocation = GraphQlDirectiveLocation.Mutation;
+            else if (type.Name == schema.SubscriptionType?.Name)
+                directiveLocation = GraphQlDirectiveLocation.Subscription;
+            else
+                directiveLocation = GraphQlDirectiveLocation.Field;
+
+            var hasQueryPrefix = directiveLocation != GraphQlDirectiveLocation.Field;
             if (hasQueryPrefix)
-                WriteOverrideProperty("string", "Prefix", $"\"{queryPrefix}\"", builder);
+                WriteOverrideProperty("string", "Prefix", $"\"{directiveLocation.ToString().ToLowerInvariant()}\"", builder);
 
             WriteOverrideProperty("IList<FieldMetadata>", "AllFields", "AllFieldMetadata", builder);
 
@@ -666,19 +667,12 @@ using Newtonsoft.Json.Linq;
             builder.Append(stringDataType);
             builder.Append(" alias = null");
 
-            var directiveParameterDataType = AddQuestionMarkIfNullableReferencesEnabled("QueryBuilderParameter<bool>");
-
-            if (!hasQueryPrefix)
-            {
-                builder.Append(", ");
-                builder.Append(directiveParameterDataType);
-                builder.Append(" includeIf = null, ");
-                builder.Append(directiveParameterDataType);
-                builder.Append(" skipIf = null");
-            }
+            var objectDirectiveParameterNameList = WriteDirectiveParameterList(schema, directiveLocation, builder);
 
             builder.Append(") : base(alias, ");
-            builder.AppendLine(hasQueryPrefix ? "null, null)" : "includeIf, skipIf)");
+            builder.Append(objectDirectiveParameterNameList);
+            builder.AppendLine(")");
+
             builder.AppendLine("    {");
             builder.AppendLine("    }");
             builder.AppendLine();
@@ -687,7 +681,7 @@ using Newtonsoft.Json.Linq;
 
             var useCompatibleSyntax = GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.Compatible;
             
-            if (queryPrefix != null)
+            if (hasQueryPrefix)
             {
                 builder.Append($"    public {className} WithParameter<T>(GraphQlQueryParameter<T> parameter)");
                 WriteQueryBuilderMethodBody(
@@ -733,7 +727,20 @@ using Newtonsoft.Json.Linq;
 
                 if (fieldType.Kind == GraphQlTypeKind.Scalar || fieldType.Kind == GraphQlTypeKind.Enum)
                 {
-                    builder.Append($"    public {className} With{NamingHelper.ToPascalCase(field.Name)}({methodParameters}{(String.IsNullOrEmpty(methodParameters) ? null : ", ")}{stringDataType} alias = null, {directiveParameterDataType} includeIf = null, {directiveParameterDataType} skipIf = null)");
+                    builder.Append("    public ");
+                    builder.Append(className);
+                    builder.Append(" With");
+                    builder.Append(NamingHelper.ToPascalCase(field.Name));
+                    builder.Append("(");
+                    builder.Append(methodParameters);
+
+                    if (!String.IsNullOrEmpty(methodParameters))
+                        builder.Append(", ");
+
+                    builder.Append(stringDataType);
+                    builder.Append(" alias = null");
+                    var fieldDirectiveParameterNameList = WriteDirectiveParameterList(schema, GraphQlDirectiveLocation.Field, builder);
+                    builder.Append(")");
 
                     WriteQueryBuilderMethodBody(
                         requiresFullBody,
@@ -742,7 +749,11 @@ using Newtonsoft.Json.Linq;
                         {
                             AppendArgumentDictionary(builder, args);
 
-                            builder.Append($"{returnPrefix}WithScalarField(\"{field.Name}\", alias, includeIf, skipIf");
+                            builder.Append(returnPrefix);
+                            builder.Append("WithScalarField(\"");
+                            builder.Append(field.Name);
+                            builder.Append("\", alias, ");
+                            builder.Append(fieldDirectiveParameterNameList);
 
                             if (args.Length > 0)
                                 builder.Append(", args");
@@ -799,6 +810,29 @@ using Newtonsoft.Json.Linq;
             }
 
             builder.AppendLine("}");
+        }
+
+        private static string WriteDirectiveParameterList(GraphQlSchema schema, GraphQlDirectiveLocation directiveLocation, StringBuilder builder)
+        {
+            var directiveParameterNames = new List<string>();
+
+            foreach (var directive in schema.Directives.Where(d => d.Locations.Contains(directiveLocation)))
+            {
+                var directiveClassName = NamingHelper.ToPascalCase(directive.Name) + "Directive";
+                var parameterName = Char.ToLower(directiveClassName[0]) + directiveClassName.Substring(1);
+                directiveParameterNames.Add(parameterName);
+
+                builder.Append(", ");
+                builder.Append(AddQuestionMarkIfNullableReferencesEnabled(directiveClassName));
+                builder.Append(" ");
+                builder.Append(parameterName);
+                builder.Append(" = null");
+            }
+
+            return
+                directiveParameterNames.Any()
+                    ? "new GraphQlDirective[] { " + String.Join(", ", directiveParameterNames) + " }"
+                    : "null";
         }
 
         private static void WriteQueryBuilderMethodBody(bool requiresFullBody, StringBuilder builder, Action writeBody)
@@ -935,6 +969,61 @@ using Newtonsoft.Json.Linq;
                 builder.AppendLine();
             }
 
+            builder.AppendLine("}");
+        }
+
+        private static readonly HashSet<GraphQlDirectiveLocation> SupportedDirectiveLocations =
+            new HashSet<GraphQlDirectiveLocation>
+            {
+                GraphQlDirectiveLocation.Object,
+                GraphQlDirectiveLocation.Field,
+                GraphQlDirectiveLocation.Query,
+                GraphQlDirectiveLocation.Mutation,
+                GraphQlDirectiveLocation.Subscription
+            };
+
+        private static void GenerateDirectives(GraphQlSchema schema, StringBuilder builder)
+        {
+            foreach (var directive in schema.Directives.Where(t => SupportedDirectiveLocations.Overlaps(t.Locations)))
+            {
+                GenerateDirective(directive, builder);
+                builder.AppendLine();
+            }
+        }
+
+        private static void GenerateDirective(GraphQlDirective directive, StringBuilder builder)
+        {
+            GenerateCodeComments(builder, directive.Description, 0);
+
+            var directiveName = NamingHelper.ToPascalCase(directive.Name);
+
+            var orderedArguments = directive.Args.OrderByDescending(a => a.Type.Kind == GraphQlTypeKind.NonNull).ToArray();
+            var argumentList = String.Join(", ", orderedArguments.Select(a => BuildMethodParameterDefinition(null, a)));
+
+            builder.Append("public class ");
+            builder.Append(directiveName);
+            builder.Append("Directive");
+            builder.AppendLine(" : GraphQlDirective");
+            builder.AppendLine("{");
+            builder.Append("    public ");
+            builder.Append(directiveName);
+            builder.Append("Directive(");
+            builder.Append(argumentList);
+            builder.Append(") : base(\"");
+            builder.Append(directive.Name);
+            builder.AppendLine("\")");
+            builder.AppendLine("    {");
+
+            foreach (var argument in orderedArguments)
+            {
+                builder.Append("        AddArgument(\"");
+                builder.Append(argument.Name);
+                builder.Append("\", ");
+                builder.Append(NamingHelper.ToValidVariableName(argument.Name));
+                builder.AppendLine(");");
+            }
+
+            builder.AppendLine("    }");
             builder.AppendLine("}");
         }
 

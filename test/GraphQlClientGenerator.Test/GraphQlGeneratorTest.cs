@@ -152,8 +152,8 @@ namespace GraphQlClientGenerator.Test
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public TestQueryBuilder(string alias = null, QueryBuilderParameter<bool> includeIf = null, QueryBuilderParameter<bool> skipIf = null)
-        : base(alias, includeIf, skipIf)
+    public TestQueryBuilder(string alias = null, SkipDirective skipDirective = null, IncludeDirective includeDirective = null)
+        : base(alias, new GraphQlDirective[] { skipDirective, includeDirective })
     {
     }
 
@@ -216,7 +216,7 @@ namespace GraphQlClientGenerator.Test
 		if (valueString != null)
 			args.Add(""valueString"", valueString);
 
-		return WithScalarField(""testField"", null, null, null, args);
+		return WithScalarField(""testField"", null, null, args);
 	}
 
     public TestQueryBuilder WithObjectParameterField(QueryBuilderParameter<object> objectParameter = null)
@@ -225,7 +225,7 @@ namespace GraphQlClientGenerator.Test
 		if (objectParameter != null)
 			args.Add(""objectParameter"", objectParameter);
 
-        return WithScalarField(""objectParameter"", ""fieldAlias"", new GraphQlQueryParameter<bool>(""direct"", ""Boolean"", true), (QueryBuilderParameter<bool>)false, args);
+        return WithScalarField(""objectParameter"", ""fieldAlias"", new GraphQlDirective[] { new IncludeDirective(new GraphQlQueryParameter<bool>(""direct"", ""Boolean"", true)), new SkipDirective((QueryBuilderParameter<bool>)false) }, args);
     }
 }");
 
@@ -422,7 +422,7 @@ namespace {assemblyName}
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public TestMutationBuilder(string alias = null) : base(alias, null, null)
+    public TestMutationBuilder(string alias = null) : base(alias, null)
     {
     }
 
@@ -434,7 +434,7 @@ namespace {assemblyName}
 		if (input != null)
 			args.Add(""objectParameter"", input);
 
-        return WithScalarField(""testAction"", null, null, null, args);
+        return WithScalarField(""testAction"", null, null, args);
     }
 }
 
@@ -517,7 +517,7 @@ namespace {assemblyName}
                     .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
                     .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
 
-            mutation.ShouldBe("mutation($stringParameter:String=\"Test Value\" $objectParameter:[TestInput!]={testProperty:\"Input Object Parameter Value\"}){testAction(objectParameter:{inputObject1:{testProperty:\"Nested Value\"},inputObject2:$objectParameter,testProperty:$stringParameter})}");
+            mutation.ShouldBe("mutation($stringParameter:String=\"Test Value\",$objectParameter:[TestInput!]={testProperty:\"Input Object Parameter Value\"}){testAction(objectParameter:{inputObject1:{testProperty:\"Nested Value\"},inputObject2:$objectParameter,testProperty:$stringParameter})}");
 
             var inputObjectJson = JsonConvert.SerializeObject(inputObject);
             inputObjectJson.ShouldBe("{\"TestProperty\":\"Test Value\",\"InputObject1\":{\"TestProperty\":\"Nested Value\",\"InputObject1\":null,\"InputObject2\":null},\"InputObject2\":{\"TestProperty\":\"Input Object Parameter Value\",\"InputObject1\":null,\"InputObject2\":null}}");
