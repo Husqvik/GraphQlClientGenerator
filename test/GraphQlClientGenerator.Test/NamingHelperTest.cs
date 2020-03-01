@@ -26,5 +26,11 @@ namespace GraphQlClientGenerator.Test
             NamingHelper.ToPascalCase("1 AB cd EFDDD 8").ShouldBe("1AbCdEfddd8");
             NamingHelper.ToPascalCase("INVALID VALUE AND _2THINGS").ShouldBe("InvalidValueAnd2Things");
         }
+
+        [Fact]
+        public void LowerFirst()
+        {
+            NamingHelper.LowerFirst("PropertyName").ShouldBe("propertyName");
+        }
     }
 }

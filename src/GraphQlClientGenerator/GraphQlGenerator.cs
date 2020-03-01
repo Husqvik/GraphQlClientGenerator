@@ -302,11 +302,7 @@ using Newtonsoft.Json.Linq;
                 builder.AppendLine("#nullable restore");
         }
 
-        private static string GetBackingFieldName(string graphQlFieldName)
-        {
-            var propertyName = NamingHelper.ToPascalCase(graphQlFieldName);
-            return "_" + Char.ToLower(propertyName[0]) + propertyName.Substring(1);
-        }
+        private static string GetBackingFieldName(string graphQlFieldName) => "_" + NamingHelper.LowerFirst(NamingHelper.ToPascalCase(graphQlFieldName));
 
         private static void GenerateInputDataClassBody(GraphQlType type, IEnumerable<IGraphQlMember> members, StringBuilder builder)
         {
@@ -821,7 +817,7 @@ using Newtonsoft.Json.Linq;
             foreach (var directive in schema.Directives.Where(d => d.Locations.Contains(directiveLocation)))
             {
                 var directiveClassName = NamingHelper.ToPascalCase(directive.Name) + "Directive";
-                var parameterName = Char.ToLower(directiveClassName[0]) + directiveClassName.Substring(1);
+                var parameterName = NamingHelper.LowerFirst(directiveClassName);
                 directiveParameterNames.Add(parameterName);
 
                 builder.Append(", ");
@@ -904,7 +900,7 @@ using Newtonsoft.Json.Linq;
             if (!isArgumentNotNull)
                 argumentNetType = AddQuestionMarkIfNullableReferencesEnabled(argumentNetType);
 
-            var argumentDefinition = $"{argumentNetType} {NamingHelper.ToValidVariableName(argument.Name)}";
+            var argumentDefinition = $"{argumentNetType} {NamingHelper.ToValidCSharpName(argument.Name)}";
             if (!isArgumentNotNull)
                 argumentDefinition += " = null";
 
@@ -927,11 +923,11 @@ using Newtonsoft.Json.Linq;
             foreach (var arg in args)
             {
                 if (arg.Type.Kind == GraphQlTypeKind.NonNull)
-                    builder.AppendLine($"        args.Add(\"{arg.Name}\", {NamingHelper.ToValidVariableName(arg.Name)});");
+                    builder.AppendLine($"        args.Add(\"{arg.Name}\", {NamingHelper.ToValidCSharpName(arg.Name)});");
                 else
                 {
-                    builder.AppendLine($"        if ({NamingHelper.ToValidVariableName(arg.Name)} != null)");
-                    builder.AppendLine($"            args.Add(\"{arg.Name}\", {NamingHelper.ToValidVariableName(arg.Name)});");
+                    builder.AppendLine($"        if ({NamingHelper.ToValidCSharpName(arg.Name)} != null)");
+                    builder.AppendLine($"            args.Add(\"{arg.Name}\", {NamingHelper.ToValidCSharpName(arg.Name)});");
                     builder.AppendLine();
                 }
             }
@@ -959,7 +955,7 @@ using Newtonsoft.Json.Linq;
                 var enumValue = enumValues[i];
                 GenerateCodeComments(builder, enumValue.Description, 4);
                 builder.Append("    ");
-                var netIdentifier = NamingHelper.ToNetEnumName(enumValue.Name);
+                var netIdentifier = NamingHelper.ToCSharpEnumName(enumValue.Name);
                 if (netIdentifier != enumValue.Name)
                     builder.Append($"[EnumMember(Value=\"{enumValue.Name}\")] ");
 
@@ -1021,7 +1017,7 @@ using Newtonsoft.Json.Linq;
                 builder.Append("        AddArgument(\"");
                 builder.Append(argument.Name);
                 builder.Append("\", ");
-                builder.Append(NamingHelper.ToValidVariableName(argument.Name));
+                builder.Append(NamingHelper.ToValidCSharpName(argument.Name));
                 builder.AppendLine(");");
             }
 

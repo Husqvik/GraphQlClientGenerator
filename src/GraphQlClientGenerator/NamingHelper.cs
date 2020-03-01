@@ -91,13 +91,9 @@ namespace GraphQlClientGenerator
                 "while",
             };
 
-        public static string LowerFirst(string value)
-        {
-            var firstLetter = value[0];
-            return value.Remove(0, 1).Insert(0, firstLetter.ToString().ToLowerInvariant());
-        }
+        public static string LowerFirst(string value) => Char.ToLowerInvariant(value[0]) + value.Substring(1);
 
-        public static string ToValidVariableName(string name)
+        public static string ToValidCSharpName(string name)
         {
             if (CSharpKeywords.Contains(name))
                 return "@" + name;
@@ -131,7 +127,7 @@ namespace GraphQlClientGenerator
             return String.Concat(pascalCase);
         }
 
-        public static string ToNetEnumName(string name)
+        public static string ToCSharpEnumName(string name)
         {
             var builder = new StringBuilder();
             var startNewWord = true;
