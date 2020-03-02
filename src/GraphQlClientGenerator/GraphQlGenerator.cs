@@ -816,8 +816,9 @@ using Newtonsoft.Json.Linq;
 
             foreach (var directive in schema.Directives.Where(d => d.Locations.Contains(directiveLocation)))
             {
-                var directiveClassName = NamingHelper.ToPascalCase(directive.Name) + "Directive";
-                var parameterName = NamingHelper.LowerFirst(directiveClassName);
+                var csharpDirectiveName = NamingHelper.ToPascalCase(directive.Name);
+                var directiveClassName = csharpDirectiveName + "Directive";
+                var parameterName = NamingHelper.LowerFirst(csharpDirectiveName);
                 directiveParameterNames.Add(parameterName);
 
                 builder.Append(", ");

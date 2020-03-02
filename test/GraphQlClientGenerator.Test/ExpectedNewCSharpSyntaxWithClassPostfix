@@ -721,43 +721,43 @@ internal partial class MeQueryBuilderV1 : GraphQlQueryBuilder<MeQueryBuilderV1>
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public MeQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public MeQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public MeQueryBuilderV1 WithId(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("id", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public MeQueryBuilderV1 WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("id", alias, new GraphQlDirective[] { include, skip });
 
     public MeQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public MeQueryBuilderV1 WithFirstName(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("firstName", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public MeQueryBuilderV1 WithFirstName(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("firstName", alias, new GraphQlDirective[] { include, skip });
 
     public MeQueryBuilderV1 ExceptFirstName() => ExceptField("firstName");
 
-    public MeQueryBuilderV1 WithLastName(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("lastName", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public MeQueryBuilderV1 WithLastName(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("lastName", alias, new GraphQlDirective[] { include, skip });
 
     public MeQueryBuilderV1 ExceptLastName() => ExceptField("lastName");
 
-    public MeQueryBuilderV1 WithFullName(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("fullName", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public MeQueryBuilderV1 WithFullName(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("fullName", alias, new GraphQlDirective[] { include, skip });
 
     public MeQueryBuilderV1 ExceptFullName() => ExceptField("fullName");
 
-    public MeQueryBuilderV1 WithSsn(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("ssn", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public MeQueryBuilderV1 WithSsn(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("ssn", alias, new GraphQlDirective[] { include, skip });
 
     public MeQueryBuilderV1 ExceptSsn() => ExceptField("ssn");
 
-    public MeQueryBuilderV1 WithEmail(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("email", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public MeQueryBuilderV1 WithEmail(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("email", alias, new GraphQlDirective[] { include, skip });
 
     public MeQueryBuilderV1 ExceptEmail() => ExceptField("email");
 
-    public MeQueryBuilderV1 WithLanguage(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("language", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public MeQueryBuilderV1 WithLanguage(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("language", alias, new GraphQlDirective[] { include, skip });
 
     public MeQueryBuilderV1 ExceptLanguage() => ExceptField("language");
 
-    public MeQueryBuilderV1 WithTone(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("tone", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public MeQueryBuilderV1 WithTone(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("tone", alias, new GraphQlDirective[] { include, skip });
 
     public MeQueryBuilderV1 ExceptTone() => ExceptField("tone");
 
-    public MeQueryBuilderV1 WithMobile(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("mobile", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public MeQueryBuilderV1 WithMobile(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("mobile", alias, new GraphQlDirective[] { include, skip });
 
     public MeQueryBuilderV1 ExceptMobile() => ExceptField("mobile");
 
@@ -812,23 +812,23 @@ internal partial class GreetingQueryBuilderV1 : GraphQlQueryBuilder<GreetingQuer
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public GreetingQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public GreetingQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public GreetingQueryBuilderV1 WithTitle(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("title", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public GreetingQueryBuilderV1 WithTitle(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("title", alias, new GraphQlDirective[] { include, skip });
 
     public GreetingQueryBuilderV1 ExceptTitle() => ExceptField("title");
 
-    public GreetingQueryBuilderV1 WithDescription(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("description", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public GreetingQueryBuilderV1 WithDescription(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("description", alias, new GraphQlDirective[] { include, skip });
 
     public GreetingQueryBuilderV1 ExceptDescription() => ExceptField("description");
 
-    public GreetingQueryBuilderV1 WithDescriptionWhenNoEnergyDeal(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("descriptionWhenNoEnergyDeal", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public GreetingQueryBuilderV1 WithDescriptionWhenNoEnergyDeal(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("descriptionWhenNoEnergyDeal", alias, new GraphQlDirective[] { include, skip });
 
     public GreetingQueryBuilderV1 ExceptDescriptionWhenNoEnergyDeal() => ExceptField("descriptionWhenNoEnergyDeal");
 
-    public GreetingQueryBuilderV1 WithShowUntil(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("showUntil", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public GreetingQueryBuilderV1 WithShowUntil(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("showUntil", alias, new GraphQlDirective[] { include, skip });
 
     public GreetingQueryBuilderV1 ExceptShowUntil() => ExceptField("showUntil");
 }
@@ -843,7 +843,7 @@ internal partial class AppStateQueryBuilderV1 : GraphQlQueryBuilder<AppStateQuer
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AppStateQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public AppStateQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
@@ -865,11 +865,11 @@ internal partial class AppStateJourneyQueryBuilderV1 : GraphQlQueryBuilder<AppSt
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AppStateJourneyQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public AppStateJourneyQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public AppStateJourneyQueryBuilderV1 WithHasVisitedPairDevices(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("hasVisitedPairDevices", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public AppStateJourneyQueryBuilderV1 WithHasVisitedPairDevices(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("hasVisitedPairDevices", alias, new GraphQlDirective[] { include, skip });
 
     public AppStateJourneyQueryBuilderV1 ExceptHasVisitedPairDevices() => ExceptField("hasVisitedPairDevices");
 }
@@ -885,19 +885,19 @@ internal partial class AppStateFronScreenQueryBuilderV1 : GraphQlQueryBuilder<Ap
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AppStateFronScreenQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public AppStateFronScreenQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public AppStateFronScreenQueryBuilderV1 WithHomeId(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("homeId", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public AppStateFronScreenQueryBuilderV1 WithHomeId(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("homeId", alias, new GraphQlDirective[] { include, skip });
 
     public AppStateFronScreenQueryBuilderV1 ExceptHomeId() => ExceptField("homeId");
 
-    public AppStateFronScreenQueryBuilderV1 WithBubbles(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("bubbles", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public AppStateFronScreenQueryBuilderV1 WithBubbles(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("bubbles", alias, new GraphQlDirective[] { include, skip });
 
     public AppStateFronScreenQueryBuilderV1 ExceptBubbles() => ExceptField("bubbles");
 
-    public AppStateFronScreenQueryBuilderV1 WithBubblesSortOrder(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("bubblesSortOrder", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public AppStateFronScreenQueryBuilderV1 WithBubblesSortOrder(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("bubblesSortOrder", alias, new GraphQlDirective[] { include, skip });
 
     public AppStateFronScreenQueryBuilderV1 ExceptBubblesSortOrder() => ExceptField("bubblesSortOrder");
 }
@@ -937,31 +937,31 @@ internal partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilder
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public HomeQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public HomeQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public HomeQueryBuilderV1 WithId(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("id", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public HomeQueryBuilderV1 WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("id", alias, new GraphQlDirective[] { include, skip });
 
     public HomeQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public HomeQueryBuilderV1 WithAvatar(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("avatar", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public HomeQueryBuilderV1 WithAvatar(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("avatar", alias, new GraphQlDirective[] { include, skip });
 
     public HomeQueryBuilderV1 ExceptAvatar() => ExceptField("avatar");
 
-    public HomeQueryBuilderV1 WithTimeZone(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("timeZone", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public HomeQueryBuilderV1 WithTimeZone(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("timeZone", alias, new GraphQlDirective[] { include, skip });
 
     public HomeQueryBuilderV1 ExceptTimeZone() => ExceptField("timeZone");
 
-    public HomeQueryBuilderV1 WithTitle(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("title", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public HomeQueryBuilderV1 WithTitle(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("title", alias, new GraphQlDirective[] { include, skip });
 
     public HomeQueryBuilderV1 ExceptTitle() => ExceptField("title");
 
-    public HomeQueryBuilderV1 WithType(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("type", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public HomeQueryBuilderV1 WithType(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("type", alias, new GraphQlDirective[] { include, skip });
 
     public HomeQueryBuilderV1 ExceptType() => ExceptField("type");
 
-    public HomeQueryBuilderV1 WithHasEnergyDeal(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("hasEnergyDeal", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public HomeQueryBuilderV1 WithHasEnergyDeal(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("hasEnergyDeal", alias, new GraphQlDirective[] { include, skip });
 
     public HomeQueryBuilderV1 ExceptHasEnergyDeal() => ExceptField("hasEnergyDeal");
 
@@ -1042,7 +1042,7 @@ internal partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilder
 
     public HomeQueryBuilderV1 ExceptProfileQuestions() => ExceptField("profileQuestions");
 
-    public HomeQueryBuilderV1 WithTemperatures(QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null, QueryBuilderParameter<string> resolution = null, QueryBuilderParameter<bool?> useDemoData = null, string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null)
+    public HomeQueryBuilderV1 WithTemperatures(QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null, QueryBuilderParameter<string> resolution = null, QueryBuilderParameter<bool?> useDemoData = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (from != null)
@@ -1057,7 +1057,7 @@ internal partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilder
         if (useDemoData != null)
             args.Add("useDemoData", useDemoData);
 
-        return WithScalarField("temperatures", alias, new GraphQlDirective[] { includeDirective, skipDirective }, args);
+        return WithScalarField("temperatures", alias, new GraphQlDirective[] { include, skip }, args);
     }
 
     public HomeQueryBuilderV1 ExceptTemperatures()
@@ -1158,47 +1158,47 @@ internal partial class AddressQueryBuilderV1 : GraphQlQueryBuilder<AddressQueryB
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AddressQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public AddressQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public AddressQueryBuilderV1 WithAddress1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("address1", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public AddressQueryBuilderV1 WithAddress1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("address1", alias, new GraphQlDirective[] { include, skip });
 
     public AddressQueryBuilderV1 ExceptAddress1() => ExceptField("address1");
 
-    public AddressQueryBuilderV1 WithAddress2(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("address2", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public AddressQueryBuilderV1 WithAddress2(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("address2", alias, new GraphQlDirective[] { include, skip });
 
     public AddressQueryBuilderV1 ExceptAddress2() => ExceptField("address2");
 
-    public AddressQueryBuilderV1 WithAddress3(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("address3", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public AddressQueryBuilderV1 WithAddress3(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("address3", alias, new GraphQlDirective[] { include, skip });
 
     public AddressQueryBuilderV1 ExceptAddress3() => ExceptField("address3");
 
-    public AddressQueryBuilderV1 WithCity(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("city", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public AddressQueryBuilderV1 WithCity(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("city", alias, new GraphQlDirective[] { include, skip });
 
     public AddressQueryBuilderV1 ExceptCity() => ExceptField("city");
 
-    public AddressQueryBuilderV1 WithPostalCode(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("postalCode", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public AddressQueryBuilderV1 WithPostalCode(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("postalCode", alias, new GraphQlDirective[] { include, skip });
 
     public AddressQueryBuilderV1 ExceptPostalCode() => ExceptField("postalCode");
 
-    public AddressQueryBuilderV1 WithCountry(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("country", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public AddressQueryBuilderV1 WithCountry(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("country", alias, new GraphQlDirective[] { include, skip });
 
     public AddressQueryBuilderV1 ExceptCountry() => ExceptField("country");
 
-    public AddressQueryBuilderV1 WithLatitude(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("latitude", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public AddressQueryBuilderV1 WithLatitude(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("latitude", alias, new GraphQlDirective[] { include, skip });
 
     public AddressQueryBuilderV1 ExceptLatitude() => ExceptField("latitude");
 
-    public AddressQueryBuilderV1 WithLongitude(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("longitude", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public AddressQueryBuilderV1 WithLongitude(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("longitude", alias, new GraphQlDirective[] { include, skip });
 
     public AddressQueryBuilderV1 ExceptLongitude() => ExceptField("longitude");
 
-    public AddressQueryBuilderV1 WithElevation(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("elevation", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public AddressQueryBuilderV1 WithElevation(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("elevation", alias, new GraphQlDirective[] { include, skip });
 
     public AddressQueryBuilderV1 ExceptElevation() => ExceptField("elevation");
 
-    public AddressQueryBuilderV1 WithAddressText(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("addressText", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public AddressQueryBuilderV1 WithAddressText(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("addressText", alias, new GraphQlDirective[] { include, skip });
 
     public AddressQueryBuilderV1 ExceptAddressText() => ExceptField("addressText");
 }
@@ -1220,31 +1220,31 @@ internal partial class SubscriptionQueryBuilderV1 : GraphQlQueryBuilder<Subscrip
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public SubscriptionQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public SubscriptionQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public SubscriptionQueryBuilderV1 WithId(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("id", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public SubscriptionQueryBuilderV1 WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("id", alias, new GraphQlDirective[] { include, skip });
 
     public SubscriptionQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public SubscriptionQueryBuilderV1 WithWalletId(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("walletId", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public SubscriptionQueryBuilderV1 WithWalletId(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("walletId", alias, new GraphQlDirective[] { include, skip });
 
     public SubscriptionQueryBuilderV1 ExceptWalletId() => ExceptField("walletId");
 
-    public SubscriptionQueryBuilderV1 WithValidFrom(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("validFrom", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public SubscriptionQueryBuilderV1 WithValidFrom(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("validFrom", alias, new GraphQlDirective[] { include, skip });
 
     public SubscriptionQueryBuilderV1 ExceptValidFrom() => ExceptField("validFrom");
 
-    public SubscriptionQueryBuilderV1 WithValidTo(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("validTo", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public SubscriptionQueryBuilderV1 WithValidTo(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("validTo", alias, new GraphQlDirective[] { include, skip });
 
     public SubscriptionQueryBuilderV1 ExceptValidTo() => ExceptField("validTo");
 
-    public SubscriptionQueryBuilderV1 WithStatus(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("status", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public SubscriptionQueryBuilderV1 WithStatus(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("status", alias, new GraphQlDirective[] { include, skip });
 
     public SubscriptionQueryBuilderV1 ExceptStatus() => ExceptField("status");
 
-    public SubscriptionQueryBuilderV1 WithBillingRegionId(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("billingRegionId", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public SubscriptionQueryBuilderV1 WithBillingRegionId(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("billingRegionId", alias, new GraphQlDirective[] { include, skip });
 
     public SubscriptionQueryBuilderV1 ExceptBillingRegionId() => ExceptField("billingRegionId");
 
@@ -1276,23 +1276,23 @@ internal partial class PriceRatingRootQueryBuilderV1 : GraphQlQueryBuilder<Price
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PriceRatingRootQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public PriceRatingRootQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public PriceRatingRootQueryBuilderV1 WithIsAvailable(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("isAvailable", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PriceRatingRootQueryBuilderV1 WithIsAvailable(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("isAvailable", alias, new GraphQlDirective[] { include, skip });
 
     public PriceRatingRootQueryBuilderV1 ExceptIsAvailable() => ExceptField("isAvailable");
 
-    public PriceRatingRootQueryBuilderV1 WithUseTotalIsConfigurable(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("useTotalIsConfigurable", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PriceRatingRootQueryBuilderV1 WithUseTotalIsConfigurable(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("useTotalIsConfigurable", alias, new GraphQlDirective[] { include, skip });
 
     public PriceRatingRootQueryBuilderV1 ExceptUseTotalIsConfigurable() => ExceptField("useTotalIsConfigurable");
 
-    public PriceRatingRootQueryBuilderV1 WithUseTotalAsDefault(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("useTotalAsDefault", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PriceRatingRootQueryBuilderV1 WithUseTotalAsDefault(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("useTotalAsDefault", alias, new GraphQlDirective[] { include, skip });
 
     public PriceRatingRootQueryBuilderV1 ExceptUseTotalAsDefault() => ExceptField("useTotalAsDefault");
 
-    public PriceRatingRootQueryBuilderV1 WithUseTotalText(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("useTotalText", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PriceRatingRootQueryBuilderV1 WithUseTotalText(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("useTotalText", alias, new GraphQlDirective[] { include, skip });
 
     public PriceRatingRootQueryBuilderV1 ExceptUseTotalText() => ExceptField("useTotalText");
 
@@ -1324,27 +1324,27 @@ internal partial class PriceRatingQueryBuilderV1 : GraphQlQueryBuilder<PriceRati
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PriceRatingQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public PriceRatingQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public PriceRatingQueryBuilderV1 WithMinEnergy(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("minEnergy", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PriceRatingQueryBuilderV1 WithMinEnergy(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("minEnergy", alias, new GraphQlDirective[] { include, skip });
 
     public PriceRatingQueryBuilderV1 ExceptMinEnergy() => ExceptField("minEnergy");
 
-    public PriceRatingQueryBuilderV1 WithMaxEnergy(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("maxEnergy", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PriceRatingQueryBuilderV1 WithMaxEnergy(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("maxEnergy", alias, new GraphQlDirective[] { include, skip });
 
     public PriceRatingQueryBuilderV1 ExceptMaxEnergy() => ExceptField("maxEnergy");
 
-    public PriceRatingQueryBuilderV1 WithMinTotal(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("minTotal", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PriceRatingQueryBuilderV1 WithMinTotal(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("minTotal", alias, new GraphQlDirective[] { include, skip });
 
     public PriceRatingQueryBuilderV1 ExceptMinTotal() => ExceptField("minTotal");
 
-    public PriceRatingQueryBuilderV1 WithMaxTotal(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("maxTotal", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PriceRatingQueryBuilderV1 WithMaxTotal(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("maxTotal", alias, new GraphQlDirective[] { include, skip });
 
     public PriceRatingQueryBuilderV1 ExceptMaxTotal() => ExceptField("maxTotal");
 
-    public PriceRatingQueryBuilderV1 WithCurrency(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("currency", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PriceRatingQueryBuilderV1 WithCurrency(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("currency", alias, new GraphQlDirective[] { include, skip });
 
     public PriceRatingQueryBuilderV1 ExceptCurrency() => ExceptField("currency");
 
@@ -1368,19 +1368,19 @@ internal partial class PriceRatingColorOffsetQueryBuilderV1 : GraphQlQueryBuilde
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PriceRatingColorOffsetQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public PriceRatingColorOffsetQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public PriceRatingColorOffsetQueryBuilderV1 WithFullGreenPercent(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("fullGreenPercent", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PriceRatingColorOffsetQueryBuilderV1 WithFullGreenPercent(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("fullGreenPercent", alias, new GraphQlDirective[] { include, skip });
 
     public PriceRatingColorOffsetQueryBuilderV1 ExceptFullGreenPercent() => ExceptField("fullGreenPercent");
 
-    public PriceRatingColorOffsetQueryBuilderV1 WithFullYellowPercent(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("fullYellowPercent", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PriceRatingColorOffsetQueryBuilderV1 WithFullYellowPercent(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("fullYellowPercent", alias, new GraphQlDirective[] { include, skip });
 
     public PriceRatingColorOffsetQueryBuilderV1 ExceptFullYellowPercent() => ExceptField("fullYellowPercent");
 
-    public PriceRatingColorOffsetQueryBuilderV1 WithFullRedPercent(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("fullRedPercent", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PriceRatingColorOffsetQueryBuilderV1 WithFullRedPercent(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("fullRedPercent", alias, new GraphQlDirective[] { include, skip });
 
     public PriceRatingColorOffsetQueryBuilderV1 ExceptFullRedPercent() => ExceptField("fullRedPercent");
 }
@@ -1397,23 +1397,23 @@ internal partial class PriceRatingEntryQueryBuilderV1 : GraphQlQueryBuilder<Pric
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PriceRatingEntryQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public PriceRatingEntryQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public PriceRatingEntryQueryBuilderV1 WithTime(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("time", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PriceRatingEntryQueryBuilderV1 WithTime(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("time", alias, new GraphQlDirective[] { include, skip });
 
     public PriceRatingEntryQueryBuilderV1 ExceptTime() => ExceptField("time");
 
-    public PriceRatingEntryQueryBuilderV1 WithEnergy(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("energy", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PriceRatingEntryQueryBuilderV1 WithEnergy(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("energy", alias, new GraphQlDirective[] { include, skip });
 
     public PriceRatingEntryQueryBuilderV1 ExceptEnergy() => ExceptField("energy");
 
-    public PriceRatingEntryQueryBuilderV1 WithTotal(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("total", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PriceRatingEntryQueryBuilderV1 WithTotal(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("total", alias, new GraphQlDirective[] { include, skip });
 
     public PriceRatingEntryQueryBuilderV1 ExceptTotal() => ExceptField("total");
 
-    public PriceRatingEntryQueryBuilderV1 WithDifference(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("difference", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PriceRatingEntryQueryBuilderV1 WithDifference(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("difference", alias, new GraphQlDirective[] { include, skip });
 
     public PriceRatingEntryQueryBuilderV1 ExceptDifference() => ExceptField("difference");
 }
@@ -1450,87 +1450,87 @@ internal partial class InvoiceQueryBuilderV1 : GraphQlQueryBuilder<InvoiceQueryB
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public InvoiceQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public InvoiceQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public InvoiceQueryBuilderV1 WithId(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("id", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("id", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public InvoiceQueryBuilderV1 WithNo(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("no", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithNo(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("no", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptNo() => ExceptField("no");
 
-    public InvoiceQueryBuilderV1 WithDate(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("date", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithDate(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("date", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptDate() => ExceptField("date");
 
-    public InvoiceQueryBuilderV1 WithDueDate(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("dueDate", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithDueDate(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("dueDate", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptDueDate() => ExceptField("dueDate");
 
-    public InvoiceQueryBuilderV1 WithTotalCost(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("totalCost", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithTotalCost(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("totalCost", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptTotalCost() => ExceptField("totalCost");
 
-    public InvoiceQueryBuilderV1 WithTotalCostLocalized(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("totalCostLocalized", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithTotalCostLocalized(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("totalCostLocalized", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptTotalCostLocalized() => ExceptField("totalCostLocalized");
 
-    public InvoiceQueryBuilderV1 WithTotalEnergyConsumption(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("totalEnergyConsumption", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithTotalEnergyConsumption(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("totalEnergyConsumption", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptTotalEnergyConsumption() => ExceptField("totalEnergyConsumption");
 
-    public InvoiceQueryBuilderV1 WithTotalEnergyConsumptionLocalized(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("totalEnergyConsumptionLocalized", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithTotalEnergyConsumptionLocalized(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("totalEnergyConsumptionLocalized", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptTotalEnergyConsumptionLocalized() => ExceptField("totalEnergyConsumptionLocalized");
 
-    public InvoiceQueryBuilderV1 WithTotalVat(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("totalVat", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithTotalVat(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("totalVat", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptTotalVat() => ExceptField("totalVat");
 
-    public InvoiceQueryBuilderV1 WithTotalVatLocalized(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("totalVatLocalized", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithTotalVatLocalized(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("totalVatLocalized", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptTotalVatLocalized() => ExceptField("totalVatLocalized");
 
-    public InvoiceQueryBuilderV1 WithVatPercent(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("vatPercent", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithVatPercent(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("vatPercent", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptVatPercent() => ExceptField("vatPercent");
 
-    public InvoiceQueryBuilderV1 WithVatPercentLocalized(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("vatPercentLocalized", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithVatPercentLocalized(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("vatPercentLocalized", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptVatPercentLocalized() => ExceptField("vatPercentLocalized");
 
-    public InvoiceQueryBuilderV1 WithVatIsIncluded(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("vatIsIncluded", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithVatIsIncluded(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("vatIsIncluded", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptVatIsIncluded() => ExceptField("vatIsIncluded");
 
-    public InvoiceQueryBuilderV1 WithMeteringPointId(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("meteringPointId", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithMeteringPointId(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("meteringPointId", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptMeteringPointId() => ExceptField("meteringPointId");
 
-    public InvoiceQueryBuilderV1 WithPaymentReference(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("paymentReference", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithPaymentReference(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("paymentReference", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptPaymentReference() => ExceptField("paymentReference");
 
-    public InvoiceQueryBuilderV1 WithShowManualPaymentReferences(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("showManualPaymentReferences", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithShowManualPaymentReferences(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("showManualPaymentReferences", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptShowManualPaymentReferences() => ExceptField("showManualPaymentReferences");
 
-    public InvoiceQueryBuilderV1 WithBankAccount(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("bankAccount", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithBankAccount(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("bankAccount", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptBankAccount() => ExceptField("bankAccount");
 
-    public InvoiceQueryBuilderV1 WithPdfUrl(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("pdfUrl", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithPdfUrl(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("pdfUrl", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptPdfUrl() => ExceptField("pdfUrl");
 
-    public InvoiceQueryBuilderV1 WithTimeZone(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("timeZone", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithTimeZone(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("timeZone", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptTimeZone() => ExceptField("timeZone");
 
-    public InvoiceQueryBuilderV1 WithCurrency(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("currency", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithCurrency(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("currency", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptCurrency() => ExceptField("currency");
 
@@ -1542,11 +1542,11 @@ internal partial class InvoiceQueryBuilderV1 : GraphQlQueryBuilder<InvoiceQueryB
 
     public InvoiceQueryBuilderV1 ExceptSections() => ExceptField("sections");
 
-    public InvoiceQueryBuilderV1 WithFrom(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("from", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithFrom(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("from", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptFrom() => ExceptField("from");
 
-    public InvoiceQueryBuilderV1 WithTo(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("to", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceQueryBuilderV1 WithTo(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("to", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceQueryBuilderV1 ExceptTo() => ExceptField("to");
 }
@@ -1564,23 +1564,23 @@ internal partial class InvoicePaymentQueryBuilderV1 : GraphQlQueryBuilder<Invoic
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public InvoicePaymentQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public InvoicePaymentQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public InvoicePaymentQueryBuilderV1 WithStatus(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("status", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoicePaymentQueryBuilderV1 WithStatus(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("status", alias, new GraphQlDirective[] { include, skip });
 
     public InvoicePaymentQueryBuilderV1 ExceptStatus() => ExceptField("status");
 
-    public InvoicePaymentQueryBuilderV1 WithMethod(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("method", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoicePaymentQueryBuilderV1 WithMethod(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("method", alias, new GraphQlDirective[] { include, skip });
 
     public InvoicePaymentQueryBuilderV1 ExceptMethod() => ExceptField("method");
 
-    public InvoicePaymentQueryBuilderV1 WithDate(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("date", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoicePaymentQueryBuilderV1 WithDate(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("date", alias, new GraphQlDirective[] { include, skip });
 
     public InvoicePaymentQueryBuilderV1 ExceptDate() => ExceptField("date");
 
-    public InvoicePaymentQueryBuilderV1 WithFailureText(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("failureText", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoicePaymentQueryBuilderV1 WithFailureText(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("failureText", alias, new GraphQlDirective[] { include, skip });
 
     public InvoicePaymentQueryBuilderV1 ExceptFailureText() => ExceptField("failureText");
 
@@ -1599,15 +1599,15 @@ internal partial class CreditCardQueryBuilderV1 : GraphQlQueryBuilder<CreditCard
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public CreditCardQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public CreditCardQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public CreditCardQueryBuilderV1 WithBrand(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("brand", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public CreditCardQueryBuilderV1 WithBrand(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("brand", alias, new GraphQlDirective[] { include, skip });
 
     public CreditCardQueryBuilderV1 ExceptBrand() => ExceptField("brand");
 
-    public CreditCardQueryBuilderV1 WithLast4(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("last4", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public CreditCardQueryBuilderV1 WithLast4(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("last4", alias, new GraphQlDirective[] { include, skip });
 
     public CreditCardQueryBuilderV1 ExceptLast4() => ExceptField("last4");
 }
@@ -1632,55 +1632,55 @@ internal partial class InvoiceSectionQueryBuilderV1 : GraphQlQueryBuilder<Invoic
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public InvoiceSectionQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public InvoiceSectionQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public InvoiceSectionQueryBuilderV1 WithType(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("type", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceSectionQueryBuilderV1 WithType(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("type", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceSectionQueryBuilderV1 ExceptType() => ExceptField("type");
 
-    public InvoiceSectionQueryBuilderV1 WithText(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("text", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceSectionQueryBuilderV1 WithText(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("text", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceSectionQueryBuilderV1 ExceptText() => ExceptField("text");
 
-    public InvoiceSectionQueryBuilderV1 WithSubText(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("subText", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceSectionQueryBuilderV1 WithSubText(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("subText", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceSectionQueryBuilderV1 ExceptSubText() => ExceptField("subText");
 
-    public InvoiceSectionQueryBuilderV1 WithConsumption(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("consumption", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceSectionQueryBuilderV1 WithConsumption(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("consumption", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceSectionQueryBuilderV1 ExceptConsumption() => ExceptField("consumption");
 
-    public InvoiceSectionQueryBuilderV1 WithConsumptionLocalized(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("consumptionLocalized", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceSectionQueryBuilderV1 WithConsumptionLocalized(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("consumptionLocalized", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceSectionQueryBuilderV1 ExceptConsumptionLocalized() => ExceptField("consumptionLocalized");
 
-    public InvoiceSectionQueryBuilderV1 WithConsumptionUnit(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("consumptionUnit", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceSectionQueryBuilderV1 WithConsumptionUnit(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("consumptionUnit", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceSectionQueryBuilderV1 ExceptConsumptionUnit() => ExceptField("consumptionUnit");
 
-    public InvoiceSectionQueryBuilderV1 WithPrice(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("price", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceSectionQueryBuilderV1 WithPrice(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("price", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceSectionQueryBuilderV1 ExceptPrice() => ExceptField("price");
 
-    public InvoiceSectionQueryBuilderV1 WithPriceLocalized(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("priceLocalized", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceSectionQueryBuilderV1 WithPriceLocalized(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("priceLocalized", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceSectionQueryBuilderV1 ExceptPriceLocalized() => ExceptField("priceLocalized");
 
-    public InvoiceSectionQueryBuilderV1 WithPriceUnit(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("priceUnit", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceSectionQueryBuilderV1 WithPriceUnit(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("priceUnit", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceSectionQueryBuilderV1 ExceptPriceUnit() => ExceptField("priceUnit");
 
-    public InvoiceSectionQueryBuilderV1 WithCost(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("cost", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceSectionQueryBuilderV1 WithCost(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("cost", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceSectionQueryBuilderV1 ExceptCost() => ExceptField("cost");
 
-    public InvoiceSectionQueryBuilderV1 WithCostLocalized(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("costLocalized", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceSectionQueryBuilderV1 WithCostLocalized(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("costLocalized", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceSectionQueryBuilderV1 ExceptCostLocalized() => ExceptField("costLocalized");
 
-    public InvoiceSectionQueryBuilderV1 WithCostUnit(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("costUnit", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public InvoiceSectionQueryBuilderV1 WithCostUnit(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("costUnit", alias, new GraphQlDirective[] { include, skip });
 
     public InvoiceSectionQueryBuilderV1 ExceptCostUnit() => ExceptField("costUnit");
 }
@@ -1694,7 +1694,7 @@ internal partial class EnergyDealQueryBuilderV1 : GraphQlQueryBuilder<EnergyDeal
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public EnergyDealQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public EnergyDealQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
@@ -1717,27 +1717,27 @@ internal partial class ProducerQueryBuilderV1 : GraphQlQueryBuilder<ProducerQuer
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ProducerQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ProducerQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public ProducerQueryBuilderV1 WithId(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("id", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProducerQueryBuilderV1 WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("id", alias, new GraphQlDirective[] { include, skip });
 
     public ProducerQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public ProducerQueryBuilderV1 WithName(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("name", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProducerQueryBuilderV1 WithName(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("name", alias, new GraphQlDirective[] { include, skip });
 
     public ProducerQueryBuilderV1 ExceptName() => ExceptField("name");
 
-    public ProducerQueryBuilderV1 WithTitle(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("title", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProducerQueryBuilderV1 WithTitle(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("title", alias, new GraphQlDirective[] { include, skip });
 
     public ProducerQueryBuilderV1 ExceptTitle() => ExceptField("title");
 
-    public ProducerQueryBuilderV1 WithDescription(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("description", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProducerQueryBuilderV1 WithDescription(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("description", alias, new GraphQlDirective[] { include, skip });
 
     public ProducerQueryBuilderV1 ExceptDescription() => ExceptField("description");
 
-    public ProducerQueryBuilderV1 WithImageSrc(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("imageSrc", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProducerQueryBuilderV1 WithImageSrc(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("imageSrc", alias, new GraphQlDirective[] { include, skip });
 
     public ProducerQueryBuilderV1 ExceptImageSrc() => ExceptField("imageSrc");
 
@@ -1757,19 +1757,19 @@ internal partial class ProducerBulletQueryBuilderV1 : GraphQlQueryBuilder<Produc
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ProducerBulletQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ProducerBulletQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public ProducerBulletQueryBuilderV1 WithTitle(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("title", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProducerBulletQueryBuilderV1 WithTitle(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("title", alias, new GraphQlDirective[] { include, skip });
 
     public ProducerBulletQueryBuilderV1 ExceptTitle() => ExceptField("title");
 
-    public ProducerBulletQueryBuilderV1 WithDescription(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("description", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProducerBulletQueryBuilderV1 WithDescription(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("description", alias, new GraphQlDirective[] { include, skip });
 
     public ProducerBulletQueryBuilderV1 ExceptDescription() => ExceptField("description");
 
-    public ProducerBulletQueryBuilderV1 WithReadMoreUrl(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("readMoreUrl", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProducerBulletQueryBuilderV1 WithReadMoreUrl(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("readMoreUrl", alias, new GraphQlDirective[] { include, skip });
 
     public ProducerBulletQueryBuilderV1 ExceptReadMoreUrl() => ExceptField("readMoreUrl");
 }
@@ -1790,39 +1790,39 @@ internal partial class ConsumptionMonthQueryBuilderV1 : GraphQlQueryBuilder<Cons
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ConsumptionMonthQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ConsumptionMonthQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public ConsumptionMonthQueryBuilderV1 WithYear(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("year", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ConsumptionMonthQueryBuilderV1 WithYear(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("year", alias, new GraphQlDirective[] { include, skip });
 
     public ConsumptionMonthQueryBuilderV1 ExceptYear() => ExceptField("year");
 
-    public ConsumptionMonthQueryBuilderV1 WithMonth(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("month", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ConsumptionMonthQueryBuilderV1 WithMonth(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("month", alias, new GraphQlDirective[] { include, skip });
 
     public ConsumptionMonthQueryBuilderV1 ExceptMonth() => ExceptField("month");
 
-    public ConsumptionMonthQueryBuilderV1 WithKwh(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("kwh", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ConsumptionMonthQueryBuilderV1 WithKwh(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("kwh", alias, new GraphQlDirective[] { include, skip });
 
     public ConsumptionMonthQueryBuilderV1 ExceptKwh() => ExceptField("kwh");
 
-    public ConsumptionMonthQueryBuilderV1 WithCost(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("cost", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ConsumptionMonthQueryBuilderV1 WithCost(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("cost", alias, new GraphQlDirective[] { include, skip });
 
     public ConsumptionMonthQueryBuilderV1 ExceptCost() => ExceptField("cost");
 
-    public ConsumptionMonthQueryBuilderV1 WithIsComplete(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("isComplete", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ConsumptionMonthQueryBuilderV1 WithIsComplete(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("isComplete", alias, new GraphQlDirective[] { include, skip });
 
     public ConsumptionMonthQueryBuilderV1 ExceptIsComplete() => ExceptField("isComplete");
 
-    public ConsumptionMonthQueryBuilderV1 WithKwhEstimate(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("kwhEstimate", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ConsumptionMonthQueryBuilderV1 WithKwhEstimate(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("kwhEstimate", alias, new GraphQlDirective[] { include, skip });
 
     public ConsumptionMonthQueryBuilderV1 ExceptKwhEstimate() => ExceptField("kwhEstimate");
 
-    public ConsumptionMonthQueryBuilderV1 WithCostEstimate(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("costEstimate", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ConsumptionMonthQueryBuilderV1 WithCostEstimate(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("costEstimate", alias, new GraphQlDirective[] { include, skip });
 
     public ConsumptionMonthQueryBuilderV1 ExceptCostEstimate() => ExceptField("costEstimate");
 
-    public ConsumptionMonthQueryBuilderV1 WithCurrency(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("currency", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ConsumptionMonthQueryBuilderV1 WithCurrency(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("currency", alias, new GraphQlDirective[] { include, skip });
 
     public ConsumptionMonthQueryBuilderV1 ExceptCurrency() => ExceptField("currency");
 }
@@ -1846,51 +1846,51 @@ internal partial class ConsumptionQueryBuilderV1 : GraphQlQueryBuilder<Consumpti
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ConsumptionQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ConsumptionQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public ConsumptionQueryBuilderV1 WithAnnualValues(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("annualValues", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ConsumptionQueryBuilderV1 WithAnnualValues(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("annualValues", alias, new GraphQlDirective[] { include, skip });
 
     public ConsumptionQueryBuilderV1 ExceptAnnualValues() => ExceptField("annualValues");
 
-    public ConsumptionQueryBuilderV1 WithMonthlyValues(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("monthlyValues", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ConsumptionQueryBuilderV1 WithMonthlyValues(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("monthlyValues", alias, new GraphQlDirective[] { include, skip });
 
     public ConsumptionQueryBuilderV1 ExceptMonthlyValues() => ExceptField("monthlyValues");
 
-    public ConsumptionQueryBuilderV1 WithWeeklyValues(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("weeklyValues", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ConsumptionQueryBuilderV1 WithWeeklyValues(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("weeklyValues", alias, new GraphQlDirective[] { include, skip });
 
     public ConsumptionQueryBuilderV1 ExceptWeeklyValues() => ExceptField("weeklyValues");
 
-    public ConsumptionQueryBuilderV1 WithDailyValues(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("dailyValues", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ConsumptionQueryBuilderV1 WithDailyValues(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("dailyValues", alias, new GraphQlDirective[] { include, skip });
 
     public ConsumptionQueryBuilderV1 ExceptDailyValues() => ExceptField("dailyValues");
 
-    public ConsumptionQueryBuilderV1 WithHourlyValues(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("hourlyValues", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ConsumptionQueryBuilderV1 WithHourlyValues(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("hourlyValues", alias, new GraphQlDirective[] { include, skip });
 
     public ConsumptionQueryBuilderV1 ExceptHourlyValues() => ExceptField("hourlyValues");
 
-    public ConsumptionQueryBuilderV1 WithTotalConsumption(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("totalConsumption", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ConsumptionQueryBuilderV1 WithTotalConsumption(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("totalConsumption", alias, new GraphQlDirective[] { include, skip });
 
     public ConsumptionQueryBuilderV1 ExceptTotalConsumption() => ExceptField("totalConsumption");
 
-    public ConsumptionQueryBuilderV1 WithEnergyCost(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("energyCost", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ConsumptionQueryBuilderV1 WithEnergyCost(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("energyCost", alias, new GraphQlDirective[] { include, skip });
 
     public ConsumptionQueryBuilderV1 ExceptEnergyCost() => ExceptField("energyCost");
 
-    public ConsumptionQueryBuilderV1 WithTotalCost(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("totalCost", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ConsumptionQueryBuilderV1 WithTotalCost(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("totalCost", alias, new GraphQlDirective[] { include, skip });
 
     public ConsumptionQueryBuilderV1 ExceptTotalCost() => ExceptField("totalCost");
 
-    public ConsumptionQueryBuilderV1 WithCurrency(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("currency", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ConsumptionQueryBuilderV1 WithCurrency(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("currency", alias, new GraphQlDirective[] { include, skip });
 
     public ConsumptionQueryBuilderV1 ExceptCurrency() => ExceptField("currency");
 
-    public ConsumptionQueryBuilderV1 WithLatestTransactionTimestamp(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("latestTransactionTimestamp", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ConsumptionQueryBuilderV1 WithLatestTransactionTimestamp(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("latestTransactionTimestamp", alias, new GraphQlDirective[] { include, skip });
 
     public ConsumptionQueryBuilderV1 ExceptLatestTransactionTimestamp() => ExceptField("latestTransactionTimestamp");
 
-    public ConsumptionQueryBuilderV1 WithTimeZone(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("timeZone", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ConsumptionQueryBuilderV1 WithTimeZone(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("timeZone", alias, new GraphQlDirective[] { include, skip });
 
     public ConsumptionQueryBuilderV1 ExceptTimeZone() => ExceptField("timeZone");
 }
@@ -1907,15 +1907,15 @@ internal partial class PreLiveComparisonQueryBuilderV1 : GraphQlQueryBuilder<Pre
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PreLiveComparisonQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public PreLiveComparisonQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public PreLiveComparisonQueryBuilderV1 WithHomeId(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("homeId", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PreLiveComparisonQueryBuilderV1 WithHomeId(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("homeId", alias, new GraphQlDirective[] { include, skip });
 
     public PreLiveComparisonQueryBuilderV1 ExceptHomeId() => ExceptField("homeId");
 
-    public PreLiveComparisonQueryBuilderV1 WithBasedOnActuals(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("basedOnActuals", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PreLiveComparisonQueryBuilderV1 WithBasedOnActuals(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("basedOnActuals", alias, new GraphQlDirective[] { include, skip });
 
     public PreLiveComparisonQueryBuilderV1 ExceptBasedOnActuals() => ExceptField("basedOnActuals");
 
@@ -1944,27 +1944,27 @@ internal partial class ComparisonQueryBuilderV1 : GraphQlQueryBuilder<Comparison
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ComparisonQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ComparisonQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public ComparisonQueryBuilderV1 WithYear(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("year", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ComparisonQueryBuilderV1 WithYear(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("year", alias, new GraphQlDirective[] { include, skip });
 
     public ComparisonQueryBuilderV1 ExceptYear() => ExceptField("year");
 
-    public ComparisonQueryBuilderV1 WithMonth(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("month", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ComparisonQueryBuilderV1 WithMonth(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("month", alias, new GraphQlDirective[] { include, skip });
 
     public ComparisonQueryBuilderV1 ExceptMonth() => ExceptField("month");
 
-    public ComparisonQueryBuilderV1 WithResolution(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("resolution", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ComparisonQueryBuilderV1 WithResolution(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("resolution", alias, new GraphQlDirective[] { include, skip });
 
     public ComparisonQueryBuilderV1 ExceptResolution() => ExceptField("resolution");
 
-    public ComparisonQueryBuilderV1 WithHomeEfficency(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("homeEfficency", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ComparisonQueryBuilderV1 WithHomeEfficency(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("homeEfficency", alias, new GraphQlDirective[] { include, skip });
 
     public ComparisonQueryBuilderV1 ExceptHomeEfficency() => ExceptField("homeEfficency");
 
-    public ComparisonQueryBuilderV1 WithHomeEfficencyDescription(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("homeEfficencyDescription", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ComparisonQueryBuilderV1 WithHomeEfficencyDescription(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("homeEfficencyDescription", alias, new GraphQlDirective[] { include, skip });
 
     public ComparisonQueryBuilderV1 ExceptHomeEfficencyDescription() => ExceptField("homeEfficencyDescription");
 
@@ -1991,15 +1991,15 @@ internal partial class ComparisonDataQueryBuilderV1 : GraphQlQueryBuilder<Compar
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ComparisonDataQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ComparisonDataQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public ComparisonDataQueryBuilderV1 WithCost(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("cost", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ComparisonDataQueryBuilderV1 WithCost(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("cost", alias, new GraphQlDirective[] { include, skip });
 
     public ComparisonDataQueryBuilderV1 ExceptCost() => ExceptField("cost");
 
-    public ComparisonDataQueryBuilderV1 WithConsumption(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("consumption", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ComparisonDataQueryBuilderV1 WithConsumption(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("consumption", alias, new GraphQlDirective[] { include, skip });
 
     public ComparisonDataQueryBuilderV1 ExceptConsumption() => ExceptField("consumption");
 }
@@ -2022,43 +2022,43 @@ internal partial class HomeProfileQuestionQueryBuilderV1 : GraphQlQueryBuilder<H
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public HomeProfileQuestionQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public HomeProfileQuestionQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public HomeProfileQuestionQueryBuilderV1 WithId(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("id", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public HomeProfileQuestionQueryBuilderV1 WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("id", alias, new GraphQlDirective[] { include, skip });
 
     public HomeProfileQuestionQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public HomeProfileQuestionQueryBuilderV1 WithTitle(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("title", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public HomeProfileQuestionQueryBuilderV1 WithTitle(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("title", alias, new GraphQlDirective[] { include, skip });
 
     public HomeProfileQuestionQueryBuilderV1 ExceptTitle() => ExceptField("title");
 
-    public HomeProfileQuestionQueryBuilderV1 WithText(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("text", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public HomeProfileQuestionQueryBuilderV1 WithText(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("text", alias, new GraphQlDirective[] { include, skip });
 
     public HomeProfileQuestionQueryBuilderV1 ExceptText() => ExceptField("text");
 
-    public HomeProfileQuestionQueryBuilderV1 WithCategory(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("category", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public HomeProfileQuestionQueryBuilderV1 WithCategory(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("category", alias, new GraphQlDirective[] { include, skip });
 
     public HomeProfileQuestionQueryBuilderV1 ExceptCategory() => ExceptField("category");
 
-    public HomeProfileQuestionQueryBuilderV1 WithIsAnswered(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("isAnswered", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public HomeProfileQuestionQueryBuilderV1 WithIsAnswered(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("isAnswered", alias, new GraphQlDirective[] { include, skip });
 
     public HomeProfileQuestionQueryBuilderV1 ExceptIsAnswered() => ExceptField("isAnswered");
 
-    public HomeProfileQuestionQueryBuilderV1 WithPropertyName(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("propertyName", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public HomeProfileQuestionQueryBuilderV1 WithPropertyName(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("propertyName", alias, new GraphQlDirective[] { include, skip });
 
     public HomeProfileQuestionQueryBuilderV1 ExceptPropertyName() => ExceptField("propertyName");
 
-    public HomeProfileQuestionQueryBuilderV1 WithValueType(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("valueType", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public HomeProfileQuestionQueryBuilderV1 WithValueType(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("valueType", alias, new GraphQlDirective[] { include, skip });
 
     public HomeProfileQuestionQueryBuilderV1 ExceptValueType() => ExceptField("valueType");
 
-    public HomeProfileQuestionQueryBuilderV1 WithCurrentValue(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("currentValue", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public HomeProfileQuestionQueryBuilderV1 WithCurrentValue(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("currentValue", alias, new GraphQlDirective[] { include, skip });
 
     public HomeProfileQuestionQueryBuilderV1 ExceptCurrentValue() => ExceptField("currentValue");
 
-    public HomeProfileQuestionQueryBuilderV1 WithCurrentValueText(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("currentValueText", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public HomeProfileQuestionQueryBuilderV1 WithCurrentValueText(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("currentValueText", alias, new GraphQlDirective[] { include, skip });
 
     public HomeProfileQuestionQueryBuilderV1 ExceptCurrentValueText() => ExceptField("currentValueText");
 
@@ -2077,15 +2077,15 @@ internal partial class HomeProfileQuestionInputQueryBuilderV1 : GraphQlQueryBuil
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public HomeProfileQuestionInputQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public HomeProfileQuestionInputQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public HomeProfileQuestionInputQueryBuilderV1 WithType(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("type", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public HomeProfileQuestionInputQueryBuilderV1 WithType(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("type", alias, new GraphQlDirective[] { include, skip });
 
     public HomeProfileQuestionInputQueryBuilderV1 ExceptType() => ExceptField("type");
 
-    public HomeProfileQuestionInputQueryBuilderV1 WithOptions(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("options", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public HomeProfileQuestionInputQueryBuilderV1 WithOptions(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("options", alias, new GraphQlDirective[] { include, skip });
 
     public HomeProfileQuestionInputQueryBuilderV1 ExceptOptions() => ExceptField("options");
 }
@@ -2101,7 +2101,7 @@ internal partial class SignupStatusQueryBuilderV1 : GraphQlQueryBuilder<SignupSt
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public SignupStatusQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public SignupStatusQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
@@ -2130,23 +2130,23 @@ internal partial class ProcessStepQueryBuilderV1 : GraphQlQueryBuilder<ProcessSt
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ProcessStepQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ProcessStepQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public ProcessStepQueryBuilderV1 WithTimestamp(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("timestamp", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProcessStepQueryBuilderV1 WithTimestamp(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("timestamp", alias, new GraphQlDirective[] { include, skip });
 
     public ProcessStepQueryBuilderV1 ExceptTimestamp() => ExceptField("timestamp");
 
-    public ProcessStepQueryBuilderV1 WithIsComplete(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("isComplete", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProcessStepQueryBuilderV1 WithIsComplete(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("isComplete", alias, new GraphQlDirective[] { include, skip });
 
     public ProcessStepQueryBuilderV1 ExceptIsComplete() => ExceptField("isComplete");
 
-    public ProcessStepQueryBuilderV1 WithTitle(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("title", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProcessStepQueryBuilderV1 WithTitle(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("title", alias, new GraphQlDirective[] { include, skip });
 
     public ProcessStepQueryBuilderV1 ExceptTitle() => ExceptField("title");
 
-    public ProcessStepQueryBuilderV1 WithDescription(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("description", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProcessStepQueryBuilderV1 WithDescription(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("description", alias, new GraphQlDirective[] { include, skip });
 
     public ProcessStepQueryBuilderV1 ExceptDescription() => ExceptField("description");
 }
@@ -2174,67 +2174,67 @@ internal partial class DisaggregationQueryBuilderV1 : GraphQlQueryBuilder<Disagg
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public DisaggregationQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public DisaggregationQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public DisaggregationQueryBuilderV1 WithYear(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("year", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DisaggregationQueryBuilderV1 WithYear(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("year", alias, new GraphQlDirective[] { include, skip });
 
     public DisaggregationQueryBuilderV1 ExceptYear() => ExceptField("year");
 
-    public DisaggregationQueryBuilderV1 WithMonth(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("month", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DisaggregationQueryBuilderV1 WithMonth(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("month", alias, new GraphQlDirective[] { include, skip });
 
     public DisaggregationQueryBuilderV1 ExceptMonth() => ExceptField("month");
 
-    public DisaggregationQueryBuilderV1 WithFixedConsumptionKwh(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("fixedConsumptionKwh", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DisaggregationQueryBuilderV1 WithFixedConsumptionKwh(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("fixedConsumptionKwh", alias, new GraphQlDirective[] { include, skip });
 
     public DisaggregationQueryBuilderV1 ExceptFixedConsumptionKwh() => ExceptField("fixedConsumptionKwh");
 
-    public DisaggregationQueryBuilderV1 WithFixedConsumptionKwhPercent(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("fixedConsumptionKwhPercent", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DisaggregationQueryBuilderV1 WithFixedConsumptionKwhPercent(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("fixedConsumptionKwhPercent", alias, new GraphQlDirective[] { include, skip });
 
     public DisaggregationQueryBuilderV1 ExceptFixedConsumptionKwhPercent() => ExceptField("fixedConsumptionKwhPercent");
 
-    public DisaggregationQueryBuilderV1 WithFixedConsumptionCost(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("fixedConsumptionCost", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DisaggregationQueryBuilderV1 WithFixedConsumptionCost(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("fixedConsumptionCost", alias, new GraphQlDirective[] { include, skip });
 
     public DisaggregationQueryBuilderV1 ExceptFixedConsumptionCost() => ExceptField("fixedConsumptionCost");
 
-    public DisaggregationQueryBuilderV1 WithHeatingConsumptionKwh(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("heatingConsumptionKwh", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DisaggregationQueryBuilderV1 WithHeatingConsumptionKwh(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("heatingConsumptionKwh", alias, new GraphQlDirective[] { include, skip });
 
     public DisaggregationQueryBuilderV1 ExceptHeatingConsumptionKwh() => ExceptField("heatingConsumptionKwh");
 
-    public DisaggregationQueryBuilderV1 WithHeatingConsumptionKwhPercent(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("heatingConsumptionKwhPercent", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DisaggregationQueryBuilderV1 WithHeatingConsumptionKwhPercent(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("heatingConsumptionKwhPercent", alias, new GraphQlDirective[] { include, skip });
 
     public DisaggregationQueryBuilderV1 ExceptHeatingConsumptionKwhPercent() => ExceptField("heatingConsumptionKwhPercent");
 
-    public DisaggregationQueryBuilderV1 WithHeatingConsumptionCost(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("heatingConsumptionCost", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DisaggregationQueryBuilderV1 WithHeatingConsumptionCost(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("heatingConsumptionCost", alias, new GraphQlDirective[] { include, skip });
 
     public DisaggregationQueryBuilderV1 ExceptHeatingConsumptionCost() => ExceptField("heatingConsumptionCost");
 
-    public DisaggregationQueryBuilderV1 WithBehaviorConsumptionKwh(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("behaviorConsumptionKwh", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DisaggregationQueryBuilderV1 WithBehaviorConsumptionKwh(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("behaviorConsumptionKwh", alias, new GraphQlDirective[] { include, skip });
 
     public DisaggregationQueryBuilderV1 ExceptBehaviorConsumptionKwh() => ExceptField("behaviorConsumptionKwh");
 
-    public DisaggregationQueryBuilderV1 WithBehaviorConsumptionKwhPercent(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("behaviorConsumptionKwhPercent", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DisaggregationQueryBuilderV1 WithBehaviorConsumptionKwhPercent(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("behaviorConsumptionKwhPercent", alias, new GraphQlDirective[] { include, skip });
 
     public DisaggregationQueryBuilderV1 ExceptBehaviorConsumptionKwhPercent() => ExceptField("behaviorConsumptionKwhPercent");
 
-    public DisaggregationQueryBuilderV1 WithBehaviorConsumptionCost(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("behaviorConsumptionCost", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DisaggregationQueryBuilderV1 WithBehaviorConsumptionCost(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("behaviorConsumptionCost", alias, new GraphQlDirective[] { include, skip });
 
     public DisaggregationQueryBuilderV1 ExceptBehaviorConsumptionCost() => ExceptField("behaviorConsumptionCost");
 
-    public DisaggregationQueryBuilderV1 WithCurrency(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("currency", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DisaggregationQueryBuilderV1 WithCurrency(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("currency", alias, new GraphQlDirective[] { include, skip });
 
     public DisaggregationQueryBuilderV1 ExceptCurrency() => ExceptField("currency");
 
-    public DisaggregationQueryBuilderV1 WithIsValid(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("isValid", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DisaggregationQueryBuilderV1 WithIsValid(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("isValid", alias, new GraphQlDirective[] { include, skip });
 
     public DisaggregationQueryBuilderV1 ExceptIsValid() => ExceptField("isValid");
 
-    public DisaggregationQueryBuilderV1 WithTotalCost(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("totalCost", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DisaggregationQueryBuilderV1 WithTotalCost(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("totalCost", alias, new GraphQlDirective[] { include, skip });
 
     public DisaggregationQueryBuilderV1 ExceptTotalCost() => ExceptField("totalCost");
 
-    public DisaggregationQueryBuilderV1 WithTotalConsumptionKwh(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("totalConsumptionKwh", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DisaggregationQueryBuilderV1 WithTotalConsumptionKwh(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("totalConsumptionKwh", alias, new GraphQlDirective[] { include, skip });
 
     public DisaggregationQueryBuilderV1 ExceptTotalConsumptionKwh() => ExceptField("totalConsumptionKwh");
 }
@@ -2250,15 +2250,15 @@ internal partial class WeatherQueryBuilderV1 : GraphQlQueryBuilder<WeatherQueryB
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public WeatherQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public WeatherQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public WeatherQueryBuilderV1 WithMinTemperature(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("minTemperature", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public WeatherQueryBuilderV1 WithMinTemperature(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("minTemperature", alias, new GraphQlDirective[] { include, skip });
 
     public WeatherQueryBuilderV1 ExceptMinTemperature() => ExceptField("minTemperature");
 
-    public WeatherQueryBuilderV1 WithMaxTemperature(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("maxTemperature", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public WeatherQueryBuilderV1 WithMaxTemperature(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("maxTemperature", alias, new GraphQlDirective[] { include, skip });
 
     public WeatherQueryBuilderV1 ExceptMaxTemperature() => ExceptField("maxTemperature");
 
@@ -2283,39 +2283,39 @@ internal partial class WeatherEntryQueryBuilderV1 : GraphQlQueryBuilder<WeatherE
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public WeatherEntryQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public WeatherEntryQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public WeatherEntryQueryBuilderV1 WithTime(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("time", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public WeatherEntryQueryBuilderV1 WithTime(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("time", alias, new GraphQlDirective[] { include, skip });
 
     public WeatherEntryQueryBuilderV1 ExceptTime() => ExceptField("time");
 
-    public WeatherEntryQueryBuilderV1 WithTemperature(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("temperature", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public WeatherEntryQueryBuilderV1 WithTemperature(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("temperature", alias, new GraphQlDirective[] { include, skip });
 
     public WeatherEntryQueryBuilderV1 ExceptTemperature() => ExceptField("temperature");
 
-    public WeatherEntryQueryBuilderV1 WithType(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("type", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public WeatherEntryQueryBuilderV1 WithType(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("type", alias, new GraphQlDirective[] { include, skip });
 
     public WeatherEntryQueryBuilderV1 ExceptType() => ExceptField("type");
 
-    public WeatherEntryQueryBuilderV1 WithFog(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("fog", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public WeatherEntryQueryBuilderV1 WithFog(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("fog", alias, new GraphQlDirective[] { include, skip });
 
     public WeatherEntryQueryBuilderV1 ExceptFog() => ExceptField("fog");
 
-    public WeatherEntryQueryBuilderV1 WithPrecipitation(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("precipitation", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public WeatherEntryQueryBuilderV1 WithPrecipitation(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("precipitation", alias, new GraphQlDirective[] { include, skip });
 
     public WeatherEntryQueryBuilderV1 ExceptPrecipitation() => ExceptField("precipitation");
 
-    public WeatherEntryQueryBuilderV1 WithCloudiness(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("cloudiness", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public WeatherEntryQueryBuilderV1 WithCloudiness(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("cloudiness", alias, new GraphQlDirective[] { include, skip });
 
     public WeatherEntryQueryBuilderV1 ExceptCloudiness() => ExceptField("cloudiness");
 
-    public WeatherEntryQueryBuilderV1 WithWindSpeed(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("windSpeed", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public WeatherEntryQueryBuilderV1 WithWindSpeed(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("windSpeed", alias, new GraphQlDirective[] { include, skip });
 
     public WeatherEntryQueryBuilderV1 ExceptWindSpeed() => ExceptField("windSpeed");
 
-    public WeatherEntryQueryBuilderV1 WithWindGust(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("windGust", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public WeatherEntryQueryBuilderV1 WithWindGust(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("windGust", alias, new GraphQlDirective[] { include, skip });
 
     public WeatherEntryQueryBuilderV1 ExceptWindGust() => ExceptField("windGust");
 }
@@ -2330,11 +2330,11 @@ internal partial class AwayModeQueryBuilderV1 : GraphQlQueryBuilder<AwayModeQuer
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AwayModeQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public AwayModeQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public AwayModeQueryBuilderV1 WithIsSupported(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("isSupported", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public AwayModeQueryBuilderV1 WithIsSupported(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("isSupported", alias, new GraphQlDirective[] { include, skip });
 
     public AwayModeQueryBuilderV1 ExceptIsSupported() => ExceptField("isSupported");
 
@@ -2353,15 +2353,15 @@ internal partial class AwayModeSettingsQueryBuilderV1 : GraphQlQueryBuilder<Away
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AwayModeSettingsQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public AwayModeSettingsQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public AwayModeSettingsQueryBuilderV1 WithFrom(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("from", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public AwayModeSettingsQueryBuilderV1 WithFrom(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("from", alias, new GraphQlDirective[] { include, skip });
 
     public AwayModeSettingsQueryBuilderV1 ExceptFrom() => ExceptField("from");
 
-    public AwayModeSettingsQueryBuilderV1 WithTo(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("to", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public AwayModeSettingsQueryBuilderV1 WithTo(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("to", alias, new GraphQlDirective[] { include, skip });
 
     public AwayModeSettingsQueryBuilderV1 ExceptTo() => ExceptField("to");
 }
@@ -2377,11 +2377,11 @@ internal partial class DayNightScheduleQueryBuilderV1 : GraphQlQueryBuilder<DayN
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public DayNightScheduleQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public DayNightScheduleQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public DayNightScheduleQueryBuilderV1 WithIsSupported(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("isSupported", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DayNightScheduleQueryBuilderV1 WithIsSupported(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("isSupported", alias, new GraphQlDirective[] { include, skip });
 
     public DayNightScheduleQueryBuilderV1 ExceptIsSupported() => ExceptField("isSupported");
 
@@ -2406,23 +2406,23 @@ internal partial class DayNightScheduleSettingsQueryBuilderV1 : GraphQlQueryBuil
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public DayNightScheduleSettingsQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public DayNightScheduleSettingsQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public DayNightScheduleSettingsQueryBuilderV1 WithIsEnabled(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("isEnabled", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DayNightScheduleSettingsQueryBuilderV1 WithIsEnabled(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("isEnabled", alias, new GraphQlDirective[] { include, skip });
 
     public DayNightScheduleSettingsQueryBuilderV1 ExceptIsEnabled() => ExceptField("isEnabled");
 
-    public DayNightScheduleSettingsQueryBuilderV1 WithLocalTimeFrom(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("localTimeFrom", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DayNightScheduleSettingsQueryBuilderV1 WithLocalTimeFrom(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("localTimeFrom", alias, new GraphQlDirective[] { include, skip });
 
     public DayNightScheduleSettingsQueryBuilderV1 ExceptLocalTimeFrom() => ExceptField("localTimeFrom");
 
-    public DayNightScheduleSettingsQueryBuilderV1 WithLocalTimeTo(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("localTimeTo", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DayNightScheduleSettingsQueryBuilderV1 WithLocalTimeTo(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("localTimeTo", alias, new GraphQlDirective[] { include, skip });
 
     public DayNightScheduleSettingsQueryBuilderV1 ExceptLocalTimeTo() => ExceptField("localTimeTo");
 
-    public DayNightScheduleSettingsQueryBuilderV1 WithRecurringDays(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("recurringDays", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public DayNightScheduleSettingsQueryBuilderV1 WithRecurringDays(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("recurringDays", alias, new GraphQlDirective[] { include, skip });
 
     public DayNightScheduleSettingsQueryBuilderV1 ExceptRecurringDays() => ExceptField("recurringDays");
 }
@@ -2436,7 +2436,7 @@ internal partial class ReportRootQueryBuilderV1 : GraphQlQueryBuilder<ReportRoot
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ReportRootQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ReportRootQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
@@ -2459,27 +2459,27 @@ internal partial class ReportQueryBuilderV1 : GraphQlQueryBuilder<ReportQueryBui
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ReportQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ReportQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public ReportQueryBuilderV1 WithAvatar(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("avatar", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ReportQueryBuilderV1 WithAvatar(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("avatar", alias, new GraphQlDirective[] { include, skip });
 
     public ReportQueryBuilderV1 ExceptAvatar() => ExceptField("avatar");
 
-    public ReportQueryBuilderV1 WithTitle(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("title", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ReportQueryBuilderV1 WithTitle(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("title", alias, new GraphQlDirective[] { include, skip });
 
     public ReportQueryBuilderV1 ExceptTitle() => ExceptField("title");
 
-    public ReportQueryBuilderV1 WithEfficiency(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("efficiency", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ReportQueryBuilderV1 WithEfficiency(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("efficiency", alias, new GraphQlDirective[] { include, skip });
 
     public ReportQueryBuilderV1 ExceptEfficiency() => ExceptField("efficiency");
 
-    public ReportQueryBuilderV1 WithYear(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("year", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ReportQueryBuilderV1 WithYear(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("year", alias, new GraphQlDirective[] { include, skip });
 
     public ReportQueryBuilderV1 ExceptYear() => ExceptField("year");
 
-    public ReportQueryBuilderV1 WithMonth(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("month", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ReportQueryBuilderV1 WithMonth(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("month", alias, new GraphQlDirective[] { include, skip });
 
     public ReportQueryBuilderV1 ExceptMonth() => ExceptField("month");
 
@@ -2504,39 +2504,39 @@ internal partial class ReportCellQueryBuilderV1 : GraphQlQueryBuilder<ReportCell
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ReportCellQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ReportCellQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public ReportCellQueryBuilderV1 WithType(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("type", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ReportCellQueryBuilderV1 WithType(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("type", alias, new GraphQlDirective[] { include, skip });
 
     public ReportCellQueryBuilderV1 ExceptType() => ExceptField("type");
 
-    public ReportCellQueryBuilderV1 WithStyle(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("style", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ReportCellQueryBuilderV1 WithStyle(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("style", alias, new GraphQlDirective[] { include, skip });
 
     public ReportCellQueryBuilderV1 ExceptStyle() => ExceptField("style");
 
-    public ReportCellQueryBuilderV1 WithImageSrc(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("imageSrc", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ReportCellQueryBuilderV1 WithImageSrc(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("imageSrc", alias, new GraphQlDirective[] { include, skip });
 
     public ReportCellQueryBuilderV1 ExceptImageSrc() => ExceptField("imageSrc");
 
-    public ReportCellQueryBuilderV1 WithTitle(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("title", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ReportCellQueryBuilderV1 WithTitle(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("title", alias, new GraphQlDirective[] { include, skip });
 
     public ReportCellQueryBuilderV1 ExceptTitle() => ExceptField("title");
 
-    public ReportCellQueryBuilderV1 WithDescription(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("description", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ReportCellQueryBuilderV1 WithDescription(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("description", alias, new GraphQlDirective[] { include, skip });
 
     public ReportCellQueryBuilderV1 ExceptDescription() => ExceptField("description");
 
-    public ReportCellQueryBuilderV1 WithUnitText(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("unitText", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ReportCellQueryBuilderV1 WithUnitText(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("unitText", alias, new GraphQlDirective[] { include, skip });
 
     public ReportCellQueryBuilderV1 ExceptUnitText() => ExceptField("unitText");
 
-    public ReportCellQueryBuilderV1 WithLink(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("link", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ReportCellQueryBuilderV1 WithLink(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("link", alias, new GraphQlDirective[] { include, skip });
 
     public ReportCellQueryBuilderV1 ExceptLink() => ExceptField("link");
 
-    public ReportCellQueryBuilderV1 WithProperties(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("properties", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ReportCellQueryBuilderV1 WithProperties(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("properties", alias, new GraphQlDirective[] { include, skip });
 
     public ReportCellQueryBuilderV1 ExceptProperties() => ExceptField("properties");
 }
@@ -2559,19 +2559,19 @@ internal partial class ThermostatQueryBuilderV1 : GraphQlQueryBuilder<Thermostat
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ThermostatQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public ThermostatQueryBuilderV1 WithId(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("id", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatQueryBuilderV1 WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("id", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public ThermostatQueryBuilderV1 WithName(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("name", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatQueryBuilderV1 WithName(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("name", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatQueryBuilderV1 ExceptName() => ExceptField("name");
 
-    public ThermostatQueryBuilderV1 WithConnectivity(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("connectivity", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatQueryBuilderV1 WithConnectivity(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("connectivity", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatQueryBuilderV1 ExceptConnectivity() => ExceptField("connectivity");
 
@@ -2591,15 +2591,15 @@ internal partial class ThermostatQueryBuilderV1 : GraphQlQueryBuilder<Thermostat
 
     public ThermostatQueryBuilderV1 ExceptModes() => ExceptField("modes");
 
-    public ThermostatQueryBuilderV1 WithTemplate(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("template", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatQueryBuilderV1 WithTemplate(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("template", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatQueryBuilderV1 ExceptTemplate() => ExceptField("template");
 
-    public ThermostatQueryBuilderV1 WithHasSettings(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("hasSettings", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatQueryBuilderV1 WithHasSettings(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("hasSettings", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatQueryBuilderV1 ExceptHasSettings() => ExceptField("hasSettings");
 
-    public ThermostatQueryBuilderV1 WithSupportsDayNightSchedule(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("supportsDayNightSchedule", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatQueryBuilderV1 WithSupportsDayNightSchedule(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("supportsDayNightSchedule", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatQueryBuilderV1 ExceptSupportsDayNightSchedule() => ExceptField("supportsDayNightSchedule");
 }
@@ -2616,23 +2616,23 @@ internal partial class ThermostatStateQueryBuilderV1 : GraphQlQueryBuilder<Therm
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatStateQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ThermostatStateQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public ThermostatStateQueryBuilderV1 WithMode(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("mode", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatStateQueryBuilderV1 WithMode(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("mode", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatStateQueryBuilderV1 ExceptMode() => ExceptField("mode");
 
-    public ThermostatStateQueryBuilderV1 WithComfortTemperature(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("comfortTemperature", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatStateQueryBuilderV1 WithComfortTemperature(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("comfortTemperature", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatStateQueryBuilderV1 ExceptComfortTemperature() => ExceptField("comfortTemperature");
 
-    public ThermostatStateQueryBuilderV1 WithFanLevel(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("fanLevel", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatStateQueryBuilderV1 WithFanLevel(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("fanLevel", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatStateQueryBuilderV1 ExceptFanLevel() => ExceptField("fanLevel");
 
-    public ThermostatStateQueryBuilderV1 WithOnOff(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("onOff", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatStateQueryBuilderV1 WithOnOff(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("onOff", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatStateQueryBuilderV1 ExceptOnOff() => ExceptField("onOff");
 }
@@ -2648,15 +2648,15 @@ internal partial class ThermostatMeasurementsQueryBuilderV1 : GraphQlQueryBuilde
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatMeasurementsQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ThermostatMeasurementsQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public ThermostatMeasurementsQueryBuilderV1 WithTemperature(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("temperature", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatMeasurementsQueryBuilderV1 WithTemperature(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("temperature", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatMeasurementsQueryBuilderV1 ExceptTemperature() => ExceptField("temperature");
 
-    public ThermostatMeasurementsQueryBuilderV1 WithTimestamp(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("timestamp", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatMeasurementsQueryBuilderV1 WithTimestamp(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("timestamp", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatMeasurementsQueryBuilderV1 ExceptTimestamp() => ExceptField("timestamp");
 
@@ -2683,47 +2683,47 @@ internal partial class ThermostatMeasurementQueryBuilderV1 : GraphQlQueryBuilder
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatMeasurementQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ThermostatMeasurementQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public ThermostatMeasurementQueryBuilderV1 WithLabel(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("label", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatMeasurementQueryBuilderV1 WithLabel(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("label", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatMeasurementQueryBuilderV1 ExceptLabel() => ExceptField("label");
 
-    public ThermostatMeasurementQueryBuilderV1 WithDescription(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("description", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatMeasurementQueryBuilderV1 WithDescription(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("description", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatMeasurementQueryBuilderV1 ExceptDescription() => ExceptField("description");
 
-    public ThermostatMeasurementQueryBuilderV1 WithDescriptionLong(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("descriptionLong", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatMeasurementQueryBuilderV1 WithDescriptionLong(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("descriptionLong", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatMeasurementQueryBuilderV1 ExceptDescriptionLong() => ExceptField("descriptionLong");
 
-    public ThermostatMeasurementQueryBuilderV1 WithValue(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("value", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatMeasurementQueryBuilderV1 WithValue(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("value", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatMeasurementQueryBuilderV1 ExceptValue() => ExceptField("value");
 
-    public ThermostatMeasurementQueryBuilderV1 WithValueText(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("valueText", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatMeasurementQueryBuilderV1 WithValueText(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("valueText", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatMeasurementQueryBuilderV1 ExceptValueText() => ExceptField("valueText");
 
-    public ThermostatMeasurementQueryBuilderV1 WithUnit(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("unit", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatMeasurementQueryBuilderV1 WithUnit(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("unit", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatMeasurementQueryBuilderV1 ExceptUnit() => ExceptField("unit");
 
-    public ThermostatMeasurementQueryBuilderV1 WithUnitText(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("unitText", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatMeasurementQueryBuilderV1 WithUnitText(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("unitText", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatMeasurementQueryBuilderV1 ExceptUnitText() => ExceptField("unitText");
 
-    public ThermostatMeasurementQueryBuilderV1 WithTimestamp(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("timestamp", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatMeasurementQueryBuilderV1 WithTimestamp(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("timestamp", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatMeasurementQueryBuilderV1 ExceptTimestamp() => ExceptField("timestamp");
 
-    public ThermostatMeasurementQueryBuilderV1 WithType(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("type", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatMeasurementQueryBuilderV1 WithType(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("type", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatMeasurementQueryBuilderV1 ExceptType() => ExceptField("type");
 
-    public ThermostatMeasurementQueryBuilderV1 WithTypeText(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("typeText", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatMeasurementQueryBuilderV1 WithTypeText(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("typeText", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatMeasurementQueryBuilderV1 ExceptTypeText() => ExceptField("typeText");
 }
@@ -2739,19 +2739,19 @@ internal partial class ThermostatCapabilityQueryBuilderV1 : GraphQlQueryBuilder<
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatCapabilityQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ThermostatCapabilityQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public ThermostatCapabilityQueryBuilderV1 WithName(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("name", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatCapabilityQueryBuilderV1 WithName(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("name", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatCapabilityQueryBuilderV1 ExceptName() => ExceptField("name");
 
-    public ThermostatCapabilityQueryBuilderV1 WithType(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("type", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatCapabilityQueryBuilderV1 WithType(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("type", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatCapabilityQueryBuilderV1 ExceptType() => ExceptField("type");
 
-    public ThermostatCapabilityQueryBuilderV1 WithValues(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("values", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatCapabilityQueryBuilderV1 WithValues(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("values", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatCapabilityQueryBuilderV1 ExceptValues() => ExceptField("values");
 }
@@ -2766,15 +2766,15 @@ internal partial class ThermostatModeQueryBuilderV1 : GraphQlQueryBuilder<Thermo
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatModeQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ThermostatModeQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public ThermostatModeQueryBuilderV1 WithName(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("name", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatModeQueryBuilderV1 WithName(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("name", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatModeQueryBuilderV1 ExceptName() => ExceptField("name");
 
-    public ThermostatModeQueryBuilderV1 WithCapabilities(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("capabilities", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ThermostatModeQueryBuilderV1 WithCapabilities(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("capabilities", alias, new GraphQlDirective[] { include, skip });
 
     public ThermostatModeQueryBuilderV1 ExceptCapabilities() => ExceptField("capabilities");
 }
@@ -2791,19 +2791,19 @@ internal partial class SensorQueryBuilderV1 : GraphQlQueryBuilder<SensorQueryBui
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public SensorQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public SensorQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public SensorQueryBuilderV1 WithId(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("id", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public SensorQueryBuilderV1 WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("id", alias, new GraphQlDirective[] { include, skip });
 
     public SensorQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public SensorQueryBuilderV1 WithIdDeprecated(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("idDeprecated", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public SensorQueryBuilderV1 WithIdDeprecated(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("idDeprecated", alias, new GraphQlDirective[] { include, skip });
 
     public SensorQueryBuilderV1 ExceptIdDeprecated() => ExceptField("idDeprecated");
 
-    public SensorQueryBuilderV1 WithHasHistory(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("hasHistory", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public SensorQueryBuilderV1 WithHasHistory(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("hasHistory", alias, new GraphQlDirective[] { include, skip });
 
     public SensorQueryBuilderV1 ExceptHasHistory() => ExceptField("hasHistory");
 
@@ -2823,15 +2823,15 @@ internal partial class SensorHistoryQueryBuilderV1 : GraphQlQueryBuilder<SensorH
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public SensorHistoryQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public SensorHistoryQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public SensorHistoryQueryBuilderV1 WithSensorId(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("sensorId", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public SensorHistoryQueryBuilderV1 WithSensorId(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("sensorId", alias, new GraphQlDirective[] { include, skip });
 
     public SensorHistoryQueryBuilderV1 ExceptSensorId() => ExceptField("sensorId");
 
-    public SensorHistoryQueryBuilderV1 WithDescription(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("description", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public SensorHistoryQueryBuilderV1 WithDescription(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("description", alias, new GraphQlDirective[] { include, skip });
 
     public SensorHistoryQueryBuilderV1 ExceptDescription() => ExceptField("description");
 
@@ -2851,19 +2851,19 @@ internal partial class SensorHistoryValueQueryBuilderV1 : GraphQlQueryBuilder<Se
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public SensorHistoryValueQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public SensorHistoryValueQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public SensorHistoryValueQueryBuilderV1 WithTimestamp(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("timestamp", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public SensorHistoryValueQueryBuilderV1 WithTimestamp(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("timestamp", alias, new GraphQlDirective[] { include, skip });
 
     public SensorHistoryValueQueryBuilderV1 ExceptTimestamp() => ExceptField("timestamp");
 
-    public SensorHistoryValueQueryBuilderV1 WithValue(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("value", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public SensorHistoryValueQueryBuilderV1 WithValue(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("value", alias, new GraphQlDirective[] { include, skip });
 
     public SensorHistoryValueQueryBuilderV1 ExceptValue() => ExceptField("value");
 
-    public SensorHistoryValueQueryBuilderV1 WithValueText(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("valueText", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public SensorHistoryValueQueryBuilderV1 WithValueText(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("valueText", alias, new GraphQlDirective[] { include, skip });
 
     public SensorHistoryValueQueryBuilderV1 ExceptValueText() => ExceptField("valueText");
 }
@@ -2879,11 +2879,11 @@ internal partial class PairableDeviceQueryBuilderV1 : GraphQlQueryBuilder<Pairab
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PairableDeviceQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public PairableDeviceQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public PairableDeviceQueryBuilderV1 WithType(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("type", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PairableDeviceQueryBuilderV1 WithType(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("type", alias, new GraphQlDirective[] { include, skip });
 
     public PairableDeviceQueryBuilderV1 ExceptType() => ExceptField("type");
 
@@ -2891,7 +2891,7 @@ internal partial class PairableDeviceQueryBuilderV1 : GraphQlQueryBuilder<Pairab
 
     public PairableDeviceQueryBuilderV1 ExceptOauth() => ExceptField("oauth");
 
-    public PairableDeviceQueryBuilderV1 WithReadMoreUrl(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("readMoreUrl", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PairableDeviceQueryBuilderV1 WithReadMoreUrl(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("readMoreUrl", alias, new GraphQlDirective[] { include, skip });
 
     public PairableDeviceQueryBuilderV1 ExceptReadMoreUrl() => ExceptField("readMoreUrl");
 }
@@ -2906,15 +2906,15 @@ internal partial class PairableDeviceOAuthQueryBuilderV1 : GraphQlQueryBuilder<P
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PairableDeviceOAuthQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public PairableDeviceOAuthQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public PairableDeviceOAuthQueryBuilderV1 WithUrl(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("url", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PairableDeviceOAuthQueryBuilderV1 WithUrl(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("url", alias, new GraphQlDirective[] { include, skip });
 
     public PairableDeviceOAuthQueryBuilderV1 ExceptUrl() => ExceptField("url");
 
-    public PairableDeviceOAuthQueryBuilderV1 WithRedirectUriStartsWith(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("redirectUriStartsWith", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PairableDeviceOAuthQueryBuilderV1 WithRedirectUriStartsWith(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("redirectUriStartsWith", alias, new GraphQlDirective[] { include, skip });
 
     public PairableDeviceOAuthQueryBuilderV1 ExceptRedirectUriStartsWith() => ExceptField("redirectUriStartsWith");
 }
@@ -2936,43 +2936,43 @@ internal partial class ProductionMonthQueryBuilderV1 : GraphQlQueryBuilder<Produ
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ProductionMonthQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ProductionMonthQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public ProductionMonthQueryBuilderV1 WithYear(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("year", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionMonthQueryBuilderV1 WithYear(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("year", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionMonthQueryBuilderV1 ExceptYear() => ExceptField("year");
 
-    public ProductionMonthQueryBuilderV1 WithMonth(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("month", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionMonthQueryBuilderV1 WithMonth(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("month", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionMonthQueryBuilderV1 ExceptMonth() => ExceptField("month");
 
-    public ProductionMonthQueryBuilderV1 WithKwh(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("kwh", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionMonthQueryBuilderV1 WithKwh(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("kwh", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionMonthQueryBuilderV1 ExceptKwh() => ExceptField("kwh");
 
-    public ProductionMonthQueryBuilderV1 WithCost(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("cost", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionMonthQueryBuilderV1 WithCost(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("cost", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionMonthQueryBuilderV1 ExceptCost() => ExceptField("cost");
 
-    public ProductionMonthQueryBuilderV1 WithIsComplete(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("isComplete", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionMonthQueryBuilderV1 WithIsComplete(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("isComplete", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionMonthQueryBuilderV1 ExceptIsComplete() => ExceptField("isComplete");
 
-    public ProductionMonthQueryBuilderV1 WithTitle(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("title", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionMonthQueryBuilderV1 WithTitle(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("title", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionMonthQueryBuilderV1 ExceptTitle() => ExceptField("title");
 
-    public ProductionMonthQueryBuilderV1 WithCostText(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("costText", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionMonthQueryBuilderV1 WithCostText(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("costText", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionMonthQueryBuilderV1 ExceptCostText() => ExceptField("costText");
 
-    public ProductionMonthQueryBuilderV1 WithKwhText(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("kwhText", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionMonthQueryBuilderV1 WithKwhText(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("kwhText", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionMonthQueryBuilderV1 ExceptKwhText() => ExceptField("kwhText");
 
-    public ProductionMonthQueryBuilderV1 WithDescription(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("description", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionMonthQueryBuilderV1 WithDescription(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("description", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionMonthQueryBuilderV1 ExceptDescription() => ExceptField("description");
 }
@@ -2996,7 +2996,7 @@ internal partial class ProductionQueryBuilderV1 : GraphQlQueryBuilder<Production
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ProductionQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ProductionQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
@@ -3020,27 +3020,27 @@ internal partial class ProductionQueryBuilderV1 : GraphQlQueryBuilder<Production
 
     public ProductionQueryBuilderV1 ExceptHourlyValues() => ExceptField("hourlyValues");
 
-    public ProductionQueryBuilderV1 WithTotalConsumption(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("totalConsumption", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionQueryBuilderV1 WithTotalConsumption(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("totalConsumption", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionQueryBuilderV1 ExceptTotalConsumption() => ExceptField("totalConsumption");
 
-    public ProductionQueryBuilderV1 WithEnergyCost(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("energyCost", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionQueryBuilderV1 WithEnergyCost(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("energyCost", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionQueryBuilderV1 ExceptEnergyCost() => ExceptField("energyCost");
 
-    public ProductionQueryBuilderV1 WithTotalCost(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("totalCost", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionQueryBuilderV1 WithTotalCost(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("totalCost", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionQueryBuilderV1 ExceptTotalCost() => ExceptField("totalCost");
 
-    public ProductionQueryBuilderV1 WithCurrency(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("currency", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionQueryBuilderV1 WithCurrency(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("currency", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionQueryBuilderV1 ExceptCurrency() => ExceptField("currency");
 
-    public ProductionQueryBuilderV1 WithLatestTransactionTimestamp(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("latestTransactionTimestamp", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionQueryBuilderV1 WithLatestTransactionTimestamp(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("latestTransactionTimestamp", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionQueryBuilderV1 ExceptLatestTransactionTimestamp() => ExceptField("latestTransactionTimestamp");
 
-    public ProductionQueryBuilderV1 WithTimeZone(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("timeZone", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionQueryBuilderV1 WithTimeZone(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("timeZone", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionQueryBuilderV1 ExceptTimeZone() => ExceptField("timeZone");
 }
@@ -3063,47 +3063,47 @@ internal partial class ProductionValueQueryBuilderV1 : GraphQlQueryBuilder<Produ
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ProductionValueQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ProductionValueQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public ProductionValueQueryBuilderV1 WithFrom(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("from", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionValueQueryBuilderV1 WithFrom(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("from", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionValueQueryBuilderV1 ExceptFrom() => ExceptField("from");
 
-    public ProductionValueQueryBuilderV1 WithTo(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("to", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionValueQueryBuilderV1 WithTo(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("to", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionValueQueryBuilderV1 ExceptTo() => ExceptField("to");
 
-    public ProductionValueQueryBuilderV1 WithUnitPrice(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("unitPrice", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionValueQueryBuilderV1 WithUnitPrice(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("unitPrice", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionValueQueryBuilderV1 ExceptUnitPrice() => ExceptField("unitPrice");
 
-    public ProductionValueQueryBuilderV1 WithUnitPriceVat(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("unitPriceVAT", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionValueQueryBuilderV1 WithUnitPriceVat(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("unitPriceVAT", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionValueQueryBuilderV1 ExceptUnitPriceVat() => ExceptField("unitPriceVAT");
 
-    public ProductionValueQueryBuilderV1 WithConsumption(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("consumption", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionValueQueryBuilderV1 WithConsumption(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("consumption", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionValueQueryBuilderV1 ExceptConsumption() => ExceptField("consumption");
 
-    public ProductionValueQueryBuilderV1 WithConsumptionUnit(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("consumptionUnit", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionValueQueryBuilderV1 WithConsumptionUnit(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("consumptionUnit", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionValueQueryBuilderV1 ExceptConsumptionUnit() => ExceptField("consumptionUnit");
 
-    public ProductionValueQueryBuilderV1 WithTotalCost(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("totalCost", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionValueQueryBuilderV1 WithTotalCost(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("totalCost", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionValueQueryBuilderV1 ExceptTotalCost() => ExceptField("totalCost");
 
-    public ProductionValueQueryBuilderV1 WithUnitCost(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("unitCost", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionValueQueryBuilderV1 WithUnitCost(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("unitCost", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionValueQueryBuilderV1 ExceptUnitCost() => ExceptField("unitCost");
 
-    public ProductionValueQueryBuilderV1 WithQuality(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("quality", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionValueQueryBuilderV1 WithQuality(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("quality", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionValueQueryBuilderV1 ExceptQuality() => ExceptField("quality");
 
-    public ProductionValueQueryBuilderV1 WithConsumptionEntries(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("consumptionEntries", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public ProductionValueQueryBuilderV1 WithConsumptionEntries(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("consumptionEntries", alias, new GraphQlDirective[] { include, skip });
 
     public ProductionValueQueryBuilderV1 ExceptConsumptionEntries() => ExceptField("consumptionEntries");
 }
@@ -3119,11 +3119,11 @@ internal partial class FeedQueryBuilderV1 : GraphQlQueryBuilder<FeedQueryBuilder
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public FeedQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public FeedQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public FeedQueryBuilderV1 WithNumberOfItems(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("numberOfItems", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public FeedQueryBuilderV1 WithNumberOfItems(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("numberOfItems", alias, new GraphQlDirective[] { include, skip });
 
     public FeedQueryBuilderV1 ExceptNumberOfItems() => ExceptField("numberOfItems");
 
@@ -3163,31 +3163,31 @@ internal partial class FeedItemQueryBuilderV1 : GraphQlQueryBuilder<FeedItemQuer
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public FeedItemQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public FeedItemQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public FeedItemQueryBuilderV1 WithId(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("id", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public FeedItemQueryBuilderV1 WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("id", alias, new GraphQlDirective[] { include, skip });
 
     public FeedItemQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public FeedItemQueryBuilderV1 WithMessageTypeId(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("messageTypeId", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public FeedItemQueryBuilderV1 WithMessageTypeId(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("messageTypeId", alias, new GraphQlDirective[] { include, skip });
 
     public FeedItemQueryBuilderV1 ExceptMessageTypeId() => ExceptField("messageTypeId");
 
-    public FeedItemQueryBuilderV1 WithLink(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("link", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public FeedItemQueryBuilderV1 WithLink(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("link", alias, new GraphQlDirective[] { include, skip });
 
     public FeedItemQueryBuilderV1 ExceptLink() => ExceptField("link");
 
-    public FeedItemQueryBuilderV1 WithText(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("text", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public FeedItemQueryBuilderV1 WithText(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("text", alias, new GraphQlDirective[] { include, skip });
 
     public FeedItemQueryBuilderV1 ExceptText() => ExceptField("text");
 
-    public FeedItemQueryBuilderV1 WithCreatedAt(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("createdAt", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public FeedItemQueryBuilderV1 WithCreatedAt(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("createdAt", alias, new GraphQlDirective[] { include, skip });
 
     public FeedItemQueryBuilderV1 ExceptCreatedAt() => ExceptField("createdAt");
 
-    public FeedItemQueryBuilderV1 WithModifiedAt(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("modifiedAt", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public FeedItemQueryBuilderV1 WithModifiedAt(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("modifiedAt", alias, new GraphQlDirective[] { include, skip });
 
     public FeedItemQueryBuilderV1 ExceptModifiedAt() => ExceptField("modifiedAt");
 }
@@ -3203,19 +3203,19 @@ internal partial class PushNotificationQueryBuilderV1 : GraphQlQueryBuilder<Push
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PushNotificationQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public PushNotificationQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public PushNotificationQueryBuilderV1 WithId(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("id", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PushNotificationQueryBuilderV1 WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("id", alias, new GraphQlDirective[] { include, skip });
 
     public PushNotificationQueryBuilderV1 ExceptId() => ExceptField("id");
 
-    public PushNotificationQueryBuilderV1 WithLink(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("link", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PushNotificationQueryBuilderV1 WithLink(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("link", alias, new GraphQlDirective[] { include, skip });
 
     public PushNotificationQueryBuilderV1 ExceptLink() => ExceptField("link");
 
-    public PushNotificationQueryBuilderV1 WithText(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("text", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PushNotificationQueryBuilderV1 WithText(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("text", alias, new GraphQlDirective[] { include, skip });
 
     public PushNotificationQueryBuilderV1 ExceptText() => ExceptField("text");
 }
@@ -3231,11 +3231,11 @@ internal partial class WalletQueryBuilderV1 : GraphQlQueryBuilder<WalletQueryBui
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public WalletQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public WalletQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public WalletQueryBuilderV1 WithId(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("id", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public WalletQueryBuilderV1 WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("id", alias, new GraphQlDirective[] { include, skip });
 
     public WalletQueryBuilderV1 ExceptId() => ExceptField("id");
 
@@ -3243,7 +3243,7 @@ internal partial class WalletQueryBuilderV1 : GraphQlQueryBuilder<WalletQueryBui
 
     public WalletQueryBuilderV1 ExceptPaymentMethods() => ExceptField("paymentMethods");
 
-    public WalletQueryBuilderV1 WithDirectDebitToPromote(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("directDebitToPromote", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public WalletQueryBuilderV1 WithDirectDebitToPromote(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("directDebitToPromote", alias, new GraphQlDirective[] { include, skip });
 
     public WalletQueryBuilderV1 ExceptDirectDebitToPromote() => ExceptField("directDebitToPromote");
 }
@@ -3259,19 +3259,19 @@ internal partial class PaymentMethodQueryBuilderV1 : GraphQlQueryBuilder<Payment
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PaymentMethodQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public PaymentMethodQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public PaymentMethodQueryBuilderV1 WithMethod(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("method", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PaymentMethodQueryBuilderV1 WithMethod(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("method", alias, new GraphQlDirective[] { include, skip });
 
     public PaymentMethodQueryBuilderV1 ExceptMethod() => ExceptField("method");
 
-    public PaymentMethodQueryBuilderV1 WithStatus(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("status", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PaymentMethodQueryBuilderV1 WithStatus(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("status", alias, new GraphQlDirective[] { include, skip });
 
     public PaymentMethodQueryBuilderV1 ExceptStatus() => ExceptField("status");
 
-    public PaymentMethodQueryBuilderV1 WithProperties(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("properties", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public PaymentMethodQueryBuilderV1 WithProperties(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("properties", alias, new GraphQlDirective[] { include, skip });
 
     public PaymentMethodQueryBuilderV1 ExceptProperties() => ExceptField("properties");
 }
@@ -3285,7 +3285,7 @@ internal partial class AboutQueryBuilderV1 : GraphQlQueryBuilder<AboutQueryBuild
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AboutQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public AboutQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
@@ -3304,15 +3304,15 @@ internal partial class AboutItemQueryBuilderV1 : GraphQlQueryBuilder<AboutItemQu
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AboutItemQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public AboutItemQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public AboutItemQueryBuilderV1 WithLabel(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("label", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public AboutItemQueryBuilderV1 WithLabel(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("label", alias, new GraphQlDirective[] { include, skip });
 
     public AboutItemQueryBuilderV1 ExceptLabel() => ExceptField("label");
 
-    public AboutItemQueryBuilderV1 WithUrl(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("url", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public AboutItemQueryBuilderV1 WithUrl(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("url", alias, new GraphQlDirective[] { include, skip });
 
     public AboutItemQueryBuilderV1 ExceptUrl() => ExceptField("url");
 }
@@ -3350,7 +3350,7 @@ internal partial class MeMutationQueryBuilderV1 : GraphQlQueryBuilder<MeMutation
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public MeMutationQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public MeMutationQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
@@ -3415,7 +3415,7 @@ internal partial class HomeMutationQueryBuilderV1 : GraphQlQueryBuilder<HomeMuta
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public HomeMutationQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public HomeMutationQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
@@ -3533,11 +3533,11 @@ internal partial class ThermostatMutationQueryBuilderV1 : GraphQlQueryBuilder<Th
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ThermostatMutationQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public ThermostatMutationQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public ThermostatMutationQueryBuilderV1 WithSetState(QueryBuilderParameter<string> mode = null, QueryBuilderParameter<decimal?> comfortTemperature = null, QueryBuilderParameter<string> fanLevel = null, QueryBuilderParameter<string> onOff = null, string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null)
+    public ThermostatMutationQueryBuilderV1 WithSetState(QueryBuilderParameter<string> mode = null, QueryBuilderParameter<decimal?> comfortTemperature = null, QueryBuilderParameter<string> fanLevel = null, QueryBuilderParameter<string> onOff = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (mode != null)
@@ -3552,7 +3552,7 @@ internal partial class ThermostatMutationQueryBuilderV1 : GraphQlQueryBuilder<Th
         if (onOff != null)
             args.Add("onOff", onOff);
 
-        return WithScalarField("setState", alias, new GraphQlDirective[] { includeDirective, skipDirective }, args);
+        return WithScalarField("setState", alias, new GraphQlDirective[] { include, skip }, args);
     }
 
     public ThermostatMutationQueryBuilderV1 ExceptSetState()
@@ -3560,13 +3560,13 @@ internal partial class ThermostatMutationQueryBuilderV1 : GraphQlQueryBuilder<Th
         return ExceptField("setState");
     }
 
-    public ThermostatMutationQueryBuilderV1 WithSetName(QueryBuilderParameter<string> name = null, string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null)
+    public ThermostatMutationQueryBuilderV1 WithSetName(QueryBuilderParameter<string> name = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
         var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
         if (name != null)
             args.Add("name", name);
 
-        return WithScalarField("setName", alias, new GraphQlDirective[] { includeDirective, skipDirective }, args);
+        return WithScalarField("setName", alias, new GraphQlDirective[] { include, skip }, args);
     }
 
     public ThermostatMutationQueryBuilderV1 ExceptSetName()
@@ -3586,7 +3586,7 @@ internal partial class PairDeviceResultQueryBuilderV1 : GraphQlQueryBuilder<Pair
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public PairDeviceResultQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public PairDeviceResultQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
@@ -3613,15 +3613,15 @@ internal partial class GQLMutationErrorQueryBuilderV1 : GraphQlQueryBuilder<GQLM
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public GQLMutationErrorQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public GQLMutationErrorQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
-    public GQLMutationErrorQueryBuilderV1 WithStatusCode(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("statusCode", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public GQLMutationErrorQueryBuilderV1 WithStatusCode(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("statusCode", alias, new GraphQlDirective[] { include, skip });
 
     public GQLMutationErrorQueryBuilderV1 ExceptStatusCode() => ExceptField("statusCode");
 
-    public GQLMutationErrorQueryBuilderV1 WithMessage(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) => WithScalarField("message", alias, new GraphQlDirective[] { includeDirective, skipDirective });
+    public GQLMutationErrorQueryBuilderV1 WithMessage(string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithScalarField("message", alias, new GraphQlDirective[] { include, skip });
 
     public GQLMutationErrorQueryBuilderV1 ExceptMessage() => ExceptField("message");
 }
@@ -3635,7 +3635,7 @@ internal partial class GQLMutationGeneralResponseQueryBuilderV1 : GraphQlQueryBu
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public GQLMutationGeneralResponseQueryBuilderV1(string alias = null, IncludeDirective includeDirective = null, SkipDirective skipDirective = null) : base(alias, new GraphQlDirective[] { includeDirective, skipDirective })
+    public GQLMutationGeneralResponseQueryBuilderV1(string alias = null, IncludeDirective include = null, SkipDirective skip = null) : base(alias, new GraphQlDirective[] { include, skip })
     {
     }
 
