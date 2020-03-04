@@ -261,9 +261,9 @@ var builder =
   new TibberQueryBuilder()
     .WithViewer(
        new ViewerQueryBuilder()
-         .WithName(includeDirective: includeDirective)
-         .WithAccountType(skipDirective: skipDirective)
-         .WithHomes(new HomeQueryBuilder(skipDirective: skipDirective).WithId())
+         .WithName(include: includeDirective)
+         .WithAccountType(skip: skipDirective)
+         .WithHomes(new HomeQueryBuilder(skip: skipDirective).WithId())
     )
     .WithParameter(includeDirectParameter);
 ```

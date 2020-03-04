@@ -5,7 +5,7 @@
     <Description>A simple strongly typed C# GraphQL client generator. </Description>
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
-    <VersionPrefix>0.5.0</VersionPrefix>
+    <VersionPrefix>0.5.1</VersionPrefix>
     <TargetFrameworks>netstandard1.3;net452</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <Copyright>Copyright 2017-2020</Copyright>
@@ -18,7 +18,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>GraphGL C# Client</PackageTags>
     <PackageReleaseNotes>
-      proper directive support for fields
+      shorter directive parameter names
     </PackageReleaseNotes>
   </PropertyGroup>
 
