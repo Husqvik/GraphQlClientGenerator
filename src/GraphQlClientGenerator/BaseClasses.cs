@@ -26,6 +26,7 @@ internal static class GraphQlQueryHelper
         if (value is null)
             return "null";
 
+#if !DISABLE_GRAPHQL_GENERATOR_NEWTONSOFT_JSON
         if (value is JValue jValue)
         {
             switch (jValue.Type)
@@ -39,6 +40,7 @@ internal static class GraphQlQueryHelper
                     return $"\"{jValue.Value}\"";
             }
         }
+#endif
 
         if (value is Enum @enum)
             return ConvertEnumToString(@enum);
@@ -58,6 +60,7 @@ internal static class GraphQlQueryHelper
         if (value is String || value is Guid)
             return $"\"{value}\"";
 
+#if !DISABLE_GRAPHQL_GENERATOR_NEWTONSOFT_JSON
         if (value is JProperty jProperty)
         {
             if (RegexWhiteSpace.IsMatch(jProperty.Name))
@@ -68,6 +71,7 @@ internal static class GraphQlQueryHelper
 
         if (value is JObject jObject)
             return BuildEnumerableArgument(jObject, formatting, level + 1, indentationSize, '{', '}');
+#endif
 
         if (value is IEnumerable enumerable)
             return BuildEnumerableArgument(enumerable, formatting, level, indentationSize, '[', ']');
@@ -270,6 +274,7 @@ public class QueryBuilderParameter<T> : QueryBuilderParameter
     public static implicit operator T(QueryBuilderParameter<T> parameter) => parameter.Value;
 }
 
+#if !DISABLE_GRAPHQL_GENERATOR_NEWTONSOFT_JSON
 public class QueryBuilderParameterConverter<T> : JsonConverter
 {
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
@@ -294,6 +299,7 @@ public class QueryBuilderParameterConverter<T> : JsonConverter
 
     public override bool CanConvert(Type objectType) => objectType.IsSubclassOf(typeof(QueryBuilderParameter));
 }
+#endif
 
 public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
 {
