@@ -609,6 +609,18 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
         return (TQueryBuilder)this;
     }
 
+    public TQueryBuilder ExceptField(string fieldName)
+    {
+        ExcludeField(fieldName);
+        return (TQueryBuilder)this;
+    }
+
+    public TQueryBuilder WithTypeName(string alias = null, params GraphQlDirective[] directives)
+    {
+        IncludeScalarField("__typename", alias, null, directives);
+        return (TQueryBuilder)this;
+    }
+
     protected TQueryBuilder WithScalarField(string fieldName, string alias, GraphQlDirective[] directives, IDictionary<string, QueryBuilderParameter> args = null)
     {
         IncludeScalarField(fieldName, alias, args, directives);
@@ -618,12 +630,6 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
     protected TQueryBuilder WithObjectField(string fieldName, GraphQlQueryBuilder queryBuilder, IDictionary<string, QueryBuilderParameter> args = null)
     {
         IncludeObjectField(fieldName, queryBuilder, args);
-        return (TQueryBuilder)this;
-    }
-
-    public TQueryBuilder ExceptField(string fieldName)
-    {
-        ExcludeField(fieldName);
         return (TQueryBuilder)this;
     }
 
