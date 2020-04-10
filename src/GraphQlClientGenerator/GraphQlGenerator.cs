@@ -830,7 +830,7 @@ using Newtonsoft.Json.Linq;
 
             return
                 directiveParameterNames.Any()
-                    ? "new GraphQlDirective[] { " + String.Join(", ", directiveParameterNames) + " }"
+                    ? "new " + AddQuestionMarkIfNullableReferencesEnabled("GraphQlDirective") + "[] { " + String.Join(", ", directiveParameterNames) + " }"
                     : "null";
         }
 
