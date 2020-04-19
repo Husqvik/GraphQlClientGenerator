@@ -15,6 +15,7 @@ public enum Formatting
 internal static class GraphQlQueryHelper
 {
     private static readonly Regex RegexWhiteSpace = new Regex(@"\s", RegexOptions.Compiled);
+    private static readonly Regex RegexGraphQlIdentifier = new Regex(@"^[_A-Za-z][_0-9A-Za-z]*$", RegexOptions.Compiled);
 
     public static string GetIndentation(int level, byte indentationSize)
     {
@@ -186,7 +187,7 @@ internal static class GraphQlQueryHelper
 
     public static void ValidateGraphQlIdentifer(string name, string identifier)
     {
-        if (identifier != null && !identifier.All(c => Char.IsLetterOrDigit(c) || c == '_'))
+        if (identifier != null && !RegexGraphQlIdentifier.IsMatch(identifier))
             throw new ArgumentException("Value must match [_A-Za-z][_0-9A-Za-z]*. ", nameof(name));
     }
 
@@ -334,6 +335,8 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     protected virtual string Prefix { get { return null; } }
 
+    protected abstract string TypeName { get; }
+
     protected abstract IList<FieldMetadata> AllFields { get; }
 
     public string Alias { get; }
@@ -466,10 +469,10 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         _fieldCriteria[objectFieldQueryBuilder.Alias ?? fieldName] = new GraphQlObjectFieldCriteria(fieldName, objectFieldQueryBuilder, args);
     }
 
-    protected void IncludeFragment(string typeName, GraphQlQueryBuilder objectFieldQueryBuilder)
+    protected void IncludeFragment(GraphQlQueryBuilder objectFieldQueryBuilder)
     {
         _fragments = _fragments ?? new Dictionary<string, GraphQlFragmentCriteria>();
-        _fragments[typeName] = new GraphQlFragmentCriteria(typeName, objectFieldQueryBuilder);
+        _fragments[objectFieldQueryBuilder.TypeName] = new GraphQlFragmentCriteria(objectFieldQueryBuilder);
     }
 
     protected void ExcludeField(string fieldName)
@@ -602,7 +605,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
     {
         private readonly GraphQlQueryBuilder _objectQueryBuilder;
 
-        public GraphQlFragmentCriteria(string fieldName, GraphQlQueryBuilder objectQueryBuilder) : base(fieldName, null)
+        public GraphQlFragmentCriteria(GraphQlQueryBuilder objectQueryBuilder) : base(objectQueryBuilder.TypeName, null)
         {
             _objectQueryBuilder = objectQueryBuilder;
         }
@@ -658,9 +661,9 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
         return (TQueryBuilder)this;
     }
 
-    protected TQueryBuilder WithFragment(string typeName, GraphQlQueryBuilder queryBuilder)
+    protected TQueryBuilder WithFragment(GraphQlQueryBuilder queryBuilder)
     {
-        IncludeFragment(typeName, queryBuilder);
+        IncludeFragment(queryBuilder);
         return (TQueryBuilder)this;
     }
 

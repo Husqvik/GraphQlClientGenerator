@@ -15,6 +15,7 @@ public enum Formatting
 internal static class GraphQlQueryHelper
 {
     private static readonly Regex RegexWhiteSpace = new Regex(@"\s", RegexOptions.Compiled);
+    private static readonly Regex RegexGraphQlIdentifier = new Regex(@"^[_A-Za-z][_0-9A-Za-z]*$", RegexOptions.Compiled);
 
     public static string GetIndentation(int level, byte indentationSize)
     {
@@ -186,7 +187,7 @@ internal static class GraphQlQueryHelper
 
     public static void ValidateGraphQlIdentifer(string name, string identifier)
     {
-        if (identifier != null && !identifier.All(c => Char.IsLetterOrDigit(c) || c == '_'))
+        if (identifier != null && !RegexGraphQlIdentifier.IsMatch(identifier))
             throw new ArgumentException("Value must match [_A-Za-z][_0-9A-Za-z]*. ", nameof(name));
     }
 
@@ -334,6 +335,8 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     protected virtual string Prefix { get { return null; } }
 
+    protected abstract string TypeName { get; }
+
     protected abstract IList<FieldMetadata> AllFields { get; }
 
     public string Alias { get; }
@@ -466,10 +469,10 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         _fieldCriteria[objectFieldQueryBuilder.Alias ?? fieldName] = new GraphQlObjectFieldCriteria(fieldName, objectFieldQueryBuilder, args);
     }
 
-    protected void IncludeFragment(string typeName, GraphQlQueryBuilder objectFieldQueryBuilder)
+    protected void IncludeFragment(GraphQlQueryBuilder objectFieldQueryBuilder)
     {
         _fragments = _fragments ?? new Dictionary<string, GraphQlFragmentCriteria>();
-        _fragments[typeName] = new GraphQlFragmentCriteria(typeName, objectFieldQueryBuilder);
+        _fragments[objectFieldQueryBuilder.TypeName] = new GraphQlFragmentCriteria(objectFieldQueryBuilder);
     }
 
     protected void ExcludeField(string fieldName)
@@ -602,7 +605,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
     {
         private readonly GraphQlQueryBuilder _objectQueryBuilder;
 
-        public GraphQlFragmentCriteria(string fieldName, GraphQlQueryBuilder objectQueryBuilder) : base(fieldName, null)
+        public GraphQlFragmentCriteria(GraphQlQueryBuilder objectQueryBuilder) : base(objectQueryBuilder.TypeName, null)
         {
             _objectQueryBuilder = objectQueryBuilder;
         }
@@ -658,9 +661,9 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
         return (TQueryBuilder)this;
     }
 
-    protected TQueryBuilder WithFragment(string typeName, GraphQlQueryBuilder queryBuilder)
+    protected TQueryBuilder WithFragment(GraphQlQueryBuilder queryBuilder)
     {
-        IncludeFragment(typeName, queryBuilder);
+        IncludeFragment(queryBuilder);
         return (TQueryBuilder)this;
     }
 
@@ -707,6 +710,8 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
 
     protected override string Prefix { get; } = "query";
 
+    protected override string TypeName { get; } = "Query";
+
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public QueryQueryBuilder(string? alias = null) : base(alias, null)
@@ -746,6 +751,8 @@ public partial class SimpleObjectTypeQueryBuilder : GraphQlQueryBuilder<SimpleOb
             new FieldMetadata { Name = "stringArrayValue", IsComplex = true }
         };
 
+    protected override string TypeName { get; } = "SimpleObjectType";
+
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public SimpleObjectTypeQueryBuilder(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) : base(alias, new GraphQlDirective?[] { skip, include })
@@ -773,17 +780,19 @@ public partial class UnionTypeQueryBuilder : GraphQlQueryBuilder<UnionTypeQueryB
 {
     private static readonly FieldMetadata[] AllFieldMetadata = new FieldMetadata[0];
 
+    protected override string TypeName { get; } = "UnionType";
+
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public UnionTypeQueryBuilder(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) : base(alias, new GraphQlDirective?[] { skip, include })
     {
     }
 
-    public UnionTypeQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder) => WithFragment("ConcreteType1", concreteType1QueryBuilder);
+    public UnionTypeQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder) => WithFragment(concreteType1QueryBuilder);
 
-    public UnionTypeQueryBuilder WithConcreteType2Fragment(ConcreteType2QueryBuilder concreteType2QueryBuilder) => WithFragment("ConcreteType2", concreteType2QueryBuilder);
+    public UnionTypeQueryBuilder WithConcreteType2Fragment(ConcreteType2QueryBuilder concreteType2QueryBuilder) => WithFragment(concreteType2QueryBuilder);
 
-    public UnionTypeQueryBuilder WithConcreteType3Fragment(ConcreteType3QueryBuilder concreteType3QueryBuilder) => WithFragment("ConcreteType3", concreteType3QueryBuilder);
+    public UnionTypeQueryBuilder WithConcreteType3Fragment(ConcreteType3QueryBuilder concreteType3QueryBuilder) => WithFragment(concreteType3QueryBuilder);
 }
 
 public partial class ConcreteType1QueryBuilder : GraphQlQueryBuilder<ConcreteType1QueryBuilder>
@@ -793,6 +802,8 @@ public partial class ConcreteType1QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
             new FieldMetadata { Name = "name" },
             new FieldMetadata { Name = "concreteType1Field" }
         };
+
+    protected override string TypeName { get; } = "ConcreteType1";
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
@@ -816,6 +827,8 @@ public partial class NamedTypeQueryBuilder : GraphQlQueryBuilder<NamedTypeQueryB
             new FieldMetadata { Name = "name" }
         };
 
+    protected override string TypeName { get; } = "NamedType";
+
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public NamedTypeQueryBuilder(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) : base(alias, new GraphQlDirective?[] { skip, include })
@@ -826,11 +839,11 @@ public partial class NamedTypeQueryBuilder : GraphQlQueryBuilder<NamedTypeQueryB
 
     public NamedTypeQueryBuilder ExceptName() => ExceptField("name");
 
-    public NamedTypeQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder) => WithFragment("ConcreteType1", concreteType1QueryBuilder);
+    public NamedTypeQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder) => WithFragment(concreteType1QueryBuilder);
 
-    public NamedTypeQueryBuilder WithConcreteType2Fragment(ConcreteType2QueryBuilder concreteType2QueryBuilder) => WithFragment("ConcreteType2", concreteType2QueryBuilder);
+    public NamedTypeQueryBuilder WithConcreteType2Fragment(ConcreteType2QueryBuilder concreteType2QueryBuilder) => WithFragment(concreteType2QueryBuilder);
 
-    public NamedTypeQueryBuilder WithConcreteType3Fragment(ConcreteType3QueryBuilder concreteType3QueryBuilder) => WithFragment("ConcreteType3", concreteType3QueryBuilder);
+    public NamedTypeQueryBuilder WithConcreteType3Fragment(ConcreteType3QueryBuilder concreteType3QueryBuilder) => WithFragment(concreteType3QueryBuilder);
 }
 
 public partial class ConcreteType2QueryBuilder : GraphQlQueryBuilder<ConcreteType2QueryBuilder>
@@ -840,6 +853,8 @@ public partial class ConcreteType2QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
             new FieldMetadata { Name = "name" },
             new FieldMetadata { Name = "concreteType2Field" }
         };
+
+    protected override string TypeName { get; } = "ConcreteType2";
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
@@ -864,6 +879,8 @@ public partial class ConcreteType3QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
             new FieldMetadata { Name = "concreteType3Field" },
             new FieldMetadata { Name = "function" }
         };
+
+    protected override string TypeName { get; } = "ConcreteType3";
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 

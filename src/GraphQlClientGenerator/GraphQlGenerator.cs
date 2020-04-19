@@ -688,6 +688,8 @@ using Newtonsoft.Json.Linq;
             if (hasQueryPrefix)
                 WriteOverrideProperty("string", "Prefix", $"\"{directiveLocation.ToString().ToLowerInvariant()}\"", builder);
 
+            WriteOverrideProperty("string", "TypeName", $"\"{type.Name}\"", builder);
+
             WriteOverrideProperty("IList<FieldMetadata>", "AllFields", "AllFieldMetadata", builder);
 
             var stringDataType = AddQuestionMarkIfNullableReferencesEnabled("string");
@@ -825,7 +827,20 @@ using Newtonsoft.Json.Linq;
                         {
                             AppendArgumentDictionary(builder, args);
 
-                            builder.Append($"{returnPrefix}With{(isFragment ? "Fragment" : "ObjectField")}(\"{field.Name}\", {builderParameterName}QueryBuilder");
+                            builder.Append(returnPrefix);
+                            builder.Append("With");
+
+                            if (isFragment)
+                                builder.Append("Fragment(");
+                            else
+                            {
+                                builder.Append("ObjectField(\"");
+                                builder.Append(field.Name);
+                                builder.Append("\", ");
+                            }
+
+                            builder.Append(builderParameterName);
+                            builder.Append("QueryBuilder");
 
                             if (args.Length > 0)
                                 builder.Append(", args");

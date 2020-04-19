@@ -165,6 +165,8 @@ namespace GraphQlClientGenerator.Test
             new FieldMetadata { Name = ""objectParameter"" }
         };
 
+    protected override string TypeName { get; } = ""Test"";
+
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public TestQueryBuilder(string alias = null, SkipDirective skipDirective = null, IncludeDirective includeDirective = null)
@@ -434,6 +436,8 @@ namespace {assemblyName}
         };
 
     protected override string Prefix { get; } = ""mutation"";
+
+    protected override string TypeName { get; } = ""TestMutation"";
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 

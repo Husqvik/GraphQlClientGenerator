@@ -15,6 +15,7 @@ public enum Formatting
 internal static class GraphQlQueryHelper
 {
     private static readonly Regex RegexWhiteSpace = new Regex(@"\s", RegexOptions.Compiled);
+    private static readonly Regex RegexGraphQlIdentifier = new Regex(@"^[_A-Za-z][_0-9A-Za-z]*$", RegexOptions.Compiled);
 
     public static string GetIndentation(int level, byte indentationSize)
     {
@@ -186,7 +187,7 @@ internal static class GraphQlQueryHelper
 
     public static void ValidateGraphQlIdentifer(string name, string identifier)
     {
-        if (identifier != null && !identifier.All(c => Char.IsLetterOrDigit(c) || c == '_'))
+        if (identifier != null && !RegexGraphQlIdentifier.IsMatch(identifier))
             throw new ArgumentException("Value must match [_A-Za-z][_0-9A-Za-z]*. ", nameof(name));
     }
 
@@ -334,6 +335,8 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     protected virtual string Prefix { get { return null; } }
 
+    protected abstract string TypeName { get; }
+
     protected abstract IList<FieldMetadata> AllFields { get; }
 
     public string Alias { get; }
@@ -466,10 +469,10 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         _fieldCriteria[objectFieldQueryBuilder.Alias ?? fieldName] = new GraphQlObjectFieldCriteria(fieldName, objectFieldQueryBuilder, args);
     }
 
-    protected void IncludeFragment(string typeName, GraphQlQueryBuilder objectFieldQueryBuilder)
+    protected void IncludeFragment(GraphQlQueryBuilder objectFieldQueryBuilder)
     {
         _fragments = _fragments ?? new Dictionary<string, GraphQlFragmentCriteria>();
-        _fragments[typeName] = new GraphQlFragmentCriteria(typeName, objectFieldQueryBuilder);
+        _fragments[objectFieldQueryBuilder.TypeName] = new GraphQlFragmentCriteria(objectFieldQueryBuilder);
     }
 
     protected void ExcludeField(string fieldName)
@@ -602,7 +605,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
     {
         private readonly GraphQlQueryBuilder _objectQueryBuilder;
 
-        public GraphQlFragmentCriteria(string fieldName, GraphQlQueryBuilder objectQueryBuilder) : base(fieldName, null)
+        public GraphQlFragmentCriteria(GraphQlQueryBuilder objectQueryBuilder) : base(objectQueryBuilder.TypeName, null)
         {
             _objectQueryBuilder = objectQueryBuilder;
         }
@@ -658,9 +661,9 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
         return (TQueryBuilder)this;
     }
 
-    protected TQueryBuilder WithFragment(string typeName, GraphQlQueryBuilder queryBuilder)
+    protected TQueryBuilder WithFragment(GraphQlQueryBuilder queryBuilder)
     {
-        IncludeFragment(typeName, queryBuilder);
+        IncludeFragment(queryBuilder);
         return (TQueryBuilder)this;
     }
 
@@ -773,6 +776,8 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
 
     protected override string Prefix { get { return "query"; } } 
 
+    protected override string TypeName { get { return "Query"; } } 
+
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public QueryQueryBuilder(string alias = null) : base(alias, null)
@@ -806,6 +811,8 @@ public partial class ViewerQueryBuilder : GraphQlQueryBuilder<ViewerQueryBuilder
             new FieldMetadata { Name = "homes", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilder) },
             new FieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilder) }
         };
+
+    protected override string TypeName { get { return "Viewer"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
@@ -890,6 +897,8 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
             new FieldMetadata { Name = "production", IsComplex = true, QueryBuilderType = typeof(HomeProductionConnectionQueryBuilder) },
             new FieldMetadata { Name = "features", IsComplex = true, QueryBuilderType = typeof(HomeFeaturesQueryBuilder) }
         };
+
+    protected override string TypeName { get { return "Home"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
@@ -1127,6 +1136,8 @@ public partial class AddressQueryBuilder : GraphQlQueryBuilder<AddressQueryBuild
             new FieldMetadata { Name = "longitude" }
         };
 
+    protected override string TypeName { get { return "Address"; } } 
+
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public AddressQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
@@ -1230,6 +1241,8 @@ public partial class LegalEntityQueryBuilder : GraphQlQueryBuilder<LegalEntityQu
             new FieldMetadata { Name = "contactInfo", IsComplex = true, QueryBuilderType = typeof(ContactInfoQueryBuilder) },
             new FieldMetadata { Name = "address", IsComplex = true, QueryBuilderType = typeof(AddressQueryBuilder) }
         };
+
+    protected override string TypeName { get { return "LegalEntity"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
@@ -1347,6 +1360,8 @@ public partial class ContactInfoQueryBuilder : GraphQlQueryBuilder<ContactInfoQu
             new FieldMetadata { Name = "mobile" }
         };
 
+    protected override string TypeName { get { return "ContactInfo"; } } 
+
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public ContactInfoQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
@@ -1388,6 +1403,8 @@ public partial class MeteringPointDataQueryBuilder : GraphQlQueryBuilder<Meterin
             new FieldMetadata { Name = "vatType" },
             new FieldMetadata { Name = "estimatedAnnualConsumption" }
         };
+
+    protected override string TypeName { get { return "MeteringPointData"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
@@ -1489,6 +1506,8 @@ public partial class SubscriptionQueryBuilder : GraphQlQueryBuilder<Subscription
             new FieldMetadata { Name = "priceInfo", IsComplex = true, QueryBuilderType = typeof(PriceInfoQueryBuilder) }
         };
 
+    protected override string TypeName { get { return "Subscription"; } } 
+
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public SubscriptionQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
@@ -1567,6 +1586,8 @@ public partial class PriceInfoQueryBuilder : GraphQlQueryBuilder<PriceInfoQueryB
             new FieldMetadata { Name = "range", IsComplex = true, QueryBuilderType = typeof(SubscriptionPriceConnectionQueryBuilder) }
         };
 
+    protected override string TypeName { get { return "PriceInfo"; } } 
+
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public PriceInfoQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
@@ -1640,6 +1661,8 @@ public partial class PriceQueryBuilder : GraphQlQueryBuilder<PriceQueryBuilder>
             new FieldMetadata { Name = "currency" },
             new FieldMetadata { Name = "level" }
         };
+
+    protected override string TypeName { get { return "Price"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
@@ -1718,6 +1741,8 @@ public partial class SubscriptionPriceConnectionQueryBuilder : GraphQlQueryBuild
             new FieldMetadata { Name = "nodes", IsComplex = true, QueryBuilderType = typeof(PriceQueryBuilder) }
         };
 
+    protected override string TypeName { get { return "SubscriptionPriceConnection"; } } 
+
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public SubscriptionPriceConnectionQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
@@ -1773,6 +1798,8 @@ public partial class SubscriptionPriceConnectionPageInfoQueryBuilder : GraphQlQu
             new FieldMetadata { Name = "maxEnergy" },
             new FieldMetadata { Name = "maxTotal" }
         };
+
+    protected override string TypeName { get { return "SubscriptionPriceConnectionPageInfo"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
@@ -1913,6 +1940,8 @@ public partial class PageInfoQueryBuilder : GraphQlQueryBuilder<PageInfoQueryBui
             new FieldMetadata { Name = "startCursor" }
         };
 
+    protected override string TypeName { get { return "PageInfo"; } } 
+
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public PageInfoQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
@@ -1971,17 +2000,17 @@ public partial class PageInfoQueryBuilder : GraphQlQueryBuilder<PageInfoQueryBui
 
     public PageInfoQueryBuilder WithSubscriptionPriceConnectionPageInfoFragment(SubscriptionPriceConnectionPageInfoQueryBuilder subscriptionPriceConnectionPageInfoQueryBuilder)
     {
-        return WithFragment("SubscriptionPriceConnectionPageInfo", subscriptionPriceConnectionPageInfoQueryBuilder);
+        return WithFragment(subscriptionPriceConnectionPageInfoQueryBuilder);
     }
 
     public PageInfoQueryBuilder WithHomeConsumptionPageInfoFragment(HomeConsumptionPageInfoQueryBuilder homeConsumptionPageInfoQueryBuilder)
     {
-        return WithFragment("HomeConsumptionPageInfo", homeConsumptionPageInfoQueryBuilder);
+        return WithFragment(homeConsumptionPageInfoQueryBuilder);
     }
 
     public PageInfoQueryBuilder WithHomeProductionPageInfoFragment(HomeProductionPageInfoQueryBuilder homeProductionPageInfoQueryBuilder)
     {
-        return WithFragment("HomeProductionPageInfo", homeProductionPageInfoQueryBuilder);
+        return WithFragment(homeProductionPageInfoQueryBuilder);
     }
 }
 
@@ -1993,6 +2022,8 @@ public partial class SubscriptionPriceEdgeQueryBuilder : GraphQlQueryBuilder<Sub
             new FieldMetadata { Name = "cursor" },
             new FieldMetadata { Name = "node", IsComplex = true, QueryBuilderType = typeof(PriceQueryBuilder) }
         };
+
+    protected override string TypeName { get { return "SubscriptionPriceEdge"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
@@ -2030,6 +2061,8 @@ public partial class HomeConsumptionConnectionQueryBuilder : GraphQlQueryBuilder
             new FieldMetadata { Name = "nodes", IsComplex = true, QueryBuilderType = typeof(ConsumptionQueryBuilder) },
             new FieldMetadata { Name = "edges", IsComplex = true, QueryBuilderType = typeof(HomeConsumptionEdgeQueryBuilder) }
         };
+
+    protected override string TypeName { get { return "HomeConsumptionConnection"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
@@ -2083,6 +2116,8 @@ public partial class HomeConsumptionPageInfoQueryBuilder : GraphQlQueryBuilder<H
             new FieldMetadata { Name = "totalConsumption" },
             new FieldMetadata { Name = "filtered" }
         };
+
+    protected override string TypeName { get { return "HomeConsumptionPageInfo"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
@@ -2196,6 +2231,8 @@ public partial class ConsumptionQueryBuilder : GraphQlQueryBuilder<ConsumptionQu
             new FieldMetadata { Name = "currency" }
         };
 
+    protected override string TypeName { get { return "Consumption"; } } 
+
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public ConsumptionQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
@@ -2292,6 +2329,8 @@ public partial class HomeConsumptionEdgeQueryBuilder : GraphQlQueryBuilder<HomeC
             new FieldMetadata { Name = "node", IsComplex = true, QueryBuilderType = typeof(ConsumptionQueryBuilder) }
         };
 
+    protected override string TypeName { get { return "HomeConsumptionEdge"; } } 
+
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public HomeConsumptionEdgeQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
@@ -2328,6 +2367,8 @@ public partial class HomeProductionConnectionQueryBuilder : GraphQlQueryBuilder<
             new FieldMetadata { Name = "nodes", IsComplex = true, QueryBuilderType = typeof(ProductionQueryBuilder) },
             new FieldMetadata { Name = "edges", IsComplex = true, QueryBuilderType = typeof(HomeProductionEdgeQueryBuilder) }
         };
+
+    protected override string TypeName { get { return "HomeProductionConnection"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
@@ -2381,6 +2422,8 @@ public partial class HomeProductionPageInfoQueryBuilder : GraphQlQueryBuilder<Ho
             new FieldMetadata { Name = "totalProduction" },
             new FieldMetadata { Name = "filtered" }
         };
+
+    protected override string TypeName { get { return "HomeProductionPageInfo"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
@@ -2494,6 +2537,8 @@ public partial class ProductionQueryBuilder : GraphQlQueryBuilder<ProductionQuer
             new FieldMetadata { Name = "currency" }
         };
 
+    protected override string TypeName { get { return "Production"; } } 
+
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public ProductionQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
@@ -2590,6 +2635,8 @@ public partial class HomeProductionEdgeQueryBuilder : GraphQlQueryBuilder<HomePr
             new FieldMetadata { Name = "node", IsComplex = true, QueryBuilderType = typeof(ProductionQueryBuilder) }
         };
 
+    protected override string TypeName { get { return "HomeProductionEdge"; } } 
+
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public HomeProductionEdgeQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
@@ -2625,6 +2672,8 @@ public partial class HomeFeaturesQueryBuilder : GraphQlQueryBuilder<HomeFeatures
             new FieldMetadata { Name = "realTimeConsumptionEnabled" }
         };
 
+    protected override string TypeName { get { return "HomeFeatures"; } } 
+
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public HomeFeaturesQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
@@ -2653,6 +2702,8 @@ public partial class RootMutationQueryBuilder : GraphQlQueryBuilder<RootMutation
         };
 
     protected override string Prefix { get { return "mutation"; } } 
+
+    protected override string TypeName { get { return "RootMutation"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
@@ -2719,6 +2770,8 @@ public partial class MeterReadingResponseQueryBuilder : GraphQlQueryBuilder<Mete
             new FieldMetadata { Name = "reading" }
         };
 
+    protected override string TypeName { get { return "MeterReadingResponse"; } } 
+
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public MeterReadingResponseQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
@@ -2765,6 +2818,8 @@ public partial class PushNotificationResponseQueryBuilder : GraphQlQueryBuilder<
             new FieldMetadata { Name = "pushedToNumberOfDevices" }
         };
 
+    protected override string TypeName { get { return "PushNotificationResponse"; } } 
+
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public PushNotificationResponseQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
@@ -2801,6 +2856,8 @@ public partial class RootSubscriptionQueryBuilder : GraphQlQueryBuilder<RootSubs
         };
 
     protected override string Prefix { get { return "subscription"; } } 
+
+    protected override string TypeName { get { return "RootSubscription"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
@@ -2853,6 +2910,8 @@ public partial class LiveMeasurementQueryBuilder : GraphQlQueryBuilder<LiveMeasu
             new FieldMetadata { Name = "currentPhase2" },
             new FieldMetadata { Name = "currentPhase3" }
         };
+
+    protected override string TypeName { get { return "LiveMeasurement"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
