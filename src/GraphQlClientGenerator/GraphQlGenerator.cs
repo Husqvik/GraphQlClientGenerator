@@ -413,7 +413,31 @@ using Newtonsoft.Json.Linq;
             return memberName;
         }
 
-        private static IList<GraphQlField> GetFieldsToGenerate(GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary)
+        private static IEnumerable<GraphQlField> GetFragments(GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary)
+        {
+            var fragments = new List<GraphQlField>();
+            if (type.Kind != GraphQlTypeKind.Union && type.Kind != GraphQlTypeKind.Interface)
+                return fragments;
+
+            foreach (var possibleType in type.PossibleTypes)
+                if (complexTypeDictionary.TryGetValue(possibleType.Name, out var consistOfType) && consistOfType.Fields != null)
+                    fragments.Add(
+                        new GraphQlField
+                        {
+                            Name = consistOfType.Name,
+                            Description = consistOfType.Description,
+                            Type =
+                                new GraphQlFieldType
+                                {
+                                    Name = consistOfType.Name,
+                                    Kind = consistOfType.Kind
+                                }
+                        });
+
+            return fragments;
+        }
+
+        private static List<GraphQlField> GetFieldsToGenerate(GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary)
         {
             var typeFields = type.Fields;
             if (type.Kind == GraphQlTypeKind.Union)
@@ -598,48 +622,57 @@ using Newtonsoft.Json.Linq;
             builder.Append(className);
             builder.AppendLine($" : GraphQlQueryBuilder<{className}>");
             builder.AppendLine("{");
+            builder.Append("    private static readonly FieldMetadata[] AllFieldMetadata =");
 
-            builder.AppendLine("    private static readonly FieldMetadata[] AllFieldMetadata =");
-
-            if (GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.Compatible)
-                builder.AppendLine("        new []");
-
-            builder.AppendLine("        {");
-
-            var fields = GetFieldsToGenerate(type, complexTypeDictionary);
-            for (var i = 0; i < fields?.Count; i++)
+            var fields = type.Kind == GraphQlTypeKind.Union ? null : GetFieldsToGenerate(type, complexTypeDictionary);
+            if (fields == null)
             {
-                var comma = i == fields.Count - 1 ? null : ",";
-                var field = fields[i];
-                var fieldType = field.Type.UnwrapIfNonNull();
-                var isList = fieldType.Kind == GraphQlTypeKind.List;
-                var treatUnknownObjectAsComplex = IsUnknownObjectScalar(type, field.Name, fieldType) && !GraphQlGeneratorConfiguration.TreatUnknownObjectAsScalar;
-                var isComplex = isList || treatUnknownObjectAsComplex || IsComplexType(fieldType.Kind);
+                builder.AppendLine(" new FieldMetadata[0];");
+                builder.AppendLine();
+            }
+            else
+            {
+                builder.AppendLine();
 
-                builder.Append($"            new FieldMetadata {{ Name = \"{field.Name}\"");
+                if (GraphQlGeneratorConfiguration.CSharpVersion == CSharpVersion.Compatible)
+                    builder.AppendLine("        new []");
 
-                if (isComplex)
+                builder.AppendLine("        {");
+
+                for (var i = 0; i < fields.Count; i++)
                 {
-                    builder.Append(", IsComplex = true");
+                    var comma = i == fields.Count - 1 ? null : ",";
+                    var field = fields[i];
+                    var fieldType = field.Type.UnwrapIfNonNull();
+                    var isList = fieldType.Kind == GraphQlTypeKind.List;
+                    var treatUnknownObjectAsComplex = IsUnknownObjectScalar(type, field.Name, fieldType) && !GraphQlGeneratorConfiguration.TreatUnknownObjectAsScalar;
+                    var isComplex = isList || treatUnknownObjectAsComplex || IsComplexType(fieldType.Kind);
 
-                    fieldType = isList ? fieldType.OfType.UnwrapIfNonNull() : fieldType;
+                    builder.Append($"            new FieldMetadata {{ Name = \"{field.Name}\"");
 
-                    if (fieldType.Kind != GraphQlTypeKind.Scalar && fieldType.Kind != GraphQlTypeKind.Enum)
+                    if (isComplex)
                     {
-                        var fieldTypeName = fieldType.Name;
-                        if (fieldTypeName == null)
-                            ThrowFieldTypeResolutionFailed(type.Name, field.Name);
+                        builder.Append(", IsComplex = true");
 
-                        fieldTypeName = UseCustomClassNameIfDefined(fieldTypeName);
-                        builder.Append($", QueryBuilderType = typeof({fieldTypeName}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix})");
+                        fieldType = isList ? fieldType.OfType.UnwrapIfNonNull() : fieldType;
+
+                        if (fieldType.Kind != GraphQlTypeKind.Scalar && fieldType.Kind != GraphQlTypeKind.Enum)
+                        {
+                            var fieldTypeName = fieldType.Name;
+                            if (fieldTypeName == null)
+                                ThrowFieldTypeResolutionFailed(type.Name, field.Name);
+
+                            fieldTypeName = UseCustomClassNameIfDefined(fieldTypeName);
+                            builder.Append($", QueryBuilderType = typeof({fieldTypeName}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix})");
+                        }
                     }
+
+                    builder.AppendLine($" }}{comma}");
                 }
 
-                builder.AppendLine($" }}{comma}");
+                builder.AppendLine("        };");
+                builder.AppendLine();
             }
-
-            builder.AppendLine("        };");
-            builder.AppendLine();
 
             GraphQlDirectiveLocation directiveLocation;
             if (type.Name == schema.QueryType?.Name)
@@ -690,13 +723,20 @@ using Newtonsoft.Json.Linq;
                 builder.AppendLine();
             }
 
-            for (var i = 0; i < fields?.Count; i++)
+            var fragments = GetFragments(type, complexTypeDictionary);
+            fields ??= new List<GraphQlField>();
+            var firstFragmentIndex = fields.Count;
+            fields.AddRange(fragments);
+
+            for (var i = 0; i < fields.Count; i++)
             {
                 var field = fields[i];
                 var fieldType = field.Type.UnwrapIfNonNull();
                 if (fieldType.Kind == GraphQlTypeKind.List)
                     fieldType = fieldType.OfType;
+                
                 fieldType = fieldType.UnwrapIfNonNull();
+                var isFragment = i >= firstFragmentIndex;
 
                 static bool IsCompatibleArgument(GraphQlFieldType argumentType)
                 {
@@ -768,7 +808,7 @@ using Newtonsoft.Json.Linq;
                     fieldTypeName = UseCustomClassNameIfDefined(fieldTypeName);
 
                     var builderParameterName = NamingHelper.LowerFirst(fieldTypeName);
-                    builder.Append($"    public {className} With{NamingHelper.ToPascalCase(field.Name)}({fieldTypeName}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix} {builderParameterName}QueryBuilder");
+                    builder.Append($"    public {className} With{NamingHelper.ToPascalCase(field.Name)}{(isFragment ? "Fragment" : null)}({fieldTypeName}QueryBuilder{GraphQlGeneratorConfiguration.ClassPostfix} {builderParameterName}QueryBuilder");
 
                     if (args.Length > 0)
                     {
@@ -785,7 +825,7 @@ using Newtonsoft.Json.Linq;
                         {
                             AppendArgumentDictionary(builder, args);
 
-                            builder.Append($"{returnPrefix}WithObjectField(\"{field.Name}\", {builderParameterName}QueryBuilder");
+                            builder.Append($"{returnPrefix}With{(isFragment ? "Fragment" : "ObjectField")}(\"{field.Name}\", {builderParameterName}QueryBuilder");
 
                             if (args.Length > 0)
                                 builder.Append(", args");
@@ -794,14 +834,17 @@ using Newtonsoft.Json.Linq;
                         });
                 }
 
-                builder.AppendLine();
+                if (!isFragment)
+                {
+                    builder.AppendLine();
 
-                builder.Append($"    public {className} Except{NamingHelper.ToPascalCase(field.Name)}()");
+                    builder.Append($"    public {className} Except{NamingHelper.ToPascalCase(field.Name)}()");
 
-                WriteQueryBuilderMethodBody(
-                    requiresFullBody,
-                    builder,
-                    () => builder.AppendLine($"{returnPrefix}ExceptField(\"{field.Name}\");"));
+                    WriteQueryBuilderMethodBody(
+                        requiresFullBody,
+                        builder,
+                        () => builder.AppendLine($"{returnPrefix}ExceptField(\"{field.Name}\");"));
+                }
 
                 if (i < fields.Count - 1)
                     builder.AppendLine();

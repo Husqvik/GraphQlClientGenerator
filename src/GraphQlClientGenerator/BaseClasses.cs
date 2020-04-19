@@ -329,6 +329,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     private readonly GraphQlDirective[] _directives;
 
+    private Dictionary<string, GraphQlFragmentCriteria> _fragments;
     private Dictionary<string, QueryBuilderParameter> _queryParameters;
 
     protected virtual string Prefix { get { return null; } }
@@ -347,6 +348,8 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
     public virtual void Clear()
     {
         _fieldCriteria.Clear();
+        _fragments?.Clear();
+        _queryParameters?.Clear();
     }
 
     void IGraphQlQueryBuilder.IncludeAllFields()
@@ -430,7 +433,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
         separator = String.Empty;
         
-        foreach (var criteria in _fieldCriteria.Values)
+        foreach (var criteria in _fieldCriteria.Values.Concat(_fragments?.Values ?? Enumerable.Empty<GraphQlFragmentCriteria>()))
         {
             var fieldCriteria = criteria.Build(formatting, level, indentationSize);
             if (isIndentedFormatting)
@@ -461,6 +464,12 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
     protected void IncludeObjectField(string fieldName, GraphQlQueryBuilder objectFieldQueryBuilder, IDictionary<string, QueryBuilderParameter> args)
     {
         _fieldCriteria[objectFieldQueryBuilder.Alias ?? fieldName] = new GraphQlObjectFieldCriteria(fieldName, objectFieldQueryBuilder, args);
+    }
+
+    protected void IncludeFragment(string typeName, GraphQlQueryBuilder objectFieldQueryBuilder)
+    {
+        _fragments = _fragments ?? new Dictionary<string, GraphQlFragmentCriteria>();
+        _fragments[typeName] = new GraphQlFragmentCriteria(typeName, objectFieldQueryBuilder);
     }
 
     protected void ExcludeField(string fieldName)
@@ -588,6 +597,22 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
                 : GetIndentation(formatting, level, indentationSize) + BuildAliasPrefix(_objectQueryBuilder.Alias, formatting) + FieldName +
                   BuildArgumentClause(formatting, level, indentationSize) + _objectQueryBuilder.Build(formatting, level + 1, indentationSize);
     }
+
+    private class GraphQlFragmentCriteria : GraphQlFieldCriteria
+    {
+        private readonly GraphQlQueryBuilder _objectQueryBuilder;
+
+        public GraphQlFragmentCriteria(string fieldName, GraphQlQueryBuilder objectQueryBuilder) : base(fieldName, null)
+        {
+            _objectQueryBuilder = objectQueryBuilder;
+        }
+
+        public override string Build(Formatting formatting, int level, byte indentationSize) =>
+            _objectQueryBuilder._fieldCriteria.Count == 0
+                ? null
+                : GetIndentation(formatting, level, indentationSize) + "..." + (formatting == Formatting.Indented ? " " : null) + "on " +
+                  FieldName + BuildArgumentClause(formatting, level, indentationSize) + _objectQueryBuilder.Build(formatting, level + 1, indentationSize);
+    }
 }
 
 public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder where TQueryBuilder : GraphQlQueryBuilder<TQueryBuilder>
@@ -630,6 +655,12 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
     protected TQueryBuilder WithObjectField(string fieldName, GraphQlQueryBuilder queryBuilder, IDictionary<string, QueryBuilderParameter> args = null)
     {
         IncludeObjectField(fieldName, queryBuilder, args);
+        return (TQueryBuilder)this;
+    }
+
+    protected TQueryBuilder WithFragment(string typeName, GraphQlQueryBuilder queryBuilder)
+    {
+        IncludeFragment(typeName, queryBuilder);
         return (TQueryBuilder)this;
     }
 
