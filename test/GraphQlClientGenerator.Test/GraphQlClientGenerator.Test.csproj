@@ -26,9 +26,11 @@
     <EmbeddedResource Include="ExpectedWithNullableReferences" />
     <EmbeddedResource Include="ExpectedQueryBuilders" />
     <EmbeddedResource Include="ExpectedQueryBuildersWithListsOfScalarValuesAsArguments" />
+    <EmbeddedResource Include="ExpectedWithUnions" />
     <EmbeddedResource Include="TestSchema" />
     <EmbeddedResource Include="TestSchema2" />
     <EmbeddedResource Include="TestSchema3" />
+    <EmbeddedResource Include="TestSchemaWithUnions" />
     <EmbeddedResource Include="TestSchemaWithDeprecatedFields" />
   </ItemGroup>
 

@@ -130,6 +130,21 @@ namespace GraphQlClientGenerator.Test
         }
 
         [Fact]
+        public void WithUnions()
+        {
+            GraphQlGeneratorConfiguration.CSharpVersion = CSharpVersion.NewestWithNullableReferences;
+            var schema = DeserializeTestSchema("TestSchemaWithUnions");
+
+            var stringBuilder = new StringBuilder();
+            GraphQlGenerator.GenerateQueryBuilder(schema, stringBuilder);
+            GraphQlGenerator.GenerateDataClasses(schema, stringBuilder);
+
+            var expectedOutput = GetTestResource("ExpectedWithUnions");
+            var generatedSourceCode = stringBuilder.ToString();
+            generatedSourceCode.ShouldBe(expectedOutput);
+        }
+
+        [Fact]
         public void GeneratedQuery()
         {
             GraphQlGeneratorConfiguration.JsonPropertyGeneration = JsonPropertyGenerationOption.Always;
@@ -394,7 +409,7 @@ namespace {assemblyName}
 
             var assemblyFileName = Path.GetTempFileName();
             var result = compilation.Emit(assemblyFileName);
-            var errorReport = String.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity != DiagnosticSeverity.Hidden).Select(l => $"[{l.Severity}] {l.ToString()}"));
+            var errorReport = String.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity != DiagnosticSeverity.Hidden).Select(l => $"[{l.Severity}] {l}"));
             errorReport.ShouldBeNullOrEmpty();
 
             Assembly.LoadFrom(assemblyFileName);
