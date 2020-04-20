@@ -503,15 +503,36 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
                 parentTypes?.Add(builderType);
 
-                var constructorInfo = field.QueryBuilderType.GetConstructors().SingleOrDefault(IsCompatibleConstructor);
-                if (constructorInfo == null)
-                    throw new InvalidOperationException($"{field.QueryBuilderType.FullName} constructor not found");
+                var queryBuilder = InitializeChildBuilder(builderType, field.QueryBuilderType, parentTypes);
 
-                var queryBuilder = (GraphQlQueryBuilder)constructorInfo.Invoke(new object[constructorInfo.GetParameters().Length]);
-                queryBuilder.IncludeFields(queryBuilder.AllFields, parentTypes ?? new List<Type> { builderType });
+                var includeFragmentMethods = field.QueryBuilderType.GetMethods().Where(IsIncludeFragmentMethod);
+
+                foreach (var includeFragmentMethod in includeFragmentMethods)
+                    includeFragmentMethod.Invoke(queryBuilder, new[] { InitializeChildBuilder(builderType, includeFragmentMethod.GetParameters()[0].ParameterType, parentTypes) });
+
                 IncludeObjectField(field.Name, queryBuilder, null);
             }
         }
+    }
+
+    private static GraphQlQueryBuilder InitializeChildBuilder(Type parentQueryBuilderType, Type queryBuilderType, List<Type> parentTypes)
+    {
+        var constructorInfo = queryBuilderType.GetConstructors().SingleOrDefault(IsCompatibleConstructor);
+        if (constructorInfo == null)
+            throw new InvalidOperationException($"{queryBuilderType.FullName} constructor not found");
+
+        var queryBuilder = (GraphQlQueryBuilder)constructorInfo.Invoke(new object[constructorInfo.GetParameters().Length]);
+        queryBuilder.IncludeFields(queryBuilder.AllFields, parentTypes ?? new List<Type> { parentQueryBuilderType });
+        return queryBuilder;
+    }
+
+    private static bool IsIncludeFragmentMethod(MethodInfo methodInfo)
+    {
+        if (!methodInfo.Name.StartsWith("With") || !methodInfo.Name.EndsWith("Fragment"))
+            return false;
+
+        var parameters = methodInfo.GetParameters();
+        return parameters.Length == 1 && parameters[0].ParameterType.IsSubclassOf(typeof(GraphQlQueryBuilder));
     }
 
     private static bool IsCompatibleConstructor(ConstructorInfo constructorInfo)
@@ -595,10 +616,10 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         }
 
         public override string Build(Formatting formatting, int level, byte indentationSize) =>
-            _objectQueryBuilder._fieldCriteria.Count == 0
-                ? null
-                : GetIndentation(formatting, level, indentationSize) + BuildAliasPrefix(_objectQueryBuilder.Alias, formatting) + FieldName +
-                  BuildArgumentClause(formatting, level, indentationSize) + _objectQueryBuilder.Build(formatting, level + 1, indentationSize);
+            _objectQueryBuilder._fieldCriteria.Count > 0 || _objectQueryBuilder._fragments?.Count > 0
+                ? GetIndentation(formatting, level, indentationSize) + BuildAliasPrefix(_objectQueryBuilder.Alias, formatting) + FieldName +
+                  BuildArgumentClause(formatting, level, indentationSize) + _objectQueryBuilder.Build(formatting, level + 1, indentationSize)
+                : null;
     }
 
     private class GraphQlFragmentCriteria : GraphQlFieldCriteria
