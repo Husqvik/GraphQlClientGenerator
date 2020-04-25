@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using CommandLine;
 
 namespace GraphQlClientGenerator.Console
 {
@@ -7,33 +8,33 @@ namespace GraphQlClientGenerator.Console
     {
         public static async Task Main(string[] args)
         {
-            if (args.Length < 3)
-            {
-                PrintHelp();
-                return;
-            }
+            if (TryParseArguments(args, out var options))
+                await GenerateGraphQlClientSourceCode(options);
+        }
 
-            var url = args[0];
-            var targetFileName = args[1];
-            var @namespace = args[2];
+        private static bool TryParseArguments(string[] args, out ProgramOptions options)
+        {
+            options = null;
 
+            var parserResult = Parser.Default.ParseArguments<ProgramOptions>(args);
+            if (parserResult.Tag == ParserResultType.NotParsed)
+                return false;
+
+            options = parserResult.MapResult(o => o, null);
+            return true;
+        }
+
+        private static async Task GenerateGraphQlClientSourceCode(ProgramOptions options)
+        {
             try
             {
-                var fileInfo = await GraphQlCSharpFileHelper.GenerateClientCSharpFile(url, targetFileName, @namespace);
-                System.Console.WriteLine($"File {targetFileName} generated successfully ({fileInfo.Length:N0} B). ");
+                var fileInfo = await GraphQlCSharpFileHelper.GenerateClientCSharpFile(options.ServiceUrl, options.OutputFileName, options.Namespace);
+                System.Console.WriteLine($"File {options.OutputFileName} generated successfully ({fileInfo.Length:N0} B). ");
             }
             catch (Exception exception)
             {
                 System.Console.WriteLine($"An error occured: {exception.Message}");
             }
-        }
-
-        private static void PrintHelp()
-        {
-            System.Console.WriteLine("GraphQL C# client generator");
-            System.Console.WriteLine();
-            System.Console.WriteLine("Usage: ");
-            System.Console.WriteLine("GraphQlClientGenerator <GraphQlServiceUrl> <TargetFileName> <TargetNamespace>");
         }
     }
 }

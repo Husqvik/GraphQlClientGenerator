@@ -4,9 +4,15 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>latest</LangVersion>
+    <Copyright>Copyright 2017-2020</Copyright>
+    <Authors>Husqvik</Authors>
+    <Company>Tibber</Company>
+    <Title>GraphQL C# Client Generator Console</Title>
+    <PackageId>GraphQlClientGenerator</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.*" />
     <ProjectReference Include="..\GraphQlClientGenerator\GraphQlClientGenerator.csproj" />
   </ItemGroup>
 

@@ -54,7 +54,7 @@ using Newtonsoft.Json.Linq;
                     : await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
-                throw new InvalidOperationException($"Status code: {(int)response.StatusCode} ({response.StatusCode}); content: {content}");
+                throw new InvalidOperationException($"Status code: {(int)response.StatusCode} ({response.StatusCode}){Environment.NewLine}content:{Environment.NewLine}{content}");
 
             return DeserializeGraphQlSchema(content);
         }
