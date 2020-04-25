@@ -117,47 +117,53 @@ using Newtonsoft.Json.Linq;
         private static bool IsComplexType(GraphQlTypeKind graphQlTypeKind) =>
             graphQlTypeKind == GraphQlTypeKind.Object || graphQlTypeKind == GraphQlTypeKind.Interface || graphQlTypeKind == GraphQlTypeKind.Union;
 
-        private void GenerateSharedTypes(GraphQlSchema schema, StringBuilder builder)
+        private void GenerateSharedTypes(GraphQlSchema schema, TextWriter writer)
         {
-            builder.AppendLine("#region shared types");
-            GenerateEnums(schema, builder);
-            builder.AppendLine("#endregion");
-            builder.AppendLine();
+            writer.WriteLine("#region shared types");
+            GenerateEnums(schema, writer);
+            writer.WriteLine("#endregion");
+            writer.WriteLine();
         }
 
         public void GenerateQueryBuilder(GraphQlSchema schema, StringBuilder builder)
         {
-            using (var reader = new StreamReader(typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses.cs")))
-                builder.AppendLine(reader.ReadToEnd());
+            using var writer = new StringWriter(builder);
+            GenerateQueryBuilder(schema, writer);
+        }
 
-            GenerateSharedTypes(schema, builder);
+        public void GenerateQueryBuilder(GraphQlSchema schema, TextWriter writer)
+        {
+            using (var reader = new StreamReader(typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses.cs")))
+                writer.WriteLine(reader.ReadToEnd());
+
+            GenerateSharedTypes(schema, writer);
 
             if (_configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences)
-                builder.AppendLine("#nullable enable");
+                writer.WriteLine("#nullable enable");
 
-            builder.AppendLine("#region directives");
-            GenerateDirectives(schema, builder);
-            builder.AppendLine("#endregion");
+            writer.WriteLine("#region directives");
+            GenerateDirectives(schema, writer);
+            writer.WriteLine("#endregion");
 
-            builder.AppendLine();
+            writer.WriteLine();
 
-            builder.AppendLine("#region builder classes");
+            writer.WriteLine("#region builder classes");
 
             var complexTypes = schema.Types.Where(t => IsComplexType(t.Kind) && !t.Name.StartsWith("__")).ToArray();
             var complexTypeDictionary = complexTypes.ToDictionary(t => t.Name);
             for (var i = 0; i < complexTypes.Length; i++)
             {
                 var type = complexTypes[i];
-                GenerateTypeQueryBuilder(type, complexTypeDictionary, schema, builder);
+                GenerateTypeQueryBuilder(type, complexTypeDictionary, schema, writer);
 
                 if (i < complexTypes.Length - 1)
-                    builder.AppendLine();
+                    writer.WriteLine();
             }
 
-            builder.AppendLine("#endregion");
+            writer.WriteLine("#endregion");
 
             if (_configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences)
-                builder.AppendLine("#nullable restore");
+                writer.WriteLine("#nullable restore");
         }
 
         private static void FindAllReferencedObjectTypes(GraphQlSchema schema, GraphQlType type, ISet<string> objectTypes)
@@ -189,44 +195,50 @@ using Newtonsoft.Json.Linq;
 
         public void GenerateDataClasses(GraphQlSchema schema, StringBuilder builder)
         {
+            using var writer = new StringWriter(builder);
+            GenerateDataClasses(schema, writer);
+        }
+
+        public void GenerateDataClasses(GraphQlSchema schema, TextWriter writer)
+        {
             var inputTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKind.InputObject && !t.Name.StartsWith("__")).ToArray();
             var hasInputType = inputTypes.Any();
             var referencedObjectTypes = new HashSet<string>();
 
             if (hasInputType)
-                builder.AppendLine();
+                writer.WriteLine();
 
             if (_configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences)
-                builder.AppendLine("#nullable enable");
+                writer.WriteLine("#nullable enable");
 
             if (hasInputType)
             {
-                builder.AppendLine("#region input classes");
+                writer.WriteLine("#region input classes");
 
                 for (var i = 0; i < inputTypes.Length; i++)
                 {
                     var type = inputTypes[i];
                     FindAllReferencedObjectTypes(schema, type, referencedObjectTypes);
-                    GenerateDataClass(type.Name, type.Description, "IGraphQlInputObject", builder, () => GenerateInputDataClassBody(type, type.InputFields.Cast<IGraphQlMember>().ToArray(), builder));
+                    GenerateDataClass(type.Name, type.Description, "IGraphQlInputObject", writer, () => GenerateInputDataClassBody(type, type.InputFields.Cast<IGraphQlMember>().ToArray(), writer));
 
-                    builder.AppendLine();
+                    writer.WriteLine();
 
                     if (i < inputTypes.Length - 1)
-                        builder.AppendLine();
+                        writer.WriteLine();
                 }
 
-                builder.AppendLine("#endregion");
+                writer.WriteLine("#endregion");
             }
 
             var complexTypes = schema.Types.Where(t => IsComplexType(t.Kind) && !t.Name.StartsWith("__")).ToArray();
             if (complexTypes.Any())
             {
                 if (hasInputType)
-                    builder.AppendLine();
+                    writer.WriteLine();
 
                 var complexTypeDictionary = complexTypes.ToDictionary(t => t.Name);
 
-                builder.AppendLine("#region data classes");
+                writer.WriteLine("#region data classes");
 
                 for (var i = 0; i < complexTypes.Length; i++)
                 {
@@ -238,7 +250,7 @@ using Newtonsoft.Json.Linq;
                     void GenerateBody(bool isInterfaceMember)
                     {
                         if (hasInputReference)
-                            GenerateInputDataClassBody(type, (ICollection<IGraphQlMember>)fieldsToGenerate, builder);
+                            GenerateInputDataClassBody(type, (ICollection<IGraphQlMember>)fieldsToGenerate, writer);
                         else if (fieldsToGenerate != null)
                         {
                             var generateBackingFields = _configuration.PropertyGeneration == PropertyGenerationOption.BackingField && !isInterfaceMember;
@@ -246,14 +258,14 @@ using Newtonsoft.Json.Linq;
                             {
                                 foreach (var field in fieldsToGenerate)
                                 {
-                                    builder.Append("    private ");
-                                    builder.Append(GetDataPropertyType(type, field));
-                                    builder.Append(" ");
-                                    builder.Append(GetBackingFieldName(field.Name));
-                                    builder.AppendLine(";");
+                                    writer.Write("    private ");
+                                    writer.Write(GetDataPropertyType(type, field));
+                                    writer.Write(" ");
+                                    writer.Write(GetBackingFieldName(field.Name));
+                                    writer.WriteLine(";");
                                 }
 
-                                builder.AppendLine();
+                                writer.WriteLine();
                             }
 
                             foreach (var field in fieldsToGenerate)
@@ -265,17 +277,17 @@ using Newtonsoft.Json.Linq;
                                     field.DeprecationReason,
                                     true,
                                     (_, backingFieldName) =>
-                                        builder.Append(generateBackingFields ? _configuration.PropertyAccessorBodyWriter(backingFieldName, GetDataPropertyType(type, field)) : " { get; set; }"),
-                                    builder);
+                                        writer.Write(generateBackingFields ? _configuration.PropertyAccessorBodyWriter(backingFieldName, GetDataPropertyType(type, field)) : " { get; set; }"),
+                                    writer);
                         }
                     }
 
                     var interfacesToImplement = new List<string>();
                     if (isInterface)
                     {
-                        interfacesToImplement.Add(GenerateInterface("I" + type.Name, type.Description, builder, () => GenerateBody(true)));
-                        builder.AppendLine();
-                        builder.AppendLine();
+                        interfacesToImplement.Add(GenerateInterface("I" + type.Name, type.Description, writer, () => GenerateBody(true)));
+                        writer.WriteLine();
+                        writer.WriteLine();
                     }
                     else if (type.Interfaces?.Count > 0)
                     {
@@ -294,24 +306,24 @@ using Newtonsoft.Json.Linq;
                     if (hasInputReference)
                         interfacesToImplement.Add("IGraphQlInputObject");
 
-                    GenerateDataClass(type.Name, type.Description, String.Join(", ", interfacesToImplement), builder, () => GenerateBody(false));
+                    GenerateDataClass(type.Name, type.Description, String.Join(", ", interfacesToImplement), writer, () => GenerateBody(false));
 
-                    builder.AppendLine();
+                    writer.WriteLine();
 
                     if (i < complexTypes.Length - 1)
-                        builder.AppendLine();
+                        writer.WriteLine();
                 }
 
-                builder.AppendLine("#endregion");
+                writer.WriteLine("#endregion");
             }
 
             if (_configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences)
-                builder.AppendLine("#nullable restore");
+                writer.WriteLine("#nullable restore");
         }
 
         private static string GetBackingFieldName(string graphQlFieldName) => "_" + NamingHelper.LowerFirst(NamingHelper.ToPascalCase(graphQlFieldName));
 
-        private void GenerateInputDataClassBody(GraphQlType type, IEnumerable<IGraphQlMember> members, StringBuilder builder)
+        private void GenerateInputDataClassBody(GraphQlType type, IEnumerable<IGraphQlMember> members, TextWriter writer)
         {
             var fieldNameMembers = new Dictionary<string, IGraphQlMember>();
             foreach (var member in members)
@@ -319,12 +331,12 @@ using Newtonsoft.Json.Linq;
                 var fieldName = GetBackingFieldName(member.Name);
                 fieldNameMembers.Add(fieldName, member);
 
-                builder.Append("    private InputPropertyInfo ");
-                builder.Append(fieldName);
-                builder.AppendLine(";");
+                writer.Write("    private InputPropertyInfo ");
+                writer.Write(fieldName);
+                writer.WriteLine(";");
             }
 
-            builder.AppendLine();
+            writer.WriteLine();
 
             var useCompatibleSyntax = _configuration.CSharpVersion == CSharpVersion.Compatible;
 
@@ -338,84 +350,84 @@ using Newtonsoft.Json.Linq;
                     true,
                     (t, _) =>
                     {
-                        builder.AppendLine();
-                        builder.AppendLine("    {");
-                        builder.Append("        get");
-                        builder.Append(useCompatibleSyntax ? " { return " : " => ");
-                        builder.Append("(");
-                        builder.Append(t);
-                        builder.Append(")");
-                        builder.Append(kvp.Key);
-                        builder.Append(".Value;");
+                        writer.WriteLine();
+                        writer.WriteLine("    {");
+                        writer.Write("        get");
+                        writer.Write(useCompatibleSyntax ? " { return " : " => ");
+                        writer.Write("(");
+                        writer.Write(t);
+                        writer.Write(")");
+                        writer.Write(kvp.Key);
+                        writer.Write(".Value;");
 
                         if (useCompatibleSyntax)
-                            builder.Append(" }");
+                            writer.Write(" }");
 
-                        builder.AppendLine();
+                        writer.WriteLine();
 
-                        builder.Append("        set");
-                        builder.Append(useCompatibleSyntax ? " { " : " => ");
-                        builder.Append(kvp.Key);
-                        builder.Append(" = new InputPropertyInfo { Name = \"");
-                        builder.Append(kvp.Value.Name);
-                        builder.Append("\", Value = value };");
+                        writer.Write("        set");
+                        writer.Write(useCompatibleSyntax ? " { " : " => ");
+                        writer.Write(kvp.Key);
+                        writer.Write(" = new InputPropertyInfo { Name = \"");
+                        writer.Write(kvp.Value.Name);
+                        writer.Write("\", Value = value };");
 
                         if (useCompatibleSyntax)
-                            builder.Append(" }");
+                            writer.Write(" }");
 
-                        builder.AppendLine();
-                        builder.AppendLine("    }");
+                        writer.WriteLine();
+                        writer.WriteLine("    }");
                     },
-                    builder);
+                    writer);
 
-            builder.AppendLine("    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()");
-            builder.AppendLine("    {");
+            writer.WriteLine("    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()");
+            writer.WriteLine("    {");
 
             foreach (var fieldName in fieldNameMembers.Keys)
             {
-                builder.Append("        if (");
-                builder.Append(fieldName);
-                builder.Append(".Name != null) yield return ");
-                builder.Append(fieldName);
-                builder.AppendLine(";");
+                writer.Write("        if (");
+                writer.Write(fieldName);
+                writer.Write(".Name != null) yield return ");
+                writer.Write(fieldName);
+                writer.WriteLine(";");
             }
 
-            builder.AppendLine("    }");
+            writer.WriteLine("    }");
         }
 
-        private string GenerateInterface(string interfaceName, string interfaceDescription, StringBuilder builder, Action generateInterfaceBody) =>
-            GenerateFileMember("interface", interfaceName, interfaceDescription, null, builder, generateInterfaceBody);
+        private string GenerateInterface(string interfaceName, string interfaceDescription, TextWriter writer, Action generateInterfaceBody) =>
+            GenerateFileMember("interface", interfaceName, interfaceDescription, null, writer, generateInterfaceBody);
 
-        private string GenerateDataClass(string typeName, string typeDescription, string baseTypeName, StringBuilder builder, Action generateClassBody) =>
-            GenerateFileMember((_configuration.GeneratePartialClasses ? "partial " : null) + "class", typeName, typeDescription, baseTypeName, builder, generateClassBody);
+        private string GenerateDataClass(string typeName, string typeDescription, string baseTypeName, TextWriter writer, Action generateClassBody) =>
+            GenerateFileMember((_configuration.GeneratePartialClasses ? "partial " : null) + "class", typeName, typeDescription, baseTypeName, writer, generateClassBody);
 
-        private string GenerateFileMember(string memberType, string typeName, string typeDescription, string baseTypeName, StringBuilder builder, Action generateFileMemberBody)
+        private string GenerateFileMember(string memberType, string typeName, string typeDescription, string baseTypeName, TextWriter writer, Action generateFileMemberBody)
         {
             typeName = UseCustomClassNameIfDefined(typeName);
 
             var memberName = typeName + _configuration.ClassPostfix;
             ValidateClassName(memberName);
 
-            GenerateCodeComments(builder, typeDescription, 0);
+            GenerateCodeComments(writer, typeDescription, 0);
 
-            builder.Append(GetMemberAccessibility());
-            builder.Append(" ");
-            builder.Append(memberType);
-            builder.Append(" ");
-            builder.Append(memberName);
+            writer.Write(GetMemberAccessibility());
+            writer.Write(" ");
+            writer.Write(memberType);
+            writer.Write(" ");
+            writer.Write(memberName);
 
             if (!String.IsNullOrEmpty(baseTypeName))
             {
-                builder.Append(" : ");
-                builder.Append(baseTypeName);
+                writer.Write(" : ");
+                writer.Write(baseTypeName);
             }
 
-            builder.AppendLine();
-            builder.AppendLine("{");
+            writer.WriteLine();
+            writer.WriteLine("{");
 
             generateFileMemberBody();
 
-            builder.Append("}");
+            writer.Write("}");
 
             return memberName;
         }
@@ -483,18 +495,18 @@ using Newtonsoft.Json.Linq;
             string deprecationReason,
             bool decorateWithJsonProperty,
             WriteDataClassPropertyBodyDelegate writeBody,
-            StringBuilder builder)
+            TextWriter writer)
         {
             var propertyName = NamingHelper.ToPascalCase(member.Name);
 
             var propertyType = GetDataPropertyType(baseType, member);
 
-            GenerateCodeComments(builder, member.Description, 4);
+            GenerateCodeComments(writer, member.Description, 4);
 
             if (isDeprecated)
             {
                 deprecationReason = String.IsNullOrWhiteSpace(deprecationReason) ? null : $"(@\"{deprecationReason.Replace("\"", "\"\"")}\")";
-                builder.AppendLine($"    [Obsolete{deprecationReason}]");
+                writer.WriteLine($"    [Obsolete{deprecationReason}]");
             }
 
             if (decorateWithJsonProperty)
@@ -511,19 +523,19 @@ using Newtonsoft.Json.Linq;
             }
 
             if (!isInterfaceMember && decorateWithJsonProperty)
-                builder.AppendLine($"    [JsonProperty(\"{member.Name}\")]");
+                writer.WriteLine($"    [JsonProperty(\"{member.Name}\")]");
 
             if (baseType.Kind == GraphQlTypeKind.InputObject)
             {
-                builder.AppendLine($"    [JsonConverter(typeof(QueryBuilderParameterConverter<{propertyType}>))]");
+                writer.WriteLine($"    [JsonConverter(typeof(QueryBuilderParameterConverter<{propertyType}>))]");
                 propertyType = AddQuestionMarkIfNullableReferencesEnabled($"QueryBuilderParameter<{propertyType}>");
             }
             
-            builder.Append($"    {(isInterfaceMember ? null : "public ")}{propertyType} {propertyName}");
+            writer.Write($"    {(isInterfaceMember ? null : "public ")}{propertyType} {propertyName}");
 
             writeBody(propertyType, GetBackingFieldName(member.Name));
 
-            builder.AppendLine();
+            writer.WriteLine();
         }
 
         private string GetDataPropertyType(GraphQlType baseType, IGraphQlMember member)
@@ -614,39 +626,39 @@ using Newtonsoft.Json.Linq;
         private static void ThrowFieldTypeResolutionFailed(string typeName, string fieldName) =>
             throw new InvalidOperationException($"field type resolution failed - type: {typeName}; field: {fieldName}");
 
-        private void GenerateTypeQueryBuilder(GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary, GraphQlSchema schema, StringBuilder builder)
+        private void GenerateTypeQueryBuilder(GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary, GraphQlSchema schema, TextWriter writer)
         {
             var typeName = type.Name;
             typeName = UseCustomClassNameIfDefined(typeName);
             var className = typeName + "QueryBuilder" + _configuration.ClassPostfix;
             ValidateClassName(className);
 
-            builder.Append(GetMemberAccessibility());
-            builder.Append(" ");
+            writer.Write(GetMemberAccessibility());
+            writer.Write(" ");
 
             if (_configuration.GeneratePartialClasses)
-                builder.Append("partial ");
+                writer.Write("partial ");
 
-            builder.Append("class ");
-            builder.Append(className);
-            builder.AppendLine($" : GraphQlQueryBuilder<{className}>");
-            builder.AppendLine("{");
-            builder.Append("    private static readonly FieldMetadata[] AllFieldMetadata =");
+            writer.Write("class ");
+            writer.Write(className);
+            writer.WriteLine($" : GraphQlQueryBuilder<{className}>");
+            writer.WriteLine("{");
+            writer.Write("    private static readonly FieldMetadata[] AllFieldMetadata =");
 
             var fields = type.Kind == GraphQlTypeKind.Union ? null : GetFieldsToGenerate(type, complexTypeDictionary);
             if (fields == null)
             {
-                builder.AppendLine(" new FieldMetadata[0];");
-                builder.AppendLine();
+                writer.WriteLine(" new FieldMetadata[0];");
+                writer.WriteLine();
             }
             else
             {
-                builder.AppendLine();
+                writer.WriteLine();
 
                 if (_configuration.CSharpVersion == CSharpVersion.Compatible)
-                    builder.AppendLine("        new []");
+                    writer.WriteLine("        new []");
 
-                builder.AppendLine("        {");
+                writer.WriteLine("        {");
 
                 for (var i = 0; i < fields.Count; i++)
                 {
@@ -657,11 +669,11 @@ using Newtonsoft.Json.Linq;
                     var treatUnknownObjectAsComplex = IsUnknownObjectScalar(type, field.Name, fieldType) && !_configuration.TreatUnknownObjectAsScalar;
                     var isComplex = isList || treatUnknownObjectAsComplex || IsComplexType(fieldType.Kind);
 
-                    builder.Append($"            new FieldMetadata {{ Name = \"{field.Name}\"");
+                    writer.Write($"            new FieldMetadata {{ Name = \"{field.Name}\"");
 
                     if (isComplex)
                     {
-                        builder.Append(", IsComplex = true");
+                        writer.Write(", IsComplex = true");
 
                         fieldType = isList ? fieldType.OfType.UnwrapIfNonNull() : fieldType;
 
@@ -672,15 +684,15 @@ using Newtonsoft.Json.Linq;
                                 ThrowFieldTypeResolutionFailed(type.Name, field.Name);
 
                             fieldTypeName = UseCustomClassNameIfDefined(fieldTypeName);
-                            builder.Append($", QueryBuilderType = typeof({fieldTypeName}QueryBuilder{_configuration.ClassPostfix})");
+                            writer.Write($", QueryBuilderType = typeof({fieldTypeName}QueryBuilder{_configuration.ClassPostfix})");
                         }
                     }
 
-                    builder.AppendLine($" }}{comma}");
+                    writer.WriteLine($" }}{comma}");
                 }
 
-                builder.AppendLine("        };");
-                builder.AppendLine();
+                writer.WriteLine("        };");
+                writer.WriteLine();
             }
 
             GraphQlDirectiveLocation directiveLocation;
@@ -695,29 +707,29 @@ using Newtonsoft.Json.Linq;
 
             var hasQueryPrefix = directiveLocation != GraphQlDirectiveLocation.Field;
             if (hasQueryPrefix)
-                WriteOverrideProperty("string", "Prefix", $"\"{directiveLocation.ToString().ToLowerInvariant()}\"", builder);
+                WriteOverrideProperty("string", "Prefix", $"\"{directiveLocation.ToString().ToLowerInvariant()}\"", writer);
 
-            WriteOverrideProperty("string", "TypeName", $"\"{type.Name}\"", builder);
+            WriteOverrideProperty("string", "TypeName", $"\"{type.Name}\"", writer);
 
-            WriteOverrideProperty("IList<FieldMetadata>", "AllFields", "AllFieldMetadata", builder);
+            WriteOverrideProperty("IList<FieldMetadata>", "AllFields", "AllFieldMetadata", writer);
 
             var stringDataType = AddQuestionMarkIfNullableReferencesEnabled("string");
 
-            builder.Append("    public ");
-            builder.Append(className);
-            builder.Append("(");
-            builder.Append(stringDataType);
-            builder.Append(" alias = null");
+            writer.Write("    public ");
+            writer.Write(className);
+            writer.Write("(");
+            writer.Write(stringDataType);
+            writer.Write(" alias = null");
 
-            var objectDirectiveParameterNameList = WriteDirectiveParameterList(schema, directiveLocation, builder);
+            var objectDirectiveParameterNameList = WriteDirectiveParameterList(schema, directiveLocation, writer);
 
-            builder.Append(") : base(alias, ");
-            builder.Append(objectDirectiveParameterNameList);
-            builder.AppendLine(")");
+            writer.Write(") : base(alias, ");
+            writer.Write(objectDirectiveParameterNameList);
+            writer.WriteLine(")");
 
-            builder.AppendLine("    {");
-            builder.AppendLine("    }");
-            builder.AppendLine();
+            writer.WriteLine("    {");
+            writer.WriteLine("    }");
+            writer.WriteLine();
 
             static string ReturnPrefix(bool requiresFullBody) => requiresFullBody ? "        return " : String.Empty;
 
@@ -725,13 +737,13 @@ using Newtonsoft.Json.Linq;
             
             if (hasQueryPrefix)
             {
-                builder.Append($"    public {className} WithParameter<T>(GraphQlQueryParameter<T> parameter)");
+                writer.Write($"    public {className} WithParameter<T>(GraphQlQueryParameter<T> parameter)");
                 WriteQueryBuilderMethodBody(
                     useCompatibleSyntax,
-                    builder,
-                    () => builder.AppendLine($"{ReturnPrefix(useCompatibleSyntax)}WithParameterInternal(parameter);"));
+                    writer,
+                    () => writer.WriteLine($"{ReturnPrefix(useCompatibleSyntax)}WithParameterInternal(parameter);"));
 
-                builder.AppendLine();
+                writer.WriteLine();
             }
 
             var fragments = GetFragments(type, complexTypeDictionary);
@@ -776,38 +788,38 @@ using Newtonsoft.Json.Linq;
 
                 if (fieldType.Kind == GraphQlTypeKind.Scalar || fieldType.Kind == GraphQlTypeKind.Enum)
                 {
-                    builder.Append("    public ");
-                    builder.Append(className);
-                    builder.Append(" With");
-                    builder.Append(NamingHelper.ToPascalCase(field.Name));
-                    builder.Append("(");
-                    builder.Append(methodParameters);
+                    writer.Write("    public ");
+                    writer.Write(className);
+                    writer.Write(" With");
+                    writer.Write(NamingHelper.ToPascalCase(field.Name));
+                    writer.Write("(");
+                    writer.Write(methodParameters);
 
                     if (!String.IsNullOrEmpty(methodParameters))
-                        builder.Append(", ");
+                        writer.Write(", ");
 
-                    builder.Append(stringDataType);
-                    builder.Append(" alias = null");
-                    var fieldDirectiveParameterNameList = WriteDirectiveParameterList(schema, GraphQlDirectiveLocation.Field, builder);
-                    builder.Append(")");
+                    writer.Write(stringDataType);
+                    writer.Write(" alias = null");
+                    var fieldDirectiveParameterNameList = WriteDirectiveParameterList(schema, GraphQlDirectiveLocation.Field, writer);
+                    writer.Write(")");
 
                     WriteQueryBuilderMethodBody(
                         requiresFullBody,
-                        builder,
+                        writer,
                         () =>
                         {
-                            AppendArgumentDictionary(builder, args);
+                            AppendArgumentDictionary(writer, args);
 
-                            builder.Append(returnPrefix);
-                            builder.Append("WithScalarField(\"");
-                            builder.Append(field.Name);
-                            builder.Append("\", alias, ");
-                            builder.Append(fieldDirectiveParameterNameList);
+                            writer.Write(returnPrefix);
+                            writer.Write("WithScalarField(\"");
+                            writer.Write(field.Name);
+                            writer.Write("\", alias, ");
+                            writer.Write(fieldDirectiveParameterNameList);
 
                             if (args.Length > 0)
-                                builder.Append(", args");
+                                writer.Write(", args");
 
-                            builder.AppendLine(");");
+                            writer.WriteLine(");");
                         });
                 }
                 else
@@ -819,65 +831,65 @@ using Newtonsoft.Json.Linq;
                     fieldTypeName = UseCustomClassNameIfDefined(fieldTypeName);
 
                     var builderParameterName = NamingHelper.LowerFirst(fieldTypeName);
-                    builder.Append($"    public {className} With{NamingHelper.ToPascalCase(field.Name)}{(isFragment ? "Fragment" : null)}({fieldTypeName}QueryBuilder{_configuration.ClassPostfix} {builderParameterName}QueryBuilder");
+                    writer.Write($"    public {className} With{NamingHelper.ToPascalCase(field.Name)}{(isFragment ? "Fragment" : null)}({fieldTypeName}QueryBuilder{_configuration.ClassPostfix} {builderParameterName}QueryBuilder");
 
                     if (args.Length > 0)
                     {
-                        builder.Append(", ");
-                        builder.Append(methodParameters);
+                        writer.Write(", ");
+                        writer.Write(methodParameters);
                     }
 
-                    builder.Append(")");
+                    writer.Write(")");
 
                     WriteQueryBuilderMethodBody(
                         requiresFullBody,
-                        builder,
+                        writer,
                         () =>
                         {
-                            AppendArgumentDictionary(builder, args);
+                            AppendArgumentDictionary(writer, args);
 
-                            builder.Append(returnPrefix);
-                            builder.Append("With");
+                            writer.Write(returnPrefix);
+                            writer.Write("With");
 
                             if (isFragment)
-                                builder.Append("Fragment(");
+                                writer.Write("Fragment(");
                             else
                             {
-                                builder.Append("ObjectField(\"");
-                                builder.Append(field.Name);
-                                builder.Append("\", ");
+                                writer.Write("ObjectField(\"");
+                                writer.Write(field.Name);
+                                writer.Write("\", ");
                             }
 
-                            builder.Append(builderParameterName);
-                            builder.Append("QueryBuilder");
+                            writer.Write(builderParameterName);
+                            writer.Write("QueryBuilder");
 
                             if (args.Length > 0)
-                                builder.Append(", args");
+                                writer.Write(", args");
 
-                            builder.AppendLine(");");
+                            writer.WriteLine(");");
                         });
                 }
 
                 if (!isFragment)
                 {
-                    builder.AppendLine();
+                    writer.WriteLine();
 
-                    builder.Append($"    public {className} Except{NamingHelper.ToPascalCase(field.Name)}()");
+                    writer.Write($"    public {className} Except{NamingHelper.ToPascalCase(field.Name)}()");
 
                     WriteQueryBuilderMethodBody(
                         requiresFullBody,
-                        builder,
-                        () => builder.AppendLine($"{returnPrefix}ExceptField(\"{field.Name}\");"));
+                        writer,
+                        () => writer.WriteLine($"{returnPrefix}ExceptField(\"{field.Name}\");"));
                 }
 
                 if (i < fields.Count - 1)
-                    builder.AppendLine();
+                    writer.WriteLine();
             }
 
-            builder.AppendLine("}");
+            writer.WriteLine("}");
         }
 
-        private string WriteDirectiveParameterList(GraphQlSchema schema, GraphQlDirectiveLocation directiveLocation, StringBuilder builder)
+        private string WriteDirectiveParameterList(GraphQlSchema schema, GraphQlDirectiveLocation directiveLocation, TextWriter writer)
         {
             var directiveParameterNames = new List<string>();
 
@@ -888,11 +900,11 @@ using Newtonsoft.Json.Linq;
                 var parameterName = NamingHelper.LowerFirst(csharpDirectiveName);
                 directiveParameterNames.Add(parameterName);
 
-                builder.Append(", ");
-                builder.Append(AddQuestionMarkIfNullableReferencesEnabled(directiveClassName));
-                builder.Append(" ");
-                builder.Append(parameterName);
-                builder.Append(" = null");
+                writer.Write(", ");
+                writer.Write(AddQuestionMarkIfNullableReferencesEnabled(directiveClassName));
+                writer.Write(" ");
+                writer.Write(parameterName);
+                writer.Write(" = null");
             }
 
             return
@@ -901,44 +913,44 @@ using Newtonsoft.Json.Linq;
                     : "null";
         }
 
-        private static void WriteQueryBuilderMethodBody(bool requiresFullBody, StringBuilder builder, Action writeBody)
+        private static void WriteQueryBuilderMethodBody(bool requiresFullBody, TextWriter writer, Action writeBody)
         {
             if (requiresFullBody)
             {
-                builder.AppendLine();
-                builder.AppendLine("    {");
+                writer.WriteLine();
+                writer.WriteLine("    {");
             }
             else
-                builder.Append(" => ");
+                writer.Write(" => ");
 
             writeBody();
 
             if (requiresFullBody)
-                builder.AppendLine("    }");
+                writer.WriteLine("    }");
         }
 
-        private void WriteOverrideProperty(string propertyType, string propertyName, string propertyValue, StringBuilder builder)
+        private void WriteOverrideProperty(string propertyType, string propertyName, string propertyValue, TextWriter writer)
         {
-            builder.Append("    protected override ");
-            builder.Append(propertyType);
-            builder.Append(" ");
-            builder.Append(propertyName);
-            builder.Append(" { get");
+            writer.Write("    protected override ");
+            writer.Write(propertyType);
+            writer.Write(" ");
+            writer.Write(propertyName);
+            writer.Write(" { get");
 
             if (_configuration.CSharpVersion == CSharpVersion.Compatible)
             {
-                builder.Append(" { return ");
-                builder.Append(propertyValue);
-                builder.AppendLine("; } } ");
+                writer.Write(" { return ");
+                writer.Write(propertyValue);
+                writer.WriteLine("; } } ");
             }
             else
             {
-                builder.Append("; } = ");
-                builder.Append(propertyValue);
-                builder.AppendLine(";");
+                writer.Write("; } = ");
+                writer.Write(propertyValue);
+                writer.WriteLine(";");
             }
 
-            builder.AppendLine();
+            writer.WriteLine();
         }
 
         private string BuildMethodParameterDefinition(GraphQlType baseType, GraphQlArgument argument)
@@ -981,61 +993,61 @@ using Newtonsoft.Json.Linq;
                 throw new InvalidOperationException($"Resulting class name '{className}' is not valid. ");
         }
 
-        private static void AppendArgumentDictionary(StringBuilder builder, ICollection<GraphQlArgument> args)
+        private static void AppendArgumentDictionary(TextWriter writer, ICollection<GraphQlArgument> args)
         {
             if (args.Count == 0)
                 return;
 
-            builder.AppendLine("        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);");
+            writer.WriteLine("        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);");
 
             foreach (var arg in args)
             {
                 if (arg.Type.Kind == GraphQlTypeKind.NonNull)
-                    builder.AppendLine($"        args.Add(\"{arg.Name}\", {NamingHelper.ToValidCSharpName(arg.Name)});");
+                    writer.WriteLine($"        args.Add(\"{arg.Name}\", {NamingHelper.ToValidCSharpName(arg.Name)});");
                 else
                 {
-                    builder.AppendLine($"        if ({NamingHelper.ToValidCSharpName(arg.Name)} != null)");
-                    builder.AppendLine($"            args.Add(\"{arg.Name}\", {NamingHelper.ToValidCSharpName(arg.Name)});");
-                    builder.AppendLine();
+                    writer.WriteLine($"        if ({NamingHelper.ToValidCSharpName(arg.Name)} != null)");
+                    writer.WriteLine($"            args.Add(\"{arg.Name}\", {NamingHelper.ToValidCSharpName(arg.Name)});");
+                    writer.WriteLine();
                 }
             }
         }
 
-        private void GenerateEnums(GraphQlSchema schema, StringBuilder builder)
+        private void GenerateEnums(GraphQlSchema schema, TextWriter writer)
         {
             foreach (var type in schema.Types.Where(t => t.Kind == GraphQlTypeKind.Enum && !t.Name.StartsWith("__")))
             {
-                GenerateEnum(type, builder);
-                builder.AppendLine();
+                GenerateEnum(type, writer);
+                writer.WriteLine();
             }
         }
 
-        private void GenerateEnum(GraphQlType type, StringBuilder builder)
+        private void GenerateEnum(GraphQlType type, TextWriter writer)
         {
-            GenerateCodeComments(builder, type.Description, 0);
-            builder.Append("public enum ");
-            builder.AppendLine(type.Name);
-            builder.AppendLine("{");
+            GenerateCodeComments(writer, type.Description, 0);
+            writer.Write("public enum ");
+            writer.WriteLine(type.Name);
+            writer.WriteLine("{");
 
             var enumValues = type.EnumValues.ToList();
             for (var i = 0; i < enumValues.Count; i++)
             {
                 var enumValue = enumValues[i];
-                GenerateCodeComments(builder, enumValue.Description, 4);
-                builder.Append("    ");
+                GenerateCodeComments(writer, enumValue.Description, 4);
+                writer.Write("    ");
                 var netIdentifier = NamingHelper.ToCSharpEnumName(enumValue.Name);
                 if (netIdentifier != enumValue.Name)
-                    builder.Append($"[EnumMember(Value=\"{enumValue.Name}\")] ");
+                    writer.Write($"[EnumMember(Value=\"{enumValue.Name}\")] ");
 
-                builder.Append(netIdentifier);
+                writer.Write(netIdentifier);
 
                 if (i < enumValues.Count - 1)
-                    builder.Append(",");
+                    writer.Write(",");
 
-                builder.AppendLine();
+                writer.WriteLine();
             }
 
-            builder.AppendLine("}");
+            writer.WriteLine("}");
         }
 
         private static readonly HashSet<GraphQlDirectiveLocation> SupportedDirectiveLocations =
@@ -1048,52 +1060,52 @@ using Newtonsoft.Json.Linq;
                 GraphQlDirectiveLocation.Subscription
             };
 
-        private void GenerateDirectives(GraphQlSchema schema, StringBuilder builder)
+        private void GenerateDirectives(GraphQlSchema schema, TextWriter writer)
         {
             foreach (var directive in schema.Directives.Where(t => SupportedDirectiveLocations.Overlaps(t.Locations)))
             {
-                GenerateDirective(directive, builder);
-                builder.AppendLine();
+                GenerateDirective(directive, writer);
+                writer.WriteLine();
             }
         }
 
-        private void GenerateDirective(GraphQlDirective directive, StringBuilder builder)
+        private void GenerateDirective(GraphQlDirective directive, TextWriter writer)
         {
-            GenerateCodeComments(builder, directive.Description, 0);
+            GenerateCodeComments(writer, directive.Description, 0);
 
             var directiveName = NamingHelper.ToPascalCase(directive.Name);
 
             var orderedArguments = directive.Args.OrderByDescending(a => a.Type.Kind == GraphQlTypeKind.NonNull).ToArray();
             var argumentList = String.Join(", ", orderedArguments.Select(a => BuildMethodParameterDefinition(null, a)));
 
-            builder.Append("public class ");
-            builder.Append(directiveName);
-            builder.Append("Directive");
-            builder.AppendLine(" : GraphQlDirective");
-            builder.AppendLine("{");
-            builder.Append("    public ");
-            builder.Append(directiveName);
-            builder.Append("Directive(");
-            builder.Append(argumentList);
-            builder.Append(") : base(\"");
-            builder.Append(directive.Name);
-            builder.AppendLine("\")");
-            builder.AppendLine("    {");
+            writer.Write("public class ");
+            writer.Write(directiveName);
+            writer.Write("Directive");
+            writer.WriteLine(" : GraphQlDirective");
+            writer.WriteLine("{");
+            writer.Write("    public ");
+            writer.Write(directiveName);
+            writer.Write("Directive(");
+            writer.Write(argumentList);
+            writer.Write(") : base(\"");
+            writer.Write(directive.Name);
+            writer.WriteLine("\")");
+            writer.WriteLine("    {");
 
             foreach (var argument in orderedArguments)
             {
-                builder.Append("        AddArgument(\"");
-                builder.Append(argument.Name);
-                builder.Append("\", ");
-                builder.Append(NamingHelper.ToValidCSharpName(argument.Name));
-                builder.AppendLine(");");
+                writer.Write("        AddArgument(\"");
+                writer.Write(argument.Name);
+                writer.Write("\", ");
+                writer.Write(NamingHelper.ToValidCSharpName(argument.Name));
+                writer.WriteLine(");");
             }
 
-            builder.AppendLine("    }");
-            builder.AppendLine("}");
+            writer.WriteLine("    }");
+            writer.WriteLine("}");
         }
 
-        private void GenerateCodeComments(StringBuilder builder, string description, int offset)
+        private void GenerateCodeComments(TextWriter writer, string description, int offset)
         {
             if (String.IsNullOrWhiteSpace(description))
                 return;
@@ -1102,18 +1114,18 @@ using Newtonsoft.Json.Linq;
 
             if (_configuration.CommentGeneration.HasFlag(CommentGenerationOption.CodeSummary))
             {
-                builder.Append(offsetSpaces);
-                builder.AppendLine("/// <summary>");
-                builder.Append(offsetSpaces);
-                builder.AppendLine("/// " + String.Join(Environment.NewLine + offsetSpaces + "/// ", description.Split('\n').Select(l => l.Trim())));
-                builder.Append(offsetSpaces);
-                builder.AppendLine("/// </summary>");
+                writer.Write(offsetSpaces);
+                writer.WriteLine("/// <summary>");
+                writer.Write(offsetSpaces);
+                writer.WriteLine("/// " + String.Join(Environment.NewLine + offsetSpaces + "/// ", description.Split('\n').Select(l => l.Trim())));
+                writer.Write(offsetSpaces);
+                writer.WriteLine("/// </summary>");
             }
 
             if (_configuration.CommentGeneration.HasFlag(CommentGenerationOption.DescriptionAttribute))
             {
-                builder.Append(offsetSpaces);
-                builder.AppendLine($"[Description(@\"{description.Replace("\"", "\"\"")}\")]");
+                writer.Write(offsetSpaces);
+                writer.WriteLine($"[Description(@\"{description.Replace("\"", "\"\"")}\")]");
             }
         }
 
