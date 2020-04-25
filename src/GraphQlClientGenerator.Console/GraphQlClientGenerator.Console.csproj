@@ -8,7 +8,7 @@
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
     <Title>GraphQL C# Client Generator Console</Title>
-    <PackageId>GraphQlClientGenerator</PackageId>
+    <PackageId>GraphQlClientGenerator.Console</PackageId>
   </PropertyGroup>
 
   <ItemGroup>
