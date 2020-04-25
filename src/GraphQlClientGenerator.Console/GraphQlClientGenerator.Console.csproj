@@ -1,19 +1,59 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyTitle>GraphQL C# Client Generator Console App</AssemblyTitle>
+    <Description>A simple strongly typed C# GraphQL client generator</Description>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <LangVersion>latest</LangVersion>
     <Copyright>Copyright 2017-2020</Copyright>
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
-    <Title>GraphQL C# Client Generator Console</Title>
-    <PackageId>GraphQlClientGenerator.Console</PackageId>
+    <VersionPrefix>0.6.1</VersionPrefix>
+    <Title>GraphQL C# Client Generator</Title>
+    <PackageId>GraphQlClientGenerator</PackageId>
+    <PackageLicenseFile>License.md</PackageLicenseFile>
+    <PackageLicense>https://raw.githubusercontent.com/Husqvik/GraphQlClientGenerator/master/License.md</PackageLicense>
+    <PackageProjectUrl>https://github.com/Husqvik/GraphQlClientGenerator</PackageProjectUrl>
+    <PackageIcon>GraphQlLogo.png</PackageIcon>
+    <RepositoryUrl>https://github.com/Husqvik/GraphQlClientGenerator</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes>dotnet tool support</PackageReleaseNotes>
+    <PackageTags>GraphQL Client Generator</PackageTags>
+
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>graphql-client-generator</ToolCommandName>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.*" />
-    <ProjectReference Include="..\GraphQlClientGenerator\GraphQlClientGenerator.csproj" />
+    <ProjectReference Include="..\GraphQlClientGenerator\GraphQlClientGenerator.csproj">
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+      <IncludeAssets>all</IncludeAssets>
+    </ProjectReference>
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+
+  <Target DependsOnTargets="ResolveReferences" Name="CopyProjectReferencesToPackage">
+    <ItemGroup>
+      <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))"/>
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <None Include="..\..\GraphQlLogo.png">
+      <Pack>True</Pack>
+      <PackagePath />
+    </None>
+    <None Include="..\..\License.md">
+      <Pack>True</Pack>
+      <PackagePath />
+    </None>
   </ItemGroup>
 
 </Project>
