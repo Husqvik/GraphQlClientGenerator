@@ -41,6 +41,17 @@ internal static class GraphQlQueryHelper
             }
         }
 
+        if (value is JProperty jProperty)
+        {
+            if (RegexWhiteSpace.IsMatch(jProperty.Name))
+                throw new ArgumentException($"JSON object keys used as GraphQL arguments must not contain whitespace; key: {jProperty.Name}");
+
+            return $"{jProperty.Name}:{(formatting == Formatting.Indented ? " " : null)}{BuildArgumentValue(jProperty.Value, formatting, level, indentationSize)}";
+        }
+
+        if (value is JObject jObject)
+            return BuildEnumerableArgument(jObject, formatting, level + 1, indentationSize, '{', '}');
+
         if (value is Enum @enum)
             return ConvertEnumToString(@enum);
 
@@ -58,17 +69,6 @@ internal static class GraphQlQueryHelper
 
         if (value is String || value is Guid)
             return $"\"{value}\"";
-
-        if (value is JProperty jProperty)
-        {
-            if (RegexWhiteSpace.IsMatch(jProperty.Name))
-			    throw new ArgumentException($"JSON object keys used as GraphQL arguments must not contain whitespace; key: {jProperty.Name}");
-
-            return $"{jProperty.Name}:{(formatting == Formatting.Indented ? " " : null)}{BuildArgumentValue(jProperty.Value, formatting, level, indentationSize)}";
-        }
-
-        if (value is JObject jObject)
-            return BuildEnumerableArgument(jObject, formatting, level + 1, indentationSize, '{', '}');
 
         if (value is IEnumerable enumerable)
             return BuildEnumerableArgument(enumerable, formatting, level, indentationSize, '[', ']');

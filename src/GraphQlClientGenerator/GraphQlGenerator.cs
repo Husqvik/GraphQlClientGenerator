@@ -258,7 +258,7 @@ using Newtonsoft.Json.Linq;
                     void GenerateBody(bool isInterfaceMember)
                     {
                         if (hasInputReference)
-                            GenerateInputDataClassBody(type, (ICollection<IGraphQlMember>)fieldsToGenerate, writer);
+                            GenerateInputDataClassBody(type, fieldsToGenerate, writer);
                         else if (fieldsToGenerate != null)
                         {
                             var generateBackingFields = _configuration.PropertyGeneration == PropertyGenerationOption.BackingField && !isInterfaceMember;
@@ -559,7 +559,7 @@ using Newtonsoft.Json.Linq;
                 case GraphQlTypeKind.InputObject:
                     var fieldTypeName = fieldType.Name;
                     fieldTypeName = UseCustomClassNameIfDefined(fieldTypeName);
-                    propertyType = $"{fieldTypeName}{_configuration.ClassPostfix}";
+                    propertyType = fieldTypeName + _configuration.ClassPostfix;
                     return AddQuestionMarkIfNullableReferencesEnabled(propertyType);
 
                 case GraphQlTypeKind.Enum:
@@ -568,7 +568,7 @@ using Newtonsoft.Json.Linq;
                 case GraphQlTypeKind.List:
                     var itemTypeName = fieldType.OfType.UnwrapIfNonNull().Name;
                     itemTypeName = UseCustomClassNameIfDefined(itemTypeName);
-                    var itemType = IsUnknownObjectScalar(baseType, member.Name, fieldType.OfType) ? "object" : $"{itemTypeName}{_configuration.ClassPostfix}";
+                    var itemType = IsUnknownObjectScalar(baseType, member.Name, fieldType.OfType) ? "object" : itemTypeName + _configuration.ClassPostfix;
                     var suggestedNetType = ScalarToNetType(baseType, member.Name, fieldType.OfType).TrimEnd('?');
                     if (!String.Equals(suggestedNetType, "object") && !String.Equals(suggestedNetType, "object?") && !suggestedNetType.TrimEnd().EndsWith("System.Object") && !suggestedNetType.TrimEnd().EndsWith("System.Object?"))
                         itemType = suggestedNetType;
