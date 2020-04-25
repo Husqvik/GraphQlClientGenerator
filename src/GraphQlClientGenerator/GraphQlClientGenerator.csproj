@@ -1,15 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyTitle>GraphQL C# Client Generator Library</AssemblyTitle>
-    <Authors>Husqvik</Authors>
-    <Company>Tibber</Company>
-    <VersionPrefix>0.6</VersionPrefix>
+    <AssemblyTitle>GraphQL C# Client Generator</AssemblyTitle>
     <TargetFrameworks>netstandard1.3;net452</TargetFrameworks>
     <LangVersion>latest</LangVersion>
-    <Copyright>Copyright 2017-2020</Copyright>
-    <PackageId>GraphQlClientGenerator.Library</PackageId>
     <IncludeSymbols>true</IncludeSymbols>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <LangVersion>latest</LangVersion>
+    <Copyright>Copyright 2017-2020</Copyright>
+    <Authors>Husqvik</Authors>
+    <Company>Tibber</Company>
+    <VersionPrefix>0.6.2</VersionPrefix>
+    <Title>GraphQL C# Client Generator</Title>
+    <PackageLicenseFile>License.md</PackageLicenseFile>
+    <PackageLicense>https://raw.githubusercontent.com/Husqvik/GraphQlClientGenerator/master/License.md</PackageLicense>
+    <PackageProjectUrl>https://github.com/Husqvik/GraphQlClientGenerator</PackageProjectUrl>
+    <PackageIcon>GraphQlLogo.png</PackageIcon>
+    <RepositoryUrl>https://github.com/Husqvik/GraphQlClientGenerator</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageTags>GraphQL Client Generator</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,9 +27,21 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.*" />
   </ItemGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="BaseClasses.cs" />
     <EmbeddedResource Include="BaseClasses.cs" />
+    <None Include="..\..\GraphQlLogo.png">
+      <Pack>True</Pack>
+      <PackagePath />
+    </None>
+    <None Include="..\..\License.md">
+      <Pack>True</Pack>
+      <PackagePath />
+    </None>
   </ItemGroup>
 
 </Project>

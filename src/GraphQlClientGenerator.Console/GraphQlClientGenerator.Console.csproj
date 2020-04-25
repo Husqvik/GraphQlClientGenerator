@@ -8,18 +8,19 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <LangVersion>latest</LangVersion>
     <Copyright>Copyright 2017-2020</Copyright>
+    <IncludeSymbols>true</IncludeSymbols>
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
-    <VersionPrefix>0.6.1</VersionPrefix>
-    <Title>GraphQL C# Client Generator</Title>
-    <PackageId>GraphQlClientGenerator</PackageId>
+    <VersionPrefix>0.6.2</VersionPrefix>
+    <Title>GraphQL C# Client Generator Console App</Title>
+    <PackageId>GraphQlClientGenerator.Tool</PackageId>
     <PackageLicenseFile>License.md</PackageLicenseFile>
     <PackageLicense>https://raw.githubusercontent.com/Husqvik/GraphQlClientGenerator/master/License.md</PackageLicense>
     <PackageProjectUrl>https://github.com/Husqvik/GraphQlClientGenerator</PackageProjectUrl>
     <PackageIcon>GraphQlLogo.png</PackageIcon>
     <RepositoryUrl>https://github.com/Husqvik/GraphQlClientGenerator</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageReleaseNotes>dotnet tool support</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>GraphQL Client Generator</PackageTags>
 
     <PackAsTool>true</PackAsTool>

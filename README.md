@@ -11,13 +11,20 @@ This simple console app generates C# GraphQL query builder and data classes for 
 Generator app usage
 -------------
 
-`GraphQlClientGenerator --serviceUrl <GraphQlServiceUrl> --outputFileName <TargetFileName> --namespace <TargetNamespace>`
+`GraphQlClientGenerator --serviceUrl <GraphQlServiceUrl> --outputFileName <TargetFileName> --namespace <TargetNamespace> [--authorization <header value>]`
 
 Nuget package
 -------------
 Installation:
 ```
 Install-Package GraphQlClientGenerator
+```
+
+dotnet tool
+-------------
+```
+dotnet tool install GraphQlClientGenerator.Tool --global
+dotnet tool graphql-client-generator --serviceUrl <GraphQlServiceUrl> --outputFileName <TargetFileName> --namespace <TargetNamespace> [--authorization <header value>]
 ```
 
 Code example for class generation:
