@@ -10,6 +10,8 @@ namespace GraphQlClientGenerator.Console
         {
             if (TryParseArguments(args, out var options))
                 await GenerateGraphQlClientSourceCode(options);
+            else
+                Environment.Exit(1);
         }
 
         private static bool TryParseArguments(string[] args, out ProgramOptions options)
@@ -34,6 +36,7 @@ namespace GraphQlClientGenerator.Console
             catch (Exception exception)
             {
                 System.Console.WriteLine($"An error occured: {exception.Message}");
+                Environment.Exit(2);
             }
         }
     }
