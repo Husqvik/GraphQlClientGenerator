@@ -34,7 +34,7 @@
   <ItemGroup>
     <Compile Remove="BaseClasses.cs" />
     <EmbeddedResource Include="BaseClasses.cs" />
-    <None Include="GraphQlLogo.png">
+    <None Include="..\..\GraphQlLogo.png">
       <Pack>True</Pack>
       <PackagePath />
     </None>
