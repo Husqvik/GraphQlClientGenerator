@@ -27,6 +27,7 @@ internal static class GraphQlQueryHelper
         if (value is null)
             return "null";
 
+#if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         if (value is JValue jValue)
         {
             switch (jValue.Type)
@@ -51,6 +52,7 @@ internal static class GraphQlQueryHelper
 
         if (value is JObject jObject)
             return BuildEnumerableArgument(jObject, formatting, level + 1, indentationSize, '{', '}');
+#endif
 
         if (value is Enum @enum)
             return ConvertEnumToString(@enum);
@@ -271,6 +273,7 @@ public class QueryBuilderParameter<T> : QueryBuilderParameter
     public static implicit operator T(QueryBuilderParameter<T> parameter) => parameter.Value;
 }
 
+#if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
 public class QueryBuilderParameterConverter<T> : JsonConverter
 {
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
@@ -295,6 +298,7 @@ public class QueryBuilderParameterConverter<T> : JsonConverter
 
     public override bool CanConvert(Type objectType) => objectType.IsSubclassOf(typeof(QueryBuilderParameter));
 }
+#endif
 
 public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
 {
@@ -3849,14 +3853,18 @@ public partial class HomeProfileQuestionAnswer : IGraphQlInputObject
     private InputPropertyInfo _propertyName;
     private InputPropertyInfo _value;
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<string?>))]
+    #endif
     public QueryBuilderParameter<string?>? PropertyName
     {
         get => (QueryBuilderParameter<string?>?)_propertyName.Value;
         set => _propertyName = new InputPropertyInfo { Name = "propertyName", Value = value };
     }
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<object?>))]
+    #endif
     public QueryBuilderParameter<object?>? Value
     {
         get => (QueryBuilderParameter<object?>?)_value.Value;
@@ -3875,14 +3883,18 @@ public partial class AppStateMutation : IGraphQlInputObject
     private InputPropertyInfo _journey;
     private InputPropertyInfo _frontScreens;
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<AppStateJourneyMutation?>))]
+    #endif
     public QueryBuilderParameter<AppStateJourneyMutation?>? Journey
     {
         get => (QueryBuilderParameter<AppStateJourneyMutation?>?)_journey.Value;
         set => _journey = new InputPropertyInfo { Name = "journey", Value = value };
     }
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<AppStateFronScreenMutation>?>))]
+    #endif
     public QueryBuilderParameter<ICollection<AppStateFronScreenMutation>?>? FrontScreens
     {
         get => (QueryBuilderParameter<ICollection<AppStateFronScreenMutation>?>?)_frontScreens.Value;
@@ -3900,7 +3912,9 @@ public partial class AppStateJourneyMutation : IGraphQlInputObject
 {
     private InputPropertyInfo _hasVisitedPairDevices;
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<bool?>))]
+    #endif
     public QueryBuilderParameter<bool?>? HasVisitedPairDevices
     {
         get => (QueryBuilderParameter<bool?>?)_hasVisitedPairDevices.Value;
@@ -3919,21 +3933,27 @@ public partial class AppStateFronScreenMutation : IGraphQlInputObject
     private InputPropertyInfo _bubbles;
     private InputPropertyInfo _bubblesSortOrder;
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<string?>))]
+    #endif
     public QueryBuilderParameter<string?>? HomeId
     {
         get => (QueryBuilderParameter<string?>?)_homeId.Value;
         set => _homeId = new InputPropertyInfo { Name = "homeId", Value = value };
     }
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<string>?>))]
+    #endif
     public QueryBuilderParameter<ICollection<string>?>? Bubbles
     {
         get => (QueryBuilderParameter<ICollection<string>?>?)_bubbles.Value;
         set => _bubbles = new InputPropertyInfo { Name = "bubbles", Value = value };
     }
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<string>?>))]
+    #endif
     public QueryBuilderParameter<ICollection<string>?>? BubblesSortOrder
     {
         get => (QueryBuilderParameter<ICollection<string>?>?)_bubblesSortOrder.Value;

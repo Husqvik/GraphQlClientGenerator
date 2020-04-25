@@ -31,7 +31,9 @@ public partial class Home
     public Consumption Consumption { get; set; }
     public PreLiveComparison PreLiveComparison { get; set; }
     public ICollection<Comparison> Comparisons { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonProperty("comparison_current_month")]
+    #endif
     public Comparison ComparisonCurrentMonth { get; set; }
     public object Profile { get; set; }
     public object ProfileQuestions { get; set; }

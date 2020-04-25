@@ -6,21 +6,27 @@ public partial class MeterReadingInput : IGraphQlInputObject
     private InputPropertyInfo _time;
     private InputPropertyInfo _reading;
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<Guid?>))]
+    #endif
     public QueryBuilderParameter<Guid?> HomeId
     {
         get { return (QueryBuilderParameter<Guid?>)_homeId.Value; }
         set { _homeId = new InputPropertyInfo { Name = "homeId", Value = value }; }
     }
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    #endif
     public QueryBuilderParameter<string> Time
     {
         get { return (QueryBuilderParameter<string>)_time.Value; }
         set { _time = new InputPropertyInfo { Name = "time", Value = value }; }
     }
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    #endif
     public QueryBuilderParameter<int?> Reading
     {
         get { return (QueryBuilderParameter<int?>)_reading.Value; }
@@ -47,63 +53,81 @@ public partial class UpdateHomeInput : IGraphQlInputObject
     private InputPropertyInfo _hasVentilationSystem;
     private InputPropertyInfo _mainFuseSize;
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<Guid?>))]
+    #endif
     public QueryBuilderParameter<Guid?> HomeId
     {
         get { return (QueryBuilderParameter<Guid?>)_homeId.Value; }
         set { _homeId = new InputPropertyInfo { Name = "homeId", Value = value }; }
     }
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    #endif
     public QueryBuilderParameter<string> AppNickname
     {
         get { return (QueryBuilderParameter<string>)_appNickname.Value; }
         set { _appNickname = new InputPropertyInfo { Name = "appNickname", Value = value }; }
     }
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<HomeAvatar?>))]
+    #endif
     public QueryBuilderParameter<HomeAvatar?> AppAvatar
     {
         get { return (QueryBuilderParameter<HomeAvatar?>)_appAvatar.Value; }
         set { _appAvatar = new InputPropertyInfo { Name = "appAvatar", Value = value }; }
     }
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    #endif
     public QueryBuilderParameter<int?> Size
     {
         get { return (QueryBuilderParameter<int?>)_size.Value; }
         set { _size = new InputPropertyInfo { Name = "size", Value = value }; }
     }
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<HomeType?>))]
+    #endif
     public QueryBuilderParameter<HomeType?> Type
     {
         get { return (QueryBuilderParameter<HomeType?>)_type.Value; }
         set { _type = new InputPropertyInfo { Name = "type", Value = value }; }
     }
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    #endif
     public QueryBuilderParameter<int?> NumberOfResidents
     {
         get { return (QueryBuilderParameter<int?>)_numberOfResidents.Value; }
         set { _numberOfResidents = new InputPropertyInfo { Name = "numberOfResidents", Value = value }; }
     }
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<HeatingSource?>))]
+    #endif
     public QueryBuilderParameter<HeatingSource?> PrimaryHeatingSource
     {
         get { return (QueryBuilderParameter<HeatingSource?>)_primaryHeatingSource.Value; }
         set { _primaryHeatingSource = new InputPropertyInfo { Name = "primaryHeatingSource", Value = value }; }
     }
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<bool?>))]
+    #endif
     public QueryBuilderParameter<bool?> HasVentilationSystem
     {
         get { return (QueryBuilderParameter<bool?>)_hasVentilationSystem.Value; }
         set { _hasVentilationSystem = new InputPropertyInfo { Name = "hasVentilationSystem", Value = value }; }
     }
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    #endif
     public QueryBuilderParameter<int?> MainFuseSize
     {
         get { return (QueryBuilderParameter<int?>)_mainFuseSize.Value; }
@@ -130,21 +154,27 @@ public partial class PushNotificationInput : IGraphQlInputObject
     private InputPropertyInfo _message;
     private InputPropertyInfo _screenToOpen;
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    #endif
     public QueryBuilderParameter<string> Title
     {
         get { return (QueryBuilderParameter<string>)_title.Value; }
         set { _title = new InputPropertyInfo { Name = "title", Value = value }; }
     }
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    #endif
     public QueryBuilderParameter<string> Message
     {
         get { return (QueryBuilderParameter<string>)_message.Value; }
         set { _message = new InputPropertyInfo { Name = "message", Value = value }; }
     }
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<AppScreen?>))]
+    #endif
     public QueryBuilderParameter<AppScreen?> ScreenToOpen
     {
         get { return (QueryBuilderParameter<AppScreen?>)_screenToOpen.Value; }

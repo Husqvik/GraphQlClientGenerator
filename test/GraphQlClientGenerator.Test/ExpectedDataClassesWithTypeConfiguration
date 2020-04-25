@@ -66,7 +66,9 @@ public class Home
     public Consumption Consumption { get { return _consumption; } set { _consumption = value; } }
     public PreLiveComparison PreLiveComparison { get { return _preLiveComparison; } set { _preLiveComparison = value; } }
     public ICollection<Comparison> Comparisons { get { return _comparisons; } set { _comparisons = value; } }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonProperty("comparison_current_month")]
+    #endif
     public Comparison ComparisonCurrentMonth { get { return _comparisonCurrentMonth; } set { _comparisonCurrentMonth = value; } }
     public object Profile { get { return _profile; } set { _profile = value; } }
     public object ProfileQuestions { get { return _profileQuestions; } set { _profileQuestions = value; } }
