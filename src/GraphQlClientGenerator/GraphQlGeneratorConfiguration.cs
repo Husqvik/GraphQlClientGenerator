@@ -8,53 +8,55 @@ namespace GraphQlClientGenerator
     
     public delegate string GetDataPropertyAccessorBodiesDelegate(string backingFieldName, string backingFieldType);
 
-    public static class GraphQlGeneratorConfiguration
+    public class GraphQlGeneratorConfiguration
     {
-        public static CSharpVersion CSharpVersion { get; set; }
+        public CSharpVersion CSharpVersion { get; set; }
 
-        public static string ClassPostfix { get; set; }
+        public string ClassPostfix { get; set; }
 
-        public static IDictionary<string, string> CustomClassNameMapping { get; } = new Dictionary<string, string>();
+        public IDictionary<string, string> CustomClassNameMapping { get; } = new Dictionary<string, string>();
 
-        public static CommentGenerationOption CommentGeneration { get; set; }
+        public CommentGenerationOption CommentGeneration { get; set; }
 
-        public static bool IncludeDeprecatedFields { get; set; }
+        public bool IncludeDeprecatedFields { get; set; }
 
-        public static bool GeneratePartialClasses { get; set; } = true;
+        public bool GeneratePartialClasses { get; set; } = true;
 
         /// <summary>
         /// Determines whether unknown type scalar fields will be automatically requested when <code>WithAllScalarFields</code> issued.
         /// </summary>
-        public static bool TreatUnknownObjectAsScalar { get; set; }
+        public bool TreatUnknownObjectAsScalar { get; set; }
 
-        public static IntegerTypeMapping IntegerTypeMapping { get; set; } = IntegerTypeMapping.Int32;
+        public IntegerTypeMapping IntegerTypeMapping { get; set; } = IntegerTypeMapping.Int32;
 
-        public static FloatTypeMapping FloatTypeMapping { get; set; }
+        public FloatTypeMapping FloatTypeMapping { get; set; }
 
-        public static BooleanTypeMapping BooleanTypeMapping { get; set; }
+        public BooleanTypeMapping BooleanTypeMapping { get; set; }
 
-        public static IdTypeMapping IdTypeMapping { get; set; } = IdTypeMapping.Guid;
+        public IdTypeMapping IdTypeMapping { get; set; } = IdTypeMapping.Guid;
         
-        public static PropertyGenerationOption PropertyGeneration { get; set; } = PropertyGenerationOption.AutoProperty;
+        public PropertyGenerationOption PropertyGeneration { get; set; } = PropertyGenerationOption.AutoProperty;
 
-        public static JsonPropertyGenerationOption JsonPropertyGeneration { get; set; } = JsonPropertyGenerationOption.CaseInsensitive;
+        public JsonPropertyGenerationOption JsonPropertyGeneration { get; set; } = JsonPropertyGenerationOption.CaseInsensitive;
 
         /// <summary>
         /// Determines builder class, data class and interfaces accessibility level.
         /// </summary>
-        public static MemberAccessibility MemberAccessibility { get; set; }
+        public MemberAccessibility MemberAccessibility { get; set; }
 
         /// <summary>
         /// This property is used for mapping GraphQL scalar type into specific .NET type. By default any custom GraphQL scalar type is mapped into <see cref="System.Object"/>.
         /// </summary>
-        public static GetCustomScalarFieldTypeDelegate CustomScalarFieldTypeMapping { get; set; } = DefaultScalarFieldTypeMapping;
+        public GetCustomScalarFieldTypeDelegate CustomScalarFieldTypeMapping { get; set; }
 
         /// <summary>
         /// Used for custom data property accessor bodies generation; applicable only when <code>PropertyGeneration = PropertyGenerationOption.BackingField</code>.
         /// </summary>
-        public static GetDataPropertyAccessorBodiesDelegate PropertyAccessorBodyWriter { get; set; } = GeneratePropertyAccessors;
+        public GetDataPropertyAccessorBodiesDelegate PropertyAccessorBodyWriter { get; set; }
 
-        public static void Reset()
+        public GraphQlGeneratorConfiguration() => Reset();
+
+        public void Reset()
         {
             ClassPostfix = null;
             CustomClassNameMapping.Clear();
@@ -74,7 +76,7 @@ namespace GraphQlClientGenerator
             PropertyGeneration = PropertyGenerationOption.AutoProperty;
         }
 
-        public static string DefaultScalarFieldTypeMapping(GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
+        public string DefaultScalarFieldTypeMapping(GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
         {
             valueName = NamingHelper.ToPascalCase(valueName);
             if (valueName == "From" || valueName == "ValidFrom" || valueName == "To" || valueName == "ValidTo" ||
@@ -87,10 +89,10 @@ namespace GraphQlClientGenerator
                 return valueType.Name + "?";
 
             var dataType = valueType.Name == GraphQlTypeBase.GraphQlTypeScalarString ? "string" : "object";
-            return GraphQlGenerator.AddQuestionMarkIfNullableReferencesEnabled(dataType);
+            return GraphQlGenerator.AddQuestionMarkIfNullableReferencesEnabled(this, dataType);
         }
 
-        public static string GeneratePropertyAccessors(string backingFieldName, string backingFieldType)
+        public string GeneratePropertyAccessors(string backingFieldName, string backingFieldType)
         {
             var useCompatibleVersion = CSharpVersion == CSharpVersion.Compatible;
             var builder = new StringBuilder();
