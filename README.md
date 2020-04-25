@@ -28,7 +28,7 @@ var generator = new GraphQlGenerator();
 var builder = new StringBuilder();
 generator.GenerateQueryBuilder(schema, builder);
 generator.GenerateDataClasses(schema, builder);
-	
+
 var generatedClasses = builder.ToString();
 ```
 
@@ -286,32 +286,32 @@ Inline fragments
 -------------
 ```csharp
 var builder =
-	new RootQueryBuilder("InlineFragments")
-		.WithUnion(
-			new UnionTypeQueryBuilder()
-				.WithTypeName()
-				.WithConcreteType1Fragment(new ConcreteType1QueryBuilder().WithAllFields())
-				.WithConcreteType2Fragment(new ConcreteType2QueryBuilder().WithAllFields())
-				.WithConcreteType3Fragment(
-					new ConcreteType3QueryBuilder()
-						.WithTypeName()
-						.WithName()
-						.WithConcreteType3Field("alias")
-						.WithFunction("my value", "myResult1")
-				)
-		)
-		.WithInterface(
-			new NamedTypeQueryBuilder()
-				.WithName()
-				.WithConcreteType3Fragment(
-					new ConcreteType3QueryBuilder()
-						.WithTypeName()
-						.WithName()
-						.WithConcreteType3Field()
-						.WithFunction("my value")
-				),
-			Guid.Empty
-		);
+  new RootQueryBuilder("InlineFragments")
+    .WithUnion(
+      new UnionTypeQueryBuilder()
+        .WithTypeName()
+        .WithConcreteType1Fragment(new ConcreteType1QueryBuilder().WithAllFields())
+        .WithConcreteType2Fragment(new ConcreteType2QueryBuilder().WithAllFields())
+        .WithConcreteType3Fragment(
+          new ConcreteType3QueryBuilder()
+            .WithTypeName()
+            .WithName()
+            .WithConcreteType3Field("alias")
+            .WithFunction("my value", "myResult1")
+        )
+    )
+    .WithInterface(
+      new NamedTypeQueryBuilder()
+        .WithName()
+        .WithConcreteType3Fragment(
+          new ConcreteType3QueryBuilder()
+            .WithTypeName()
+            .WithName()
+            .WithConcreteType3Field()
+            .WithFunction("my value")
+        ),
+      Guid.Empty
+    );
 ```
 result:
 ```graphql
@@ -362,7 +362,7 @@ GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping =
             case "DateTime": return "DateTime?";
         }
 
-        // fallback - not needed if you cover all possible cases or you are ok with object type	
+        // fallback - not needed if you cover all possible cases or you are ok with object type
         return GraphQlGeneratorConfiguration.DefaultScalarFieldTypeMapping(baseType, valueType, valueName);
     };
 ```
