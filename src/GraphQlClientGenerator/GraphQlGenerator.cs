@@ -37,7 +37,11 @@ using Newtonsoft.Json.Linq;
 
         private delegate void WriteDataClassPropertyBodyDelegate(string netType, string backingFieldName);
 
-        private static readonly HttpClient HttpClient = new HttpClient();
+        private static readonly HttpClient HttpClient =
+            new HttpClient
+            {
+                DefaultRequestHeaders = { UserAgent = { ProductInfoHeaderValue.Parse("GraphQlGenerator/" + typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetName().Version) } }
+            };
 
         internal static readonly JsonSerializerSettings SerializerSettings =
             new JsonSerializerSettings
