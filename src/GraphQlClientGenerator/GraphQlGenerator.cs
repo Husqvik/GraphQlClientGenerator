@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,6 +34,8 @@ using Newtonsoft.Json.Linq;
 
         private delegate void WriteDataClassPropertyBodyDelegate(string netType, string backingFieldName);
 
+        private static readonly HttpClient HttpClient = new HttpClient();
+
         internal static readonly JsonSerializerSettings SerializerSettings =
             new JsonSerializerSettings
             {
@@ -47,13 +50,18 @@ using Newtonsoft.Json.Linq;
             _configuration = configuration ?? new GraphQlGeneratorConfiguration();
         }
 
-        public static async Task<GraphQlSchema> RetrieveSchema(string url)
+        public static async Task<GraphQlSchema> RetrieveSchema(string url, string authorization = null)
         {
-            using var client = new HttpClient();
-            using var response =
-                await client.PostAsync(
-                    url,
-                    new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json"));
+            using var request =
+                new HttpRequestMessage(HttpMethod.Post, url)
+                {
+                    Content = new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json")
+                };
+
+            if (!String.IsNullOrWhiteSpace(authorization))
+                request.Headers.Authorization = AuthenticationHeaderValue.Parse(authorization);
+            
+            using var response = await HttpClient.SendAsync(request);
 
             var content =
                 response.Content == null

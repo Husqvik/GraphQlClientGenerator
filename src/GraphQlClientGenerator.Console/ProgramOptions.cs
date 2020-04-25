@@ -12,5 +12,8 @@ namespace GraphQlClientGenerator.Console
 
         [Option('n', "namespace", Required = true, HelpText = "Root namespace")]
         public string Namespace { get; set; }
+
+        [Option('a', "authorization", Required = false, HelpText = "Authorization header value")]
+        public string Authorization { get; set; }
     }
 }

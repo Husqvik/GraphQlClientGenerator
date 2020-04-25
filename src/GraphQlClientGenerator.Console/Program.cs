@@ -28,7 +28,7 @@ namespace GraphQlClientGenerator.Console
         {
             try
             {
-                var fileInfo = await GraphQlCSharpFileHelper.GenerateClientCSharpFile(options.ServiceUrl, options.OutputFileName, options.Namespace);
+                var fileInfo = await GraphQlCSharpFileHelper.GenerateClientCSharpFile(options);
                 System.Console.WriteLine($"File {options.OutputFileName} generated successfully ({fileInfo.Length:N0} B). ");
             }
             catch (Exception exception)
