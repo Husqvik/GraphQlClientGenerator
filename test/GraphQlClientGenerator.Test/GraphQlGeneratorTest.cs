@@ -259,6 +259,8 @@ namespace GraphQlClientGenerator.Test
 
         return WithScalarField(""objectParameter"", ""fieldAlias"", new GraphQlDirective[] { new IncludeDirective(new GraphQlQueryParameter<bool>(""direct"", ""Boolean"", true)), new SkipDirective((QueryBuilderParameter<bool>)false) }, args);
     }
+
+    public TestQueryBuilder WithTestFragment(MeQueryBuilder queryBuilder) => WithFragment(queryBuilder);
 }");
 
             const string assemblyName = "GeneratedQueryTestAssembly";
@@ -318,13 +320,32 @@ namespace GraphQlClientGenerator.Test
 
             query.ShouldBe($" {{{Environment.NewLine}  testField(valueInt16: 1, valueUInt16: 2, valueByte: 3, valueInt32: 4, valueUInt32: 5, valueInt64: 6, valueUInt64: 7, valueSingle: 8.123, valueDouble: 9.456, valueDecimal: 10.789, valueDateTime: \"2019-06-30T00:27:47.0000000Z\", valueDateTimeOffset: \"2019-06-30T02:27:47.0000000+02:00\", valueGuid: \"00000000-0000-0000-0000-000000000000\", valueString: \"string value\"){Environment.NewLine}  fieldAlias: objectParameter(objectParameter: [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 1\",{Environment.NewLine}      rootProperty2: 123.456,{Environment.NewLine}      rootProperty3: true,{Environment.NewLine}      rootProperty4: null,{Environment.NewLine}      rootProperty5: {{{Environment.NewLine}        nestedProperty: 987}}}},{Environment.NewLine}    [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 2\"}},{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: false}}]]) @include(if: $direct) @skip(if: false){Environment.NewLine}}}");
 
-            builderType = Type.GetType($"{assemblyName}.QueryQueryBuilder, {assemblyName}");
-            builderType.ShouldNotBeNull();
-            builderInstance = builderType.GetConstructor(new [] { typeof(string) }).Invoke(new object[1]);
-            builderType.GetMethod("WithAllFields", BindingFlags.Instance | BindingFlags.Public).Invoke(builderInstance, null);
-            builderType
+            var rootQueryBuilderType = Type.GetType($"{assemblyName}.QueryQueryBuilder, {assemblyName}");
+            rootQueryBuilderType.ShouldNotBeNull();
+            var rootQueryBuilderInstance = rootQueryBuilderType.GetConstructor(new [] { typeof(string) }).Invoke(new object[1]);
+            rootQueryBuilderType.GetMethod("WithAllFields", BindingFlags.Instance | BindingFlags.Public).Invoke(rootQueryBuilderInstance, null);
+            rootQueryBuilderType
                 .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
-                .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
+                .Invoke(rootQueryBuilderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
+
+            builderType
+                .GetMethod("Clear", BindingFlags.Instance | BindingFlags.Public)
+                .Invoke(builderInstance, null);
+
+            var meBuilderType = Type.GetType($"{assemblyName}.MeQueryBuilder, {assemblyName}");
+            var childFragmentBuilderInstance = Activator.CreateInstance(meBuilderType, null, null, null);
+            meBuilderType.GetMethod("WithAllScalarFields", BindingFlags.Instance | BindingFlags.Public).Invoke(childFragmentBuilderInstance, null);
+
+            builderType
+                .GetMethod("WithTestFragment", BindingFlags.Instance | BindingFlags.Public)
+                .Invoke(builderInstance, new [] { childFragmentBuilderInstance });
+
+            query =
+                builderType
+                    .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
+                    .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
+
+            query.ShouldBe("{...on Me{id,firstName,lastName,fullName,ssn,email,language,tone,mobile}}");
         }
 
         [Fact]
