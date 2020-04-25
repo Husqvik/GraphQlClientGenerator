@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <AssemblyTitle>GraphQL C# Client Generator</AssemblyTitle>
+    <Description>A simple strongly typed C# GraphQL client generator library</Description>
     <TargetFrameworks>netstandard1.3;net452</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <IncludeSymbols>true</IncludeSymbols>

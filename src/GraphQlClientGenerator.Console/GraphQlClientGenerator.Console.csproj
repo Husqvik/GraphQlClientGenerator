@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <AssemblyTitle>GraphQL C# Client Generator Console App</AssemblyTitle>
-    <Description>A simple strongly typed C# GraphQL client generator</Description>
+    <Description>A simple strongly typed C# GraphQL client generator console app</Description>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
