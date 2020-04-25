@@ -188,7 +188,7 @@ internal static class GraphQlQueryHelper
     public static void ValidateGraphQlIdentifer(string name, string identifier)
     {
         if (identifier != null && !RegexGraphQlIdentifier.IsMatch(identifier))
-            throw new ArgumentException("Value must match [_A-Za-z][_0-9A-Za-z]*. ", nameof(name));
+            throw new ArgumentException("Value must match [_A-Za-z][_0-9A-Za-z]*. ", name);
     }
 
     private static string ConvertEnumToString(Enum @enum)

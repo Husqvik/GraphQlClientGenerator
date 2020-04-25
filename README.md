@@ -11,7 +11,7 @@ This simple console app generates C# GraphQL query builder and data classes for 
 Generator app usage
 -------------
 
-`GraphQlClientGenerator <GraphQlServiceUrl> <TargetFileName> <TargetNamespace>`
+`GraphQlClientGenerator --serviceUrl <GraphQlServiceUrl> --outputFileName <TargetFileName> --namespace <TargetNamespace>`
 
 Nuget package
 -------------
@@ -24,9 +24,10 @@ Code example for class generation:
 ```csharp
 var schema = await GraphQlGenerator.RetrieveSchema(url);
 
+var generator = new GraphQlGenerator();
 var builder = new StringBuilder();
-GraphQlGenerator.GenerateQueryBuilder(schema, builder);
-GraphQlGenerator.GenerateDataClasses(schema, builder);
+generator.GenerateQueryBuilder(schema, builder);
+generator.GenerateDataClasses(schema, builder);
 	
 var generatedClasses = builder.ToString();
 ```
@@ -35,7 +36,7 @@ or
 
 ```csharp
 var schema = await GraphQlGenerator.RetrieveSchema(url);
-var csharpCode = GraphQlGenerator.GenerateFullClientCSharpFile(schema, "MyGqlApiClient");
+var csharpCode = new GraphQlGenerator().GenerateFullClientCSharpFile(schema, "MyGqlApiClient");
 await File.WriteAllTextAsync("MyGqlApiClient.cs", csharpCode);
 ```
 
@@ -276,6 +277,69 @@ query (
     accountType @skip(if: true)
     homes @skip(if: true) {
       id
+    }
+  }
+}
+```
+
+Inline fragments
+-------------
+```csharp
+var builder =
+	new RootQueryBuilder("InlineFragments")
+		.WithUnion(
+			new UnionTypeQueryBuilder()
+				.WithTypeName()
+				.WithConcreteType1Fragment(new ConcreteType1QueryBuilder().WithAllFields())
+				.WithConcreteType2Fragment(new ConcreteType2QueryBuilder().WithAllFields())
+				.WithConcreteType3Fragment(
+					new ConcreteType3QueryBuilder()
+						.WithTypeName()
+						.WithName()
+						.WithConcreteType3Field("alias")
+						.WithFunction("my value", "myResult1")
+				)
+		)
+		.WithInterface(
+			new NamedTypeQueryBuilder()
+				.WithName()
+				.WithConcreteType3Fragment(
+					new ConcreteType3QueryBuilder()
+						.WithTypeName()
+						.WithName()
+						.WithConcreteType3Field()
+						.WithFunction("my value")
+				),
+			Guid.Empty
+		);
+```
+result:
+```graphql
+query InlineFragments {
+  union {
+    __typename
+    ... on ConcreteType1 {
+      name
+      concreteType1Field
+    }
+    ... on ConcreteType2 {
+      name
+      concreteType2Field
+    }
+    ... on ConcreteType3 {
+      __typename
+      name
+      alias: concreteType3Field
+      myResult1: function(value: "my value")
+    }
+  }
+  interface(parameter: "00000000-0000-0000-0000-000000000000") {
+    name
+    ... on ConcreteType3 {
+      __typename
+      name
+      concreteType3Field
+      function(value: "my value")
     }
   }
 }
