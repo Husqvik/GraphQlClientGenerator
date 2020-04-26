@@ -11,7 +11,7 @@ This simple console app generates C# GraphQL query builder and data classes for 
 Generator app usage
 -------------
 
-`GraphQlClientGenerator --serviceUrl <GraphQlServiceUrl> --outputFileName <TargetFileName> --namespace <TargetNamespace> [--authorization <header value>]`
+`GraphQlClientGenerator.Console --serviceUrl <GraphQlServiceUrl> --outputFileName <TargetFileName> --namespace <TargetNamespace> [--authorization <header value>]`
 
 Nuget package
 -------------
