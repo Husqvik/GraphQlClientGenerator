@@ -22,7 +22,7 @@ internal static class GraphQlQueryHelper
         return new String(' ', level * indentationSize);
     }
 
-    public static string BuildArgumentValue(object value, Formatting formatting, int level, byte indentationSize)
+    public static string BuildArgumentValue(object value, string formatMask, Formatting formatting, int level, byte indentationSize)
     {
         if (value is null)
             return "null";
@@ -36,9 +36,9 @@ internal static class GraphQlQueryHelper
                 case JTokenType.Integer:
                 case JTokenType.Float:
                 case JTokenType.Boolean:
-                    return BuildArgumentValue(jValue.Value, formatting, level, indentationSize);
+                    return BuildArgumentValue(jValue.Value, null, formatting, level, indentationSize);
                 default:
-                    return $"\"{jValue.Value}\"";
+                    return "\"" + jValue.Value + "\"";
             }
         }
 
@@ -47,12 +47,19 @@ internal static class GraphQlQueryHelper
             if (RegexWhiteSpace.IsMatch(jProperty.Name))
                 throw new ArgumentException($"JSON object keys used as GraphQL arguments must not contain whitespace; key: {jProperty.Name}");
 
-            return $"{jProperty.Name}:{(formatting == Formatting.Indented ? " " : null)}{BuildArgumentValue(jProperty.Value, formatting, level, indentationSize)}";
+            return $"{jProperty.Name}:{(formatting == Formatting.Indented ? " " : null)}{BuildArgumentValue(jProperty.Value, null, formatting, level, indentationSize)}";
         }
 
         if (value is JObject jObject)
-            return BuildEnumerableArgument(jObject, formatting, level + 1, indentationSize, '{', '}');
+            return BuildEnumerableArgument(jObject, null, formatting, level + 1, indentationSize, '{', '}');
 #endif
+
+        var enumerable = value as IEnumerable;
+        if (!String.IsNullOrEmpty(formatMask) && enumerable == null)
+            return
+                value is IFormattable formattable
+                    ? "\"" + formattable.ToString(formatMask, CultureInfo.InvariantCulture) + "\""
+                    : throw new ArgumentException($"Value must implement {nameof(IFormattable)} interface to use a format mask. ", nameof(value));
 
         if (value is Enum @enum)
             return ConvertEnumToString(@enum);
@@ -61,28 +68,28 @@ internal static class GraphQlQueryHelper
             return @bool ? "true" : "false";
 
         if (value is DateTime dateTime)
-            return $"\"{dateTime:O}\"";
+            return "\"" + dateTime.ToString("O") + "\"";
 
         if (value is DateTimeOffset dateTimeOffset)
-            return $"\"{dateTimeOffset:O}\"";
+            return "\"" + dateTimeOffset.ToString("O") + "\"";
 
         if (value is IGraphQlInputObject inputObject)
             return BuildInputObject(inputObject, formatting, level + 2, indentationSize);
 
         if (value is String || value is Guid)
-            return $"\"{value}\"";
+            return "\"" + value + "\"";
 
-        if (value is IEnumerable enumerable)
-            return BuildEnumerableArgument(enumerable, formatting, level, indentationSize, '[', ']');
+        if (enumerable != null)
+            return BuildEnumerableArgument(enumerable, formatMask, formatting, level, indentationSize, '[', ']');
 
         if (value is short || value is ushort || value is byte || value is int || value is uint || value is long || value is ulong || value is float || value is double || value is decimal)
             return Convert.ToString(value, CultureInfo.InvariantCulture);
 
         var argumentValue = Convert.ToString(value, CultureInfo.InvariantCulture);
-        return $"\"{argumentValue}\"";
+        return "\"" + argumentValue + "\"";
     }
 
-    private static string BuildEnumerableArgument(IEnumerable enumerable, Formatting formatting, int level, byte indentationSize, char openingSymbol, char closingSymbol)
+    private static string BuildEnumerableArgument(IEnumerable enumerable, string formatMask, Formatting formatting, int level, byte indentationSize, char openingSymbol, char closingSymbol)
     {
         var builder = new StringBuilder();
         builder.Append(openingSymbol);
@@ -97,7 +104,7 @@ internal static class GraphQlQueryHelper
                 builder.Append(GetIndentation(level + 1, indentationSize));
             }
 
-            builder.Append(BuildArgumentValue(item, formatting, level, indentationSize));
+            builder.Append(BuildArgumentValue(item, formatMask, formatting, level, indentationSize));
             delimiter = ",";
         }
 
@@ -127,7 +134,7 @@ internal static class GraphQlQueryHelper
             var value =
                 queryBuilderParameter?.Name != null
                     ? "$" + queryBuilderParameter.Name
-                    : BuildArgumentValue(queryBuilderParameter?.Value ?? propertyValue.Value, formatting, level, indentationSize);
+                    : BuildArgumentValue(queryBuilderParameter?.Value ?? propertyValue.Value, propertyValue.FormatMask, formatting, level, indentationSize);
 
             builder.Append(isIndentedFormatting ? GetIndentation(level, indentationSize) : separator);
             builder.Append(propertyValue.Name);
@@ -173,7 +180,7 @@ internal static class GraphQlQueryHelper
             builder.Append(indentationSpace);
 
             if (argument.Name == null)
-                builder.Append(BuildArgumentValue(argument.Value, formatting, level, indentationSize));
+                builder.Append(BuildArgumentValue(argument.Value, null, formatting, level, indentationSize));
             else
             {
                 builder.Append("$");
@@ -211,6 +218,7 @@ internal struct InputPropertyInfo
 {
     public string Name { get; set; }
     public object Value { get; set; }
+    public string FormatMask { get; set; }
 }
 
 internal interface IGraphQlInputObject
@@ -223,6 +231,13 @@ public interface IGraphQlQueryBuilder
     void Clear();
     void IncludeAllFields();
     string Build(Formatting formatting = Formatting.None, byte indentationSize = 2);
+}
+
+public struct QueryBuilderArgumentInfo
+{
+    public string ArgumentName { get; set; }
+    public QueryBuilderParameter ArgumentValue { get; set; }
+    public string FormatMask { get; set; }
 }
 
 public abstract class QueryBuilderParameter
@@ -418,7 +433,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
                         builder.Append(indentationSpace);
                         builder.Append("=");
                         builder.Append(indentationSpace);
-                        builder.Append(GraphQlQueryHelper.BuildArgumentValue(queryParameter.Value, formatting, 0, indentationSize));
+                        builder.Append(GraphQlQueryHelper.BuildArgumentValue(queryParameter.Value, null, formatting, 0, indentationSize));
                     }
 
                     separator = ",";
@@ -462,13 +477,13 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         return builder.ToString();
     }
 
-    protected void IncludeScalarField(string fieldName, string alias, IDictionary<string, QueryBuilderParameter> args, GraphQlDirective[] directives)
+    protected void IncludeScalarField(string fieldName, string alias, IList<QueryBuilderArgumentInfo> args, GraphQlDirective[] directives)
     {
         GraphQlQueryHelper.ValidateGraphQlIdentifer(nameof(alias), alias);
         _fieldCriteria[alias ?? fieldName] = new GraphQlScalarFieldCriteria(fieldName, alias, args, directives);
     }
 
-    protected void IncludeObjectField(string fieldName, GraphQlQueryBuilder objectFieldQueryBuilder, IDictionary<string, QueryBuilderParameter> args)
+    protected void IncludeObjectField(string fieldName, GraphQlQueryBuilder objectFieldQueryBuilder, IList<QueryBuilderArgumentInfo> args)
     {
         _fieldCriteria[objectFieldQueryBuilder.Alias ?? fieldName] = new GraphQlObjectFieldCriteria(fieldName, objectFieldQueryBuilder, args);
     }
@@ -558,14 +573,14 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     private abstract class GraphQlFieldCriteria
     {
-        private readonly IDictionary<string, QueryBuilderParameter> _args;
+        private readonly IList<QueryBuilderArgumentInfo> _args;
 
         protected readonly string FieldName;
 
         protected string GetIndentation(Formatting formatting, int level, byte indentationSize) =>
             formatting == Formatting.Indented ? GraphQlQueryHelper.GetIndentation(level, indentationSize) : null;
 
-        protected GraphQlFieldCriteria(string fieldName, IDictionary<string, QueryBuilderParameter> args)
+        protected GraphQlFieldCriteria(string fieldName, IList<QueryBuilderArgumentInfo> args)
         {
             FieldName = fieldName;
             _args = args;
@@ -582,7 +597,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
             var arguments =
                 _args.Select(
-                    kvp => $"{kvp.Key}:{separator}{(kvp.Value.Name == null ? GraphQlQueryHelper.BuildArgumentValue(kvp.Value.Value, formatting, level, indentationSize) : "$" + kvp.Value.Name)}");
+                    a => $"{a.ArgumentName}:{separator}{(a.ArgumentValue.Name == null ? GraphQlQueryHelper.BuildArgumentValue(a.ArgumentValue.Value, a.FormatMask, formatting, level, indentationSize) : "$" + a.ArgumentValue.Name)}");
 
             return $"({String.Join($",{separator}", arguments)})";
         }
@@ -599,7 +614,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         private readonly string _alias;
         private readonly GraphQlDirective[] _directives;
 
-        public GraphQlScalarFieldCriteria(string fieldName, string alias, IDictionary<string, QueryBuilderParameter> args, GraphQlDirective[] directives) : base(fieldName, args)
+        public GraphQlScalarFieldCriteria(string fieldName, string alias, IList<QueryBuilderArgumentInfo> args, GraphQlDirective[] directives) : base(fieldName, args)
         {
             _alias = alias;
             _directives = directives;
@@ -614,7 +629,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
     {
         private readonly GraphQlQueryBuilder _objectQueryBuilder;
 
-        public GraphQlObjectFieldCriteria(string fieldName, GraphQlQueryBuilder objectQueryBuilder, IDictionary<string, QueryBuilderParameter> args) : base(fieldName, args)
+        public GraphQlObjectFieldCriteria(string fieldName, GraphQlQueryBuilder objectQueryBuilder, IList<QueryBuilderArgumentInfo> args) : base(fieldName, args)
         {
             _objectQueryBuilder = objectQueryBuilder;
         }
@@ -674,13 +689,13 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
         return (TQueryBuilder)this;
     }
 
-    protected TQueryBuilder WithScalarField(string fieldName, string alias, GraphQlDirective[] directives, IDictionary<string, QueryBuilderParameter> args = null)
+    protected TQueryBuilder WithScalarField(string fieldName, string alias, GraphQlDirective[] directives, IList<QueryBuilderArgumentInfo> args = null)
     {
         IncludeScalarField(fieldName, alias, args, directives);
         return (TQueryBuilder)this;
     }
 
-    protected TQueryBuilder WithObjectField(string fieldName, GraphQlQueryBuilder queryBuilder, IDictionary<string, QueryBuilderParameter> args = null)
+    protected TQueryBuilder WithObjectField(string fieldName, GraphQlQueryBuilder queryBuilder, IList<QueryBuilderArgumentInfo> args = null)
     {
         IncludeObjectField(fieldName, queryBuilder, args);
         return (TQueryBuilder)this;
@@ -901,9 +916,9 @@ public partial class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
 
     public MeQueryBuilder WithHome(HomeQueryBuilder homeQueryBuilder, QueryBuilderParameter<string> @object = null)
     {
-        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
+        var args = new List<QueryBuilderArgumentInfo>();
         if (@object != null)
-            args.Add("object", @object);
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "object", ArgumentValue = @object} );
 
         return WithObjectField("home", homeQueryBuilder, args);
     }
@@ -935,12 +950,12 @@ public partial class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
 
     public MeQueryBuilder WithEnergyStatements(QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
-        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
+        var args = new List<QueryBuilderArgumentInfo>();
         if (from != null)
-            args.Add("from", from);
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "from", ArgumentValue = from} );
 
         if (to != null)
-            args.Add("to", to);
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "to", ArgumentValue = to} );
 
         return WithScalarField("energyStatements", alias, new GraphQlDirective[] { include, skip }, args);
     }
@@ -1026,9 +1041,9 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder WithConsumptionMonths(ConsumptionMonthQueryBuilder consumptionMonthQueryBuilder, QueryBuilderParameter<DateTimeOffset?> from = null)
     {
-        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
+        var args = new List<QueryBuilderArgumentInfo>();
         if (from != null)
-            args.Add("from", from);
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "from", ArgumentValue = from} );
 
         return WithObjectField("consumptionMonths", consumptionMonthQueryBuilder, args);
     }
@@ -1040,12 +1055,12 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder WithConsumption(ConsumptionQueryBuilder consumptionQueryBuilder, QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null)
     {
-        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
+        var args = new List<QueryBuilderArgumentInfo>();
         if (from != null)
-            args.Add("from", from);
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "from", ArgumentValue = from} );
 
         if (to != null)
-            args.Add("to", to);
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "to", ArgumentValue = to} );
 
         return WithObjectField("consumption", consumptionQueryBuilder, args);
     }
@@ -1067,15 +1082,15 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder WithComparisons(ComparisonQueryBuilder comparisonQueryBuilder, QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null, QueryBuilderParameter<Resolution?> resolution = null)
     {
-        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
+        var args = new List<QueryBuilderArgumentInfo>();
         if (from != null)
-            args.Add("from", from);
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "from", ArgumentValue = from} );
 
         if (to != null)
-            args.Add("to", to);
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "to", ArgumentValue = to} );
 
         if (resolution != null)
-            args.Add("resolution", resolution);
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "resolution", ArgumentValue = resolution} );
 
         return WithObjectField("comparisons", comparisonQueryBuilder, args);
     }
@@ -1127,15 +1142,15 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder WithTemperatures(QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null, QueryBuilderParameter<string> resolution = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
-        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
+        var args = new List<QueryBuilderArgumentInfo>();
         if (from != null)
-            args.Add("from", from);
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "from", ArgumentValue = from} );
 
         if (to != null)
-            args.Add("to", to);
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "to", ArgumentValue = to} );
 
         if (resolution != null)
-            args.Add("resolution", resolution);
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "resolution", ArgumentValue = resolution} );
 
         return WithScalarField("temperatures", alias, new GraphQlDirective[] { include, skip }, args);
     }
@@ -1157,9 +1172,9 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     public HomeQueryBuilder WithDisaggregation(DisaggregationQueryBuilder disaggregationQueryBuilder, QueryBuilderParameter<Resolution?> resolution = null)
     {
-        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
+        var args = new List<QueryBuilderArgumentInfo>();
         if (resolution != null)
-            args.Add("resolution", resolution);
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "resolution", ArgumentValue = resolution} );
 
         return WithObjectField("disaggregation", disaggregationQueryBuilder, args);
     }
@@ -1274,12 +1289,12 @@ public partial class SubscriptionQueryBuilder : GraphQlQueryBuilder<Subscription
 
     public SubscriptionQueryBuilder WithEnergyStatements(QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
-        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
+        var args = new List<QueryBuilderArgumentInfo>();
         if (from != null)
-            args.Add("from", from);
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "from", ArgumentValue = from} );
 
         if (to != null)
-            args.Add("to", to);
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "to", ArgumentValue = to} );
 
         return WithScalarField("energyStatements", alias, new GraphQlDirective[] { include, skip }, args);
     }
@@ -2401,12 +2416,12 @@ public partial class FeedQueryBuilder : GraphQlQueryBuilder<FeedQueryBuilder>
 
     public FeedQueryBuilder WithItems(FeedItemQueryBuilder feedItemQueryBuilder, QueryBuilderParameter<int?> page = null, QueryBuilderParameter<int?> pageSize = null)
     {
-        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);
+        var args = new List<QueryBuilderArgumentInfo>();
         if (page != null)
-            args.Add("page", page);
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "page", ArgumentValue = page} );
 
         if (pageSize != null)
-            args.Add("pageSize", pageSize);
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "pageSize", ArgumentValue = pageSize} );
 
         return WithObjectField("items", feedItemQueryBuilder, args);
     }

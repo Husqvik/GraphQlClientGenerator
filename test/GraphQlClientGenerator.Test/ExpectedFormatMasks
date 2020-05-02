@@ -903,7 +903,7 @@ public partial class ViewerQueryBuilder : GraphQlQueryBuilder<ViewerQueryBuilder
     public ViewerQueryBuilder WithHome(HomeQueryBuilder homeQueryBuilder, QueryBuilderParameter<Guid> id)
     {
         var args = new List<QueryBuilderArgumentInfo>();
-        args.Add(new QueryBuilderArgumentInfo { ArgumentName = "id", ArgumentValue = id} );
+        args.Add(new QueryBuilderArgumentInfo { ArgumentName = "id", ArgumentValue = id, FormatMask = "N"} );
         return WithObjectField("home", homeQueryBuilder, args);
     }
 
@@ -1096,7 +1096,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return ExceptField("subscriptions");
     }
 
-    public HomeQueryBuilder WithConsumption(HomeConsumptionConnectionQueryBuilder homeConsumptionConnectionQueryBuilder, QueryBuilderParameter<EnergyResolution> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<string> before = null, QueryBuilderParameter<string> after = null, QueryBuilderParameter<bool?> filterEmptyNodes = null)
+    public HomeQueryBuilder WithConsumption(HomeConsumptionConnectionQueryBuilder homeConsumptionConnectionQueryBuilder, QueryBuilderParameter<EnergyResolution> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<DateTimeOffset> before = null, QueryBuilderParameter<DateTimeOffset> after = null, QueryBuilderParameter<bool?> filterEmptyNodes = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "resolution", ArgumentValue = resolution} );
@@ -1107,10 +1107,10 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "last", ArgumentValue = last} );
 
         if (before != null)
-            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "before", ArgumentValue = before} );
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "before", ArgumentValue = before, FormatMask = "yyyy-MM-dd\"T\"HH:mm"} );
 
         if (after != null)
-            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "after", ArgumentValue = after} );
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "after", ArgumentValue = after, FormatMask = "yyyy-MM-dd\"T\"HH:mm"} );
 
         if (filterEmptyNodes != null)
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "filterEmptyNodes", ArgumentValue = filterEmptyNodes} );
@@ -1123,7 +1123,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return ExceptField("consumption");
     }
 
-    public HomeQueryBuilder WithProduction(HomeProductionConnectionQueryBuilder homeProductionConnectionQueryBuilder, QueryBuilderParameter<EnergyResolution> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<string> before = null, QueryBuilderParameter<string> after = null, QueryBuilderParameter<bool?> filterEmptyNodes = null)
+    public HomeQueryBuilder WithProduction(HomeProductionConnectionQueryBuilder homeProductionConnectionQueryBuilder, QueryBuilderParameter<EnergyResolution> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<DateTimeOffset> before = null, QueryBuilderParameter<DateTimeOffset> after = null, QueryBuilderParameter<bool?> filterEmptyNodes = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "resolution", ArgumentValue = resolution} );
@@ -1134,10 +1134,10 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "last", ArgumentValue = last} );
 
         if (before != null)
-            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "before", ArgumentValue = before} );
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "before", ArgumentValue = before, FormatMask = "yyyy-MM-dd\"T\"HH:mm"} );
 
         if (after != null)
-            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "after", ArgumentValue = after} );
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "after", ArgumentValue = after, FormatMask = "yyyy-MM-dd\"T\"HH:mm"} );
 
         if (filterEmptyNodes != null)
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "filterEmptyNodes", ArgumentValue = filterEmptyNodes} );
@@ -1664,7 +1664,7 @@ public partial class PriceInfoQueryBuilder : GraphQlQueryBuilder<PriceInfoQueryB
         return ExceptField("tomorrow");
     }
 
-    public PriceInfoQueryBuilder WithRange(SubscriptionPriceConnectionQueryBuilder subscriptionPriceConnectionQueryBuilder, QueryBuilderParameter<PriceResolution> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<string> before = null, QueryBuilderParameter<string> after = null)
+    public PriceInfoQueryBuilder WithRange(SubscriptionPriceConnectionQueryBuilder subscriptionPriceConnectionQueryBuilder, QueryBuilderParameter<PriceResolution> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<DateTimeOffset> before = null, QueryBuilderParameter<DateTimeOffset> after = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "resolution", ArgumentValue = resolution} );
@@ -1675,10 +1675,10 @@ public partial class PriceInfoQueryBuilder : GraphQlQueryBuilder<PriceInfoQueryB
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "last", ArgumentValue = last} );
 
         if (before != null)
-            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "before", ArgumentValue = before} );
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "before", ArgumentValue = before, FormatMask = "yyyy-MM-dd\"T\"HH:mm"} );
 
         if (after != null)
-            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "after", ArgumentValue = after} );
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "after", ArgumentValue = after, FormatMask = "yyyy-MM-dd\"T\"HH:mm"} );
 
         return WithObjectField("range", subscriptionPriceConnectionQueryBuilder, args);
     }
@@ -2780,12 +2780,12 @@ public partial class RootMutationQueryBuilder : GraphQlQueryBuilder<RootMutation
         return ExceptField("updateHome");
     }
 
-    public RootMutationQueryBuilder WithSendPushNotification(PushNotificationResponseQueryBuilder pushNotificationResponseQueryBuilder, QueryBuilderParameter<PushNotificationInput> input, QueryBuilderParameter<IEnumerable<bool>> flags, QueryBuilderParameter<IEnumerable<Guid?>> tags = null, QueryBuilderParameter<IEnumerable<int?>> references = null)
+    public RootMutationQueryBuilder WithSendPushNotification(PushNotificationResponseQueryBuilder pushNotificationResponseQueryBuilder, QueryBuilderParameter<PushNotificationInput> input, QueryBuilderParameter<IEnumerable<bool>> flags, QueryBuilderParameter<IEnumerable<Guid>> tags = null, QueryBuilderParameter<IEnumerable<int?>> references = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "input", ArgumentValue = input} );
         if (tags != null)
-            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "tags", ArgumentValue = tags} );
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "tags", ArgumentValue = tags, FormatMask = "N"} );
 
         if (references != null)
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "references", ArgumentValue = references} );
@@ -2913,7 +2913,7 @@ public partial class RootSubscriptionQueryBuilder : GraphQlQueryBuilder<RootSubs
     public RootSubscriptionQueryBuilder WithLiveMeasurement(LiveMeasurementQueryBuilder liveMeasurementQueryBuilder, QueryBuilderParameter<Guid> homeId)
     {
         var args = new List<QueryBuilderArgumentInfo>();
-        args.Add(new QueryBuilderArgumentInfo { ArgumentName = "homeId", ArgumentValue = homeId} );
+        args.Add(new QueryBuilderArgumentInfo { ArgumentName = "homeId", ArgumentValue = homeId, FormatMask = "N"} );
         return WithObjectField("liveMeasurement", liveMeasurementQueryBuilder, args);
     }
 
@@ -3168,5 +3168,487 @@ public partial class LiveMeasurementQueryBuilder : GraphQlQueryBuilder<LiveMeasu
     {
         return ExceptField("currentPhase3");
     }
+}
+#endregion
+
+#region input classes
+public partial class MeterReadingInput : IGraphQlInputObject
+{
+    private InputPropertyInfo _homeId;
+    private InputPropertyInfo _time;
+    private InputPropertyInfo _reading;
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<Guid?>))]
+    #endif
+    public QueryBuilderParameter<Guid?> HomeId
+    {
+        get { return (QueryBuilderParameter<Guid?>)_homeId.Value; }
+        set { _homeId = new InputPropertyInfo { Name = "homeId", Value = value, FormatMask = "N" }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    #endif
+    public QueryBuilderParameter<string> Time
+    {
+        get { return (QueryBuilderParameter<string>)_time.Value; }
+        set { _time = new InputPropertyInfo { Name = "time", Value = value }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    #endif
+    public QueryBuilderParameter<int?> Reading
+    {
+        get { return (QueryBuilderParameter<int?>)_reading.Value; }
+        set { _reading = new InputPropertyInfo { Name = "reading", Value = value }; }
+    }
+
+    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
+    {
+        if (_homeId.Name != null) yield return _homeId;
+        if (_time.Name != null) yield return _time;
+        if (_reading.Name != null) yield return _reading;
+    }
+}
+
+public partial class UpdateHomeInput : IGraphQlInputObject
+{
+    private InputPropertyInfo _homeId;
+    private InputPropertyInfo _appNickname;
+    private InputPropertyInfo _appAvatar;
+    private InputPropertyInfo _size;
+    private InputPropertyInfo _type;
+    private InputPropertyInfo _numberOfResidents;
+    private InputPropertyInfo _primaryHeatingSource;
+    private InputPropertyInfo _hasVentilationSystem;
+    private InputPropertyInfo _mainFuseSize;
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<Guid?>))]
+    #endif
+    public QueryBuilderParameter<Guid?> HomeId
+    {
+        get { return (QueryBuilderParameter<Guid?>)_homeId.Value; }
+        set { _homeId = new InputPropertyInfo { Name = "homeId", Value = value, FormatMask = "N" }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    #endif
+    public QueryBuilderParameter<string> AppNickname
+    {
+        get { return (QueryBuilderParameter<string>)_appNickname.Value; }
+        set { _appNickname = new InputPropertyInfo { Name = "appNickname", Value = value }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<HomeAvatar?>))]
+    #endif
+    public QueryBuilderParameter<HomeAvatar?> AppAvatar
+    {
+        get { return (QueryBuilderParameter<HomeAvatar?>)_appAvatar.Value; }
+        set { _appAvatar = new InputPropertyInfo { Name = "appAvatar", Value = value }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    #endif
+    public QueryBuilderParameter<int?> Size
+    {
+        get { return (QueryBuilderParameter<int?>)_size.Value; }
+        set { _size = new InputPropertyInfo { Name = "size", Value = value }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<HomeType?>))]
+    #endif
+    public QueryBuilderParameter<HomeType?> Type
+    {
+        get { return (QueryBuilderParameter<HomeType?>)_type.Value; }
+        set { _type = new InputPropertyInfo { Name = "type", Value = value }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    #endif
+    public QueryBuilderParameter<int?> NumberOfResidents
+    {
+        get { return (QueryBuilderParameter<int?>)_numberOfResidents.Value; }
+        set { _numberOfResidents = new InputPropertyInfo { Name = "numberOfResidents", Value = value }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<HeatingSource?>))]
+    #endif
+    public QueryBuilderParameter<HeatingSource?> PrimaryHeatingSource
+    {
+        get { return (QueryBuilderParameter<HeatingSource?>)_primaryHeatingSource.Value; }
+        set { _primaryHeatingSource = new InputPropertyInfo { Name = "primaryHeatingSource", Value = value }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<bool?>))]
+    #endif
+    public QueryBuilderParameter<bool?> HasVentilationSystem
+    {
+        get { return (QueryBuilderParameter<bool?>)_hasVentilationSystem.Value; }
+        set { _hasVentilationSystem = new InputPropertyInfo { Name = "hasVentilationSystem", Value = value }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    #endif
+    public QueryBuilderParameter<int?> MainFuseSize
+    {
+        get { return (QueryBuilderParameter<int?>)_mainFuseSize.Value; }
+        set { _mainFuseSize = new InputPropertyInfo { Name = "mainFuseSize", Value = value }; }
+    }
+
+    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
+    {
+        if (_homeId.Name != null) yield return _homeId;
+        if (_appNickname.Name != null) yield return _appNickname;
+        if (_appAvatar.Name != null) yield return _appAvatar;
+        if (_size.Name != null) yield return _size;
+        if (_type.Name != null) yield return _type;
+        if (_numberOfResidents.Name != null) yield return _numberOfResidents;
+        if (_primaryHeatingSource.Name != null) yield return _primaryHeatingSource;
+        if (_hasVentilationSystem.Name != null) yield return _hasVentilationSystem;
+        if (_mainFuseSize.Name != null) yield return _mainFuseSize;
+    }
+}
+
+public partial class PushNotificationInput : IGraphQlInputObject
+{
+    private InputPropertyInfo _title;
+    private InputPropertyInfo _message;
+    private InputPropertyInfo _screenToOpen;
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    #endif
+    public QueryBuilderParameter<string> Title
+    {
+        get { return (QueryBuilderParameter<string>)_title.Value; }
+        set { _title = new InputPropertyInfo { Name = "title", Value = value }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    #endif
+    public QueryBuilderParameter<string> Message
+    {
+        get { return (QueryBuilderParameter<string>)_message.Value; }
+        set { _message = new InputPropertyInfo { Name = "message", Value = value }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<AppScreen?>))]
+    #endif
+    public QueryBuilderParameter<AppScreen?> ScreenToOpen
+    {
+        get { return (QueryBuilderParameter<AppScreen?>)_screenToOpen.Value; }
+        set { _screenToOpen = new InputPropertyInfo { Name = "screenToOpen", Value = value }; }
+    }
+
+    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
+    {
+        if (_title.Name != null) yield return _title;
+        if (_message.Name != null) yield return _message;
+        if (_screenToOpen.Name != null) yield return _screenToOpen;
+    }
+}
+#endregion
+
+#region data classes
+public partial class Query
+{
+    public Viewer Viewer { get; set; }
+}
+
+public partial class Viewer
+{
+    public string Login { get; set; }
+    public string Name { get; set; }
+    public ICollection<string> AccountType { get; set; }
+    public ICollection<Home> Homes { get; set; }
+    public Home Home { get; set; }
+}
+
+public partial class Home
+{
+    public Guid? Id { get; set; }
+    public string TimeZone { get; set; }
+    public string AppNickname { get; set; }
+    public HomeAvatar? AppAvatar { get; set; }
+    public int? Size { get; set; }
+    public HomeType? Type { get; set; }
+    public int? NumberOfResidents { get; set; }
+    public HeatingSource? PrimaryHeatingSource { get; set; }
+    public bool? HasVentilationSystem { get; set; }
+    public int? MainFuseSize { get; set; }
+    public Address Address { get; set; }
+    public LegalEntity Owner { get; set; }
+    public MeteringPointData MeteringPointData { get; set; }
+    public Subscription CurrentSubscription { get; set; }
+    public ICollection<Subscription> Subscriptions { get; set; }
+    public HomeConsumptionConnection Consumption { get; set; }
+    public HomeProductionConnection Production { get; set; }
+    public HomeFeatures Features { get; set; }
+}
+
+public partial class Address
+{
+    public string Address1 { get; set; }
+    public string Address2 { get; set; }
+    public string Address3 { get; set; }
+    public string City { get; set; }
+    public string PostalCode { get; set; }
+    public string Country { get; set; }
+    public string Latitude { get; set; }
+    public string Longitude { get; set; }
+}
+
+public partial class LegalEntity
+{
+    public Guid? Id { get; set; }
+    public string FirstName { get; set; }
+    public bool? IsCompany { get; set; }
+    public string Name { get; set; }
+    public string MiddleName { get; set; }
+    public string LastName { get; set; }
+    public string OrganizationNo { get; set; }
+    public string Language { get; set; }
+    public ContactInfo ContactInfo { get; set; }
+    public Address Address { get; set; }
+}
+
+public partial class ContactInfo
+{
+    public string Email { get; set; }
+    public string Mobile { get; set; }
+}
+
+public partial class MeteringPointData
+{
+    public string ConsumptionEan { get; set; }
+    public string GridCompany { get; set; }
+    public string GridAreaCode { get; set; }
+    public string PriceAreaCode { get; set; }
+    public string ProductionEan { get; set; }
+    public string EnergyTaxType { get; set; }
+    public string VatType { get; set; }
+    public int? EstimatedAnnualConsumption { get; set; }
+}
+
+public partial class Subscription
+{
+    public Guid? Id { get; set; }
+    public LegalEntity Subscriber { get; set; }
+    public DateTimeOffset? ValidFrom { get; set; }
+    public DateTimeOffset? ValidTo { get; set; }
+    public string Status { get; set; }
+    public PriceInfo PriceInfo { get; set; }
+}
+
+public partial class PriceInfo
+{
+    public Price Current { get; set; }
+    public ICollection<Price> Today { get; set; }
+    public ICollection<Price> Tomorrow { get; set; }
+    public SubscriptionPriceConnection Range { get; set; }
+}
+
+public partial class Price
+{
+    public decimal? Total { get; set; }
+    public decimal? Energy { get; set; }
+    public decimal? Tax { get; set; }
+    public string StartsAt { get; set; }
+    public string Currency { get; set; }
+    public PriceLevel? Level { get; set; }
+}
+
+public partial class SubscriptionPriceConnection
+{
+    public SubscriptionPriceConnectionPageInfo PageInfo { get; set; }
+    public ICollection<SubscriptionPriceEdge> Edges { get; set; }
+    public ICollection<Price> Nodes { get; set; }
+}
+
+public partial class SubscriptionPriceConnectionPageInfo : IPageInfo
+{
+    public string EndCursor { get; set; }
+    public bool? HasNextPage { get; set; }
+    public bool? HasPreviousPage { get; set; }
+    public string StartCursor { get; set; }
+    public string Resolution { get; set; }
+    public string Currency { get; set; }
+    public int? Count { get; set; }
+    public string Precision { get; set; }
+    public decimal? MinEnergy { get; set; }
+    public decimal? MinTotal { get; set; }
+    public decimal? MaxEnergy { get; set; }
+    public decimal? MaxTotal { get; set; }
+    public string UnimplementedField { get; set; }
+}
+
+public interface IPageInfo
+{
+    string UnimplementedField { get; set; }
+    string EndCursor { get; set; }
+    bool? HasNextPage { get; set; }
+    bool? HasPreviousPage { get; set; }
+    string StartCursor { get; set; }
+}
+
+public partial class PageInfo : IPageInfo
+{
+    public string UnimplementedField { get; set; }
+    public string EndCursor { get; set; }
+    public bool? HasNextPage { get; set; }
+    public bool? HasPreviousPage { get; set; }
+    public string StartCursor { get; set; }
+}
+
+public partial class SubscriptionPriceEdge
+{
+    public string Cursor { get; set; }
+    public Price Node { get; set; }
+}
+
+public partial class HomeConsumptionConnection
+{
+    public HomeConsumptionPageInfo PageInfo { get; set; }
+    public ICollection<Consumption> Nodes { get; set; }
+    public ICollection<HomeConsumptionEdge> Edges { get; set; }
+}
+
+public partial class HomeConsumptionPageInfo : IPageInfo
+{
+    public string EndCursor { get; set; }
+    public bool? HasNextPage { get; set; }
+    public bool? HasPreviousPage { get; set; }
+    public string StartCursor { get; set; }
+    public int? Count { get; set; }
+    public string Currency { get; set; }
+    public decimal? TotalCost { get; set; }
+    public decimal? TotalConsumption { get; set; }
+    public int? Filtered { get; set; }
+    public string UnimplementedField { get; set; }
+}
+
+public partial class Consumption
+{
+    public DateTimeOffset? From { get; set; }
+    public DateTimeOffset? To { get; set; }
+    public decimal? UnitPrice { get; set; }
+    public decimal? UnitPriceVat { get; set; }
+    public decimal? Consumption { get; set; }
+    public string ConsumptionUnit { get; set; }
+    public decimal? Cost { get; set; }
+    public string Currency { get; set; }
+}
+
+public partial class HomeConsumptionEdge
+{
+    public string Cursor { get; set; }
+    public Consumption Node { get; set; }
+}
+
+public partial class HomeProductionConnection
+{
+    public HomeProductionPageInfo PageInfo { get; set; }
+    public ICollection<Production> Nodes { get; set; }
+    public ICollection<HomeProductionEdge> Edges { get; set; }
+}
+
+public partial class HomeProductionPageInfo : IPageInfo
+{
+    public string EndCursor { get; set; }
+    public bool? HasNextPage { get; set; }
+    public bool? HasPreviousPage { get; set; }
+    public string StartCursor { get; set; }
+    public int? Count { get; set; }
+    public string Currency { get; set; }
+    public decimal? TotalProfit { get; set; }
+    public decimal? TotalProduction { get; set; }
+    public int? Filtered { get; set; }
+    public string UnimplementedField { get; set; }
+}
+
+public partial class Production
+{
+    public DateTimeOffset? From { get; set; }
+    public DateTimeOffset? To { get; set; }
+    public decimal? UnitPrice { get; set; }
+    public decimal? UnitPriceVat { get; set; }
+    public decimal? Production { get; set; }
+    public string ProductionUnit { get; set; }
+    public decimal? Profit { get; set; }
+    public string Currency { get; set; }
+}
+
+public partial class HomeProductionEdge
+{
+    public string Cursor { get; set; }
+    public Production Node { get; set; }
+}
+
+public partial class HomeFeatures
+{
+    public bool? RealTimeConsumptionEnabled { get; set; }
+}
+
+public partial class RootMutation
+{
+    public MeterReadingResponse SendMeterReading { get; set; }
+    public Home UpdateHome { get; set; }
+    public PushNotificationResponse SendPushNotification { get; set; }
+}
+
+public partial class MeterReadingResponse
+{
+    public Guid? HomeId { get; set; }
+    public string Time { get; set; }
+    public int? Reading { get; set; }
+}
+
+public partial class PushNotificationResponse
+{
+    public bool? Successful { get; set; }
+    public int? PushedToNumberOfDevices { get; set; }
+}
+
+public partial class RootSubscription
+{
+    public LiveMeasurement LiveMeasurement { get; set; }
+}
+
+public partial class LiveMeasurement
+{
+    public DateTimeOffset? Timestamp { get; set; }
+    public decimal? Power { get; set; }
+    public decimal? LastMeterConsumption { get; set; }
+    public decimal? AccumulatedConsumption { get; set; }
+    public decimal? AccumulatedProduction { get; set; }
+    public decimal? AccumulatedCost { get; set; }
+    public decimal? AccumulatedReward { get; set; }
+    public string Currency { get; set; }
+    public decimal? MinPower { get; set; }
+    public decimal? AveragePower { get; set; }
+    public decimal? MaxPower { get; set; }
+    public decimal? PowerProduction { get; set; }
+    public decimal? MinPowerProduction { get; set; }
+    public decimal? MaxPowerProduction { get; set; }
+    public decimal? LastMeterProduction { get; set; }
+    public decimal? VoltagePhase1 { get; set; }
+    public decimal? VoltagePhase2 { get; set; }
+    public decimal? VoltagePhase3 { get; set; }
+    public decimal? CurrentPhase1 { get; set; }
+    public decimal? CurrentPhase2 { get; set; }
+    public decimal? CurrentPhase3 { get; set; }
 }
 #endregion

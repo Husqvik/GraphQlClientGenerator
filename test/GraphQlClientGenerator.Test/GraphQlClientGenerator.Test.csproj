@@ -27,6 +27,7 @@
     <EmbeddedResource Include="ExpectedQueryBuilders" />
     <EmbeddedResource Include="ExpectedQueryBuildersWithListsOfScalarValuesAsArguments" />
     <EmbeddedResource Include="ExpectedWithUnions" />
+    <EmbeddedResource Include="ExpectedFormatMasks" />
     <EmbeddedResource Include="TestSchema" />
     <EmbeddedResource Include="TestSchema2" />
     <EmbeddedResource Include="TestSchema3" />

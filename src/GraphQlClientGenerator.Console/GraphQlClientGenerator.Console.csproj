@@ -11,7 +11,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
-    <VersionPrefix>0.6.2</VersionPrefix>
+    <VersionPrefix>0.6.3</VersionPrefix>
     <Title>GraphQL C# Client Generator Console App</Title>
     <PackageId>GraphQlClientGenerator.Tool</PackageId>
     <PackageLicenseFile>License.md</PackageLicenseFile>
@@ -21,7 +21,8 @@
     <RepositoryUrl>https://github.com/Husqvik/GraphQlClientGenerator</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes></PackageReleaseNotes>
-    <PackageTags>GraphQL Client Generator</PackageTags>
+    <PackageTags>GraphQL Client Generator Tool Console</PackageTags>
+    <PackageReleaseNotes>Format mask support</PackageReleaseNotes>
 
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>graphql-client-generator</ToolCommandName>

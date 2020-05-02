@@ -39,7 +39,6 @@ namespace GraphQlClientGenerator.Test
             new GraphQlGenerator(configuration).GenerateQueryBuilder(TestSchema, stringBuilder);
 
             var expectedQueryBuilders = GetTestResource("ExpectedQueryBuilders");
-            File.WriteAllText(@"D:\ExpectedQueryBuilders", stringBuilder.ToString());
             stringBuilder.ToString().ShouldBe(expectedQueryBuilders);
         }
 
@@ -53,7 +52,6 @@ namespace GraphQlClientGenerator.Test
             new GraphQlGenerator(configuration).GenerateDataClasses(TestSchema, stringBuilder);
 
             var expectedDataClasses = GetTestResource("ExpectedDataClasses");
-            File.WriteAllText(@"D:\ExpectedDataClasses", stringBuilder.ToString());
             stringBuilder.ToString().ShouldBe(expectedDataClasses);
         }
 
@@ -81,10 +79,44 @@ namespace GraphQlClientGenerator.Test
             new GraphQlGenerator(configuration).GenerateDataClasses(TestSchema, stringBuilder);
 
             var expectedDataClasses = GetTestResource("ExpectedDataClassesWithTypeConfiguration");
-            File.WriteAllText(@"D:\ExpectedDataClassesWithTypeConfiguration", stringBuilder.ToString());
             stringBuilder.ToString().ShouldBe(expectedDataClasses);
         }
 
+        [Fact]
+        public void GenerateFormatMasks()
+        {
+            var configuration =
+                new GraphQlGeneratorConfiguration
+                {
+                    IdTypeMapping = IdTypeMapping.Custom
+                };
+
+            configuration.CustomScalarFieldTypeMapping =
+                (baseType, valueType, valueName) =>
+                {
+                    var isNotNull = valueType.Kind == GraphQlTypeKind.NonNull;
+                    var unwrappedType = valueType is GraphQlFieldType fieldType ? fieldType.UnwrapIfNonNull() : valueType;
+                    var nullablePostfix = isNotNull ? "?" : null;
+
+                    if (unwrappedType.Name == "ID")
+                        return new ScalarFieldTypeDescription { NetTypeName = "Guid" + nullablePostfix, FormatMask = "N" };
+
+                    if (valueName == "before" || valueName == "after")
+                        return new ScalarFieldTypeDescription { NetTypeName = "DateTimeOffset" + nullablePostfix, FormatMask = "yyyy-MM-dd\"T\"HH:mm" };
+
+                    return configuration.DefaultScalarFieldTypeMapping(baseType, valueType, valueName);
+                };
+
+            var stringBuilder = new StringBuilder();
+            var generator = new GraphQlGenerator(configuration);
+            var testSchema = DeserializeTestSchema("TestSchema3");
+            generator.GenerateQueryBuilder(testSchema, stringBuilder);
+            generator.GenerateDataClasses(testSchema, stringBuilder);
+
+            var expectedDataClasses = GetTestResource("ExpectedFormatMasks");
+            stringBuilder.ToString().ShouldBe(expectedDataClasses);
+        }
+        
         [Fact]
         public void GenerateDataClassesWithInterfaces()
         {
@@ -92,7 +124,6 @@ namespace GraphQlClientGenerator.Test
             new GraphQlGenerator().GenerateDataClasses(DeserializeTestSchema("TestSchema3"), stringBuilder);
 
             var expectedDataClasses = GetTestResource("ExpectedDataClassesWithInterfaces");
-            File.WriteAllText(@"D:\ExpectedDataClassesWithInterfaces", stringBuilder.ToString());
             stringBuilder.ToString().ShouldBe(expectedDataClasses);
         }
 
@@ -103,7 +134,6 @@ namespace GraphQlClientGenerator.Test
             new GraphQlGenerator().GenerateQueryBuilder(DeserializeTestSchema("TestSchema3"), stringBuilder);
 
             var expectedQueryBuilders = GetTestResource("ExpectedQueryBuildersWithListsOfScalarValuesAsArguments");
-            File.WriteAllText(@"D:\ExpectedQueryBuildersWithListsOfScalarValuesAsArguments", stringBuilder.ToString());
             stringBuilder.ToString().ShouldBe(expectedQueryBuilders);
         }
 
@@ -127,7 +157,6 @@ namespace GraphQlClientGenerator.Test
 
             var expectedOutput = GetTestResource("ExpectedNewCSharpSyntaxWithClassPostfix");
             var generatedSourceCode = stringBuilder.ToString();
-            File.WriteAllText(@"D:\ExpectedNewCSharpSyntaxWithClassPostfix", generatedSourceCode);
             generatedSourceCode.ShouldBe(expectedOutput);
 
             CompileIntoAssembly(generatedSourceCode, "GraphQLTestAssembly");
@@ -148,7 +177,6 @@ namespace GraphQlClientGenerator.Test
 
             var expectedOutput = GetTestResource("ExpectedWithNullableReferences");
             var generatedSourceCode = stringBuilder.ToString();
-            File.WriteAllText(@"D:\ExpectedWithNullableReferences", generatedSourceCode);
             generatedSourceCode.ShouldBe(expectedOutput);
         }
 
@@ -165,7 +193,6 @@ namespace GraphQlClientGenerator.Test
 
             var expectedOutput = GetTestResource("ExpectedWithUnions");
             var generatedSourceCode = stringBuilder.ToString();
-            File.WriteAllText(@"D:\ExpectedWithUnions", generatedSourceCode);
             generatedSourceCode.ShouldBe(expectedOutput);
         }
 
@@ -216,57 +243,57 @@ namespace GraphQlClientGenerator.Test
         QueryBuilderParameter<Guid?> valueGuid = null,
         QueryBuilderParameter<string> valueString = null)
 	{
-		var args = new Dictionary<string, QueryBuilderParameter>();
+		var args = new List<QueryBuilderArgumentInfo>();
 		if (valueInt16 != null)
-			args.Add(""valueInt16"", valueInt16);
+			args.Add(new QueryBuilderArgumentInfo { ArgumentName = ""valueInt16"", ArgumentValue = valueInt16 });
 
 		if (valueUInt16 != null)
-			args.Add(""valueUInt16"", valueUInt16);
+			args.Add(new QueryBuilderArgumentInfo { ArgumentName = ""valueUInt16"", ArgumentValue = valueUInt16 });
 
 		if (valueByte != null)
-			args.Add(""valueByte"", valueByte);
+			args.Add(new QueryBuilderArgumentInfo { ArgumentName = ""valueByte"", ArgumentValue = valueByte });
 
 		if (valueInt32 != null)
-			args.Add(""valueInt32"", valueInt32);
+			args.Add(new QueryBuilderArgumentInfo { ArgumentName = ""valueInt32"", ArgumentValue = valueInt32 });
 
 		if (valueUInt32 != null)
-			args.Add(""valueUInt32"", valueUInt32);
+			args.Add(new QueryBuilderArgumentInfo { ArgumentName = ""valueUInt32"", ArgumentValue = valueUInt32 });
 
 		if (valueInt64 != null)
-			args.Add(""valueInt64"", valueInt64);
+			args.Add(new QueryBuilderArgumentInfo { ArgumentName = ""valueInt64"", ArgumentValue = valueInt64 });
 
 		if (valueUInt64 != null)
-			args.Add(""valueUInt64"", valueUInt64);
+			args.Add(new QueryBuilderArgumentInfo { ArgumentName = ""valueUInt64"", ArgumentValue = valueUInt64 });
 
 		if (valueSingle != null)
-			args.Add(""valueSingle"", valueSingle);
+			args.Add(new QueryBuilderArgumentInfo { ArgumentName = ""valueSingle"", ArgumentValue = valueSingle });
 
 		if (valueDouble != null)
-			args.Add(""valueDouble"", valueDouble);
+			args.Add(new QueryBuilderArgumentInfo { ArgumentName = ""valueDouble"", ArgumentValue = valueDouble });
 
 		if (valueDecimal != null)
-			args.Add(""valueDecimal"", valueDecimal);
+			args.Add(new QueryBuilderArgumentInfo { ArgumentName = ""valueDecimal"", ArgumentValue = valueDecimal });
 
 		if (valueDateTime != null)
-			args.Add(""valueDateTime"", valueDateTime);
+			args.Add(new QueryBuilderArgumentInfo { ArgumentName = ""valueDateTime"", ArgumentValue = valueDateTime, FormatMask = ""yy-MM-dd HH:mmZ"" });
 
 		if (valueDateTimeOffset != null)
-			args.Add(""valueDateTimeOffset"", valueDateTimeOffset);
+			args.Add(new QueryBuilderArgumentInfo { ArgumentName = ""valueDateTimeOffset"", ArgumentValue = valueDateTimeOffset });
 
 		if (valueGuid != null)
-			args.Add(""valueGuid"", valueGuid);
+			args.Add(new QueryBuilderArgumentInfo { ArgumentName = ""valueGuid"", ArgumentValue = valueGuid });
 
 		if (valueString != null)
-			args.Add(""valueString"", valueString);
+			args.Add(new QueryBuilderArgumentInfo { ArgumentName = ""valueString"", ArgumentValue = valueString });
 
 		return WithScalarField(""testField"", null, null, args);
 	}
 
     public TestQueryBuilder WithObjectParameterField(QueryBuilderParameter<object> objectParameter = null)
 	{
-		var args = new Dictionary<string, QueryBuilderParameter>();
+		var args = new List<QueryBuilderArgumentInfo>();
 		if (objectParameter != null)
-			args.Add(""objectParameter"", objectParameter);
+			args.Add(new QueryBuilderArgumentInfo { ArgumentName = ""objectParameter"", ArgumentValue = objectParameter });
 
         return WithScalarField(""objectParameter"", ""fieldAlias"", new GraphQlDirective[] { new IncludeDirective(new GraphQlQueryParameter<bool>(""direct"", ""Boolean"", true)), new SkipDirective((QueryBuilderParameter<bool>)false) }, args);
     }
@@ -299,8 +326,8 @@ namespace GraphQlClientGenerator.Test
                         8.123f,
                         9.456d,
                         10.789m,
-                        new DateTime(2019, 6, 30, 0, 27, 47, DateTimeKind.Utc),
-                        new DateTimeOffset(2019, 6, 30, 2, 27, 47, TimeSpan.FromHours(2)),
+                        new DateTime(2019, 6, 30, 0, 27, 47, DateTimeKind.Utc).AddTicks(1234567),
+                        new DateTimeOffset(2019, 6, 30, 2, 27, 47, TimeSpan.FromHours(2)).AddTicks(1234567),
                         Guid.Empty,
                         "string value"
                     }.Select(p => CreateParameter(assemblyName, p)).ToArray());
@@ -323,13 +350,13 @@ namespace GraphQlClientGenerator.Test
                     .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
                     .Invoke(builderInstance, new [] { Enum.Parse(formattingType, "None"), (byte)2 });
 
-            query.ShouldBe("{testField(valueInt16:1,valueUInt16:2,valueByte:3,valueInt32:4,valueUInt32:5,valueInt64:6,valueUInt64:7,valueSingle:8.123,valueDouble:9.456,valueDecimal:10.789,valueDateTime:\"2019-06-30T00:27:47.0000000Z\",valueDateTimeOffset:\"2019-06-30T02:27:47.0000000+02:00\",valueGuid:\"00000000-0000-0000-0000-000000000000\",valueString:\"string value\"),fieldAlias:objectParameter(objectParameter:[{rootProperty1:\"root value 1\",rootProperty2:123.456,rootProperty3:true,rootProperty4:null,rootProperty5:{nestedProperty:987}},[{rootProperty1:\"root value 2\"},{rootProperty1:false}]])@include(if:$direct)@skip(if:false)}");
+            query.ShouldBe("{testField(valueInt16:1,valueUInt16:2,valueByte:3,valueInt32:4,valueUInt32:5,valueInt64:6,valueUInt64:7,valueSingle:8.123,valueDouble:9.456,valueDecimal:10.789,valueDateTime:\"19-06-30 00:27Z\",valueDateTimeOffset:\"2019-06-30T02:27:47.1234567+02:00\",valueGuid:\"00000000-0000-0000-0000-000000000000\",valueString:\"string value\"),fieldAlias:objectParameter(objectParameter:[{rootProperty1:\"root value 1\",rootProperty2:123.456,rootProperty3:true,rootProperty4:null,rootProperty5:{nestedProperty:987}},[{rootProperty1:\"root value 2\"},{rootProperty1:false}]])@include(if:$direct)@skip(if:false)}");
             query =
                 builderType
                     .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
                     .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "Indented"), (byte)2 });
 
-            query.ShouldBe($" {{{Environment.NewLine}  testField(valueInt16: 1, valueUInt16: 2, valueByte: 3, valueInt32: 4, valueUInt32: 5, valueInt64: 6, valueUInt64: 7, valueSingle: 8.123, valueDouble: 9.456, valueDecimal: 10.789, valueDateTime: \"2019-06-30T00:27:47.0000000Z\", valueDateTimeOffset: \"2019-06-30T02:27:47.0000000+02:00\", valueGuid: \"00000000-0000-0000-0000-000000000000\", valueString: \"string value\"){Environment.NewLine}  fieldAlias: objectParameter(objectParameter: [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 1\",{Environment.NewLine}      rootProperty2: 123.456,{Environment.NewLine}      rootProperty3: true,{Environment.NewLine}      rootProperty4: null,{Environment.NewLine}      rootProperty5: {{{Environment.NewLine}        nestedProperty: 987}}}},{Environment.NewLine}    [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 2\"}},{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: false}}]]) @include(if: $direct) @skip(if: false){Environment.NewLine}}}");
+            query.ShouldBe($" {{{Environment.NewLine}  testField(valueInt16: 1, valueUInt16: 2, valueByte: 3, valueInt32: 4, valueUInt32: 5, valueInt64: 6, valueUInt64: 7, valueSingle: 8.123, valueDouble: 9.456, valueDecimal: 10.789, valueDateTime: \"19-06-30 00:27Z\", valueDateTimeOffset: \"2019-06-30T02:27:47.1234567+02:00\", valueGuid: \"00000000-0000-0000-0000-000000000000\", valueString: \"string value\"){Environment.NewLine}  fieldAlias: objectParameter(objectParameter: [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 1\",{Environment.NewLine}      rootProperty2: 123.456,{Environment.NewLine}      rootProperty3: true,{Environment.NewLine}      rootProperty4: null,{Environment.NewLine}      rootProperty5: {{{Environment.NewLine}        nestedProperty: 987}}}},{Environment.NewLine}    [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 2\"}},{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: false}}]]) @include(if: $direct) @skip(if: false){Environment.NewLine}}}");
 
             var rootQueryBuilderType = Type.GetType($"{assemblyName}.QueryQueryBuilder, {assemblyName}");
             rootQueryBuilderType.ShouldNotBeNull();
@@ -375,7 +402,6 @@ namespace GraphQlClientGenerator.Test
 
             var stringBuilder = new StringBuilder();
             new GraphQlGenerator(configuration).GenerateDataClasses(schema, stringBuilder);
-            File.WriteAllText(@"D:\ExpectedDeprecatedAttributes", stringBuilder.ToString());
             var expectedOutput = GetTestResource("ExpectedDeprecatedAttributes").Replace("\r", String.Empty);
             stringBuilder.ToString().Replace("\r", String.Empty).ShouldBe(expectedOutput);
         }
@@ -503,9 +529,9 @@ namespace {assemblyName}
 
 	public TestMutationBuilder WithTestAction(QueryBuilderParameter<TestInput> input = null)
 	{
-		var args = new Dictionary<string, QueryBuilderParameter>();
+		var args = new List<QueryBuilderArgumentInfo>();
 		if (input != null)
-			args.Add(""objectParameter"", input);
+			args.Add(new QueryBuilderArgumentInfo { ArgumentName = ""objectParameter"", ArgumentValue = input });
 
         return WithScalarField(""testAction"", null, null, args);
     }
@@ -516,6 +542,7 @@ namespace {assemblyName}
 	    private InputPropertyInfo _inputObject1;
 	    private InputPropertyInfo _inputObject2;
         private InputPropertyInfo _testProperty;
+        private InputPropertyInfo _timestampProperty;
 
 	    [JsonConverter(typeof(QueryBuilderParameterConverter<TestInput>))]
 	    public QueryBuilderParameter<TestInput> InputObject1
@@ -538,11 +565,19 @@ namespace {assemblyName}
 		    set => _testProperty = new InputPropertyInfo { Name = ""testProperty"", Value = value };
 	    }
 
+        [JsonConverter(typeof(QueryBuilderParameterConverter<DateTimeOffset?>))]
+	    public QueryBuilderParameter<DateTimeOffset?> Timestamp
+	    {
+		    get => (QueryBuilderParameter<DateTimeOffset?>)_timestampProperty.Value;
+		    set => _timestampProperty = new InputPropertyInfo { Name = ""timestamp"", Value = value, FormatMask = ""yy-MM-dd HH:mmzzz"" };
+	    }
+
 	    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
 	    {
 		    if (_inputObject1.Name != null) yield return _inputObject1;
 		    if (_inputObject2.Name != null) yield return _inputObject2;
             if (_testProperty.Name != null) yield return _testProperty;
+            if (_timestampProperty.Name != null) yield return _timestampProperty;
 	    }
     }");
 
@@ -564,6 +599,8 @@ namespace {assemblyName}
             var queryParameter2 = CreateParameter(assemblyName, queryParameter2Value, "objectParameter", "[TestInput!]");
             var testPropertyInfo = inputObjectType.GetProperty("TestProperty");
             testPropertyInfo.SetValue(queryParameter2Value, CreateParameter(assemblyName, "Input Object Parameter Value"));
+            var timestampPropertyInfo = inputObjectType.GetProperty("Timestamp");
+            timestampPropertyInfo.SetValue(queryParameter2Value, CreateParameter(assemblyName, new DateTimeOffset(2019, 6, 30, 2, 27, 47, TimeSpan.FromHours(2)).AddTicks(1234567)));
 
             var inputObject = Activator.CreateInstance(inputObjectType);
             testPropertyInfo.SetValue(inputObject, queryParameter1);
@@ -590,10 +627,10 @@ namespace {assemblyName}
                     .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
                     .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
 
-            mutation.ShouldBe("mutation($stringParameter:String=\"Test Value\",$objectParameter:[TestInput!]={testProperty:\"Input Object Parameter Value\"}){testAction(objectParameter:{inputObject1:{testProperty:\"Nested Value\"},inputObject2:$objectParameter,testProperty:$stringParameter})}");
+            mutation.ShouldBe("mutation($stringParameter:String=\"Test Value\",$objectParameter:[TestInput!]={testProperty:\"Input Object Parameter Value\",timestamp:\"19-06-30 02:27+02:00\"}){testAction(objectParameter:{inputObject1:{testProperty:\"Nested Value\"},inputObject2:$objectParameter,testProperty:$stringParameter})}");
 
             var inputObjectJson = JsonConvert.SerializeObject(inputObject);
-            inputObjectJson.ShouldBe("{\"TestProperty\":\"Test Value\",\"InputObject1\":{\"TestProperty\":\"Nested Value\",\"InputObject1\":null,\"InputObject2\":null},\"InputObject2\":{\"TestProperty\":\"Input Object Parameter Value\",\"InputObject1\":null,\"InputObject2\":null}}");
+            inputObjectJson.ShouldBe("{\"TestProperty\":\"Test Value\",\"Timestamp\":null,\"InputObject1\":{\"TestProperty\":\"Nested Value\",\"Timestamp\":null,\"InputObject1\":null,\"InputObject2\":null},\"InputObject2\":{\"TestProperty\":\"Input Object Parameter Value\",\"Timestamp\":\"2019-06-30T02:27:47.1234567+02:00\",\"InputObject1\":null,\"InputObject2\":null}}");
 
             var deserializedInputObject = JsonConvert.DeserializeObject(inputObjectJson, inputObjectType);
             var testPropertyValue = testPropertyInfo.GetValue(deserializedInputObject);

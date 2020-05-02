@@ -387,10 +387,10 @@ using Newtonsoft.Json.Linq;
                         writer.Write(kvp.Value.Name);
                         writer.Write("\", Value = value");
 
-                        if (t.FormatMask != null)
+                        if (!String.IsNullOrEmpty(t.FormatMask))
                         {
-                            writer.Write("\", FormatMask = \"");
-                            writer.Write(t.FormatMask);
+                            writer.Write(", FormatMask = \"");
+                            writer.Write(t.FormatMask.Replace("\"", "\\\""));
                             writer.Write("\"");
                         }
 
@@ -564,7 +564,7 @@ using Newtonsoft.Json.Linq;
             
             writer.Write($"    {(isInterfaceMember ? null : "public ")}{propertyTypeName} {propertyName}");
 
-            writeBody(new ScalarFieldTypeDescription { NetTypeName = propertyTypeName }, GetBackingFieldName(member.Name));
+            writeBody(new ScalarFieldTypeDescription { NetTypeName = propertyTypeName, FormatMask = propertyTypeDescription.FormatMask }, GetBackingFieldName(member.Name));
 
             writer.WriteLine();
         }
@@ -1039,17 +1039,38 @@ using Newtonsoft.Json.Linq;
             if (argumentDefinitions.Count == 0)
                 return;
 
-            writer.WriteLine("        var args = new Dictionary<string, QueryBuilderParameter>(StringComparer.Ordinal);");
+            writer.WriteLine("        var args = new List<QueryBuilderArgumentInfo>();");
+
+            static void WriteAddKeyValuePair(TextWriter writer, QueryBuilderParameterDefinition argumentDefinition)
+            {
+                var argument = argumentDefinition.Argument;
+                writer.Write("args.Add(new QueryBuilderArgumentInfo { ArgumentName = \"");
+                writer.Write(argument.Name);
+                writer.Write("\", ArgumentValue = ");
+                writer.Write(NamingHelper.ToValidCSharpName(argument.Name));
+
+                if (!String.IsNullOrEmpty(argumentDefinition.FormatMask))
+                {
+                    writer.Write(", FormatMask = \"");
+                    writer.Write(argumentDefinition.FormatMask.Replace("\"", "\\\""));
+                    writer.Write("\"");
+                }
+
+                writer.WriteLine("} );");
+            }
 
             foreach (var argumentDefinition in argumentDefinitions)
             {
-                var argument = argumentDefinition.Argument;
-                if (argument.Type.Kind == GraphQlTypeKind.NonNull)
-                    writer.WriteLine($"        args.Add(\"{argument.Name}\", {NamingHelper.ToValidCSharpName(argument.Name)});");
+                if (argumentDefinition.Argument.Type.Kind == GraphQlTypeKind.NonNull)
+                {
+                    writer.Write("        ");
+                    WriteAddKeyValuePair(writer, argumentDefinition);
+                }
                 else
                 {
-                    writer.WriteLine($"        if ({NamingHelper.ToValidCSharpName(argument.Name)} != null)");
-                    writer.WriteLine($"            args.Add(\"{argument.Name}\", {NamingHelper.ToValidCSharpName(argument.Name)});");
+                    writer.WriteLine($"        if ({NamingHelper.ToValidCSharpName(argumentDefinition.Argument.Name)} != null)");
+                    writer.Write("            ");
+                    WriteAddKeyValuePair(writer, argumentDefinition);
                     writer.WriteLine();
                 }
             }
