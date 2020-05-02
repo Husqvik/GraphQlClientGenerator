@@ -39,6 +39,7 @@ namespace GraphQlClientGenerator.Test
             new GraphQlGenerator(configuration).GenerateQueryBuilder(TestSchema, stringBuilder);
 
             var expectedQueryBuilders = GetTestResource("ExpectedQueryBuilders");
+            File.WriteAllText(@"D:\ExpectedQueryBuilders", stringBuilder.ToString());
             stringBuilder.ToString().ShouldBe(expectedQueryBuilders);
         }
 
@@ -52,6 +53,7 @@ namespace GraphQlClientGenerator.Test
             new GraphQlGenerator(configuration).GenerateDataClasses(TestSchema, stringBuilder);
 
             var expectedDataClasses = GetTestResource("ExpectedDataClasses");
+            File.WriteAllText(@"D:\ExpectedDataClasses", stringBuilder.ToString());
             stringBuilder.ToString().ShouldBe(expectedDataClasses);
         }
 
@@ -70,12 +72,16 @@ namespace GraphQlClientGenerator.Test
                 };
 
             configuration.CustomScalarFieldTypeMapping =
-                (baseType, valueType, valueName) => valueType.Name == "Boolean" ? "bool" : configuration.DefaultScalarFieldTypeMapping(baseType, valueType, valueName);
+                (baseType, valueType, valueName) =>
+                    valueType.Name == "Boolean"
+                        ? new ScalarFieldTypeDescription { NetTypeName = "bool" }
+                        : configuration.DefaultScalarFieldTypeMapping(baseType, valueType, valueName);
 
             var stringBuilder = new StringBuilder();
             new GraphQlGenerator(configuration).GenerateDataClasses(TestSchema, stringBuilder);
 
             var expectedDataClasses = GetTestResource("ExpectedDataClassesWithTypeConfiguration");
+            File.WriteAllText(@"D:\ExpectedDataClassesWithTypeConfiguration", stringBuilder.ToString());
             stringBuilder.ToString().ShouldBe(expectedDataClasses);
         }
 
@@ -86,6 +92,7 @@ namespace GraphQlClientGenerator.Test
             new GraphQlGenerator().GenerateDataClasses(DeserializeTestSchema("TestSchema3"), stringBuilder);
 
             var expectedDataClasses = GetTestResource("ExpectedDataClassesWithInterfaces");
+            File.WriteAllText(@"D:\ExpectedDataClassesWithInterfaces", stringBuilder.ToString());
             stringBuilder.ToString().ShouldBe(expectedDataClasses);
         }
 
@@ -96,6 +103,7 @@ namespace GraphQlClientGenerator.Test
             new GraphQlGenerator().GenerateQueryBuilder(DeserializeTestSchema("TestSchema3"), stringBuilder);
 
             var expectedQueryBuilders = GetTestResource("ExpectedQueryBuildersWithListsOfScalarValuesAsArguments");
+            File.WriteAllText(@"D:\ExpectedQueryBuildersWithListsOfScalarValuesAsArguments", stringBuilder.ToString());
             stringBuilder.ToString().ShouldBe(expectedQueryBuilders);
         }
 
@@ -119,6 +127,7 @@ namespace GraphQlClientGenerator.Test
 
             var expectedOutput = GetTestResource("ExpectedNewCSharpSyntaxWithClassPostfix");
             var generatedSourceCode = stringBuilder.ToString();
+            File.WriteAllText(@"D:\ExpectedNewCSharpSyntaxWithClassPostfix", generatedSourceCode);
             generatedSourceCode.ShouldBe(expectedOutput);
 
             CompileIntoAssembly(generatedSourceCode, "GraphQLTestAssembly");
@@ -139,6 +148,7 @@ namespace GraphQlClientGenerator.Test
 
             var expectedOutput = GetTestResource("ExpectedWithNullableReferences");
             var generatedSourceCode = stringBuilder.ToString();
+            File.WriteAllText(@"D:\ExpectedWithNullableReferences", generatedSourceCode);
             generatedSourceCode.ShouldBe(expectedOutput);
         }
 
@@ -155,6 +165,7 @@ namespace GraphQlClientGenerator.Test
 
             var expectedOutput = GetTestResource("ExpectedWithUnions");
             var generatedSourceCode = stringBuilder.ToString();
+            File.WriteAllText(@"D:\ExpectedWithUnions", generatedSourceCode);
             generatedSourceCode.ShouldBe(expectedOutput);
         }
 
@@ -364,6 +375,7 @@ namespace GraphQlClientGenerator.Test
 
             var stringBuilder = new StringBuilder();
             new GraphQlGenerator(configuration).GenerateDataClasses(schema, stringBuilder);
+            File.WriteAllText(@"D:\ExpectedDeprecatedAttributes", stringBuilder.ToString());
             var expectedOutput = GetTestResource("ExpectedDeprecatedAttributes").Replace("\r", String.Empty);
             stringBuilder.ToString().Replace("\r", String.Empty).ShouldBe(expectedOutput);
         }

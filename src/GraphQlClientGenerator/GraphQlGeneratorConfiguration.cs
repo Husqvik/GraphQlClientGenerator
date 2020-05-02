@@ -4,9 +4,15 @@ using System.Text;
 
 namespace GraphQlClientGenerator
 {
-    public delegate string GetCustomScalarFieldTypeDelegate(GraphQlType baseType, GraphQlTypeBase valueType, string valueName);
+    public delegate ScalarFieldTypeDescription GetCustomScalarFieldTypeDelegate(GraphQlType baseType, GraphQlTypeBase valueType, string valueName);
     
-    public delegate string GetDataPropertyAccessorBodiesDelegate(string backingFieldName, string backingFieldType);
+    public delegate string GetDataPropertyAccessorBodiesDelegate(string backingFieldName, ScalarFieldTypeDescription backingFieldType);
+
+    public struct ScalarFieldTypeDescription
+    {
+        public string NetTypeName { get; set; }
+        public string FormatMask { get; set; }
+    }
 
     public class GraphQlGeneratorConfiguration
     {
@@ -76,23 +82,23 @@ namespace GraphQlClientGenerator
             PropertyGeneration = PropertyGenerationOption.AutoProperty;
         }
 
-        public string DefaultScalarFieldTypeMapping(GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
+        public ScalarFieldTypeDescription DefaultScalarFieldTypeMapping(GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
         {
             valueName = NamingHelper.ToPascalCase(valueName);
             if (valueName == "From" || valueName == "ValidFrom" || valueName == "To" || valueName == "ValidTo" ||
                 valueName == "CreatedAt" || valueName == "UpdatedAt" || valueName == "ModifiedAt" || valueName == "DeletedAt" ||
                 valueName.EndsWith("Timestamp"))
-                return "DateTimeOffset?";
+                return new ScalarFieldTypeDescription { NetTypeName = "DateTimeOffset?" };
 
             valueType = (valueType as GraphQlFieldType)?.UnwrapIfNonNull() ?? valueType;
             if (valueType.Kind == GraphQlTypeKind.Enum)
-                return valueType.Name + "?";
+                return new ScalarFieldTypeDescription { NetTypeName = valueType.Name + "?" };
 
             var dataType = valueType.Name == GraphQlTypeBase.GraphQlTypeScalarString ? "string" : "object";
-            return GraphQlGenerator.AddQuestionMarkIfNullableReferencesEnabled(this, dataType);
+            return new ScalarFieldTypeDescription { NetTypeName = GraphQlGenerator.AddQuestionMarkIfNullableReferencesEnabled(this, dataType) };
         }
 
-        public string GeneratePropertyAccessors(string backingFieldName, string backingFieldType)
+        public string GeneratePropertyAccessors(string backingFieldName, ScalarFieldTypeDescription backingFieldType)
         {
             var useCompatibleVersion = CSharpVersion == CSharpVersion.Compatible;
             var builder = new StringBuilder();
