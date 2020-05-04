@@ -12,6 +12,33 @@ public enum Formatting
     Indented
 }
 
+#if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+public class QueryBuilderParameterConverter<T> : JsonConverter
+{
+    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    {
+        switch (reader.TokenType)
+        {
+            case JsonToken.Null:
+                return null;
+
+            default:
+                return (QueryBuilderParameter<T>)(T)serializer.Deserialize(reader, typeof(T));
+        }
+    }
+
+    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    {
+        if (value == null)
+            writer.WriteNull();
+        else
+            serializer.Serialize(writer, ((QueryBuilderParameter<T>)value).Value, typeof(T));
+    }
+
+    public override bool CanConvert(Type objectType) => objectType.IsSubclassOf(typeof(QueryBuilderParameter));
+}
+#endif
+
 internal static class GraphQlQueryHelper
 {
     private static readonly Regex RegexWhiteSpace = new Regex(@"\s", RegexOptions.Compiled);
@@ -287,33 +314,6 @@ public class QueryBuilderParameter<T> : QueryBuilderParameter
 
     public static implicit operator T(QueryBuilderParameter<T> parameter) => parameter.Value;
 }
-
-#if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-public class QueryBuilderParameterConverter<T> : JsonConverter
-{
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-    {
-        switch (reader.TokenType)
-        {
-            case JsonToken.Null:
-                return null;
-
-            default:
-                return (QueryBuilderParameter<T>)(T)serializer.Deserialize(reader, typeof(T));
-        }
-    }
-
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-    {
-        if (value == null)
-            writer.WriteNull();
-        else
-            serializer.Serialize(writer, ((QueryBuilderParameter<T>)value).Value, typeof(T));
-    }
-
-    public override bool CanConvert(Type objectType) => objectType.IsSubclassOf(typeof(QueryBuilderParameter));
-}
-#endif
 
 public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
 {

@@ -359,7 +359,8 @@ Custom scalar types
 GraphQL supports custom scalar types. By default these are mapped to `object` type. To ensure appropriate .NET types are generated for data class properties custom mapping function can be used:
 
 ```csharp
-GraphQlGeneratorConfiguration.CustomScalarFieldTypeMapping =
+var configuration = new GraphQlGeneratorConfiguration();
+configuration.CustomScalarFieldTypeMapping =
     (baseType, valueType, valueName) =>
     {
         valueType = valueType is GraphQlFieldType fieldType ? fieldType.UnwrapIfNonNull() : valueType;
