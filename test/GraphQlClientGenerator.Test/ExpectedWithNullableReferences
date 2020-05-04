@@ -275,7 +275,7 @@ public class QueryBuilderParameter<T> : QueryBuilderParameter
         set => base.Value = value;
     }
 
-    public QueryBuilderParameter(string name, string graphQlTypeName, T value) : base(name, graphQlTypeName, value)
+    protected QueryBuilderParameter(string name, string graphQlTypeName, T value) : base(name, graphQlTypeName, value)
     {
     }
 
