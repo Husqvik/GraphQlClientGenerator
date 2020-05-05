@@ -39,7 +39,8 @@ namespace GraphQlClientGenerator.Test
             new GraphQlGenerator(configuration).GenerateQueryBuilder(TestSchema, stringBuilder);
 
             var expectedQueryBuilders = GetTestResource("ExpectedQueryBuilders");
-            stringBuilder.ToString().ShouldBe(expectedQueryBuilders);
+            var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+            generatedSourceCode.ShouldBe(expectedQueryBuilders);
         }
 
         [Fact]
@@ -114,7 +115,8 @@ namespace GraphQlClientGenerator.Test
             generator.GenerateDataClasses(testSchema, stringBuilder);
 
             var expectedDataClasses = GetTestResource("ExpectedFormatMasks");
-            stringBuilder.ToString().ShouldBe(expectedDataClasses);
+            var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+            generatedSourceCode.ShouldBe(expectedDataClasses);
         }
         
         [Fact]
@@ -134,7 +136,8 @@ namespace GraphQlClientGenerator.Test
             new GraphQlGenerator().GenerateQueryBuilder(DeserializeTestSchema("TestSchema3"), stringBuilder);
 
             var expectedQueryBuilders = GetTestResource("ExpectedQueryBuildersWithListsOfScalarValuesAsArguments");
-            stringBuilder.ToString().ShouldBe(expectedQueryBuilders);
+            var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+            generatedSourceCode.ShouldBe(expectedQueryBuilders);
         }
 
         [Fact]
@@ -176,7 +179,7 @@ namespace GraphQlClientGenerator.Test
             generator.GenerateDataClasses(schema, stringBuilder);
 
             var expectedOutput = GetTestResource("ExpectedWithNullableReferences");
-            var generatedSourceCode = stringBuilder.ToString();
+            var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
             generatedSourceCode.ShouldBe(expectedOutput);
         }
 
@@ -192,7 +195,7 @@ namespace GraphQlClientGenerator.Test
             generator.GenerateDataClasses(schema, stringBuilder);
 
             var expectedOutput = GetTestResource("ExpectedWithUnions");
-            var generatedSourceCode = stringBuilder.ToString();
+            var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
             generatedSourceCode.ShouldBe(expectedOutput);
         }
 
@@ -637,6 +640,12 @@ namespace {assemblyName}
             var converter = testPropertyValue.GetType().GetMethod("op_Implicit", new[] { testPropertyValue.GetType() });
             var testPropertyPlainValue = converter.Invoke(null, new[] { testPropertyValue });
             testPropertyPlainValue.ShouldBe("Test Value");
+        }
+
+        private static string StripBaseClasses(string sourceCode)
+        {
+            using var reader = new StreamReader(typeof(GraphQlGenerator).Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses.cs"));
+            return sourceCode.Replace(reader.ReadToEnd(), null).Trim();
         }
     }
 }
