@@ -317,6 +317,17 @@ public class QueryBuilderParameter<T> : QueryBuilderParameter
 
 public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
 {
+    private string _formatMask;
+
+    public string FormatMask
+    {
+        get => _formatMask;
+        set => _formatMask =
+            typeof(IFormattable).GetTypeInfo().IsAssignableFrom(typeof(T))
+                ? value
+                : throw new InvalidOperationException($"Value must be of {nameof(IFormattable)} type. ");
+    }
+
     public GraphQlQueryParameter(string name, string graphQlTypeName, T value) : base(name, graphQlTypeName, value)
     {
     }
@@ -350,7 +361,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
     private readonly GraphQlDirective[] _directives;
 
     private Dictionary<string, GraphQlFragmentCriteria> _fragments;
-    private Dictionary<string, QueryBuilderParameter> _queryParameters;
+    private List<QueryBuilderArgumentInfo> _queryParameters;
 
     protected virtual string Prefix { get { return null; } }
 
@@ -411,7 +422,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
                 builder.Append(indentationSpace);
                 builder.Append("(");
 
-                foreach (var queryParameter in _queryParameters.Values)
+                foreach (var queryParameterInfo in _queryParameters)
                 {
                     if (isIndentedFormatting)
                     {
@@ -422,18 +433,18 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
                         builder.Append(separator);
                     
                     builder.Append("$");
-                    builder.Append(queryParameter.Name);
+                    builder.Append(queryParameterInfo.ArgumentValue.Name);
                     builder.Append(":");
                     builder.Append(indentationSpace);
 
-                    builder.Append(queryParameter.GraphQlTypeName);
+                    builder.Append(queryParameterInfo.ArgumentValue.GraphQlTypeName);
 
-                    if (!queryParameter.GraphQlTypeName.EndsWith("!"))
+                    if (!queryParameterInfo.ArgumentValue.GraphQlTypeName.EndsWith("!"))
                     {
                         builder.Append(indentationSpace);
                         builder.Append("=");
                         builder.Append(indentationSpace);
-                        builder.Append(GraphQlQueryHelper.BuildArgumentValue(queryParameter.Value, null, formatting, 0, indentationSize));
+                        builder.Append(GraphQlQueryHelper.BuildArgumentValue(queryParameterInfo.ArgumentValue.Value, queryParameterInfo.FormatMask, formatting, 0, indentationSize));
                     }
 
                     separator = ",";
@@ -566,9 +577,9 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
     protected void AddParameter<T>(GraphQlQueryParameter<T> parameter)
     {
         if (_queryParameters == null)
-            _queryParameters = new Dictionary<string, QueryBuilderParameter>();
+            _queryParameters = new List<QueryBuilderArgumentInfo>();
         
-        _queryParameters.Add(parameter.Name, parameter);
+        _queryParameters.Add(new QueryBuilderArgumentInfo { ArgumentValue = parameter, FormatMask = parameter.FormatMask });
     }
 
     private abstract class GraphQlFieldCriteria
