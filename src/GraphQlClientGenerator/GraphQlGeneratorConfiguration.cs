@@ -33,12 +33,28 @@ namespace GraphQlClientGenerator
         /// </summary>
         public bool TreatUnknownObjectAsScalar { get; set; }
 
+        /// <summary>
+        /// Determines the .NET type generated for GraphQL Integer data type.
+        /// </summary>
+        /// <remarks>For using custom .NET data type <code>Custom</code> option must be used. </remarks>
         public IntegerTypeMapping IntegerTypeMapping { get; set; } = IntegerTypeMapping.Int32;
 
+        /// <summary>
+        /// Determines the .NET type generated for GraphQL Float data type.
+        /// </summary>
+        /// <remarks>For using custom .NET data type <code>Custom</code> option must be used. </remarks>
         public FloatTypeMapping FloatTypeMapping { get; set; }
 
+        /// <summary>
+        /// Determines the .NET type generated for GraphQL Boolean data type.
+        /// </summary>
+        /// <remarks>For using custom .NET data type <code>Custom</code> option must be used. </remarks>
         public BooleanTypeMapping BooleanTypeMapping { get; set; }
 
+        /// <summary>
+        /// Determines the .NET type generated for GraphQL ID data type.
+        /// </summary>
+        /// <remarks>For using custom .NET data type <code>Custom</code> option must be used. </remarks>
         public IdTypeMapping IdTypeMapping { get; set; } = IdTypeMapping.Guid;
         
         public PropertyGenerationOption PropertyGeneration { get; set; } = PropertyGenerationOption.AutoProperty;
@@ -85,6 +101,7 @@ namespace GraphQlClientGenerator
         public ScalarFieldTypeDescription DefaultScalarFieldTypeMapping(GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
         {
             valueName = NamingHelper.ToPascalCase(valueName);
+
             if (valueName == "From" || valueName == "ValidFrom" || valueName == "To" || valueName == "ValidTo" ||
                 valueName == "CreatedAt" || valueName == "UpdatedAt" || valueName == "ModifiedAt" || valueName == "DeletedAt" ||
                 valueName.EndsWith("Timestamp"))

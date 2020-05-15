@@ -368,12 +368,12 @@ configuration.CustomScalarFieldTypeMapping =
         // DateTime and Byte
         switch (valueType.Name)
         {
-            case "Byte": return new ScalarFieldTypeDescription { NetTypeName = "byte?" };
-            case "DateTime": return new ScalarFieldTypeDescription { NetTypeName = "DateTime?" };
+            case "Byte": return new ScalarFieldTypeDescription { NetTypeName = "byte?", FormatMask = null };
+            case "DateTime": return new ScalarFieldTypeDescription { NetTypeName = "DateTime?", FormatMask = null };
         }
 
         // fallback - not needed if all fields and arguments are resolved or the expected type is of "object" type
-        return GraphQlGeneratorConfiguration.DefaultScalarFieldTypeMapping(baseType, valueType, valueName);
+        return configuration.DefaultScalarFieldTypeMapping(baseType, valueType, valueName);
     };
 ```
 
