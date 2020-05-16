@@ -221,7 +221,7 @@ internal static class GraphQlQueryHelper
         return builder.ToString();
     }
 
-    public static void ValidateGraphQlIdentifer(string name, string identifier)
+    public static void ValidateGraphQlIdentifier(string name, string identifier)
     {
         if (identifier != null && !RegexGraphQlIdentifier.IsMatch(identifier))
             throw new ArgumentException("Value must match [_A-Za-z][_0-9A-Za-z]*. ", name);
@@ -279,7 +279,7 @@ public abstract class QueryBuilderParameter
         get => _name;
         set
         {
-            GraphQlQueryHelper.ValidateGraphQlIdentifer(nameof(Name), value);
+            GraphQlQueryHelper.ValidateGraphQlIdentifier(nameof(Name), value);
             _name = value;
         }
     }
@@ -335,7 +335,7 @@ public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
 
 public abstract class GraphQlDirective
 {
-    private Dictionary<string, QueryBuilderParameter> _arguments = new Dictionary<string, QueryBuilderParameter>();
+    private readonly Dictionary<string, QueryBuilderParameter> _arguments = new Dictionary<string, QueryBuilderParameter>();
 
     internal IEnumerable<KeyValuePair<string, QueryBuilderParameter>> Arguments => _arguments;
 
@@ -343,7 +343,7 @@ public abstract class GraphQlDirective
 
     protected GraphQlDirective(string name)
     {
-        GraphQlQueryHelper.ValidateGraphQlIdentifer(nameof(name), name);
+        GraphQlQueryHelper.ValidateGraphQlIdentifier(nameof(name), name);
         Name = name;
     }
 
@@ -373,7 +373,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     protected GraphQlQueryBuilder(string alias, params GraphQlDirective[] directives)
     {
-        GraphQlQueryHelper.ValidateGraphQlIdentifer(nameof(alias), alias);
+        GraphQlQueryHelper.ValidateGraphQlIdentifier(nameof(alias), alias);
         Alias = alias;
         _directives = directives;
     }
@@ -490,7 +490,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     protected void IncludeScalarField(string fieldName, string alias, IList<QueryBuilderArgumentInfo> args, GraphQlDirective[] directives)
     {
-        GraphQlQueryHelper.ValidateGraphQlIdentifer(nameof(alias), alias);
+        GraphQlQueryHelper.ValidateGraphQlIdentifier(nameof(alias), alias);
         _fieldCriteria[alias ?? fieldName] = new GraphQlScalarFieldCriteria(fieldName, alias, args, directives);
     }
 
@@ -538,7 +538,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
                 var includeFragmentMethods = field.QueryBuilderType.GetMethods().Where(IsIncludeFragmentMethod);
 
                 foreach (var includeFragmentMethod in includeFragmentMethods)
-                    includeFragmentMethod.Invoke(queryBuilder, new[] { InitializeChildBuilder(builderType, includeFragmentMethod.GetParameters()[0].ParameterType, parentTypes) });
+                    includeFragmentMethod.Invoke(queryBuilder, new object[] { InitializeChildBuilder(builderType, includeFragmentMethod.GetParameters()[0].ParameterType, parentTypes) });
 
                 IncludeObjectField(field.Name, queryBuilder, null);
             }
@@ -588,7 +588,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
         protected readonly string FieldName;
 
-        protected string GetIndentation(Formatting formatting, int level, byte indentationSize) =>
+        protected static string GetIndentation(Formatting formatting, int level, byte indentationSize) =>
             formatting == Formatting.Indented ? GraphQlQueryHelper.GetIndentation(level, indentationSize) : null;
 
         protected GraphQlFieldCriteria(string fieldName, IList<QueryBuilderArgumentInfo> args)
