@@ -2831,7 +2831,7 @@ public partial class MeMutationQueryBuilder : GraphQlQueryBuilder<MeMutationQuer
         {
             new FieldMetadata { Name = "update", IsComplex = true, QueryBuilderType = typeof(MeQueryBuilder) },
             new FieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(HomeMutationQueryBuilder) },
-            new FieldMetadata { Name = "updateAppState", IsComplex = true, QueryBuilderType = typeof(GQLMutationGeneralResponseQueryBuilder) }
+            new FieldMetadata { Name = "updateAppState", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilder) }
         };
 
     protected override string TypeName { get; } = "MeMutation";
@@ -2873,13 +2873,13 @@ public partial class MeMutationQueryBuilder : GraphQlQueryBuilder<MeMutationQuer
         return ExceptField("home");
     }
 
-    public MeMutationQueryBuilder WithUpdateAppState(GQLMutationGeneralResponseQueryBuilder gQLMutationGeneralResponseQueryBuilder, QueryBuilderParameter<AppStateMutation>? state = null)
+    public MeMutationQueryBuilder WithUpdateAppState(GqlMutationGeneralResponseQueryBuilder gqlMutationGeneralResponseQueryBuilder, QueryBuilderParameter<AppStateMutation>? state = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (state != null)
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "state", ArgumentValue = state} );
 
-        return WithObjectField("updateAppState", gQLMutationGeneralResponseQueryBuilder, args);
+        return WithObjectField("updateAppState", gqlMutationGeneralResponseQueryBuilder, args);
     }
 
     public MeMutationQueryBuilder ExceptUpdateAppState()
@@ -2896,9 +2896,9 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
             new FieldMetadata { Name = "pairDeviceWithOAuth", IsComplex = true, QueryBuilderType = typeof(PairDeviceResultQueryBuilder) },
             new FieldMetadata { Name = "pairDeviceWithCredentials", IsComplex = true, QueryBuilderType = typeof(PairDeviceResultQueryBuilder) },
             new FieldMetadata { Name = "answerProfileQuestions", IsComplex = true, QueryBuilderType = typeof(HomeProfileQuestionQueryBuilder) },
-            new FieldMetadata { Name = "sendMeterReading", IsComplex = true, QueryBuilderType = typeof(GQLMutationGeneralResponseQueryBuilder) },
-            new FieldMetadata { Name = "setMeteringPointIdAndBindingTime", IsComplex = true, QueryBuilderType = typeof(GQLMutationGeneralResponseQueryBuilder) },
-            new FieldMetadata { Name = "restartSubscription", IsComplex = true, QueryBuilderType = typeof(GQLMutationGeneralResponseQueryBuilder) }
+            new FieldMetadata { Name = "sendMeterReading", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilder) },
+            new FieldMetadata { Name = "setMeteringPointIdAndBindingTime", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilder) },
+            new FieldMetadata { Name = "restartSubscription", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilder) }
         };
 
     protected override string TypeName { get; } = "HomeMutation";
@@ -2974,13 +2974,13 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
         return ExceptField("answerProfileQuestions");
     }
 
-    public HomeMutationQueryBuilder WithSendMeterReading(GQLMutationGeneralResponseQueryBuilder gQLMutationGeneralResponseQueryBuilder, QueryBuilderParameter<int?>? meterReading = null)
+    public HomeMutationQueryBuilder WithSendMeterReading(GqlMutationGeneralResponseQueryBuilder gqlMutationGeneralResponseQueryBuilder, QueryBuilderParameter<int?>? meterReading = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (meterReading != null)
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "meterReading", ArgumentValue = meterReading} );
 
-        return WithObjectField("sendMeterReading", gQLMutationGeneralResponseQueryBuilder, args);
+        return WithObjectField("sendMeterReading", gqlMutationGeneralResponseQueryBuilder, args);
     }
 
     public HomeMutationQueryBuilder ExceptSendMeterReading()
@@ -2988,7 +2988,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
         return ExceptField("sendMeterReading");
     }
 
-    public HomeMutationQueryBuilder WithSetMeteringPointIdAndBindingTime(GQLMutationGeneralResponseQueryBuilder gQLMutationGeneralResponseQueryBuilder, QueryBuilderParameter<string?>? meteringPointId = null, QueryBuilderParameter<string?>? bindingTime = null, QueryBuilderParameter<bool?>? isMovingIn = null)
+    public HomeMutationQueryBuilder WithSetMeteringPointIdAndBindingTime(GqlMutationGeneralResponseQueryBuilder gqlMutationGeneralResponseQueryBuilder, QueryBuilderParameter<string?>? meteringPointId = null, QueryBuilderParameter<string?>? bindingTime = null, QueryBuilderParameter<bool?>? isMovingIn = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (meteringPointId != null)
@@ -3000,7 +3000,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
         if (isMovingIn != null)
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "isMovingIn", ArgumentValue = isMovingIn} );
 
-        return WithObjectField("setMeteringPointIdAndBindingTime", gQLMutationGeneralResponseQueryBuilder, args);
+        return WithObjectField("setMeteringPointIdAndBindingTime", gqlMutationGeneralResponseQueryBuilder, args);
     }
 
     public HomeMutationQueryBuilder ExceptSetMeteringPointIdAndBindingTime()
@@ -3008,7 +3008,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
         return ExceptField("setMeteringPointIdAndBindingTime");
     }
 
-    public HomeMutationQueryBuilder WithRestartSubscription(GQLMutationGeneralResponseQueryBuilder gQLMutationGeneralResponseQueryBuilder) => WithObjectField("restartSubscription", gQLMutationGeneralResponseQueryBuilder);
+    public HomeMutationQueryBuilder WithRestartSubscription(GqlMutationGeneralResponseQueryBuilder gqlMutationGeneralResponseQueryBuilder) => WithObjectField("restartSubscription", gqlMutationGeneralResponseQueryBuilder);
 
     public HomeMutationQueryBuilder ExceptRestartSubscription() => ExceptField("restartSubscription");
 }
@@ -3073,7 +3073,7 @@ public partial class PairDeviceResultQueryBuilder : GraphQlQueryBuilder<PairDevi
         {
             new FieldMetadata { Name = "thermostats", IsComplex = true, QueryBuilderType = typeof(ThermostatQueryBuilder) },
             new FieldMetadata { Name = "sensors", IsComplex = true, QueryBuilderType = typeof(SensorQueryBuilder) },
-            new FieldMetadata { Name = "error", IsComplex = true, QueryBuilderType = typeof(GQLMutationErrorQueryBuilder) }
+            new FieldMetadata { Name = "error", IsComplex = true, QueryBuilderType = typeof(GqlMutationErrorQueryBuilder) }
         };
 
     protected override string TypeName { get; } = "PairDeviceResult";
@@ -3092,12 +3092,12 @@ public partial class PairDeviceResultQueryBuilder : GraphQlQueryBuilder<PairDevi
 
     public PairDeviceResultQueryBuilder ExceptSensors() => ExceptField("sensors");
 
-    public PairDeviceResultQueryBuilder WithError(GQLMutationErrorQueryBuilder gQLMutationErrorQueryBuilder) => WithObjectField("error", gQLMutationErrorQueryBuilder);
+    public PairDeviceResultQueryBuilder WithError(GqlMutationErrorQueryBuilder gqlMutationErrorQueryBuilder) => WithObjectField("error", gqlMutationErrorQueryBuilder);
 
     public PairDeviceResultQueryBuilder ExceptError() => ExceptField("error");
 }
 
-public partial class GQLMutationErrorQueryBuilder : GraphQlQueryBuilder<GQLMutationErrorQueryBuilder>
+public partial class GqlMutationErrorQueryBuilder : GraphQlQueryBuilder<GqlMutationErrorQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
@@ -3109,37 +3109,37 @@ public partial class GQLMutationErrorQueryBuilder : GraphQlQueryBuilder<GQLMutat
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public GQLMutationErrorQueryBuilder(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) : base(alias, new GraphQlDirective?[] { include, skip })
+    public GqlMutationErrorQueryBuilder(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) : base(alias, new GraphQlDirective?[] { include, skip })
     {
     }
 
-    public GQLMutationErrorQueryBuilder WithStatusCode(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("statusCode", alias, new GraphQlDirective?[] { include, skip });
+    public GqlMutationErrorQueryBuilder WithStatusCode(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("statusCode", alias, new GraphQlDirective?[] { include, skip });
 
-    public GQLMutationErrorQueryBuilder ExceptStatusCode() => ExceptField("statusCode");
+    public GqlMutationErrorQueryBuilder ExceptStatusCode() => ExceptField("statusCode");
 
-    public GQLMutationErrorQueryBuilder WithMessage(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("message", alias, new GraphQlDirective?[] { include, skip });
+    public GqlMutationErrorQueryBuilder WithMessage(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("message", alias, new GraphQlDirective?[] { include, skip });
 
-    public GQLMutationErrorQueryBuilder ExceptMessage() => ExceptField("message");
+    public GqlMutationErrorQueryBuilder ExceptMessage() => ExceptField("message");
 }
 
-public partial class GQLMutationGeneralResponseQueryBuilder : GraphQlQueryBuilder<GQLMutationGeneralResponseQueryBuilder>
+public partial class GqlMutationGeneralResponseQueryBuilder : GraphQlQueryBuilder<GqlMutationGeneralResponseQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "error", IsComplex = true, QueryBuilderType = typeof(GQLMutationErrorQueryBuilder) }
+            new FieldMetadata { Name = "error", IsComplex = true, QueryBuilderType = typeof(GqlMutationErrorQueryBuilder) }
         };
 
     protected override string TypeName { get; } = "GQLMutationGeneralResponse";
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public GQLMutationGeneralResponseQueryBuilder(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) : base(alias, new GraphQlDirective?[] { include, skip })
+    public GqlMutationGeneralResponseQueryBuilder(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) : base(alias, new GraphQlDirective?[] { include, skip })
     {
     }
 
-    public GQLMutationGeneralResponseQueryBuilder WithError(GQLMutationErrorQueryBuilder gQLMutationErrorQueryBuilder) => WithObjectField("error", gQLMutationErrorQueryBuilder);
+    public GqlMutationGeneralResponseQueryBuilder WithError(GqlMutationErrorQueryBuilder gqlMutationErrorQueryBuilder) => WithObjectField("error", gqlMutationErrorQueryBuilder);
 
-    public GQLMutationGeneralResponseQueryBuilder ExceptError() => ExceptField("error");
+    public GqlMutationGeneralResponseQueryBuilder ExceptError() => ExceptField("error");
 }
 #endregion
 #nullable restore
@@ -3866,7 +3866,7 @@ public partial class MeMutation
 {
     public Me? Update { get; set; }
     public HomeMutation? Home { get; set; }
-    public GQLMutationGeneralResponse? UpdateAppState { get; set; }
+    public GqlMutationGeneralResponse? UpdateAppState { get; set; }
 }
 
 public partial class HomeMutation
@@ -3875,9 +3875,9 @@ public partial class HomeMutation
     public PairDeviceResult? PairDeviceWithOAuth { get; set; }
     public PairDeviceResult? PairDeviceWithCredentials { get; set; }
     public ICollection<HomeProfileQuestion>? AnswerProfileQuestions { get; set; }
-    public GQLMutationGeneralResponse? SendMeterReading { get; set; }
-    public GQLMutationGeneralResponse? SetMeteringPointIdAndBindingTime { get; set; }
-    public GQLMutationGeneralResponse? RestartSubscription { get; set; }
+    public GqlMutationGeneralResponse? SendMeterReading { get; set; }
+    public GqlMutationGeneralResponse? SetMeteringPointIdAndBindingTime { get; set; }
+    public GqlMutationGeneralResponse? RestartSubscription { get; set; }
 }
 
 public partial class ThermostatMutation
@@ -3890,18 +3890,18 @@ public partial class PairDeviceResult
 {
     public ICollection<Thermostat>? Thermostats { get; set; }
     public ICollection<Sensor>? Sensors { get; set; }
-    public GQLMutationError? Error { get; set; }
+    public GqlMutationError? Error { get; set; }
 }
 
-public partial class GQLMutationError
+public partial class GqlMutationError
 {
     public int? StatusCode { get; set; }
     public string? Message { get; set; }
 }
 
-public partial class GQLMutationGeneralResponse
+public partial class GqlMutationGeneralResponse
 {
-    public GQLMutationError? Error { get; set; }
+    public GqlMutationError? Error { get; set; }
 }
 #endregion
 #nullable restore

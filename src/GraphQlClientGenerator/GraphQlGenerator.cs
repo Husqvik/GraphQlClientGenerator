@@ -234,7 +234,7 @@ using Newtonsoft.Json.Linq;
                 {
                     var type = inputTypes[i];
                     FindAllReferencedObjectTypes(schema, type, referencedObjectTypes);
-                    GenerateDataClass(type.Name, type.Description, "IGraphQlInputObject", writer, () => GenerateInputDataClassBody(type, type.InputFields.Cast<IGraphQlMember>().ToArray(), writer));
+                    GenerateDataClass(NamingHelper.ToPascalCase(type.Name), type.Description, "IGraphQlInputObject", writer, () => GenerateInputDataClassBody(type, type.InputFields.Cast<IGraphQlMember>().ToArray(), writer));
 
                     writer.WriteLine();
 
@@ -261,6 +261,9 @@ using Newtonsoft.Json.Linq;
                     var hasInputReference = referencedObjectTypes.Contains(type.Name);
                     var fieldsToGenerate = GetFieldsToGenerate(type, complexTypeDictionary);
                     var isInterface = type.Kind == GraphQlTypeKind.Interface;
+                    var csharpTypeName = type.Name;
+                    if (!UseCustomClassNameIfDefined(ref csharpTypeName))
+                        csharpTypeName = NamingHelper.ToPascalCase(csharpTypeName);
 
                     void GenerateBody(bool isInterfaceMember)
                     {
@@ -300,7 +303,7 @@ using Newtonsoft.Json.Linq;
                     var interfacesToImplement = new List<string>();
                     if (isInterface)
                     {
-                        interfacesToImplement.Add(GenerateInterface("I" + type.Name, type.Description, writer, () => GenerateBody(true)));
+                        interfacesToImplement.Add(GenerateInterface("I" + csharpTypeName, type.Description, writer, () => GenerateBody(true)));
                         writer.WriteLine();
                         writer.WriteLine();
                     }
@@ -321,7 +324,7 @@ using Newtonsoft.Json.Linq;
                     if (hasInputReference)
                         interfacesToImplement.Add("IGraphQlInputObject");
 
-                    GenerateDataClass(type.Name, type.Description, String.Join(", ", interfacesToImplement), writer, () => GenerateBody(false));
+                    GenerateDataClass(csharpTypeName, type.Description, String.Join(", ", interfacesToImplement), writer, () => GenerateBody(false));
 
                     writer.WriteLine();
 
@@ -427,8 +430,6 @@ using Newtonsoft.Json.Linq;
 
         private string GenerateFileMember(string memberType, string typeName, string typeDescription, string baseTypeName, TextWriter writer, Action generateFileMemberBody)
         {
-            typeName = UseCustomClassNameIfDefined(typeName);
-
             var memberName = typeName + _configuration.ClassPostfix;
             ValidateClassName(memberName);
 
@@ -502,8 +503,14 @@ using Newtonsoft.Json.Linq;
         internal static string AddQuestionMarkIfNullableReferencesEnabled(GraphQlGeneratorConfiguration configuration, string dataTypeIdentifier) =>
             configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences ? dataTypeIdentifier + "?" : dataTypeIdentifier;
 
-        private string UseCustomClassNameIfDefined(string typeName) =>
-            _configuration.CustomClassNameMapping.TryGetValue(typeName, out var customTypeName) ? customTypeName : typeName;
+        private bool UseCustomClassNameIfDefined(ref string typeName)
+        {
+            if (!_configuration.CustomClassNameMapping.TryGetValue(typeName, out var customTypeName))
+                return false;
+
+            typeName = customTypeName;
+            return true;
+        }
 
         private string GetMemberAccessibility() =>
             _configuration.MemberAccessibility == MemberAccessibility.Internal ? "internal" : "public";
@@ -581,7 +588,9 @@ using Newtonsoft.Json.Linq;
                 case GraphQlTypeKind.Union:
                 case GraphQlTypeKind.InputObject:
                     var fieldTypeName = fieldType.Name;
-                    fieldTypeName = UseCustomClassNameIfDefined(fieldTypeName);
+                    if (!UseCustomClassNameIfDefined(ref fieldTypeName))
+                        fieldTypeName = NamingHelper.ToPascalCase(fieldTypeName);
+
                     propertyType = fieldTypeName + _configuration.ClassPostfix;
                     return ConvertToTypeDescription(AddQuestionMarkIfNullableReferencesEnabled(propertyType));
 
@@ -590,7 +599,9 @@ using Newtonsoft.Json.Linq;
 
                 case GraphQlTypeKind.List:
                     var itemTypeName = fieldType.OfType.UnwrapIfNonNull().Name;
-                    itemTypeName = UseCustomClassNameIfDefined(itemTypeName);
+                    if (!UseCustomClassNameIfDefined(ref itemTypeName))
+                        itemTypeName = NamingHelper.ToPascalCase(itemTypeName);
+                    
                     var itemType = IsUnknownObjectScalar(baseType, member.Name, fieldType.OfType) ? "object" : itemTypeName + _configuration.ClassPostfix;
                     var suggestedNetType = ScalarToNetType(baseType, member.Name, fieldType.OfType).NetTypeName.TrimEnd('?');
                     if (!String.Equals(suggestedNetType, "object") && !String.Equals(suggestedNetType, "object?") && !suggestedNetType.TrimEnd().EndsWith("System.Object") && !suggestedNetType.TrimEnd().EndsWith("System.Object?"))
@@ -660,8 +671,8 @@ using Newtonsoft.Json.Linq;
         private void GenerateTypeQueryBuilder(GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary, GraphQlSchema schema, TextWriter writer)
         {
             var typeName = type.Name;
-            typeName = UseCustomClassNameIfDefined(typeName);
-            var className = typeName + "QueryBuilder" + _configuration.ClassPostfix;
+            var useCustomName = UseCustomClassNameIfDefined(ref typeName);
+            var className = (useCustomName ? typeName : NamingHelper.ToPascalCase(typeName)) + "QueryBuilder" + _configuration.ClassPostfix;
             ValidateClassName(className);
 
             writer.Write(GetMemberAccessibility());
@@ -714,7 +725,9 @@ using Newtonsoft.Json.Linq;
                             if (fieldTypeName == null)
                                 ThrowFieldTypeResolutionFailed(type.Name, field.Name);
 
-                            fieldTypeName = UseCustomClassNameIfDefined(fieldTypeName);
+                            if (!UseCustomClassNameIfDefined(ref fieldTypeName))
+                                fieldTypeName = NamingHelper.ToPascalCase(fieldTypeName);
+                            
                             writer.Write($", QueryBuilderType = typeof({fieldTypeName}QueryBuilder{_configuration.ClassPostfix})");
                         }
                     }
@@ -862,7 +875,8 @@ using Newtonsoft.Json.Linq;
                     if (String.IsNullOrEmpty(fieldTypeName))
                         ThrowFieldTypeResolutionFailed(type.Name, field.Name);
 
-                    fieldTypeName = UseCustomClassNameIfDefined(fieldTypeName);
+                    if (!UseCustomClassNameIfDefined(ref fieldTypeName))
+                        fieldTypeName = NamingHelper.ToPascalCase(fieldTypeName);
 
                     var builderParameterName = NamingHelper.LowerFirst(fieldTypeName);
                     writer.Write($"    public {className} With{NamingHelper.ToPascalCase(field.Name)}{(isFragment ? "Fragment" : null)}({fieldTypeName}QueryBuilder{_configuration.ClassPostfix} {builderParameterName}QueryBuilder");
@@ -1008,7 +1022,14 @@ using Newtonsoft.Json.Linq;
 
             var isInputObject = unwrappedType.Kind == GraphQlTypeKind.InputObject;
             if (isInputObject)
-                argumentNetType = unwrappedType.Name + _configuration.ClassPostfix;
+            {
+                argumentNetType = unwrappedType.Name;
+
+                if (!UseCustomClassNameIfDefined(ref argumentNetType))
+                    argumentNetType = NamingHelper.ToPascalCase(argumentNetType);
+
+                argumentNetType += _configuration.ClassPostfix;
+            }
 
             argumentNetType = isCollection ? $"QueryBuilderParameter<IEnumerable<{argumentNetType}>>" : $"QueryBuilderParameter<{argumentNetType}>";
 
