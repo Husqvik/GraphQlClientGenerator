@@ -2843,7 +2843,7 @@ public partial class MeMutationQueryBuilder : GraphQlQueryBuilder<MeMutationQuer
 
     public MeMutationQueryBuilder ExceptHome() => ExceptField("home");
 
-    public MeMutationQueryBuilder WithUpdateAppState(GqlMutationGeneralResponseQueryBuilder gqlMutationGeneralResponseQueryBuilder, QueryBuilderParameter<AppStateMutation>? state = null)
+    public MeMutationQueryBuilder WithUpdateAppState(GqlMutationGeneralResponseQueryBuilder gqlMutationGeneralResponseQueryBuilder, QueryBuilderParameter<AppStateMutation?>? state = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (state != null)
@@ -2918,7 +2918,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
 
     public HomeMutationQueryBuilder ExceptPairDeviceWithCredentials() => ExceptField("pairDeviceWithCredentials");
 
-    public HomeMutationQueryBuilder WithAnswerProfileQuestions(HomeProfileQuestionQueryBuilder homeProfileQuestionQueryBuilder, QueryBuilderParameter<IEnumerable<HomeProfileQuestionAnswer>>? answers = null)
+    public HomeMutationQueryBuilder WithAnswerProfileQuestions(HomeProfileQuestionQueryBuilder homeProfileQuestionQueryBuilder, QueryBuilderParameter<IEnumerable<HomeProfileQuestionAnswer?>>? answers = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (answers != null)

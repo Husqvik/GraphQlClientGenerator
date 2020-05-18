@@ -67,7 +67,7 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
 
     public QueryQueryBuilder ExceptInterface() => ExceptField("interface");
 
-    public QueryQueryBuilder WithUnderscoreNamedField(UnderscoreNamedClassQueryBuilder underscoreNamedClassQueryBuilder, QueryBuilderParameter<UnderscoreNamedInput>? underscoreNamedParameter = null)
+    public QueryQueryBuilder WithUnderscoreNamedField(UnderscoreNamedClassQueryBuilder underscoreNamedClassQueryBuilder, QueryBuilderParameter<UnderscoreNamedInput?>? underscoreNamedParameter = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (underscoreNamedParameter != null)

@@ -1029,6 +1029,9 @@ using Newtonsoft.Json.Linq;
                     argumentNetType = NamingHelper.ToPascalCase(argumentNetType);
 
                 argumentNetType += _configuration.ClassPostfix;
+                
+                if (!isTypeNotNull)
+                    argumentNetType = AddQuestionMarkIfNullableReferencesEnabled(argumentNetType);
             }
 
             argumentNetType = isCollection ? $"QueryBuilderParameter<IEnumerable<{argumentNetType}>>" : $"QueryBuilderParameter<{argumentNetType}>";
