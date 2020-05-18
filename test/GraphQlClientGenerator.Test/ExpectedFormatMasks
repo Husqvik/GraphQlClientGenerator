@@ -1,70 +1,70 @@
 #region shared types
 public enum HomeAvatar
 {
-    [EnumMember(Value="APARTMENT")] Apartment,
-    [EnumMember(Value="ROWHOUSE")] Rowhouse,
-    [EnumMember(Value="FLOORHOUSE1")] Floorhouse1,
-    [EnumMember(Value="FLOORHOUSE2")] Floorhouse2,
-    [EnumMember(Value="FLOORHOUSE3")] Floorhouse3,
-    [EnumMember(Value="COTTAGE")] Cottage,
-    [EnumMember(Value="CASTLE")] Castle
+    [EnumMember(Value = "APARTMENT")] Apartment,
+    [EnumMember(Value = "ROWHOUSE")] Rowhouse,
+    [EnumMember(Value = "FLOORHOUSE1")] Floorhouse1,
+    [EnumMember(Value = "FLOORHOUSE2")] Floorhouse2,
+    [EnumMember(Value = "FLOORHOUSE3")] Floorhouse3,
+    [EnumMember(Value = "COTTAGE")] Cottage,
+    [EnumMember(Value = "CASTLE")] Castle
 }
 
 public enum HomeType
 {
-    [EnumMember(Value="APARTMENT")] Apartment,
-    [EnumMember(Value="ROWHOUSE")] Rowhouse,
-    [EnumMember(Value="HOUSE")] House,
-    [EnumMember(Value="COTTAGE")] Cottage
+    [EnumMember(Value = "APARTMENT")] Apartment,
+    [EnumMember(Value = "ROWHOUSE")] Rowhouse,
+    [EnumMember(Value = "HOUSE")] House,
+    [EnumMember(Value = "COTTAGE")] Cottage
 }
 
 public enum HeatingSource
 {
-    [EnumMember(Value="AIR2AIR_HEATPUMP")] Air2AirHeatpump,
-    [EnumMember(Value="ELECTRICITY")] Electricity,
-    [EnumMember(Value="GROUND")] Ground,
-    [EnumMember(Value="DISTRICT_HEATING")] DistrictHeating,
-    [EnumMember(Value="ELECTRIC_BOILER")] ElectricBoiler,
-    [EnumMember(Value="AIR2WATER_HEATPUMP")] Air2WaterHeatpump,
-    [EnumMember(Value="OTHER")] Other
+    [EnumMember(Value = "AIR2AIR_HEATPUMP")] Air2AirHeatpump,
+    [EnumMember(Value = "ELECTRICITY")] Electricity,
+    [EnumMember(Value = "GROUND")] Ground,
+    [EnumMember(Value = "DISTRICT_HEATING")] DistrictHeating,
+    [EnumMember(Value = "ELECTRIC_BOILER")] ElectricBoiler,
+    [EnumMember(Value = "AIR2WATER_HEATPUMP")] Air2WaterHeatpump,
+    [EnumMember(Value = "OTHER")] Other
 }
 
 public enum PriceLevel
 {
-    [EnumMember(Value="NORMAL")] Normal,
-    [EnumMember(Value="CHEAP")] Cheap,
-    [EnumMember(Value="VERY_CHEAP")] VeryCheap,
-    [EnumMember(Value="EXPENSIVE")] Expensive,
-    [EnumMember(Value="VERY_EXPENSIVE")] VeryExpensive
+    [EnumMember(Value = "NORMAL")] Normal,
+    [EnumMember(Value = "CHEAP")] Cheap,
+    [EnumMember(Value = "VERY_CHEAP")] VeryCheap,
+    [EnumMember(Value = "EXPENSIVE")] Expensive,
+    [EnumMember(Value = "VERY_EXPENSIVE")] VeryExpensive
 }
 
 public enum PriceResolution
 {
-    [EnumMember(Value="HOURLY")] Hourly,
-    [EnumMember(Value="DAILY")] Daily
+    [EnumMember(Value = "HOURLY")] Hourly,
+    [EnumMember(Value = "DAILY")] Daily
 }
 
 public enum EnergyResolution
 {
-    [EnumMember(Value="HOURLY")] Hourly,
-    [EnumMember(Value="DAILY")] Daily,
-    [EnumMember(Value="WEEKLY")] Weekly,
-    [EnumMember(Value="MONTHLY")] Monthly,
-    [EnumMember(Value="ANNUAL")] Annual
+    [EnumMember(Value = "HOURLY")] Hourly,
+    [EnumMember(Value = "DAILY")] Daily,
+    [EnumMember(Value = "WEEKLY")] Weekly,
+    [EnumMember(Value = "MONTHLY")] Monthly,
+    [EnumMember(Value = "ANNUAL")] Annual
 }
 
 public enum AppScreen
 {
-    [EnumMember(Value="HOME")] Home,
-    [EnumMember(Value="REPORTS")] Reports,
-    [EnumMember(Value="CONSUMPTION")] Consumption,
-    [EnumMember(Value="COMPARISON")] Comparison,
-    [EnumMember(Value="DISAGGREGATION")] Disaggregation,
-    [EnumMember(Value="HOME_PROFILE")] HomeProfile,
-    [EnumMember(Value="CUSTOMER_PROFILE")] CustomerProfile,
-    [EnumMember(Value="METER_READING")] MeterReading,
-    [EnumMember(Value="NOTIFICATIONS")] Notifications,
-    [EnumMember(Value="INVOICES")] Invoices
+    [EnumMember(Value = "HOME")] Home,
+    [EnumMember(Value = "REPORTS")] Reports,
+    [EnumMember(Value = "CONSUMPTION")] Consumption,
+    [EnumMember(Value = "COMPARISON")] Comparison,
+    [EnumMember(Value = "DISAGGREGATION")] Disaggregation,
+    [EnumMember(Value = "HOME_PROFILE")] HomeProfile,
+    [EnumMember(Value = "CUSTOMER_PROFILE")] CustomerProfile,
+    [EnumMember(Value = "METER_READING")] MeterReading,
+    [EnumMember(Value = "NOTIFICATIONS")] Notifications,
+    [EnumMember(Value = "INVOICES")] Invoices
 }
 
 #endregion

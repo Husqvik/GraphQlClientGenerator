@@ -1,8 +1,8 @@
 #region shared types
 public enum UnderscoreNamedEnum
 {
-    [EnumMember(Value="an_enum_value_1")] AnEnumValue1,
-    [EnumMember(Value="an_enum_value_2")] AnEnumValue2
+    [EnumMember(Value = "an_enum_value_1")] AnEnumValue1,
+    [EnumMember(Value = "an_enum_value_2")] AnEnumValue2
 }
 
 #endregion

@@ -1123,7 +1123,7 @@ using Newtonsoft.Json.Linq;
                 writer.Write("    ");
                 var netIdentifier = NamingHelper.ToCSharpEnumName(enumValue.Name);
                 if (netIdentifier != enumValue.Name)
-                    writer.Write($"[EnumMember(Value=\"{enumValue.Name}\")] ");
+                    writer.Write($"[EnumMember(Value = \"{enumValue.Name}\")] ");
 
                 writer.Write(netIdentifier);
 
