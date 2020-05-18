@@ -65,10 +65,7 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
         return WithObjectField("interface", namedTypeQueryBuilder, args);
     }
 
-    public QueryQueryBuilder ExceptInterface()
-    {
-        return ExceptField("interface");
-    }
+    public QueryQueryBuilder ExceptInterface() => ExceptField("interface");
 
     public QueryQueryBuilder WithUnderscoreNamedField(UnderscoreNamedClassQueryBuilder underscoreNamedClassQueryBuilder, QueryBuilderParameter<UnderscoreNamedInput> underscoreNamedParameter)
     {
@@ -77,10 +74,7 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
         return WithObjectField("underscore_named_field", underscoreNamedClassQueryBuilder, args);
     }
 
-    public QueryQueryBuilder ExceptUnderscoreNamedField()
-    {
-        return ExceptField("underscore_named_field");
-    }
+    public QueryQueryBuilder ExceptUnderscoreNamedField() => ExceptField("underscore_named_field");
 }
 
 public partial class SimpleObjectTypeQueryBuilder : GraphQlQueryBuilder<SimpleObjectTypeQueryBuilder>
@@ -245,10 +239,7 @@ public partial class ConcreteType3QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
         return WithScalarField("function", alias, new GraphQlDirective?[] { skip, include }, args);
     }
 
-    public ConcreteType3QueryBuilder ExceptFunction()
-    {
-        return ExceptField("function");
-    }
+    public ConcreteType3QueryBuilder ExceptFunction() => ExceptField("function");
 }
 
 public partial class UnderscoreNamedClassQueryBuilder : GraphQlQueryBuilder<UnderscoreNamedClassQueryBuilder>

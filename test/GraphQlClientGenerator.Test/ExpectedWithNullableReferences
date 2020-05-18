@@ -146,10 +146,7 @@ public partial class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
         return WithObjectField("home", homeQueryBuilder, args);
     }
 
-    public MeQueryBuilder ExceptHome()
-    {
-        return ExceptField("home");
-    }
+    public MeQueryBuilder ExceptHome() => ExceptField("home");
 
     public MeQueryBuilder WithHomes(HomeQueryBuilder homeQueryBuilder) => WithObjectField("homes", homeQueryBuilder);
 
@@ -360,10 +357,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return WithObjectField("consumptionMonths", consumptionMonthQueryBuilder, args);
     }
 
-    public HomeQueryBuilder ExceptConsumptionMonths()
-    {
-        return ExceptField("consumptionMonths");
-    }
+    public HomeQueryBuilder ExceptConsumptionMonths() => ExceptField("consumptionMonths");
 
     public HomeQueryBuilder WithConsumption(ConsumptionQueryBuilder consumptionQueryBuilder, QueryBuilderParameter<DateTimeOffset?>? from = null, QueryBuilderParameter<DateTimeOffset?>? to = null, QueryBuilderParameter<bool?>? useDemoData = null)
     {
@@ -380,10 +374,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return WithObjectField("consumption", consumptionQueryBuilder, args);
     }
 
-    public HomeQueryBuilder ExceptConsumption()
-    {
-        return ExceptField("consumption");
-    }
+    public HomeQueryBuilder ExceptConsumption() => ExceptField("consumption");
 
     public HomeQueryBuilder WithPreLiveComparison(PreLiveComparisonQueryBuilder preLiveComparisonQueryBuilder) => WithObjectField("preLiveComparison", preLiveComparisonQueryBuilder);
 
@@ -407,10 +398,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return WithObjectField("comparisons", comparisonQueryBuilder, args);
     }
 
-    public HomeQueryBuilder ExceptComparisons()
-    {
-        return ExceptField("comparisons");
-    }
+    public HomeQueryBuilder ExceptComparisons() => ExceptField("comparisons");
 
     public HomeQueryBuilder WithComparisonCurrentMonth(ComparisonQueryBuilder comparisonQueryBuilder) => WithObjectField("comparisonCurrentMonth", comparisonQueryBuilder);
 
@@ -438,10 +426,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return WithScalarField("temperatures", alias, new GraphQlDirective?[] { include, skip }, args);
     }
 
-    public HomeQueryBuilder ExceptTemperatures()
-    {
-        return ExceptField("temperatures");
-    }
+    public HomeQueryBuilder ExceptTemperatures() => ExceptField("temperatures");
 
     public HomeQueryBuilder WithSignupStatus(SignupStatusQueryBuilder signupStatusQueryBuilder) => WithObjectField("signupStatus", signupStatusQueryBuilder);
 
@@ -459,10 +444,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return WithObjectField("disaggregation", disaggregationQueryBuilder, args);
     }
 
-    public HomeQueryBuilder ExceptDisaggregation()
-    {
-        return ExceptField("disaggregation");
-    }
+    public HomeQueryBuilder ExceptDisaggregation() => ExceptField("disaggregation");
 
     public HomeQueryBuilder WithWeather(WeatherQueryBuilder weatherQueryBuilder) => WithObjectField("weather", weatherQueryBuilder);
 
@@ -512,10 +494,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return WithObjectField("production", productionQueryBuilder, args);
     }
 
-    public HomeQueryBuilder ExceptProduction()
-    {
-        return ExceptField("production");
-    }
+    public HomeQueryBuilder ExceptProduction() => ExceptField("production");
 }
 
 public partial class AddressQueryBuilder : GraphQlQueryBuilder<AddressQueryBuilder>
@@ -2611,10 +2590,7 @@ public partial class FeedQueryBuilder : GraphQlQueryBuilder<FeedQueryBuilder>
         return WithObjectField("items", feedItemQueryBuilder, args);
     }
 
-    public FeedQueryBuilder ExceptItems()
-    {
-        return ExceptField("items");
-    }
+    public FeedQueryBuilder ExceptItems() => ExceptField("items");
 
     public FeedQueryBuilder WithPushNotifications(PushNotificationQueryBuilder pushNotificationQueryBuilder) => WithObjectField("pushNotifications", pushNotificationQueryBuilder);
 
@@ -2854,10 +2830,7 @@ public partial class MeMutationQueryBuilder : GraphQlQueryBuilder<MeMutationQuer
         return WithObjectField("update", meQueryBuilder, args);
     }
 
-    public MeMutationQueryBuilder ExceptUpdate()
-    {
-        return ExceptField("update");
-    }
+    public MeMutationQueryBuilder ExceptUpdate() => ExceptField("update");
 
     public MeMutationQueryBuilder WithHome(HomeMutationQueryBuilder homeMutationQueryBuilder, QueryBuilderParameter<string?>? id = null)
     {
@@ -2868,10 +2841,7 @@ public partial class MeMutationQueryBuilder : GraphQlQueryBuilder<MeMutationQuer
         return WithObjectField("home", homeMutationQueryBuilder, args);
     }
 
-    public MeMutationQueryBuilder ExceptHome()
-    {
-        return ExceptField("home");
-    }
+    public MeMutationQueryBuilder ExceptHome() => ExceptField("home");
 
     public MeMutationQueryBuilder WithUpdateAppState(GqlMutationGeneralResponseQueryBuilder gqlMutationGeneralResponseQueryBuilder, QueryBuilderParameter<AppStateMutation>? state = null)
     {
@@ -2882,10 +2852,7 @@ public partial class MeMutationQueryBuilder : GraphQlQueryBuilder<MeMutationQuer
         return WithObjectField("updateAppState", gqlMutationGeneralResponseQueryBuilder, args);
     }
 
-    public MeMutationQueryBuilder ExceptUpdateAppState()
-    {
-        return ExceptField("updateAppState");
-    }
+    public MeMutationQueryBuilder ExceptUpdateAppState() => ExceptField("updateAppState");
 }
 
 public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutationQueryBuilder>
@@ -2918,10 +2885,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
         return WithObjectField("thermostat", thermostatMutationQueryBuilder, args);
     }
 
-    public HomeMutationQueryBuilder ExceptThermostat()
-    {
-        return ExceptField("thermostat");
-    }
+    public HomeMutationQueryBuilder ExceptThermostat() => ExceptField("thermostat");
 
     public HomeMutationQueryBuilder WithPairDeviceWithOAuth(PairDeviceResultQueryBuilder pairDeviceResultQueryBuilder, QueryBuilderParameter<string?>? deviceType = null, QueryBuilderParameter<string?>? authorizationCode = null)
     {
@@ -2935,10 +2899,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
         return WithObjectField("pairDeviceWithOAuth", pairDeviceResultQueryBuilder, args);
     }
 
-    public HomeMutationQueryBuilder ExceptPairDeviceWithOAuth()
-    {
-        return ExceptField("pairDeviceWithOAuth");
-    }
+    public HomeMutationQueryBuilder ExceptPairDeviceWithOAuth() => ExceptField("pairDeviceWithOAuth");
 
     public HomeMutationQueryBuilder WithPairDeviceWithCredentials(PairDeviceResultQueryBuilder pairDeviceResultQueryBuilder, QueryBuilderParameter<string?>? deviceType = null, QueryBuilderParameter<string?>? username = null, QueryBuilderParameter<string?>? password = null)
     {
@@ -2955,10 +2916,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
         return WithObjectField("pairDeviceWithCredentials", pairDeviceResultQueryBuilder, args);
     }
 
-    public HomeMutationQueryBuilder ExceptPairDeviceWithCredentials()
-    {
-        return ExceptField("pairDeviceWithCredentials");
-    }
+    public HomeMutationQueryBuilder ExceptPairDeviceWithCredentials() => ExceptField("pairDeviceWithCredentials");
 
     public HomeMutationQueryBuilder WithAnswerProfileQuestions(HomeProfileQuestionQueryBuilder homeProfileQuestionQueryBuilder, QueryBuilderParameter<IEnumerable<HomeProfileQuestionAnswer>>? answers = null)
     {
@@ -2969,10 +2927,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
         return WithObjectField("answerProfileQuestions", homeProfileQuestionQueryBuilder, args);
     }
 
-    public HomeMutationQueryBuilder ExceptAnswerProfileQuestions()
-    {
-        return ExceptField("answerProfileQuestions");
-    }
+    public HomeMutationQueryBuilder ExceptAnswerProfileQuestions() => ExceptField("answerProfileQuestions");
 
     public HomeMutationQueryBuilder WithSendMeterReading(GqlMutationGeneralResponseQueryBuilder gqlMutationGeneralResponseQueryBuilder, QueryBuilderParameter<int?>? meterReading = null)
     {
@@ -2983,10 +2938,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
         return WithObjectField("sendMeterReading", gqlMutationGeneralResponseQueryBuilder, args);
     }
 
-    public HomeMutationQueryBuilder ExceptSendMeterReading()
-    {
-        return ExceptField("sendMeterReading");
-    }
+    public HomeMutationQueryBuilder ExceptSendMeterReading() => ExceptField("sendMeterReading");
 
     public HomeMutationQueryBuilder WithSetMeteringPointIdAndBindingTime(GqlMutationGeneralResponseQueryBuilder gqlMutationGeneralResponseQueryBuilder, QueryBuilderParameter<string?>? meteringPointId = null, QueryBuilderParameter<string?>? bindingTime = null, QueryBuilderParameter<bool?>? isMovingIn = null)
     {
@@ -3003,10 +2955,7 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
         return WithObjectField("setMeteringPointIdAndBindingTime", gqlMutationGeneralResponseQueryBuilder, args);
     }
 
-    public HomeMutationQueryBuilder ExceptSetMeteringPointIdAndBindingTime()
-    {
-        return ExceptField("setMeteringPointIdAndBindingTime");
-    }
+    public HomeMutationQueryBuilder ExceptSetMeteringPointIdAndBindingTime() => ExceptField("setMeteringPointIdAndBindingTime");
 
     public HomeMutationQueryBuilder WithRestartSubscription(GqlMutationGeneralResponseQueryBuilder gqlMutationGeneralResponseQueryBuilder) => WithObjectField("restartSubscription", gqlMutationGeneralResponseQueryBuilder);
 
@@ -3047,10 +2996,7 @@ public partial class ThermostatMutationQueryBuilder : GraphQlQueryBuilder<Thermo
         return WithScalarField("setState", alias, new GraphQlDirective?[] { include, skip }, args);
     }
 
-    public ThermostatMutationQueryBuilder ExceptSetState()
-    {
-        return ExceptField("setState");
-    }
+    public ThermostatMutationQueryBuilder ExceptSetState() => ExceptField("setState");
 
     public ThermostatMutationQueryBuilder WithSetName(QueryBuilderParameter<string?>? name = null, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null)
     {
@@ -3061,10 +3007,7 @@ public partial class ThermostatMutationQueryBuilder : GraphQlQueryBuilder<Thermo
         return WithScalarField("setName", alias, new GraphQlDirective?[] { include, skip }, args);
     }
 
-    public ThermostatMutationQueryBuilder ExceptSetName()
-    {
-        return ExceptField("setName");
-    }
+    public ThermostatMutationQueryBuilder ExceptSetName() => ExceptField("setName");
 }
 
 public partial class PairDeviceResultQueryBuilder : GraphQlQueryBuilder<PairDeviceResultQueryBuilder>

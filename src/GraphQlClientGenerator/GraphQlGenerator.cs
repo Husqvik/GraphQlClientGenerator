@@ -925,9 +925,9 @@ using Newtonsoft.Json.Linq;
                     writer.Write($"    public {className} Except{NamingHelper.ToPascalCase(field.Name)}()");
 
                     WriteQueryBuilderMethodBody(
-                        requiresFullBody,
+                        useCompatibleSyntax,
                         writer,
-                        () => writer.WriteLine($"{returnPrefix}ExceptField(\"{field.Name}\");"));
+                        () => writer.WriteLine($"{ReturnPrefix(useCompatibleSyntax)}ExceptField(\"{field.Name}\");"));
                 }
 
                 if (i < fields.Count - 1)
