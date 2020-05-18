@@ -1036,7 +1036,8 @@ using Newtonsoft.Json.Linq;
             if (!isArgumentNotNull)
                 argumentNetType = AddQuestionMarkIfNullableReferencesEnabled(argumentNetType);
 
-            var argumentDefinition = $"{argumentNetType} {NamingHelper.ToValidCSharpName(argument.Name)}";
+            var netParameterName = NamingHelper.ToValidCSharpName(NamingHelper.LowerFirst(NamingHelper.ToPascalCase(argument.Name)));
+            var argumentDefinition = $"{argumentNetType} {netParameterName}";
             if (!isArgumentNotNull)
                 argumentDefinition += " = null";
 
@@ -1044,6 +1045,7 @@ using Newtonsoft.Json.Linq;
                 new QueryBuilderParameterDefinition
                 {
                     Argument = argument,
+                    NetParameterName = netParameterName,
                     NetParameterDefinitionClause = argumentDefinition,
                     FormatMask = argumentTypeDescription.FormatMask
                 };
@@ -1068,7 +1070,7 @@ using Newtonsoft.Json.Linq;
                 writer.Write("args.Add(new QueryBuilderArgumentInfo { ArgumentName = \"");
                 writer.Write(argument.Name);
                 writer.Write("\", ArgumentValue = ");
-                writer.Write(NamingHelper.ToValidCSharpName(argument.Name));
+                writer.Write(argumentDefinition.NetParameterName);
 
                 if (!String.IsNullOrEmpty(argumentDefinition.FormatMask))
                 {
@@ -1253,6 +1255,7 @@ using Newtonsoft.Json.Linq;
         private struct QueryBuilderParameterDefinition
         {
             public GraphQlArgument Argument;
+            public string NetParameterName;
             public string NetParameterDefinitionClause;
             public string FormatMask;
         }

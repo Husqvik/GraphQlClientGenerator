@@ -94,7 +94,7 @@
               "description": "",
               "args": [
                 {
-                  "name": "parameter",
+                  "name": "underscore_named_parameter",
                   "description": "",
                   "type": {
                     "kind": "NON_NULL",
