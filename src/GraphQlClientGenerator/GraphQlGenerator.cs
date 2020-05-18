@@ -1091,7 +1091,9 @@ using Newtonsoft.Json.Linq;
                 }
                 else
                 {
-                    writer.WriteLine($"        if ({NamingHelper.ToValidCSharpName(argumentDefinition.Argument.Name)} != null)");
+                    writer.Write("        if (");
+                    writer.Write(argumentDefinition.NetParameterName);
+                    writer.WriteLine(" != null)");
                     writer.Write("            ");
                     WriteAddKeyValuePair(writer, argumentDefinition);
                     writer.WriteLine();

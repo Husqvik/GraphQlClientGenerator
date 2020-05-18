@@ -97,13 +97,9 @@
                   "name": "underscore_named_parameter",
                   "description": "",
                   "type": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "INPUT_OBJECT",
-                      "name": "underscore_named_input",
-                      "ofType": null
-                    }
+                    "kind": "INPUT_OBJECT",
+                    "name": "underscore_named_input",
+                    "ofType": null
                   },
                   "defaultValue": null
                 }
