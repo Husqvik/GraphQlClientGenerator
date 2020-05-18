@@ -1,4 +1,4 @@
-﻿{
+{
   "data": {
     "__schema": {
       "queryType": {
@@ -84,6 +84,37 @@
                       "name": "NamedType"
                     }
                   }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "underscore_named_field",
+              "description": "",
+              "args": [
+                {
+                  "name": "parameter",
+                  "description": "",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "underscore_named_input",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "underscore_named_class",
+                  "ofType": null
                 }
               },
               "isDeprecated": false,
@@ -437,6 +468,119 @@
               "ofType": null
             }
           ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "underscore_named_input",
+          "description": "",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "underscore_named_field_enum",
+              "description": "",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "underscore_named_enum",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "underscore_named_field_enum_collection",
+              "description": "",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "ENUM",
+                    "name": "underscore_named_enum",
+                    "ofType": null
+                  }
+                }
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "ENUM",
+          "name": "underscore_named_enum",
+          "description": "A test enum description",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": [
+            {
+              "name": "an_enum_value_1",
+              "description": "An enum value 1 description",
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "an_enum_value_2",
+              "description": "An enum value 2 description",
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "underscore_named_class",
+          "description": "",
+          "fields": [
+            {
+              "name": "underscore_named_field_enum",
+              "description": "",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "underscore_named_enum",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "underscore_named_field_enum_collection",
+              "description": "",
+              "args": [],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "NON_NULL",
+                  "name": null,
+                  "ofType": {
+                    "kind": "ENUM",
+                    "name": "underscore_named_enum",
+                    "ofType": null
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
           "enumValues": null,
           "possibleTypes": null
         },

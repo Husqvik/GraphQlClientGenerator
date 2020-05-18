@@ -1,4 +1,10 @@
 #region shared types
+public enum UnderscoreNamedEnum
+{
+    [EnumMember(Value="an_enum_value_1")] AnEnumValue1,
+    [EnumMember(Value="an_enum_value_2")] AnEnumValue2
+}
+
 #endregion
 
 #nullable enable
@@ -28,7 +34,8 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
         {
             new FieldMetadata { Name = "simpleObject", IsComplex = true, QueryBuilderType = typeof(SimpleObjectTypeQueryBuilder) },
             new FieldMetadata { Name = "union", IsComplex = true, QueryBuilderType = typeof(UnionTypeQueryBuilder) },
-            new FieldMetadata { Name = "interface", IsComplex = true, QueryBuilderType = typeof(NamedTypeQueryBuilder) }
+            new FieldMetadata { Name = "interface", IsComplex = true, QueryBuilderType = typeof(NamedTypeQueryBuilder) },
+            new FieldMetadata { Name = "underscore_named_field", IsComplex = true, QueryBuilderType = typeof(UnderscoreNamedClassQueryBuilder) }
         };
 
     protected override string Prefix { get; } = "query";
@@ -61,6 +68,18 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
     public QueryQueryBuilder ExceptInterface()
     {
         return ExceptField("interface");
+    }
+
+    public QueryQueryBuilder WithUnderscoreNamedField(UnderscoreNamedClassQueryBuilder underscoreNamedClassQueryBuilder, QueryBuilderParameter<UnderscoreNamedInput> parameter)
+    {
+        var args = new List<QueryBuilderArgumentInfo>();
+        args.Add(new QueryBuilderArgumentInfo { ArgumentName = "parameter", ArgumentValue = parameter} );
+        return WithObjectField("underscore_named_field", underscoreNamedClassQueryBuilder, args);
+    }
+
+    public QueryQueryBuilder ExceptUnderscoreNamedField()
+    {
+        return ExceptField("underscore_named_field");
     }
 }
 
@@ -231,15 +250,83 @@ public partial class ConcreteType3QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
         return ExceptField("function");
     }
 }
+
+public partial class UnderscoreNamedClassQueryBuilder : GraphQlQueryBuilder<UnderscoreNamedClassQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "underscore_named_field_enum" },
+            new FieldMetadata { Name = "underscore_named_field_enum_collection", IsComplex = true }
+        };
+
+    protected override string TypeName { get; } = "underscore_named_class";
+
+    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public UnderscoreNamedClassQueryBuilder(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) : base(alias, new GraphQlDirective?[] { skip, include })
+    {
+    }
+
+    public UnderscoreNamedClassQueryBuilder WithUnderscoreNamedFieldEnum(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("underscore_named_field_enum", alias, new GraphQlDirective?[] { skip, include });
+
+    public UnderscoreNamedClassQueryBuilder ExceptUnderscoreNamedFieldEnum() => ExceptField("underscore_named_field_enum");
+
+    public UnderscoreNamedClassQueryBuilder WithUnderscoreNamedFieldEnumCollection(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("underscore_named_field_enum_collection", alias, new GraphQlDirective?[] { skip, include });
+
+    public UnderscoreNamedClassQueryBuilder ExceptUnderscoreNamedFieldEnumCollection() => ExceptField("underscore_named_field_enum_collection");
+}
 #endregion
 #nullable restore
+
 #nullable enable
+#region input classes
+public partial class UnderscoreNamedInput : IGraphQlInputObject
+{
+    private InputPropertyInfo _underscoreNamedFieldEnum;
+    private InputPropertyInfo _underscoreNamedFieldEnumCollection;
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("underscore_named_field_enum")]
+    #endif
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<UnderscoreNamedEnum?>))]
+    #endif
+    public QueryBuilderParameter<UnderscoreNamedEnum?>? UnderscoreNamedFieldEnum
+    {
+        get => (QueryBuilderParameter<UnderscoreNamedEnum?>?)_underscoreNamedFieldEnum.Value;
+        set => _underscoreNamedFieldEnum = new InputPropertyInfo { Name = "underscore_named_field_enum", Value = value };
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("underscore_named_field_enum_collection")]
+    #endif
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<UnderscoreNamedEnum>?>))]
+    #endif
+    public QueryBuilderParameter<ICollection<UnderscoreNamedEnum>?>? UnderscoreNamedFieldEnumCollection
+    {
+        get => (QueryBuilderParameter<ICollection<UnderscoreNamedEnum>?>?)_underscoreNamedFieldEnumCollection.Value;
+        set => _underscoreNamedFieldEnumCollection = new InputPropertyInfo { Name = "underscore_named_field_enum_collection", Value = value };
+    }
+
+    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
+    {
+        if (_underscoreNamedFieldEnum.Name != null) yield return _underscoreNamedFieldEnum;
+        if (_underscoreNamedFieldEnumCollection.Name != null) yield return _underscoreNamedFieldEnumCollection;
+    }
+}
+#endregion
+
 #region data classes
 public partial class Query
 {
     public SimpleObjectType? SimpleObject { get; set; }
     public ICollection<UnionType>? Union { get; set; }
     public ICollection<NamedType>? Interface { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("underscore_named_field")]
+    #endif
+    public UnderscoreNamedClass? UnderscoreNamedField { get; set; }
 }
 
 public partial class SimpleObjectType
@@ -286,6 +373,18 @@ public partial class ConcreteType3 : INamedType
     public string? Name { get; set; }
     public string? ConcreteType3Field { get; set; }
     public string? Function { get; set; }
+}
+
+public partial class UnderscoreNamedClass
+{
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("underscore_named_field_enum")]
+    #endif
+    public UnderscoreNamedEnum? UnderscoreNamedFieldEnum { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("underscore_named_field_enum_collection")]
+    #endif
+    public ICollection<UnderscoreNamedEnum>? UnderscoreNamedFieldEnumCollection { get; set; }
 }
 #endregion
 #nullable restore

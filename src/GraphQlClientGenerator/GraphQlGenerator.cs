@@ -1015,8 +1015,8 @@ using Newtonsoft.Json.Linq;
                 unwrappedType = argumentType.UnwrapIfNonNull();
             }
 
-            var argumentTypeDescription = unwrappedType.Kind == GraphQlTypeKind.Enum ? ConvertToTypeDescription(unwrappedType.Name + "?") : ScalarToNetType(baseType, argument.Name, argumentType);
-            var argumentNetType = unwrappedType.Kind == GraphQlTypeKind.Enum ? unwrappedType.Name + "?" : argumentTypeDescription.NetTypeName;
+            var argumentTypeDescription = unwrappedType.Kind == GraphQlTypeKind.Enum ? ConvertToTypeDescription(NamingHelper.ToPascalCase(unwrappedType.Name) + "?") : ScalarToNetType(baseType, argument.Name, argumentType);
+            var argumentNetType = argumentTypeDescription.NetTypeName;
             if (isTypeNotNull)
                 argumentNetType = argumentNetType.TrimEnd('?');
 
@@ -1110,7 +1110,7 @@ using Newtonsoft.Json.Linq;
         {
             GenerateCodeComments(writer, type.Description, 0);
             writer.Write("public enum ");
-            writer.WriteLine(type.Name);
+            writer.WriteLine(NamingHelper.ToPascalCase(type.Name));
             writer.WriteLine("{");
 
             var enumValues = type.EnumValues.ToList();
