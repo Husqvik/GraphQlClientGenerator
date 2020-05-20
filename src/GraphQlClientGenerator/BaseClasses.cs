@@ -1,5 +1,4 @@
-﻿#region base classes
-public class FieldMetadata
+﻿public class FieldMetadata
 {
     public string Name { get; set; }
     public bool IsComplex { get; set; }
@@ -724,4 +723,3 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
         return (TQueryBuilder)this;
     }
 }
-#endregion

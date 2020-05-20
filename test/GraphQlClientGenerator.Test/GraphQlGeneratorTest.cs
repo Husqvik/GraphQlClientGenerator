@@ -36,7 +36,7 @@ namespace GraphQlClientGenerator.Test
             configuration.CustomClassNameMapping.Add("AwayMode", "VacationMode");
 
             var stringBuilder = new StringBuilder();
-            new GraphQlGenerator(configuration).GenerateQueryBuilder(TestSchema, stringBuilder);
+            new GraphQlGenerator(configuration).GenerateQueryBuilders(TestSchema, stringBuilder);
 
             var expectedQueryBuilders = GetTestResource("ExpectedQueryBuilders");
             var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
@@ -111,7 +111,7 @@ namespace GraphQlClientGenerator.Test
             var stringBuilder = new StringBuilder();
             var generator = new GraphQlGenerator(configuration);
             var testSchema = DeserializeTestSchema("TestSchema3");
-            generator.GenerateQueryBuilder(testSchema, stringBuilder);
+            generator.GenerateQueryBuilders(testSchema, stringBuilder);
             generator.GenerateDataClasses(testSchema, stringBuilder);
 
             var expectedDataClasses = GetTestResource("ExpectedFormatMasks");
@@ -133,7 +133,7 @@ namespace GraphQlClientGenerator.Test
         public void GenerateQueryBuildersWithListsOfScalarValuesAsArguments()
         {
             var stringBuilder = new StringBuilder();
-            new GraphQlGenerator().GenerateQueryBuilder(DeserializeTestSchema("TestSchema3"), stringBuilder);
+            new GraphQlGenerator().GenerateQueryBuilders(DeserializeTestSchema("TestSchema3"), stringBuilder);
 
             var expectedQueryBuilders = GetTestResource("ExpectedQueryBuildersWithListsOfScalarValuesAsArguments");
             var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
@@ -155,7 +155,7 @@ namespace GraphQlClientGenerator.Test
 
             var stringBuilder = new StringBuilder();
             var generator = new GraphQlGenerator(configuration);
-            generator.GenerateQueryBuilder(schema, stringBuilder);
+            generator.GenerateQueryBuilders(schema, stringBuilder);
             generator.GenerateDataClasses(schema, stringBuilder);
 
             var expectedOutput = GetTestResource("ExpectedNewCSharpSyntaxWithClassPostfix");
@@ -175,7 +175,7 @@ namespace GraphQlClientGenerator.Test
 
             var stringBuilder = new StringBuilder();
             var generator = new GraphQlGenerator(configuration);
-            generator.GenerateQueryBuilder(schema, stringBuilder);
+            generator.GenerateQueryBuilders(schema, stringBuilder);
             generator.GenerateDataClasses(schema, stringBuilder);
 
             var expectedOutput = GetTestResource("ExpectedWithNullableReferences");
@@ -191,7 +191,7 @@ namespace GraphQlClientGenerator.Test
 
             var stringBuilder = new StringBuilder();
             var generator = new GraphQlGenerator(configuration);
-            generator.GenerateQueryBuilder(schema, stringBuilder);
+            generator.GenerateQueryBuilders(schema, stringBuilder);
             generator.GenerateDataClasses(schema, stringBuilder);
 
             var expectedOutput = GetTestResource("ExpectedWithUnions");
@@ -207,7 +207,7 @@ namespace GraphQlClientGenerator.Test
             var schema = DeserializeTestSchema("TestSchema2");
             var stringBuilder = new StringBuilder();
             var generator = new GraphQlGenerator(configuration);
-            generator.GenerateQueryBuilder(schema, stringBuilder);
+            generator.GenerateQueryBuilders(schema, stringBuilder);
             generator.GenerateDataClasses(schema, stringBuilder);
 
             stringBuilder.AppendLine();
@@ -505,7 +505,7 @@ namespace {assemblyName}
             var schema = DeserializeTestSchema("TestSchema2");
             var stringBuilder = new StringBuilder();
             var generator = new GraphQlGenerator();
-            generator.GenerateQueryBuilder(schema, stringBuilder);
+            generator.GenerateQueryBuilders(schema, stringBuilder);
             generator.GenerateDataClasses(schema, stringBuilder);
 
             stringBuilder.AppendLine();
@@ -645,7 +645,7 @@ namespace {assemblyName}
         private static string StripBaseClasses(string sourceCode)
         {
             using var reader = new StreamReader(typeof(GraphQlGenerator).Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses.cs"));
-            return sourceCode.Replace(reader.ReadToEnd(), null).Trim();
+            return sourceCode.Replace("#region base classes" + Environment.NewLine + reader.ReadToEnd() + Environment.NewLine + "#endregion", null).Trim();
         }
     }
 }

@@ -40,7 +40,10 @@ using Newtonsoft.Json.Linq;
         private static readonly HttpClient HttpClient =
             new HttpClient
             {
-                DefaultRequestHeaders = { UserAgent = { ProductInfoHeaderValue.Parse("GraphQlGenerator/" + typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetName().Version) } }
+                DefaultRequestHeaders =
+                {
+                    UserAgent = { ProductInfoHeaderValue.Parse("GraphQlGenerator/" + typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetName().Version) }
+                }
             };
 
         internal static readonly JsonSerializerSettings SerializerSettings =
@@ -108,7 +111,7 @@ using Newtonsoft.Json.Linq;
             builder.AppendLine("{");
 
             var memberBuilder = new StringBuilder();
-            GenerateQueryBuilder(schema, memberBuilder);
+            GenerateQueryBuilders(schema, memberBuilder);
 
             memberBuilder.AppendLine();
             memberBuilder.AppendLine();
@@ -132,35 +135,53 @@ using Newtonsoft.Json.Linq;
         private static bool IsComplexType(GraphQlTypeKind graphQlTypeKind) =>
             graphQlTypeKind == GraphQlTypeKind.Object || graphQlTypeKind == GraphQlTypeKind.Interface || graphQlTypeKind == GraphQlTypeKind.Union;
 
-        private void GenerateSharedTypes(GraphQlSchema schema, TextWriter writer)
+        private void GenerateEnumRegion(GraphQlSchema schema, TextWriter writer)
         {
+            var enumTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKind.Enum && !t.Name.StartsWith("__")).ToArray();
+            if (!enumTypes.Any())
+                return;
+
             writer.WriteLine("#region shared types");
-            GenerateEnums(schema, writer);
+
+            foreach (var type in enumTypes)
+            {
+                GenerateEnum(type, writer);
+                writer.WriteLine();
+            }
+
             writer.WriteLine("#endregion");
             writer.WriteLine();
         }
 
-        public void GenerateQueryBuilder(GraphQlSchema schema, StringBuilder builder)
+        public void GenerateQueryBuilders(GraphQlSchema schema, StringBuilder builder)
         {
             using var writer = new StringWriter(builder);
-            GenerateQueryBuilder(schema, writer);
+            GenerateQueryBuilders(schema, writer);
         }
 
-        public void GenerateQueryBuilder(GraphQlSchema schema, TextWriter writer)
+        public void GenerateQueryBuilders(GraphQlSchema schema, TextWriter writer)
         {
+            writer.WriteLine("#region base classes");
+
             using (var reader = new StreamReader(typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses.cs")))
                 writer.WriteLine(reader.ReadToEnd());
 
-            GenerateSharedTypes(schema, writer);
+            writer.WriteLine("#endregion");
+            writer.WriteLine();
+
+            GenerateEnumRegion(schema, writer);
 
             if (_configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences)
                 writer.WriteLine("#nullable enable");
 
-            writer.WriteLine("#region directives");
-            GenerateDirectives(schema, writer);
-            writer.WriteLine("#endregion");
-
-            writer.WriteLine();
+            var queryBuilderDirectives = schema.Directives.Where(t => SupportedDirectiveLocations.Overlaps(t.Locations)).ToArray();
+            if (queryBuilderDirectives.Any())
+            {
+                writer.WriteLine("#region directives");
+                GenerateDirectives(queryBuilderDirectives, writer);
+                writer.WriteLine("#endregion");
+                writer.WriteLine();
+            }
 
             writer.WriteLine("#region builder classes");
 
@@ -1104,15 +1125,6 @@ using Newtonsoft.Json.Linq;
             }
         }
 
-        private void GenerateEnums(GraphQlSchema schema, TextWriter writer)
-        {
-            foreach (var type in schema.Types.Where(t => t.Kind == GraphQlTypeKind.Enum && !t.Name.StartsWith("__")))
-            {
-                GenerateEnum(type, writer);
-                writer.WriteLine();
-            }
-        }
-
         private void GenerateEnum(GraphQlType type, TextWriter writer)
         {
             GenerateCodeComments(writer, type.Description, 0);
@@ -1151,9 +1163,9 @@ using Newtonsoft.Json.Linq;
                 GraphQlDirectiveLocation.Subscription
             };
 
-        private void GenerateDirectives(GraphQlSchema schema, TextWriter writer)
+        private void GenerateDirectives(IEnumerable<GraphQlDirective> directives, TextWriter writer)
         {
-            foreach (var directive in schema.Directives.Where(t => SupportedDirectiveLocations.Overlaps(t.Locations)))
+            foreach (var directive in directives)
             {
                 GenerateDirective(directive, writer);
                 writer.WriteLine();
