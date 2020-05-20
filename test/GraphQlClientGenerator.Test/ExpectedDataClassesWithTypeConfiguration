@@ -1,3 +1,29 @@
+#region shared types
+public enum Avatar
+{
+    [EnumMember(Value = "floorhouse1")] Floorhouse1,
+    [EnumMember(Value = "floorhouse2")] Floorhouse2,
+    [EnumMember(Value = "floorhouse3")] Floorhouse3,
+    [EnumMember(Value = "castle")] Castle,
+    [EnumMember(Value = "apartment")] Apartment,
+    [EnumMember(Value = "cottage")] Cottage,
+    [EnumMember(Value = "rowhouse")] Rowhouse
+}
+
+public enum PriceLevel
+{
+    [EnumMember(Value = "low")] Low,
+    [EnumMember(Value = "normal")] Normal,
+    [EnumMember(Value = "high")] High
+}
+
+public enum Resolution
+{
+    [EnumMember(Value = "annual")] Annual,
+    [EnumMember(Value = "monthly")] Monthly
+}
+#endregion
+
 #region data classes
 public class Query
 {

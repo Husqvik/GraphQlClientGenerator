@@ -4,7 +4,6 @@ public enum UnderscoreNamedEnum
     [EnumMember(Value = "an_enum_value_1")] AnEnumValue1,
     [EnumMember(Value = "an_enum_value_2")] AnEnumValue2
 }
-
 #endregion
 
 #nullable enable
@@ -24,7 +23,6 @@ public class IncludeDirective : GraphQlDirective
         AddArgument("if", @if);
     }
 }
-
 #endregion
 
 #region builder classes
@@ -269,9 +267,7 @@ public partial class UnderscoreNamedClassQueryBuilder : GraphQlQueryBuilder<Unde
     public UnderscoreNamedClassQueryBuilder ExceptUnderscoreNamedFieldEnumCollection() => ExceptField("underscore_named_field_enum_collection");
 }
 #endregion
-#nullable restore
 
-#nullable enable
 #region input classes
 public partial class UnderscoreNamedInput : IGraphQlInputObject
 {

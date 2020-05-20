@@ -20,12 +20,10 @@
   <ItemGroup>
     <EmbeddedResource Include="ExpectedDataClasses" />
     <EmbeddedResource Include="ExpectedDataClassesWithTypeConfiguration" />
-    <EmbeddedResource Include="ExpectedDataClassesWithInterfaces" />
     <EmbeddedResource Include="ExpectedNewCSharpSyntaxWithClassPostfix" />
     <EmbeddedResource Include="ExpectedDeprecatedAttributes" />
     <EmbeddedResource Include="ExpectedWithNullableReferences" />
     <EmbeddedResource Include="ExpectedQueryBuilders" />
-    <EmbeddedResource Include="ExpectedQueryBuildersWithListsOfScalarValuesAsArguments" />
     <EmbeddedResource Include="ExpectedWithUnions" />
     <EmbeddedResource Include="ExpectedFormatMasks" />
     <EmbeddedResource Include="TestSchema" />

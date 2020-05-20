@@ -15,7 +15,6 @@ public enum Resolution
     [EnumMember(Value = "annual")] Annual,
     [EnumMember(Value = "monthly")] Monthly
 }
-
 #endregion
 
 #nullable enable
@@ -35,7 +34,6 @@ public class SkipDirective : GraphQlDirective
         AddArgument("if", @if);
     }
 }
-
 #endregion
 
 #region builder classes
@@ -3085,9 +3083,7 @@ public partial class GqlMutationGeneralResponseQueryBuilder : GraphQlQueryBuilde
     public GqlMutationGeneralResponseQueryBuilder ExceptError() => ExceptField("error");
 }
 #endregion
-#nullable restore
 
-#nullable enable
 #region input classes
 public partial class HomeProfileQuestionAnswer : IGraphQlInputObject
 {

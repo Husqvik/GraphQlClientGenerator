@@ -743,7 +743,6 @@ public enum Resolution
     [EnumMember(Value = "annual")] Annual,
     [EnumMember(Value = "monthly")] Monthly
 }
-
 #endregion
 
 #region directives
@@ -762,7 +761,6 @@ public class SkipDirective : GraphQlDirective
         AddArgument("if", @if);
     }
 }
-
 #endregion
 
 #region builder classes

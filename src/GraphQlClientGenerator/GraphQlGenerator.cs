@@ -111,13 +111,9 @@ using Newtonsoft.Json.Linq;
             builder.AppendLine("{");
 
             var memberBuilder = new StringBuilder();
-            GenerateQueryBuilders(schema, memberBuilder);
-
-            memberBuilder.AppendLine();
-            memberBuilder.AppendLine();
-
-            GenerateDataClasses(schema, memberBuilder);
-
+            using (var writer = new StringWriter(memberBuilder))
+                Generate(new SingleFileGenerationContext(schema, writer));
+            
             var indentedLines =
                 memberBuilder
                     .ToString()
@@ -132,74 +128,63 @@ using Newtonsoft.Json.Linq;
             return builder.ToString();
         }
 
-        private static bool IsComplexType(GraphQlTypeKind graphQlTypeKind) =>
-            graphQlTypeKind == GraphQlTypeKind.Object || graphQlTypeKind == GraphQlTypeKind.Interface || graphQlTypeKind == GraphQlTypeKind.Union;
-
-        private void GenerateEnumRegion(GraphQlSchema schema, TextWriter writer)
+        public void Generate(GenerationContext context)
         {
-            var enumTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKind.Enum && !t.Name.StartsWith("__")).ToArray();
+            context.BeforeGeneration(_configuration);
+
+            GenerateBaseClasses(context);
+
+            GenerateEnums(context);
+
+            GenerateDirectives(context);
+
+            GenerateQueryBuilders(context);
+
+            var referencedObjectTypes = GenerateInputObjects(context);
+
+            GenerateDataClasses(context, referencedObjectTypes);
+
+            context.AfterGeneration();
+        }
+
+        private void GenerateEnums(GenerationContext context)
+        {
+            var enumTypes = context.Schema.Types.Where(t => t.Kind == GraphQlTypeKind.Enum && !t.Name.StartsWith("__")).ToList();
             if (!enumTypes.Any())
                 return;
 
-            writer.WriteLine("#region shared types");
+            context.BeforeEnumsGeneration();
 
-            foreach (var type in enumTypes)
-            {
-                GenerateEnum(type, writer);
-                writer.WriteLine();
-            }
+            enumTypes.ForEach(t => GenerateEnum(context, t));
 
-            writer.WriteLine("#endregion");
-            writer.WriteLine();
+            context.AfterEnumsGeneration();
         }
 
-        public void GenerateQueryBuilders(GraphQlSchema schema, StringBuilder builder)
+        private void GenerateQueryBuilders(GenerationContext context)
         {
-            using var writer = new StringWriter(builder);
-            GenerateQueryBuilders(schema, writer);
+            if (!context.Options.HasFlag(GenerationOptions.QueryBuilders))
+                return;
+
+            context.BeforeQueryBuildersGeneration();
+
+            var complexTypes = context.Schema.Types.Where(t => IsComplexType(t.Kind) && !t.Name.StartsWith("__")).ToList();
+            var complexTypeDictionary = complexTypes.ToDictionary(t => t.Name);
+            complexTypes.ForEach(t => GenerateQueryBuilder(context, t, complexTypeDictionary));
+
+            context.AfterQueryBuildersGeneration();
         }
 
-        public void GenerateQueryBuilders(GraphQlSchema schema, TextWriter writer)
+        private static void GenerateBaseClasses(GenerationContext context)
         {
-            writer.WriteLine("#region base classes");
+            if (!context.Options.HasFlag(GenerationOptions.QueryBuilders))
+                return;
+
+            context.BeforeBaseClassGeneration();
 
             using (var reader = new StreamReader(typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses.cs")))
-                writer.WriteLine(reader.ReadToEnd());
+                context.Writer.WriteLine(reader.ReadToEnd());
 
-            writer.WriteLine("#endregion");
-            writer.WriteLine();
-
-            GenerateEnumRegion(schema, writer);
-
-            if (_configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences)
-                writer.WriteLine("#nullable enable");
-
-            var queryBuilderDirectives = schema.Directives.Where(t => SupportedDirectiveLocations.Overlaps(t.Locations)).ToArray();
-            if (queryBuilderDirectives.Any())
-            {
-                writer.WriteLine("#region directives");
-                GenerateDirectives(queryBuilderDirectives, writer);
-                writer.WriteLine("#endregion");
-                writer.WriteLine();
-            }
-
-            writer.WriteLine("#region builder classes");
-
-            var complexTypes = schema.Types.Where(t => IsComplexType(t.Kind) && !t.Name.StartsWith("__")).ToArray();
-            var complexTypeDictionary = complexTypes.ToDictionary(t => t.Name);
-            for (var i = 0; i < complexTypes.Length; i++)
-            {
-                var type = complexTypes[i];
-                GenerateTypeQueryBuilder(type, complexTypeDictionary, schema, writer);
-
-                if (i < complexTypes.Length - 1)
-                    writer.WriteLine();
-            }
-
-            writer.WriteLine("#endregion");
-
-            if (_configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences)
-                writer.WriteLine("#nullable restore");
+            context.AfterBaseClassGeneration();
         }
 
         private static void FindAllReferencedObjectTypes(GraphQlSchema schema, GraphQlType type, ISet<string> objectTypes)
@@ -229,138 +214,124 @@ using Newtonsoft.Json.Linq;
             }
         }
 
-        public void GenerateDataClasses(GraphQlSchema schema, StringBuilder builder)
+        private ICollection<string> GenerateInputObjects(GenerationContext context)
         {
-            using var writer = new StringWriter(builder);
-            GenerateDataClasses(schema, writer);
+            var referencedObjectTypes = new HashSet<string>();
+            if (!context.Options.HasFlag(GenerationOptions.DataClasses))
+                return referencedObjectTypes;
+
+            var schema = context.Schema;
+            var inputObjectTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKind.InputObject && !t.Name.StartsWith("__")).ToArray();
+            if (!inputObjectTypes.Any())
+                return referencedObjectTypes;
+
+            context.BeforeInputClassesGeneration();
+
+            foreach (var inputObject in inputObjectTypes)
+            {
+                FindAllReferencedObjectTypes(schema, inputObject, referencedObjectTypes);
+                GenerateDataClass(
+                    context,
+                    NamingHelper.ToPascalCase(inputObject.Name),
+                    inputObject.Description,
+                    "IGraphQlInputObject",
+                    writer => GenerateInputDataClassBody(inputObject, inputObject.InputFields.Cast<IGraphQlMember>().ToArray(), writer));
+            }
+
+            context.AfterInputClassesGeneration();
+            return referencedObjectTypes;
         }
 
-        public void GenerateDataClasses(GraphQlSchema schema, TextWriter writer)
+        private void GenerateDataClasses(GenerationContext context, ICollection<string> referencedObjectTypes)
         {
-            var inputTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKind.InputObject && !t.Name.StartsWith("__")).ToArray();
-            var hasInputType = inputTypes.Any();
-            var referencedObjectTypes = new HashSet<string>();
+            if (!context.Options.HasFlag(GenerationOptions.DataClasses))
+                return;
 
-            if (hasInputType)
-                writer.WriteLine();
-
-            if (_configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences)
-                writer.WriteLine("#nullable enable");
-
-            if (hasInputType)
-            {
-                writer.WriteLine("#region input classes");
-
-                for (var i = 0; i < inputTypes.Length; i++)
-                {
-                    var type = inputTypes[i];
-                    FindAllReferencedObjectTypes(schema, type, referencedObjectTypes);
-                    GenerateDataClass(NamingHelper.ToPascalCase(type.Name), type.Description, "IGraphQlInputObject", writer, () => GenerateInputDataClassBody(type, type.InputFields.Cast<IGraphQlMember>().ToArray(), writer));
-
-                    writer.WriteLine();
-
-                    if (i < inputTypes.Length - 1)
-                        writer.WriteLine();
-                }
-
-                writer.WriteLine("#endregion");
-            }
-
+            var schema = context.Schema;
             var complexTypes = schema.Types.Where(t => IsComplexType(t.Kind) && !t.Name.StartsWith("__")).ToArray();
-            if (complexTypes.Any())
+            if (!complexTypes.Any())
+                return;
+
+            var complexTypeDictionary = complexTypes.ToDictionary(t => t.Name);
+
+            context.BeforeDataClassesGeneration();
+
+            foreach (var complexType in complexTypes)
             {
-                if (hasInputType)
-                    writer.WriteLine();
+                var hasInputReference = referencedObjectTypes.Contains(complexType.Name);
+                var fieldsToGenerate = GetFieldsToGenerate(complexType, complexTypeDictionary);
+                var isInterface = complexType.Kind == GraphQlTypeKind.Interface;
+                var csharpTypeName = complexType.Name;
+                if (!UseCustomClassNameIfDefined(ref csharpTypeName))
+                    csharpTypeName = NamingHelper.ToPascalCase(csharpTypeName);
 
-                var complexTypeDictionary = complexTypes.ToDictionary(t => t.Name);
-
-                writer.WriteLine("#region data classes");
-
-                for (var i = 0; i < complexTypes.Length; i++)
+                void GenerateBody(TextWriter writer, bool isInterfaceMember)
                 {
-                    var type = complexTypes[i];
-                    var hasInputReference = referencedObjectTypes.Contains(type.Name);
-                    var fieldsToGenerate = GetFieldsToGenerate(type, complexTypeDictionary);
-                    var isInterface = type.Kind == GraphQlTypeKind.Interface;
-                    var csharpTypeName = type.Name;
-                    if (!UseCustomClassNameIfDefined(ref csharpTypeName))
-                        csharpTypeName = NamingHelper.ToPascalCase(csharpTypeName);
-
-                    void GenerateBody(bool isInterfaceMember)
+                    if (hasInputReference)
+                        GenerateInputDataClassBody(complexType, fieldsToGenerate, writer);
+                    else if (fieldsToGenerate != null)
                     {
-                        if (hasInputReference)
-                            GenerateInputDataClassBody(type, fieldsToGenerate, writer);
-                        else if (fieldsToGenerate != null)
+                        var generateBackingFields = _configuration.PropertyGeneration == PropertyGenerationOption.BackingField && !isInterfaceMember;
+                        if (generateBackingFields)
                         {
-                            var generateBackingFields = _configuration.PropertyGeneration == PropertyGenerationOption.BackingField && !isInterfaceMember;
-                            if (generateBackingFields)
+                            foreach (var field in fieldsToGenerate)
                             {
-                                foreach (var field in fieldsToGenerate)
-                                {
-                                    writer.Write("    private ");
-                                    writer.Write(GetDataPropertyType(type, field).NetTypeName);
-                                    writer.Write(" ");
-                                    writer.Write(GetBackingFieldName(field.Name));
-                                    writer.WriteLine(";");
-                                }
-
-                                writer.WriteLine();
+                                writer.Write("    private ");
+                                writer.Write(GetDataPropertyType(complexType, field).NetTypeName);
+                                writer.Write(" ");
+                                writer.Write(GetBackingFieldName(field.Name));
+                                writer.WriteLine(";");
                             }
 
-                            foreach (var field in fieldsToGenerate)
-                                GenerateDataProperty(
-                                    type,
-                                    field,
-                                    isInterfaceMember,
-                                    field.IsDeprecated,
-                                    field.DeprecationReason,
-                                    true,
-                                    (_, backingFieldName) =>
-                                        writer.Write(generateBackingFields ? _configuration.PropertyAccessorBodyWriter(backingFieldName, GetDataPropertyType(type, field)) : " { get; set; }"),
-                                    writer);
+                            writer.WriteLine();
                         }
+
+                        foreach (var field in fieldsToGenerate)
+                            GenerateDataProperty(
+                                complexType,
+                                field,
+                                isInterfaceMember,
+                                field.IsDeprecated,
+                                field.DeprecationReason,
+                                true,
+                                (_, backingFieldName) =>
+                                    writer.Write(generateBackingFields ? _configuration.PropertyAccessorBodyWriter(backingFieldName, GetDataPropertyType(complexType, field)) : " { get; set; }"),
+                                writer);
                     }
-
-                    var interfacesToImplement = new List<string>();
-                    if (isInterface)
-                    {
-                        interfacesToImplement.Add(GenerateInterface("I" + csharpTypeName, type.Description, writer, () => GenerateBody(true)));
-                        writer.WriteLine();
-                        writer.WriteLine();
-                    }
-                    else if (type.Interfaces?.Count > 0)
-                    {
-                        var fieldNames = new HashSet<string>(fieldsToGenerate.Select(f => f.Name));
-
-                        foreach (var @interface in type.Interfaces)
-                        {
-                            interfacesToImplement.Add("I" + @interface.Name + _configuration.ClassPostfix);
-
-                            foreach (var interfaceField in complexTypeDictionary[@interface.Name].Fields.Where(FilterDeprecatedFields))
-                                if (fieldNames.Add(interfaceField.Name))
-                                    fieldsToGenerate.Add(interfaceField);
-                        }
-                    }
-
-                    if (hasInputReference)
-                        interfacesToImplement.Add("IGraphQlInputObject");
-
-                    GenerateDataClass(csharpTypeName, type.Description, String.Join(", ", interfacesToImplement), writer, () => GenerateBody(false));
-
-                    writer.WriteLine();
-
-                    if (i < complexTypes.Length - 1)
-                        writer.WriteLine();
                 }
 
-                writer.WriteLine("#endregion");
+                var interfacesToImplement = new List<string>();
+                if (isInterface)
+                {
+                    interfacesToImplement.Add(GenerateInterface(context, "I" + csharpTypeName, complexType.Description, writer => GenerateBody(writer, true)));
+                }
+                else if (complexType.Interfaces?.Count > 0)
+                {
+                    var fieldNames = new HashSet<string>(fieldsToGenerate.Select(f => f.Name));
+
+                    foreach (var @interface in complexType.Interfaces)
+                    {
+                        interfacesToImplement.Add("I" + @interface.Name + _configuration.ClassPostfix);
+
+                        foreach (var interfaceField in complexTypeDictionary[@interface.Name].Fields.Where(FilterDeprecatedFields))
+                            if (fieldNames.Add(interfaceField.Name))
+                                fieldsToGenerate.Add(interfaceField);
+                    }
+                }
+
+                if (hasInputReference)
+                    interfacesToImplement.Add("IGraphQlInputObject");
+
+                GenerateDataClass(context, csharpTypeName, complexType.Description, String.Join(", ", interfacesToImplement), writer => GenerateBody(writer, false));
             }
 
-            if (_configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences)
-                writer.WriteLine("#nullable restore");
+            context.AfterDataClassesGeneration();
         }
 
         private static string GetBackingFieldName(string graphQlFieldName) => "_" + NamingHelper.LowerFirst(NamingHelper.ToPascalCase(graphQlFieldName));
+
+        private static bool IsComplexType(GraphQlTypeKind graphQlTypeKind) =>
+            graphQlTypeKind == GraphQlTypeKind.Object || graphQlTypeKind == GraphQlTypeKind.Interface || graphQlTypeKind == GraphQlTypeKind.Union;
 
         private void GenerateInputDataClassBody(GraphQlType type, IEnumerable<IGraphQlMember> members, TextWriter writer)
         {
@@ -443,16 +414,20 @@ using Newtonsoft.Json.Linq;
             writer.WriteLine("    }");
         }
 
-        private string GenerateInterface(string interfaceName, string interfaceDescription, TextWriter writer, Action generateInterfaceBody) =>
-            GenerateFileMember("interface", interfaceName, interfaceDescription, null, writer, generateInterfaceBody);
+        private string GenerateInterface(GenerationContext context, string interfaceName, string interfaceDescription, Action<TextWriter> generateInterfaceBody) =>
+            GenerateFileMember(context, "interface", interfaceName, interfaceDescription, null, generateInterfaceBody);
 
-        private string GenerateDataClass(string typeName, string typeDescription, string baseTypeName, TextWriter writer, Action generateClassBody) =>
-            GenerateFileMember((_configuration.GeneratePartialClasses ? "partial " : null) + "class", typeName, typeDescription, baseTypeName, writer, generateClassBody);
+        private string GenerateDataClass(GenerationContext context, string typeName, string typeDescription, string baseTypeName, Action<TextWriter> generateClassBody) =>
+            GenerateFileMember(context, (_configuration.GeneratePartialClasses ? "partial " : null) + "class", typeName, typeDescription, baseTypeName, generateClassBody);
 
-        private string GenerateFileMember(string memberType, string typeName, string typeDescription, string baseTypeName, TextWriter writer, Action generateFileMemberBody)
+        private string GenerateFileMember(GenerationContext context, string memberType, string typeName, string typeDescription, string baseTypeName, Action<TextWriter> generateFileMemberBody)
         {
-            var memberName = typeName + _configuration.ClassPostfix;
-            ValidateClassName(memberName);
+            typeName += _configuration.ClassPostfix;
+            ValidateClassName(typeName);
+
+            context.BeforeDataClassGeneration(typeName);
+
+            var writer = context.Writer;
 
             GenerateCodeComments(writer, typeDescription, 0);
 
@@ -460,7 +435,7 @@ using Newtonsoft.Json.Linq;
             writer.Write(" ");
             writer.Write(memberType);
             writer.Write(" ");
-            writer.Write(memberName);
+            writer.Write(typeName);
 
             if (!String.IsNullOrEmpty(baseTypeName))
             {
@@ -471,11 +446,13 @@ using Newtonsoft.Json.Linq;
             writer.WriteLine();
             writer.WriteLine("{");
 
-            generateFileMemberBody();
+            generateFileMemberBody(writer);
 
-            writer.Write("}");
+            writer.WriteLine("}");
 
-            return memberName;
+            context.AfterDataClassGeneration(typeName);
+
+            return typeName;
         }
 
         private static IEnumerable<GraphQlField> GetFragments(GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary)
@@ -689,13 +666,17 @@ using Newtonsoft.Json.Linq;
         private static void ThrowFieldTypeResolutionFailed(string typeName, string fieldName) =>
             throw new InvalidOperationException($"field type resolution failed - type: {typeName}; field: {fieldName}");
 
-        private void GenerateTypeQueryBuilder(GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary, GraphQlSchema schema, TextWriter writer)
+        private void GenerateQueryBuilder(GenerationContext context, GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary)
         {
+            var schema = context.Schema;
             var typeName = type.Name;
             var useCustomName = UseCustomClassNameIfDefined(ref typeName);
             var className = (useCustomName ? typeName : NamingHelper.ToPascalCase(typeName)) + "QueryBuilder" + _configuration.ClassPostfix;
             ValidateClassName(className);
 
+            context.BeforeQueryBuilderGeneration(className);
+
+            var writer = context.Writer;
             writer.Write(GetMemberAccessibility());
             writer.Write(" ");
 
@@ -956,6 +937,8 @@ using Newtonsoft.Json.Linq;
             }
 
             writer.WriteLine("}");
+
+            context.AfterQueryBuilderGeneration(className);
         }
 
         private string WriteDirectiveParameterList(GraphQlSchema schema, GraphQlDirectiveLocation directiveLocation, TextWriter writer)
@@ -1125,11 +1108,17 @@ using Newtonsoft.Json.Linq;
             }
         }
 
-        private void GenerateEnum(GraphQlType type, TextWriter writer)
+        private void GenerateEnum(GenerationContext context, GraphQlType type)
         {
+            var enumName = NamingHelper.ToPascalCase(type.Name);
+            
+            context.BeforeEnumGeneration(enumName);
+            
+            var writer = context.Writer;
+
             GenerateCodeComments(writer, type.Description, 0);
             writer.Write("public enum ");
-            writer.WriteLine(NamingHelper.ToPascalCase(type.Name));
+            writer.WriteLine(enumName);
             writer.WriteLine("{");
 
             var enumValues = type.EnumValues.ToList();
@@ -1151,6 +1140,8 @@ using Newtonsoft.Json.Linq;
             }
 
             writer.WriteLine("}");
+
+            context.AfterEnumGeneration(enumName);
         }
 
         private static readonly HashSet<GraphQlDirectiveLocation> SupportedDirectiveLocations =
@@ -1163,20 +1154,31 @@ using Newtonsoft.Json.Linq;
                 GraphQlDirectiveLocation.Subscription
             };
 
-        private void GenerateDirectives(IEnumerable<GraphQlDirective> directives, TextWriter writer)
+        private void GenerateDirectives(GenerationContext context)
         {
-            foreach (var directive in directives)
-            {
-                GenerateDirective(directive, writer);
-                writer.WriteLine();
-            }
+            if (!context.Options.HasFlag(GenerationOptions.QueryBuilders))
+                return;
+
+            var queryBuilderDirectives = context.Schema.Directives.Where(t => SupportedDirectiveLocations.Overlaps(t.Locations)).ToList();
+            if (!queryBuilderDirectives.Any())
+                return;
+
+            context.BeforeDirectivesGeneration();
+
+            queryBuilderDirectives.ForEach(d => GenerateDirective(context, d));
+
+            context.AfterDirectivesGeneration();
         }
 
-        private void GenerateDirective(GraphQlDirective directive, TextWriter writer)
+        private void GenerateDirective(GenerationContext context, GraphQlDirective directive)
         {
-            GenerateCodeComments(writer, directive.Description, 0);
-
             var directiveName = NamingHelper.ToPascalCase(directive.Name);
+
+            context.BeforeDirectiveGeneration(directiveName);
+
+            var writer = context.Writer;
+
+            GenerateCodeComments(writer, directive.Description, 0);
 
             var orderedArgumentDefinitions = directive.Args.OrderByDescending(a => a.Type.Kind == GraphQlTypeKind.NonNull).Select(a => BuildMethodParameterDefinition(null, a)).ToArray();
             var argumentList = String.Join(", ", orderedArgumentDefinitions.Select(d => d.NetParameterDefinitionClause));
@@ -1206,6 +1208,8 @@ using Newtonsoft.Json.Linq;
 
             writer.WriteLine("    }");
             writer.WriteLine("}");
+
+            context.AfterDirectiveGeneration(directiveName);
         }
 
         private void GenerateCodeComments(TextWriter writer, string description, int offset)

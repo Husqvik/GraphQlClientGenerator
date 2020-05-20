@@ -66,7 +66,6 @@ public enum AppScreen
     [EnumMember(Value = "NOTIFICATIONS")] Notifications,
     [EnumMember(Value = "INVOICES")] Invoices
 }
-
 #endregion
 
 #region directives
@@ -85,7 +84,6 @@ public class IncludeDirective : GraphQlDirective
         AddArgument("if", @if);
     }
 }
-
 #endregion
 
 #region builder classes
