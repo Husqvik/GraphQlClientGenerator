@@ -35,8 +35,8 @@ var schema = await GraphQlGenerator.RetrieveSchema(url);
 
 var generator = new GraphQlGenerator();
 var builder = new StringBuilder();
-generator.GenerateQueryBuilder(schema, builder);
-generator.GenerateDataClasses(schema, builder);
+using (var writer = new StringWriter(builder))
+  generator.Generate(new SingleFileGenerationContext(schema, writer));
 
 var generatedClasses = builder.ToString();
 ```
