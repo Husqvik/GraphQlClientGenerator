@@ -1,9 +1,12 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace GraphQlClientGenerator
 {
     public class SingleFileGenerationContext : GenerationContext
     {
+        private readonly string _indentation;
+
         private bool _isNullableReferenceScopeEnabled;
         private int _enums;
         private int _directives;
@@ -15,7 +18,8 @@ namespace GraphQlClientGenerator
         public SingleFileGenerationContext(GraphQlSchema schema, TextWriter writer, GeneratedObjectType objectTypes = GeneratedObjectType.DataClasses | GeneratedObjectType.QueryBuilders, byte indentationSize = 0)
             : base(schema, objectTypes, indentationSize)
         {
-            Writer = writer;
+            Writer = writer ?? throw new ArgumentNullException(nameof(writer));
+            _indentation = new String(' ', indentationSize);
         }
 
         public override void BeforeGeneration(GraphQlGeneratorConfiguration configuration)
@@ -26,16 +30,16 @@ namespace GraphQlClientGenerator
 
         public override void BeforeBaseClassGeneration()
         {
-            Writer.WriteLine("#region base classes");
+            WriteLine("#region base classes");
         }
 
         public override void AfterBaseClassGeneration()
         {
-            Writer.WriteLine("#endregion");
+            WriteLine("#endregion");
             Writer.WriteLine();
         }
 
-        public override void BeforeEnumsGeneration() => Writer.WriteLine("#region shared types");
+        public override void BeforeEnumsGeneration() => WriteLine("#region shared types");
 
         public override void BeforeEnumGeneration(string enumName)
         {
@@ -47,14 +51,14 @@ namespace GraphQlClientGenerator
 
         public override void AfterEnumsGeneration()
         {
-            Writer.WriteLine("#endregion");
+            WriteLine("#endregion");
             Writer.WriteLine();
         }
 
         public override void BeforeDirectivesGeneration()
         {
             EnterNullableReferenceScope();
-            Writer.WriteLine("#region directives");
+            WriteLine("#region directives");
         }
 
         public override void BeforeDirectiveGeneration(string className)
@@ -67,14 +71,14 @@ namespace GraphQlClientGenerator
 
         public override void AfterDirectivesGeneration()
         {
-            Writer.WriteLine("#endregion");
+            WriteLine("#endregion");
             Writer.WriteLine();
         }
 
         public override void BeforeQueryBuildersGeneration()
         {
             EnterNullableReferenceScope();
-            Writer.WriteLine("#region builder classes");
+            WriteLine("#region builder classes");
         }
 
         public override void BeforeQueryBuilderGeneration(string className)
@@ -87,19 +91,19 @@ namespace GraphQlClientGenerator
 
         public override void AfterQueryBuildersGeneration()
         {
-            Writer.WriteLine("#endregion");
+            WriteLine("#endregion");
             Writer.WriteLine();
         }
 
         public override void BeforeInputClassesGeneration()
         {
             EnterNullableReferenceScope();
-            Writer.WriteLine("#region input classes");
+            WriteLine("#region input classes");
         }
 
         public override void AfterInputClassesGeneration()
         {
-            Writer.WriteLine("#endregion");
+            WriteLine("#endregion");
             Writer.WriteLine();
         }
 
@@ -107,7 +111,7 @@ namespace GraphQlClientGenerator
         {
             _dataClasses = 0;
             EnterNullableReferenceScope();
-            Writer.WriteLine("#region data classes");
+            WriteLine("#region data classes");
         }
 
         public override void BeforeDataClassGeneration(string className)
@@ -118,7 +122,7 @@ namespace GraphQlClientGenerator
 
         public override void AfterDataClassGeneration(string className) => _dataClasses++;
 
-        public override void AfterDataClassesGeneration() => Writer.WriteLine("#endregion");
+        public override void AfterDataClassesGeneration() => WriteLine("#endregion");
 
         public override void AfterGeneration() => ExitNullableReferenceScope();
 
@@ -127,7 +131,7 @@ namespace GraphQlClientGenerator
             if (_isNullableReferenceScopeEnabled || Configuration.CSharpVersion != CSharpVersion.NewestWithNullableReferences)
                 return;
 
-            Writer.WriteLine("#nullable enable");
+            WriteLine("#nullable enable");
             _isNullableReferenceScopeEnabled = true;
         }
 
@@ -138,6 +142,12 @@ namespace GraphQlClientGenerator
 
             Writer.WriteLine("#nullable restore");
             _isNullableReferenceScopeEnabled = false;
+        }
+
+        private void WriteLine(string text)
+        {
+            Writer.Write(_indentation);
+            Writer.WriteLine(text);
         }
     }
 }

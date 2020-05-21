@@ -35,7 +35,14 @@ namespace GraphQlClientGenerator.Test
         [Fact]
         public void GenerateFullClientCSharpFile()
         {
-            var generatedSourceCode = new GraphQlGenerator().GenerateFullClientCSharpFile(TestSchema, "GraphQlGeneratorTest");
+            var configuration =
+                new GraphQlGeneratorConfiguration
+                {
+                    CommentGeneration = CommentGenerationOption.CodeSummary | CommentGenerationOption.DescriptionAttribute
+                };
+            
+            var generator = new GraphQlGenerator(configuration);
+            var generatedSourceCode = generator.GenerateFullClientCSharpFile(TestSchema, "GraphQlGeneratorTest");
 
             var expectedOutput = GetTestResource("ExpectedFullClientCSharpFile");
             generatedSourceCode.ShouldBe(expectedOutput);

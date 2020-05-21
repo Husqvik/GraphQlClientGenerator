@@ -113,19 +113,9 @@ using Newtonsoft.Json.Linq;
             builder.AppendLine(@namespace);
             builder.AppendLine("{");
 
-            var memberBuilder = new StringBuilder();
-            using (var writer = new StringWriter(memberBuilder))
-                Generate(new SingleFileGenerationContext(schema, writer, indentationSize: 0));
+            using (var writer = new StringWriter(builder))
+                Generate(new SingleFileGenerationContext(schema, writer, indentationSize: 4));
             
-            var indentedLines =
-                memberBuilder
-                    .ToString()
-                    .Split(new[] { Environment.NewLine }, StringSplitOptions.None)
-                    .Select(l => "    " + l);
-
-            foreach (var line in indentedLines)
-                builder.AppendLine(line);
-
             builder.AppendLine("}");
 
             return builder.ToString();
@@ -581,9 +571,12 @@ using Newtonsoft.Json.Linq;
 
             GenerateCodeComments(writer, member.Description, context.Indentation + 4);
 
+            var indentation = GetIndentation(context.Indentation);
+
             if (isDeprecated)
             {
                 deprecationReason = String.IsNullOrWhiteSpace(deprecationReason) ? null : $"(@\"{deprecationReason.Replace("\"", "\"\"")}\")";
+                writer.Write(indentation);
                 writer.WriteLine($"    [Obsolete{deprecationReason}]");
             }
 
@@ -602,22 +595,36 @@ using Newtonsoft.Json.Linq;
 
             if (!isInterfaceMember && decorateWithJsonProperty)
             {
+                writer.Write(indentation);
                 writer.Write("    #if !");
                 writer.WriteLine(PreprocessorDirectiveDisableNewtonsoftJson);
+                writer.Write(indentation);
                 writer.WriteLine($"    [JsonProperty(\"{member.Name}\")]");
+                writer.Write(indentation);
                 writer.WriteLine("    #endif");
             }
 
             if (baseType.Kind == GraphQlTypeKind.InputObject)
             {
+                writer.Write(indentation);
                 writer.Write("    #if !");
                 writer.WriteLine(PreprocessorDirectiveDisableNewtonsoftJson);
+                writer.Write(indentation);
                 writer.WriteLine($"    [JsonConverter(typeof(QueryBuilderParameterConverter<{propertyTypeName}>))]");
+                writer.Write(indentation);
                 writer.WriteLine("    #endif");
                 propertyTypeName = AddQuestionMarkIfNullableReferencesEnabled($"QueryBuilderParameter<{propertyTypeName}>");
             }
-            
-            writer.Write($"    {(isInterfaceMember ? null : "public ")}{propertyTypeName} {propertyName}");
+
+            writer.Write(indentation);
+            writer.Write("    ");
+
+            if (!isInterfaceMember)
+                writer.Write("public ");
+
+            writer.Write(propertyTypeName);
+            writer.Write(" ");
+            writer.Write(propertyName);
 
             writeBody(new ScalarFieldTypeDescription { NetTypeName = propertyTypeName, FormatMask = propertyTypeDescription.FormatMask }, GetBackingFieldName(member.Name));
 
@@ -924,7 +931,7 @@ using Newtonsoft.Json.Linq;
                         writer,
                         () =>
                         {
-                            AppendArgumentDictionary(writer, argumentDefinitions);
+                            AppendArgumentDictionary(indentation, writer, argumentDefinitions);
 
                             writer.Write(returnPrefix);
                             writer.Write("WithScalarField(\"");
@@ -965,7 +972,7 @@ using Newtonsoft.Json.Linq;
                         writer,
                         () =>
                         {
-                            AppendArgumentDictionary(writer, argumentDefinitions);
+                            AppendArgumentDictionary(indentation, writer, argumentDefinitions);
 
                             writer.Write(returnPrefix);
                             writer.Write("With");
@@ -1141,11 +1148,12 @@ using Newtonsoft.Json.Linq;
                 throw new InvalidOperationException($"Resulting class name '{className}' is not valid. ");
         }
 
-        private static void AppendArgumentDictionary(TextWriter writer, ICollection<QueryBuilderParameterDefinition> argumentDefinitions)
+        private static void AppendArgumentDictionary(string indentation, TextWriter writer, ICollection<QueryBuilderParameterDefinition> argumentDefinitions)
         {
             if (argumentDefinitions.Count == 0)
                 return;
 
+            writer.Write(indentation);
             writer.WriteLine("        var args = new List<QueryBuilderArgumentInfo>();");
 
             static void WriteAddKeyValuePair(TextWriter writer, QueryBuilderParameterDefinition argumentDefinition)
@@ -1168,6 +1176,8 @@ using Newtonsoft.Json.Linq;
 
             foreach (var argumentDefinition in argumentDefinitions)
             {
+                writer.Write(indentation);
+
                 if (argumentDefinition.Argument.Type.Kind == GraphQlTypeKind.NonNull)
                 {
                     writer.Write("        ");
@@ -1178,6 +1188,7 @@ using Newtonsoft.Json.Linq;
                     writer.Write("        if (");
                     writer.Write(argumentDefinition.NetParameterName);
                     writer.WriteLine(" != null)");
+                    writer.Write(indentation);
                     writer.Write("            ");
                     WriteAddKeyValuePair(writer, argumentDefinition);
                     writer.WriteLine();
