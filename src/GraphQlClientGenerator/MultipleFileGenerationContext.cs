@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace GraphQlClientGenerator
@@ -31,13 +32,20 @@ using Newtonsoft.Json;
 #endif
 ";
 
+        private readonly List<FileInfo> _files = new List<FileInfo>();
+
         private readonly string _outputDirectory;
         private readonly string _namespace;
         private readonly string _projectFileName;
 
+        private string _currentFileName;
         private TextWriter _currentWriter;
         
         public override byte Indentation { get; } = 4;
+
+        public override TextWriter Writer => _currentWriter;
+
+        public IReadOnlyCollection<FileInfo> Files => _files;
 
         public MultipleFileGenerationContext(
             GraphQlSchema schema,
@@ -58,7 +66,11 @@ using Newtonsoft.Json;
             _projectFileName = projectFileName;
         }
 
-        public override TextWriter Writer => _currentWriter;
+        public override void BeforeGeneration(GraphQlGeneratorConfiguration configuration)
+        {
+            _files.Clear();
+            base.BeforeGeneration(configuration);
+        }
 
         public override void BeforeBaseClassGeneration() => InitializeNewSourceCodeFile("BaseClasses", GraphQlGenerator.RequiredNamespaces);
 
@@ -125,14 +137,28 @@ using Newtonsoft.Json;
             _currentWriter?.Dispose();
             _currentWriter = null;
 
-            if (!String.IsNullOrEmpty(_projectFileName))
-                File.WriteAllText(Path.Combine(_outputDirectory, _projectFileName), ProjectTemplate);
+            CollectFileInfo();
+
+            _currentFileName = null;
+
+            if (String.IsNullOrEmpty(_projectFileName))
+                return;
+
+            var projectFileName = Path.Combine(_outputDirectory, _projectFileName);
+            File.WriteAllText(projectFileName, ProjectTemplate);
+            _files.Add(new FileInfo(projectFileName));
         }
 
         private void InitializeNewSourceCodeFile(string memberName, string requiredNamespaces = RequiredNamespaces)
         {
-            _currentWriter?.Dispose();
-            _currentWriter = File.CreateText(Path.Combine(_outputDirectory, memberName + ".cs"));
+            if (_currentWriter != null)
+            {
+                _currentWriter.Dispose();
+                CollectFileInfo();
+            }
+            
+            _currentFileName = Path.Combine(_outputDirectory, memberName + ".cs");
+            _currentWriter = File.CreateText(_currentFileName);
             _currentWriter.WriteLine(requiredNamespaces);
             _currentWriter.Write("namespace ");
             _currentWriter.WriteLine(_namespace);
@@ -140,5 +166,7 @@ using Newtonsoft.Json;
         }
 
         private void WriteNamespaceEnd() => _currentWriter.WriteLine("}");
+
+        private void CollectFileInfo() => _files.Add(new FileInfo(_currentFileName));
     }
 }

@@ -1,11 +1,12 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace GraphQlClientGenerator.Console
 {
     internal static class GraphQlCSharpFileHelper
     {
-        public static async Task<FileInfo> GenerateClientCSharpFile(ProgramOptions options)
+        public static async Task<IReadOnlyCollection<FileInfo>> GenerateClientSourceCode(ProgramOptions options)
         {
             var schema = await GraphQlGenerator.RetrieveSchema(options.ServiceUrl, options.Authorization);
             var generatorConfiguration =
@@ -18,8 +19,16 @@ namespace GraphQlClientGenerator.Console
                 };
             
             var generator = new GraphQlGenerator(generatorConfiguration);
-            await File.WriteAllTextAsync(options.OutputFileName, generator.GenerateFullClientCSharpFile(schema, options.Namespace));
-            return new FileInfo(options.OutputFileName);
+
+            if (options.OutputType == OutputType.SingleFile)
+            {
+                await File.WriteAllTextAsync(options.OutputPath, generator.GenerateFullClientCSharpFile(schema, options.Namespace));
+                return new[] { new FileInfo(options.OutputPath) };
+            }
+
+            var multipleFileGenerationContext = new MultipleFileGenerationContext(schema, options.OutputPath, options.Namespace);
+            generator.Generate(multipleFileGenerationContext);
+            return multipleFileGenerationContext.Files;
         }
     }
 }

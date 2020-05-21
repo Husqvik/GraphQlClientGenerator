@@ -30,8 +30,9 @@ namespace GraphQlClientGenerator.Console
         {
             try
             {
-                var fileInfo = await GraphQlCSharpFileHelper.GenerateClientCSharpFile(options);
-                System.Console.WriteLine($"File {options.OutputFileName} generated successfully ({fileInfo.Length:N0} B). ");
+                var files = await GraphQlCSharpFileHelper.GenerateClientSourceCode(options);
+                foreach (var file in files)
+                    System.Console.WriteLine($"File {file.FullName} generated successfully ({file.Length:N0} B). ");
             }
             catch (Exception exception)
             {

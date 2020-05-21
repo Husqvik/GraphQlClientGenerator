@@ -2,13 +2,19 @@
 
 namespace GraphQlClientGenerator.Console
 {
+    public enum OutputType
+    {
+        SingleFile,
+        OneClassPerFile
+    }
+
     public class ProgramOptions
     {
         [Option('u', "serviceUrl", Required = true, HelpText = "GraphQL service URL used for retrieving schema metadata")]
         public string ServiceUrl { get; set; }
 
-        [Option('o', "outputFileName", Required = true, HelpText = "Output file name")]
-        public string OutputFileName { get; set; }
+        [Option('o', "outputPath", Required = true, HelpText = "Output path")]
+        public string OutputPath { get; set; }
 
         [Option('n', "namespace", Required = true, HelpText = "Root namespace all classes and other members are generated to")]
         public string Namespace { get; set; }
@@ -24,6 +30,9 @@ namespace GraphQlClientGenerator.Console
 
         [Option("memberAccessibility", Required = false, HelpText = "Class and interface access level; allowed values: " + nameof(MemberAccessibility.Public) + " (default), " + nameof(MemberAccessibility.Internal))]
         public MemberAccessibility MemberAccessibility { get; set; }
+
+        [Option("outputType", Required = false, HelpText = "Specifies generated classes organization; allowed values: " + nameof(OutputType.SingleFile) + " (default), " + nameof(OutputType.OneClassPerFile))]
+        public OutputType OutputType { get; set; }
 
         [Option("partialClasses", Required = false, HelpText = "Mark classes as \"partial\"")]
         public bool PartialClasses { get; set; }
