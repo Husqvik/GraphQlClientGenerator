@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="ExpectedFullClientCSharpFile" />
     <EmbeddedResource Include="ExpectedDataClasses" />
     <EmbeddedResource Include="ExpectedDataClassesWithTypeConfiguration" />
     <EmbeddedResource Include="ExpectedNewCSharpSyntaxWithClassPostfix" />

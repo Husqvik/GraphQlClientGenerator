@@ -32,13 +32,8 @@ graphql-client-generator --serviceUrl <GraphQlServiceUrl> --outputFileName <Targ
 Code example for class generation:
 ```csharp
 var schema = await GraphQlGenerator.RetrieveSchema(url);
-
 var generator = new GraphQlGenerator();
-var builder = new StringBuilder();
-using (var writer = new StringWriter(builder))
-  generator.Generate(new SingleFileGenerationContext(schema, writer));
-
-var generatedClasses = builder.ToString();
+var generatedClasses = generator.Generate(schema);
 ```
 
 or

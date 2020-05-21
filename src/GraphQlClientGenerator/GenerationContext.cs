@@ -4,7 +4,7 @@ using System.IO;
 namespace GraphQlClientGenerator
 {
     [Flags]
-    public enum GenerationOptions
+    public enum GeneratedObjectType
     {
         QueryBuilders = 1,
         DataClasses = 2
@@ -14,20 +14,23 @@ namespace GraphQlClientGenerator
     {
         public GraphQlSchema Schema { get; }
 
-        public GenerationOptions Options { get; }
+        public GeneratedObjectType ObjectTypes { get; }
+
+        public virtual byte Indentation { get; }
 
         public abstract TextWriter Writer { get; }
 
         protected GraphQlGeneratorConfiguration Configuration { get; private set; }
 
-        protected GenerationContext(GraphQlSchema schema, GenerationOptions options)
+        protected GenerationContext(GraphQlSchema schema, GeneratedObjectType objectTypes, byte indentationSize)
         {
-            var optionsInteger = (int)options;
+            var optionsInteger = (int)objectTypes;
             if (optionsInteger != 1 && optionsInteger != 2 && optionsInteger != 3)
-                throw new ArgumentException("invalid value", nameof(options));
+                throw new ArgumentException("invalid value", nameof(objectTypes));
 
-            Schema = schema;
-            Options = options;
+            Schema = schema ?? throw new ArgumentNullException(nameof(schema));
+            ObjectTypes = objectTypes;
+            Indentation = indentationSize;
         }
 
         public virtual void BeforeGeneration(GraphQlGeneratorConfiguration configuration) => Configuration = configuration;

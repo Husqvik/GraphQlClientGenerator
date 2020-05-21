@@ -24,12 +24,21 @@ namespace GraphQlClientGenerator.Test
         private static GraphQlSchema DeserializeTestSchema(string resourceName) =>
             GraphQlGenerator.DeserializeGraphQlSchema(GetTestResource(resourceName));
 
-        private static GenerationContext CreateGenerationContext(StringBuilder builder, GraphQlSchema schema, GenerationOptions options = GenerationOptions.QueryBuilders | GenerationOptions.DataClasses) =>
+        private static GenerationContext CreateGenerationContext(StringBuilder builder, GraphQlSchema schema, GeneratedObjectType options = GeneratedObjectType.QueryBuilders | GeneratedObjectType.DataClasses) =>
             new SingleFileGenerationContext(schema, new StringWriter(builder), options);
 
         public GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         {
             _outputHelper = outputHelper;
+        }
+
+        [Fact]
+        public void GenerateFullClientCSharpFile()
+        {
+            var generatedSourceCode = new GraphQlGenerator().GenerateFullClientCSharpFile(TestSchema, "GraphQlGeneratorTest");
+
+            var expectedOutput = GetTestResource("ExpectedFullClientCSharpFile");
+            generatedSourceCode.ShouldBe(expectedOutput);
         }
 
         [Fact]
@@ -39,7 +48,7 @@ namespace GraphQlClientGenerator.Test
             configuration.CustomClassNameMapping.Add("AwayMode", "VacationMode");
 
             var stringBuilder = new StringBuilder();
-            new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GenerationOptions.QueryBuilders));
+            new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GeneratedObjectType.QueryBuilders));
 
             var expectedQueryBuilders = GetTestResource("ExpectedQueryBuilders");
             var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
@@ -53,7 +62,7 @@ namespace GraphQlClientGenerator.Test
             configuration.CustomClassNameMapping.Add("AwayMode", "VacationMode");
 
             var stringBuilder = new StringBuilder();
-            new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GenerationOptions.DataClasses));
+            new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GeneratedObjectType.DataClasses));
 
             var expectedDataClasses = GetTestResource("ExpectedDataClasses");
             stringBuilder.ToString().ShouldBe(expectedDataClasses);
@@ -80,7 +89,7 @@ namespace GraphQlClientGenerator.Test
                         : configuration.DefaultScalarFieldTypeMapping(baseType, valueType, valueName);
 
             var stringBuilder = new StringBuilder();
-            new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GenerationOptions.DataClasses));
+            new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GeneratedObjectType.DataClasses));
 
             var expectedDataClasses = GetTestResource("ExpectedDataClassesWithTypeConfiguration");
             stringBuilder.ToString().ShouldBe(expectedDataClasses);
@@ -139,10 +148,10 @@ namespace GraphQlClientGenerator.Test
             generator.Generate(CreateGenerationContext(stringBuilder, schema));
 
             var expectedOutput = GetTestResource("ExpectedNewCSharpSyntaxWithClassPostfix");
-            var generatedSourceCode = stringBuilder.ToString();
+            var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
             generatedSourceCode.ShouldBe(expectedOutput);
 
-            CompileIntoAssembly(generatedSourceCode, "GraphQLTestAssembly");
+            CompileIntoAssembly(stringBuilder.ToString(), "GraphQLTestAssembly");
 
             Type.GetType("GraphQLTestAssembly.GraphQlQueryBuilder, GraphQLTestAssembly").ShouldNotBeNull();
         }
@@ -381,7 +390,7 @@ namespace GraphQlClientGenerator.Test
             var schema = DeserializeTestSchema("TestSchemaWithDeprecatedFields");
 
             var stringBuilder = new StringBuilder();
-            new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, schema, GenerationOptions.DataClasses));
+            new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, schema, GeneratedObjectType.DataClasses));
             var expectedOutput = GetTestResource("ExpectedDeprecatedAttributes").Replace("\r", String.Empty);
             stringBuilder.ToString().Replace("\r", String.Empty).ShouldBe(expectedOutput);
         }

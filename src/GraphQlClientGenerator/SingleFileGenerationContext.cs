@@ -12,9 +12,11 @@ namespace GraphQlClientGenerator
 
         public override TextWriter Writer { get; }
 
-        public SingleFileGenerationContext(GraphQlSchema schema, TextWriter writer, GenerationOptions options = GenerationOptions.DataClasses | GenerationOptions.QueryBuilders)
-            : base(schema, options) =>
+        public SingleFileGenerationContext(GraphQlSchema schema, TextWriter writer, GeneratedObjectType objectTypes = GeneratedObjectType.DataClasses | GeneratedObjectType.QueryBuilders, byte indentationSize = 0)
+            : base(schema, objectTypes, indentationSize)
+        {
             Writer = writer;
+        }
 
         public override void BeforeGeneration(GraphQlGeneratorConfiguration configuration)
         {
