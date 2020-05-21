@@ -33,6 +33,190 @@ namespace GraphQlClientGenerator.Test
         }
 
         [Fact]
+        public void MultipleFileGeneration()
+        {
+            var configuration =
+                new GraphQlGeneratorConfiguration
+                {
+                    CommentGeneration = CommentGenerationOption.CodeSummary | CommentGenerationOption.DescriptionAttribute,
+                    CSharpVersion = CSharpVersion.Newest
+                };
+
+            var generator = new GraphQlGenerator(configuration);
+
+            var tempPath = Path.GetTempPath();
+            var directoryInfo = Directory.CreateDirectory(Path.Combine(tempPath, "GraphQlGeneratorTest"));
+
+            try
+            {
+                var context = new MultipleFileGenerationContext(DeserializeTestSchema("TestSchema2"), directoryInfo.FullName, "GraphQlGeneratorTest", "GraphQlGeneratorTest.csproj");
+                generator.Generate(context);
+
+                var files = directoryInfo.GetFiles().OrderBy(f => f.Name).ToArray();
+                var fileNames = files.Select(f => f.Name);
+                fileNames.ShouldBe(
+                    new[]
+                    {
+                        "About.cs",
+                        "AboutItem.cs",
+                        "AboutItemQueryBuilder.cs",
+                        "AboutQueryBuilder.cs",
+                        "Address.cs",
+                        "AddressQueryBuilder.cs",
+                        "AppState.cs",
+                        "AppStateFronScreen.cs",
+                        "AppStateFronScreenMutation.cs",
+                        "AppStateFronScreenQueryBuilder.cs",
+                        "AppStateJourney.cs",
+                        "AppStateJourneyMutation.cs",
+                        "AppStateJourneyQueryBuilder.cs",
+                        "AppStateMutation.cs",
+                        "AppStateQueryBuilder.cs",
+                        "Avatar.cs",
+                        "AwayMode.cs",
+                        "AwayModeQueryBuilder.cs",
+                        "AwayModeSettings.cs",
+                        "AwayModeSettingsQueryBuilder.cs",
+                        "BaseClasses.cs",
+                        "Comparison.cs",
+                        "ComparisonData.cs",
+                        "ComparisonDataQueryBuilder.cs",
+                        "ComparisonQueryBuilder.cs",
+                        "Consumption.cs",
+                        "ConsumptionMonth.cs",
+                        "ConsumptionMonthQueryBuilder.cs",
+                        "ConsumptionQueryBuilder.cs",
+                        "CreditCard.cs",
+                        "CreditCardQueryBuilder.cs",
+                        "DayNightSchedule.cs",
+                        "DayNightScheduleQueryBuilder.cs",
+                        "DayNightScheduleSettings.cs",
+                        "DayNightScheduleSettingsQueryBuilder.cs",
+                        "Disaggregation.cs",
+                        "DisaggregationQueryBuilder.cs",
+                        "EnergyDeal.cs",
+                        "EnergyDealQueryBuilder.cs",
+                        "Feed.cs",
+                        "FeedItem.cs",
+                        "FeedItemQueryBuilder.cs",
+                        "FeedQueryBuilder.cs",
+                        "GqlMutationError.cs",
+                        "GqlMutationErrorQueryBuilder.cs",
+                        "GqlMutationGeneralResponse.cs",
+                        "GqlMutationGeneralResponseQueryBuilder.cs",
+                        "GraphQlGeneratorTest.csproj",
+                        "Greeting.cs",
+                        "GreetingQueryBuilder.cs",
+                        "Home.cs",
+                        "HomeMutation.cs",
+                        "HomeMutationQueryBuilder.cs",
+                        "HomeProfileQuestion.cs",
+                        "HomeProfileQuestionAnswer.cs",
+                        "HomeProfileQuestionInput.cs",
+                        "HomeProfileQuestionInputQueryBuilder.cs",
+                        "HomeProfileQuestionQueryBuilder.cs",
+                        "HomeQueryBuilder.cs",
+                        "IncludeDirective.cs",
+                        "Invoice.cs",
+                        "InvoicePayment.cs",
+                        "InvoicePaymentQueryBuilder.cs",
+                        "InvoiceQueryBuilder.cs",
+                        "InvoiceSection.cs",
+                        "InvoiceSectionQueryBuilder.cs",
+                        "Me.cs",
+                        "MeMutation.cs",
+                        "MeMutationQueryBuilder.cs",
+                        "MeQueryBuilder.cs",
+                        "Mutation.cs",
+                        "MutationQueryBuilder.cs",
+                        "PairableDevice.cs",
+                        "PairableDeviceOAuth.cs",
+                        "PairableDeviceOAuthQueryBuilder.cs",
+                        "PairableDeviceQueryBuilder.cs",
+                        "PairDeviceResult.cs",
+                        "PairDeviceResultQueryBuilder.cs",
+                        "PaymentMethod.cs",
+                        "PaymentMethodQueryBuilder.cs",
+                        "PreLiveComparison.cs",
+                        "PreLiveComparisonQueryBuilder.cs",
+                        "PriceRating.cs",
+                        "PriceRatingColorOffset.cs",
+                        "PriceRatingColorOffsetQueryBuilder.cs",
+                        "PriceRatingEntry.cs",
+                        "PriceRatingEntryQueryBuilder.cs",
+                        "PriceRatingQueryBuilder.cs",
+                        "PriceRatingRoot.cs",
+                        "PriceRatingRootQueryBuilder.cs",
+                        "ProcessStep.cs",
+                        "ProcessStepQueryBuilder.cs",
+                        "Producer.cs",
+                        "ProducerBullet.cs",
+                        "ProducerBulletQueryBuilder.cs",
+                        "ProducerQueryBuilder.cs",
+                        "Production.cs",
+                        "ProductionMonth.cs",
+                        "ProductionMonthQueryBuilder.cs",
+                        "ProductionQueryBuilder.cs",
+                        "ProductionValue.cs",
+                        "ProductionValueQueryBuilder.cs",
+                        "PushNotification.cs",
+                        "PushNotificationQueryBuilder.cs",
+                        "Query.cs",
+                        "QueryQueryBuilder.cs",
+                        "Report.cs",
+                        "ReportCell.cs",
+                        "ReportCellQueryBuilder.cs",
+                        "ReportQueryBuilder.cs",
+                        "ReportRoot.cs",
+                        "ReportRootQueryBuilder.cs",
+                        "Resolution.cs",
+                        "Sensor.cs",
+                        "SensorHistory.cs",
+                        "SensorHistoryQueryBuilder.cs",
+                        "SensorHistoryValue.cs",
+                        "SensorHistoryValueQueryBuilder.cs",
+                        "SensorQueryBuilder.cs",
+                        "SignupStatus.cs",
+                        "SignupStatusQueryBuilder.cs",
+                        "SkipDirective.cs",
+                        "Subscription.cs",
+                        "SubscriptionQueryBuilder.cs",
+                        "Thermostat.cs",
+                        "ThermostatCapability.cs",
+                        "ThermostatCapabilityQueryBuilder.cs",
+                        "ThermostatMeasurement.cs",
+                        "ThermostatMeasurementQueryBuilder.cs",
+                        "ThermostatMeasurements.cs",
+                        "ThermostatMeasurementsQueryBuilder.cs",
+                        "ThermostatMode.cs",
+                        "ThermostatModeQueryBuilder.cs",
+                        "ThermostatMutation.cs",
+                        "ThermostatMutationQueryBuilder.cs",
+                        "ThermostatQueryBuilder.cs",
+                        "ThermostatState.cs",
+                        "ThermostatStateQueryBuilder.cs",
+                        "Wallet.cs",
+                        "WalletQueryBuilder.cs",
+                        "Weather.cs",
+                        "WeatherEntry.cs",
+                        "WeatherEntryQueryBuilder.cs",
+                        "WeatherQueryBuilder.cs"
+                    });
+
+                var fileSizes = files.Select(f => f.Length);
+                fileSizes.ShouldBe(
+                    new[]
+                    {
+                        370L, 399, 1489, 1142, 902, 4323, 443, 493, 2056, 2034, 379, 1038, 1276, 1609, 1608, 680, 418, 1570, 422, 1535, 30326, 716, 415, 1564, 3811, 887, 686, 3758, 5102, 402, 1507, 490, 2060, 537, 2505, 1149, 7011, 371, 1218, 495, 600, 2899, 2405, 413, 1590, 385, 1296, 368, 518, 2325, 1881, 845, 7092, 803, 1454, 417, 1642, 4700, 14665, 731, 1550, 551, 2656, 9675, 896, 5299, 1025, 476, 3026, 6319, 358, 1249, 467, 425, 1649, 1959, 499, 1986, 455, 1931, 545, 2443, 691, 495, 2128, 505, 2286, 3452, 679, 3569, 512, 2276, 600, 461, 1948, 2900, 996, 719, 4064, 5136, 822, 4580, 444, 1883, 347, 1193, 588, 675, 3646, 2842, 374, 1170, 404, 513, 483, 1970, 472, 1968, 2270, 483, 1950, 706, 777, 4131, 862, 454, 1961, 796, 4639, 508, 2082, 425, 1587, 413, 2793, 4624, 510, 2324, 482, 1935, 485, 1154, 3703, 1936
+                    });
+            }
+            finally
+            {
+                Directory.Delete(directoryInfo.FullName, true);
+            }
+        }
+
+        [Fact]
         public void GenerateFullClientCSharpFile()
         {
             var configuration =
