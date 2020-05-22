@@ -745,7 +745,7 @@ namespace GraphQlGeneratorTest
     }
     #endregion
 
-    #region shared types
+    #region enums
     public enum Avatar
     {
         [EnumMember(Value = "floorhouse1")] Floorhouse1,

@@ -1,4 +1,4 @@
-#region shared types
+#region enums
 public enum Avatar
 {
     [EnumMember(Value = "floorhouse1")] Floorhouse1,
@@ -39,9 +39,9 @@ public class SkipDirective : GraphQlDirective
 internal partial class QueryQueryBuilderV1 : GraphQlQueryBuilder<QueryQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "me", IsComplex = true, QueryBuilderType = typeof(MeQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "me", IsComplex = true, QueryBuilderType = typeof(MeQueryBuilderV1) }
+    };
 
     protected override string Prefix { get; } = "query";
 
@@ -63,24 +63,24 @@ internal partial class QueryQueryBuilderV1 : GraphQlQueryBuilder<QueryQueryBuild
 internal partial class MeQueryBuilderV1 : GraphQlQueryBuilder<MeQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "id" },
-            new FieldMetadata { Name = "firstName" },
-            new FieldMetadata { Name = "lastName" },
-            new FieldMetadata { Name = "fullName" },
-            new FieldMetadata { Name = "ssn" },
-            new FieldMetadata { Name = "email" },
-            new FieldMetadata { Name = "language" },
-            new FieldMetadata { Name = "tone" },
-            new FieldMetadata { Name = "mobile" },
-            new FieldMetadata { Name = "welcomeGreeting", IsComplex = true, QueryBuilderType = typeof(GreetingQueryBuilderV1) },
-            new FieldMetadata { Name = "appState", IsComplex = true, QueryBuilderType = typeof(AppStateQueryBuilderV1) },
-            new FieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilderV1) },
-            new FieldMetadata { Name = "homes", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilderV1) },
-            new FieldMetadata { Name = "feed", IsComplex = true, QueryBuilderType = typeof(FeedQueryBuilderV1) },
-            new FieldMetadata { Name = "wallet", IsComplex = true, QueryBuilderType = typeof(WalletQueryBuilderV1) },
-            new FieldMetadata { Name = "about", IsComplex = true, QueryBuilderType = typeof(AboutQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "id" },
+        new FieldMetadata { Name = "firstName" },
+        new FieldMetadata { Name = "lastName" },
+        new FieldMetadata { Name = "fullName" },
+        new FieldMetadata { Name = "ssn" },
+        new FieldMetadata { Name = "email" },
+        new FieldMetadata { Name = "language" },
+        new FieldMetadata { Name = "tone" },
+        new FieldMetadata { Name = "mobile" },
+        new FieldMetadata { Name = "welcomeGreeting", IsComplex = true, QueryBuilderType = typeof(GreetingQueryBuilderV1) },
+        new FieldMetadata { Name = "appState", IsComplex = true, QueryBuilderType = typeof(AppStateQueryBuilderV1) },
+        new FieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilderV1) },
+        new FieldMetadata { Name = "homes", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilderV1) },
+        new FieldMetadata { Name = "feed", IsComplex = true, QueryBuilderType = typeof(FeedQueryBuilderV1) },
+        new FieldMetadata { Name = "wallet", IsComplex = true, QueryBuilderType = typeof(WalletQueryBuilderV1) },
+        new FieldMetadata { Name = "about", IsComplex = true, QueryBuilderType = typeof(AboutQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "Me";
 
@@ -165,12 +165,12 @@ internal partial class MeQueryBuilderV1 : GraphQlQueryBuilder<MeQueryBuilderV1>
 internal partial class GreetingQueryBuilderV1 : GraphQlQueryBuilder<GreetingQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "title" },
-            new FieldMetadata { Name = "description" },
-            new FieldMetadata { Name = "descriptionWhenNoEnergyDeal" },
-            new FieldMetadata { Name = "showUntil" }
-        };
+    {
+        new FieldMetadata { Name = "title" },
+        new FieldMetadata { Name = "description" },
+        new FieldMetadata { Name = "descriptionWhenNoEnergyDeal" },
+        new FieldMetadata { Name = "showUntil" }
+    };
 
     protected override string TypeName { get; } = "Greeting";
 
@@ -200,10 +200,10 @@ internal partial class GreetingQueryBuilderV1 : GraphQlQueryBuilder<GreetingQuer
 internal partial class AppStateQueryBuilderV1 : GraphQlQueryBuilder<AppStateQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "journey", IsComplex = true, QueryBuilderType = typeof(AppStateJourneyQueryBuilderV1) },
-            new FieldMetadata { Name = "frontScreens", IsComplex = true, QueryBuilderType = typeof(AppStateFronScreenQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "journey", IsComplex = true, QueryBuilderType = typeof(AppStateJourneyQueryBuilderV1) },
+        new FieldMetadata { Name = "frontScreens", IsComplex = true, QueryBuilderType = typeof(AppStateFronScreenQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "AppState";
 
@@ -225,9 +225,9 @@ internal partial class AppStateQueryBuilderV1 : GraphQlQueryBuilder<AppStateQuer
 internal partial class AppStateJourneyQueryBuilderV1 : GraphQlQueryBuilder<AppStateJourneyQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "hasVisitedPairDevices" }
-        };
+    {
+        new FieldMetadata { Name = "hasVisitedPairDevices" }
+    };
 
     protected override string TypeName { get; } = "AppStateJourney";
 
@@ -245,11 +245,11 @@ internal partial class AppStateJourneyQueryBuilderV1 : GraphQlQueryBuilder<AppSt
 internal partial class AppStateFronScreenQueryBuilderV1 : GraphQlQueryBuilder<AppStateFronScreenQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "homeId" },
-            new FieldMetadata { Name = "bubbles", IsComplex = true },
-            new FieldMetadata { Name = "bubblesSortOrder", IsComplex = true }
-        };
+    {
+        new FieldMetadata { Name = "homeId" },
+        new FieldMetadata { Name = "bubbles", IsComplex = true },
+        new FieldMetadata { Name = "bubblesSortOrder", IsComplex = true }
+    };
 
     protected override string TypeName { get; } = "AppStateFronScreen";
 
@@ -275,35 +275,35 @@ internal partial class AppStateFronScreenQueryBuilderV1 : GraphQlQueryBuilder<Ap
 internal partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "id" },
-            new FieldMetadata { Name = "avatar" },
-            new FieldMetadata { Name = "timeZone" },
-            new FieldMetadata { Name = "title" },
-            new FieldMetadata { Name = "type" },
-            new FieldMetadata { Name = "hasEnergyDeal" },
-            new FieldMetadata { Name = "address", IsComplex = true, QueryBuilderType = typeof(AddressQueryBuilderV1) },
-            new FieldMetadata { Name = "subscription", IsComplex = true, QueryBuilderType = typeof(SubscriptionQueryBuilderV1) },
-            new FieldMetadata { Name = "consumptionMonths", IsComplex = true, QueryBuilderType = typeof(ConsumptionMonthQueryBuilderV1) },
-            new FieldMetadata { Name = "consumption", IsComplex = true, QueryBuilderType = typeof(ConsumptionQueryBuilderV1) },
-            new FieldMetadata { Name = "preLiveComparison", IsComplex = true, QueryBuilderType = typeof(PreLiveComparisonQueryBuilderV1) },
-            new FieldMetadata { Name = "comparisons", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilderV1) },
-            new FieldMetadata { Name = "comparisonCurrentMonth", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilderV1) },
-            new FieldMetadata { Name = "profileQuestions", IsComplex = true, QueryBuilderType = typeof(HomeProfileQuestionQueryBuilderV1) },
-            new FieldMetadata { Name = "temperatures", IsComplex = true },
-            new FieldMetadata { Name = "signupStatus", IsComplex = true, QueryBuilderType = typeof(SignupStatusQueryBuilderV1) },
-            new FieldMetadata { Name = "disaggregation", IsComplex = true, QueryBuilderType = typeof(DisaggregationQueryBuilderV1) },
-            new FieldMetadata { Name = "weather", IsComplex = true, QueryBuilderType = typeof(WeatherQueryBuilderV1) },
-            new FieldMetadata { Name = "awayMode", IsComplex = true, QueryBuilderType = typeof(AwayModeQueryBuilderV1) },
-            new FieldMetadata { Name = "dayNightSchedule", IsComplex = true, QueryBuilderType = typeof(DayNightScheduleQueryBuilderV1) },
-            new FieldMetadata { Name = "report", IsComplex = true, QueryBuilderType = typeof(ReportRootQueryBuilderV1) },
-            new FieldMetadata { Name = "thermostats", IsComplex = true, QueryBuilderType = typeof(ThermostatQueryBuilderV1) },
-            new FieldMetadata { Name = "sensors", IsComplex = true, QueryBuilderType = typeof(SensorQueryBuilderV1) },
-            new FieldMetadata { Name = "sensorsHistory", IsComplex = true, QueryBuilderType = typeof(SensorHistoryQueryBuilderV1) },
-            new FieldMetadata { Name = "pairableDevices", IsComplex = true, QueryBuilderType = typeof(PairableDeviceQueryBuilderV1) },
-            new FieldMetadata { Name = "productionMonths", IsComplex = true, QueryBuilderType = typeof(ProductionMonthQueryBuilderV1) },
-            new FieldMetadata { Name = "production", IsComplex = true, QueryBuilderType = typeof(ProductionQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "id" },
+        new FieldMetadata { Name = "avatar" },
+        new FieldMetadata { Name = "timeZone" },
+        new FieldMetadata { Name = "title" },
+        new FieldMetadata { Name = "type" },
+        new FieldMetadata { Name = "hasEnergyDeal" },
+        new FieldMetadata { Name = "address", IsComplex = true, QueryBuilderType = typeof(AddressQueryBuilderV1) },
+        new FieldMetadata { Name = "subscription", IsComplex = true, QueryBuilderType = typeof(SubscriptionQueryBuilderV1) },
+        new FieldMetadata { Name = "consumptionMonths", IsComplex = true, QueryBuilderType = typeof(ConsumptionMonthQueryBuilderV1) },
+        new FieldMetadata { Name = "consumption", IsComplex = true, QueryBuilderType = typeof(ConsumptionQueryBuilderV1) },
+        new FieldMetadata { Name = "preLiveComparison", IsComplex = true, QueryBuilderType = typeof(PreLiveComparisonQueryBuilderV1) },
+        new FieldMetadata { Name = "comparisons", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilderV1) },
+        new FieldMetadata { Name = "comparisonCurrentMonth", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilderV1) },
+        new FieldMetadata { Name = "profileQuestions", IsComplex = true, QueryBuilderType = typeof(HomeProfileQuestionQueryBuilderV1) },
+        new FieldMetadata { Name = "temperatures", IsComplex = true },
+        new FieldMetadata { Name = "signupStatus", IsComplex = true, QueryBuilderType = typeof(SignupStatusQueryBuilderV1) },
+        new FieldMetadata { Name = "disaggregation", IsComplex = true, QueryBuilderType = typeof(DisaggregationQueryBuilderV1) },
+        new FieldMetadata { Name = "weather", IsComplex = true, QueryBuilderType = typeof(WeatherQueryBuilderV1) },
+        new FieldMetadata { Name = "awayMode", IsComplex = true, QueryBuilderType = typeof(AwayModeQueryBuilderV1) },
+        new FieldMetadata { Name = "dayNightSchedule", IsComplex = true, QueryBuilderType = typeof(DayNightScheduleQueryBuilderV1) },
+        new FieldMetadata { Name = "report", IsComplex = true, QueryBuilderType = typeof(ReportRootQueryBuilderV1) },
+        new FieldMetadata { Name = "thermostats", IsComplex = true, QueryBuilderType = typeof(ThermostatQueryBuilderV1) },
+        new FieldMetadata { Name = "sensors", IsComplex = true, QueryBuilderType = typeof(SensorQueryBuilderV1) },
+        new FieldMetadata { Name = "sensorsHistory", IsComplex = true, QueryBuilderType = typeof(SensorHistoryQueryBuilderV1) },
+        new FieldMetadata { Name = "pairableDevices", IsComplex = true, QueryBuilderType = typeof(PairableDeviceQueryBuilderV1) },
+        new FieldMetadata { Name = "productionMonths", IsComplex = true, QueryBuilderType = typeof(ProductionMonthQueryBuilderV1) },
+        new FieldMetadata { Name = "production", IsComplex = true, QueryBuilderType = typeof(ProductionQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "Home";
 
@@ -497,18 +497,18 @@ internal partial class HomeQueryBuilderV1 : GraphQlQueryBuilder<HomeQueryBuilder
 internal partial class AddressQueryBuilderV1 : GraphQlQueryBuilder<AddressQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "address1" },
-            new FieldMetadata { Name = "address2" },
-            new FieldMetadata { Name = "address3" },
-            new FieldMetadata { Name = "city" },
-            new FieldMetadata { Name = "postalCode" },
-            new FieldMetadata { Name = "country" },
-            new FieldMetadata { Name = "latitude" },
-            new FieldMetadata { Name = "longitude" },
-            new FieldMetadata { Name = "elevation" },
-            new FieldMetadata { Name = "addressText" }
-        };
+    {
+        new FieldMetadata { Name = "address1" },
+        new FieldMetadata { Name = "address2" },
+        new FieldMetadata { Name = "address3" },
+        new FieldMetadata { Name = "city" },
+        new FieldMetadata { Name = "postalCode" },
+        new FieldMetadata { Name = "country" },
+        new FieldMetadata { Name = "latitude" },
+        new FieldMetadata { Name = "longitude" },
+        new FieldMetadata { Name = "elevation" },
+        new FieldMetadata { Name = "addressText" }
+    };
 
     protected override string TypeName { get; } = "Address";
 
@@ -562,17 +562,17 @@ internal partial class AddressQueryBuilderV1 : GraphQlQueryBuilder<AddressQueryB
 internal partial class SubscriptionQueryBuilderV1 : GraphQlQueryBuilder<SubscriptionQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "id" },
-            new FieldMetadata { Name = "walletId" },
-            new FieldMetadata { Name = "validFrom" },
-            new FieldMetadata { Name = "validTo" },
-            new FieldMetadata { Name = "status" },
-            new FieldMetadata { Name = "billingRegionId" },
-            new FieldMetadata { Name = "priceRating", IsComplex = true, QueryBuilderType = typeof(PriceRatingRootQueryBuilderV1) },
-            new FieldMetadata { Name = "invoices", IsComplex = true, QueryBuilderType = typeof(InvoiceQueryBuilderV1) },
-            new FieldMetadata { Name = "energyDeal", IsComplex = true, QueryBuilderType = typeof(EnergyDealQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "id" },
+        new FieldMetadata { Name = "walletId" },
+        new FieldMetadata { Name = "validFrom" },
+        new FieldMetadata { Name = "validTo" },
+        new FieldMetadata { Name = "status" },
+        new FieldMetadata { Name = "billingRegionId" },
+        new FieldMetadata { Name = "priceRating", IsComplex = true, QueryBuilderType = typeof(PriceRatingRootQueryBuilderV1) },
+        new FieldMetadata { Name = "invoices", IsComplex = true, QueryBuilderType = typeof(InvoiceQueryBuilderV1) },
+        new FieldMetadata { Name = "energyDeal", IsComplex = true, QueryBuilderType = typeof(EnergyDealQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "Subscription";
 
@@ -622,15 +622,15 @@ internal partial class SubscriptionQueryBuilderV1 : GraphQlQueryBuilder<Subscrip
 internal partial class PriceRatingRootQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingRootQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "isAvailable" },
-            new FieldMetadata { Name = "useTotalIsConfigurable" },
-            new FieldMetadata { Name = "useTotalAsDefault" },
-            new FieldMetadata { Name = "useTotalText" },
-            new FieldMetadata { Name = "hourly", IsComplex = true, QueryBuilderType = typeof(PriceRatingQueryBuilderV1) },
-            new FieldMetadata { Name = "daily", IsComplex = true, QueryBuilderType = typeof(PriceRatingQueryBuilderV1) },
-            new FieldMetadata { Name = "monthly", IsComplex = true, QueryBuilderType = typeof(PriceRatingQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "isAvailable" },
+        new FieldMetadata { Name = "useTotalIsConfigurable" },
+        new FieldMetadata { Name = "useTotalAsDefault" },
+        new FieldMetadata { Name = "useTotalText" },
+        new FieldMetadata { Name = "hourly", IsComplex = true, QueryBuilderType = typeof(PriceRatingQueryBuilderV1) },
+        new FieldMetadata { Name = "daily", IsComplex = true, QueryBuilderType = typeof(PriceRatingQueryBuilderV1) },
+        new FieldMetadata { Name = "monthly", IsComplex = true, QueryBuilderType = typeof(PriceRatingQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "PriceRatingRoot";
 
@@ -672,15 +672,15 @@ internal partial class PriceRatingRootQueryBuilderV1 : GraphQlQueryBuilder<Price
 internal partial class PriceRatingQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "minEnergy" },
-            new FieldMetadata { Name = "maxEnergy" },
-            new FieldMetadata { Name = "minTotal" },
-            new FieldMetadata { Name = "maxTotal" },
-            new FieldMetadata { Name = "currency" },
-            new FieldMetadata { Name = "colorOffsets", IsComplex = true, QueryBuilderType = typeof(PriceRatingColorOffsetQueryBuilderV1) },
-            new FieldMetadata { Name = "entries", IsComplex = true, QueryBuilderType = typeof(PriceRatingEntryQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "minEnergy" },
+        new FieldMetadata { Name = "maxEnergy" },
+        new FieldMetadata { Name = "minTotal" },
+        new FieldMetadata { Name = "maxTotal" },
+        new FieldMetadata { Name = "currency" },
+        new FieldMetadata { Name = "colorOffsets", IsComplex = true, QueryBuilderType = typeof(PriceRatingColorOffsetQueryBuilderV1) },
+        new FieldMetadata { Name = "entries", IsComplex = true, QueryBuilderType = typeof(PriceRatingEntryQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "PriceRating";
 
@@ -722,11 +722,11 @@ internal partial class PriceRatingQueryBuilderV1 : GraphQlQueryBuilder<PriceRati
 internal partial class PriceRatingColorOffsetQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingColorOffsetQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "fullGreenPercent" },
-            new FieldMetadata { Name = "fullYellowPercent" },
-            new FieldMetadata { Name = "fullRedPercent" }
-        };
+    {
+        new FieldMetadata { Name = "fullGreenPercent" },
+        new FieldMetadata { Name = "fullYellowPercent" },
+        new FieldMetadata { Name = "fullRedPercent" }
+    };
 
     protected override string TypeName { get; } = "PriceRatingColorOffset";
 
@@ -752,12 +752,12 @@ internal partial class PriceRatingColorOffsetQueryBuilderV1 : GraphQlQueryBuilde
 internal partial class PriceRatingEntryQueryBuilderV1 : GraphQlQueryBuilder<PriceRatingEntryQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "time" },
-            new FieldMetadata { Name = "energy" },
-            new FieldMetadata { Name = "total" },
-            new FieldMetadata { Name = "difference" }
-        };
+    {
+        new FieldMetadata { Name = "time" },
+        new FieldMetadata { Name = "energy" },
+        new FieldMetadata { Name = "total" },
+        new FieldMetadata { Name = "difference" }
+    };
 
     protected override string TypeName { get; } = "PriceRatingEntry";
 
@@ -787,32 +787,32 @@ internal partial class PriceRatingEntryQueryBuilderV1 : GraphQlQueryBuilder<Pric
 internal partial class InvoiceQueryBuilderV1 : GraphQlQueryBuilder<InvoiceQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "id" },
-            new FieldMetadata { Name = "no" },
-            new FieldMetadata { Name = "date" },
-            new FieldMetadata { Name = "dueDate" },
-            new FieldMetadata { Name = "totalCost" },
-            new FieldMetadata { Name = "totalCostLocalized" },
-            new FieldMetadata { Name = "totalEnergyConsumption" },
-            new FieldMetadata { Name = "totalEnergyConsumptionLocalized" },
-            new FieldMetadata { Name = "totalVat" },
-            new FieldMetadata { Name = "totalVatLocalized" },
-            new FieldMetadata { Name = "vatPercent" },
-            new FieldMetadata { Name = "vatPercentLocalized" },
-            new FieldMetadata { Name = "vatIsIncluded" },
-            new FieldMetadata { Name = "meteringPointId" },
-            new FieldMetadata { Name = "paymentReference" },
-            new FieldMetadata { Name = "showManualPaymentReferences" },
-            new FieldMetadata { Name = "bankAccount" },
-            new FieldMetadata { Name = "pdfUrl" },
-            new FieldMetadata { Name = "timeZone" },
-            new FieldMetadata { Name = "currency" },
-            new FieldMetadata { Name = "payment", IsComplex = true, QueryBuilderType = typeof(InvoicePaymentQueryBuilderV1) },
-            new FieldMetadata { Name = "sections", IsComplex = true, QueryBuilderType = typeof(InvoiceSectionQueryBuilderV1) },
-            new FieldMetadata { Name = "from" },
-            new FieldMetadata { Name = "to" }
-        };
+    {
+        new FieldMetadata { Name = "id" },
+        new FieldMetadata { Name = "no" },
+        new FieldMetadata { Name = "date" },
+        new FieldMetadata { Name = "dueDate" },
+        new FieldMetadata { Name = "totalCost" },
+        new FieldMetadata { Name = "totalCostLocalized" },
+        new FieldMetadata { Name = "totalEnergyConsumption" },
+        new FieldMetadata { Name = "totalEnergyConsumptionLocalized" },
+        new FieldMetadata { Name = "totalVat" },
+        new FieldMetadata { Name = "totalVatLocalized" },
+        new FieldMetadata { Name = "vatPercent" },
+        new FieldMetadata { Name = "vatPercentLocalized" },
+        new FieldMetadata { Name = "vatIsIncluded" },
+        new FieldMetadata { Name = "meteringPointId" },
+        new FieldMetadata { Name = "paymentReference" },
+        new FieldMetadata { Name = "showManualPaymentReferences" },
+        new FieldMetadata { Name = "bankAccount" },
+        new FieldMetadata { Name = "pdfUrl" },
+        new FieldMetadata { Name = "timeZone" },
+        new FieldMetadata { Name = "currency" },
+        new FieldMetadata { Name = "payment", IsComplex = true, QueryBuilderType = typeof(InvoicePaymentQueryBuilderV1) },
+        new FieldMetadata { Name = "sections", IsComplex = true, QueryBuilderType = typeof(InvoiceSectionQueryBuilderV1) },
+        new FieldMetadata { Name = "from" },
+        new FieldMetadata { Name = "to" }
+    };
 
     protected override string TypeName { get; } = "Invoice";
 
@@ -922,13 +922,13 @@ internal partial class InvoiceQueryBuilderV1 : GraphQlQueryBuilder<InvoiceQueryB
 internal partial class InvoicePaymentQueryBuilderV1 : GraphQlQueryBuilder<InvoicePaymentQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "status" },
-            new FieldMetadata { Name = "method" },
-            new FieldMetadata { Name = "date" },
-            new FieldMetadata { Name = "failureText" },
-            new FieldMetadata { Name = "creditCard", IsComplex = true, QueryBuilderType = typeof(CreditCardQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "status" },
+        new FieldMetadata { Name = "method" },
+        new FieldMetadata { Name = "date" },
+        new FieldMetadata { Name = "failureText" },
+        new FieldMetadata { Name = "creditCard", IsComplex = true, QueryBuilderType = typeof(CreditCardQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "InvoicePayment";
 
@@ -962,10 +962,10 @@ internal partial class InvoicePaymentQueryBuilderV1 : GraphQlQueryBuilder<Invoic
 internal partial class CreditCardQueryBuilderV1 : GraphQlQueryBuilder<CreditCardQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "brand" },
-            new FieldMetadata { Name = "last4" }
-        };
+    {
+        new FieldMetadata { Name = "brand" },
+        new FieldMetadata { Name = "last4" }
+    };
 
     protected override string TypeName { get; } = "CreditCard";
 
@@ -987,20 +987,20 @@ internal partial class CreditCardQueryBuilderV1 : GraphQlQueryBuilder<CreditCard
 internal partial class InvoiceSectionQueryBuilderV1 : GraphQlQueryBuilder<InvoiceSectionQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "type" },
-            new FieldMetadata { Name = "text" },
-            new FieldMetadata { Name = "subText" },
-            new FieldMetadata { Name = "consumption" },
-            new FieldMetadata { Name = "consumptionLocalized" },
-            new FieldMetadata { Name = "consumptionUnit" },
-            new FieldMetadata { Name = "price" },
-            new FieldMetadata { Name = "priceLocalized" },
-            new FieldMetadata { Name = "priceUnit" },
-            new FieldMetadata { Name = "cost" },
-            new FieldMetadata { Name = "costLocalized" },
-            new FieldMetadata { Name = "costUnit" }
-        };
+    {
+        new FieldMetadata { Name = "type" },
+        new FieldMetadata { Name = "text" },
+        new FieldMetadata { Name = "subText" },
+        new FieldMetadata { Name = "consumption" },
+        new FieldMetadata { Name = "consumptionLocalized" },
+        new FieldMetadata { Name = "consumptionUnit" },
+        new FieldMetadata { Name = "price" },
+        new FieldMetadata { Name = "priceLocalized" },
+        new FieldMetadata { Name = "priceUnit" },
+        new FieldMetadata { Name = "cost" },
+        new FieldMetadata { Name = "costLocalized" },
+        new FieldMetadata { Name = "costUnit" }
+    };
 
     protected override string TypeName { get; } = "InvoiceSection";
 
@@ -1062,9 +1062,9 @@ internal partial class InvoiceSectionQueryBuilderV1 : GraphQlQueryBuilder<Invoic
 internal partial class EnergyDealQueryBuilderV1 : GraphQlQueryBuilder<EnergyDealQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "currentProducer", IsComplex = true, QueryBuilderType = typeof(ProducerQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "currentProducer", IsComplex = true, QueryBuilderType = typeof(ProducerQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "EnergyDeal";
 
@@ -1082,14 +1082,14 @@ internal partial class EnergyDealQueryBuilderV1 : GraphQlQueryBuilder<EnergyDeal
 internal partial class ProducerQueryBuilderV1 : GraphQlQueryBuilder<ProducerQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "id" },
-            new FieldMetadata { Name = "name" },
-            new FieldMetadata { Name = "title" },
-            new FieldMetadata { Name = "description" },
-            new FieldMetadata { Name = "imageSrc" },
-            new FieldMetadata { Name = "bullets", IsComplex = true, QueryBuilderType = typeof(ProducerBulletQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "id" },
+        new FieldMetadata { Name = "name" },
+        new FieldMetadata { Name = "title" },
+        new FieldMetadata { Name = "description" },
+        new FieldMetadata { Name = "imageSrc" },
+        new FieldMetadata { Name = "bullets", IsComplex = true, QueryBuilderType = typeof(ProducerBulletQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "Producer";
 
@@ -1127,11 +1127,11 @@ internal partial class ProducerQueryBuilderV1 : GraphQlQueryBuilder<ProducerQuer
 internal partial class ProducerBulletQueryBuilderV1 : GraphQlQueryBuilder<ProducerBulletQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "title" },
-            new FieldMetadata { Name = "description" },
-            new FieldMetadata { Name = "readMoreUrl" }
-        };
+    {
+        new FieldMetadata { Name = "title" },
+        new FieldMetadata { Name = "description" },
+        new FieldMetadata { Name = "readMoreUrl" }
+    };
 
     protected override string TypeName { get; } = "ProducerBullet";
 
@@ -1157,16 +1157,16 @@ internal partial class ProducerBulletQueryBuilderV1 : GraphQlQueryBuilder<Produc
 internal partial class ConsumptionMonthQueryBuilderV1 : GraphQlQueryBuilder<ConsumptionMonthQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "year" },
-            new FieldMetadata { Name = "month" },
-            new FieldMetadata { Name = "kwh" },
-            new FieldMetadata { Name = "cost" },
-            new FieldMetadata { Name = "isComplete" },
-            new FieldMetadata { Name = "kwhEstimate" },
-            new FieldMetadata { Name = "costEstimate" },
-            new FieldMetadata { Name = "currency" }
-        };
+    {
+        new FieldMetadata { Name = "year" },
+        new FieldMetadata { Name = "month" },
+        new FieldMetadata { Name = "kwh" },
+        new FieldMetadata { Name = "cost" },
+        new FieldMetadata { Name = "isComplete" },
+        new FieldMetadata { Name = "kwhEstimate" },
+        new FieldMetadata { Name = "costEstimate" },
+        new FieldMetadata { Name = "currency" }
+    };
 
     protected override string TypeName { get; } = "ConsumptionMonth";
 
@@ -1212,19 +1212,19 @@ internal partial class ConsumptionMonthQueryBuilderV1 : GraphQlQueryBuilder<Cons
 internal partial class ConsumptionQueryBuilderV1 : GraphQlQueryBuilder<ConsumptionQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "annualValues", IsComplex = true },
-            new FieldMetadata { Name = "monthlyValues", IsComplex = true },
-            new FieldMetadata { Name = "weeklyValues", IsComplex = true },
-            new FieldMetadata { Name = "dailyValues", IsComplex = true },
-            new FieldMetadata { Name = "hourlyValues", IsComplex = true },
-            new FieldMetadata { Name = "totalConsumption" },
-            new FieldMetadata { Name = "energyCost" },
-            new FieldMetadata { Name = "totalCost" },
-            new FieldMetadata { Name = "currency" },
-            new FieldMetadata { Name = "latestTransactionTimestamp" },
-            new FieldMetadata { Name = "timeZone" }
-        };
+    {
+        new FieldMetadata { Name = "annualValues", IsComplex = true },
+        new FieldMetadata { Name = "monthlyValues", IsComplex = true },
+        new FieldMetadata { Name = "weeklyValues", IsComplex = true },
+        new FieldMetadata { Name = "dailyValues", IsComplex = true },
+        new FieldMetadata { Name = "hourlyValues", IsComplex = true },
+        new FieldMetadata { Name = "totalConsumption" },
+        new FieldMetadata { Name = "energyCost" },
+        new FieldMetadata { Name = "totalCost" },
+        new FieldMetadata { Name = "currency" },
+        new FieldMetadata { Name = "latestTransactionTimestamp" },
+        new FieldMetadata { Name = "timeZone" }
+    };
 
     protected override string TypeName { get; } = "Consumption";
 
@@ -1282,12 +1282,12 @@ internal partial class ConsumptionQueryBuilderV1 : GraphQlQueryBuilder<Consumpti
 internal partial class PreLiveComparisonQueryBuilderV1 : GraphQlQueryBuilder<PreLiveComparisonQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "homeId" },
-            new FieldMetadata { Name = "basedOnActuals" },
-            new FieldMetadata { Name = "previousYear", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilderV1) },
-            new FieldMetadata { Name = "previousYearMonths", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "homeId" },
+        new FieldMetadata { Name = "basedOnActuals" },
+        new FieldMetadata { Name = "previousYear", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilderV1) },
+        new FieldMetadata { Name = "previousYearMonths", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "PreLiveComparison";
 
@@ -1317,16 +1317,16 @@ internal partial class PreLiveComparisonQueryBuilderV1 : GraphQlQueryBuilder<Pre
 internal partial class ComparisonQueryBuilderV1 : GraphQlQueryBuilder<ComparisonQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "year" },
-            new FieldMetadata { Name = "month" },
-            new FieldMetadata { Name = "resolution" },
-            new FieldMetadata { Name = "homeEfficency" },
-            new FieldMetadata { Name = "homeEfficencyDescription" },
-            new FieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(ComparisonDataQueryBuilderV1) },
-            new FieldMetadata { Name = "average", IsComplex = true, QueryBuilderType = typeof(ComparisonDataQueryBuilderV1) },
-            new FieldMetadata { Name = "efficient", IsComplex = true, QueryBuilderType = typeof(ComparisonDataQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "year" },
+        new FieldMetadata { Name = "month" },
+        new FieldMetadata { Name = "resolution" },
+        new FieldMetadata { Name = "homeEfficency" },
+        new FieldMetadata { Name = "homeEfficencyDescription" },
+        new FieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(ComparisonDataQueryBuilderV1) },
+        new FieldMetadata { Name = "average", IsComplex = true, QueryBuilderType = typeof(ComparisonDataQueryBuilderV1) },
+        new FieldMetadata { Name = "efficient", IsComplex = true, QueryBuilderType = typeof(ComparisonDataQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "Comparison";
 
@@ -1372,10 +1372,10 @@ internal partial class ComparisonQueryBuilderV1 : GraphQlQueryBuilder<Comparison
 internal partial class ComparisonDataQueryBuilderV1 : GraphQlQueryBuilder<ComparisonDataQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "cost" },
-            new FieldMetadata { Name = "consumption" }
-        };
+    {
+        new FieldMetadata { Name = "cost" },
+        new FieldMetadata { Name = "consumption" }
+    };
 
     protected override string TypeName { get; } = "ComparisonData";
 
@@ -1397,18 +1397,18 @@ internal partial class ComparisonDataQueryBuilderV1 : GraphQlQueryBuilder<Compar
 internal partial class HomeProfileQuestionQueryBuilderV1 : GraphQlQueryBuilder<HomeProfileQuestionQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "id" },
-            new FieldMetadata { Name = "title" },
-            new FieldMetadata { Name = "text" },
-            new FieldMetadata { Name = "category" },
-            new FieldMetadata { Name = "isAnswered" },
-            new FieldMetadata { Name = "propertyName" },
-            new FieldMetadata { Name = "valueType" },
-            new FieldMetadata { Name = "currentValue", IsComplex = true },
-            new FieldMetadata { Name = "currentValueText" },
-            new FieldMetadata { Name = "input", IsComplex = true, QueryBuilderType = typeof(HomeProfileQuestionInputQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "id" },
+        new FieldMetadata { Name = "title" },
+        new FieldMetadata { Name = "text" },
+        new FieldMetadata { Name = "category" },
+        new FieldMetadata { Name = "isAnswered" },
+        new FieldMetadata { Name = "propertyName" },
+        new FieldMetadata { Name = "valueType" },
+        new FieldMetadata { Name = "currentValue", IsComplex = true },
+        new FieldMetadata { Name = "currentValueText" },
+        new FieldMetadata { Name = "input", IsComplex = true, QueryBuilderType = typeof(HomeProfileQuestionInputQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "HomeProfileQuestion";
 
@@ -1462,10 +1462,10 @@ internal partial class HomeProfileQuestionQueryBuilderV1 : GraphQlQueryBuilder<H
 internal partial class HomeProfileQuestionInputQueryBuilderV1 : GraphQlQueryBuilder<HomeProfileQuestionInputQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "type" },
-            new FieldMetadata { Name = "options", IsComplex = true }
-        };
+    {
+        new FieldMetadata { Name = "type" },
+        new FieldMetadata { Name = "options", IsComplex = true }
+    };
 
     protected override string TypeName { get; } = "HomeProfileQuestionInput";
 
@@ -1487,11 +1487,11 @@ internal partial class HomeProfileQuestionInputQueryBuilderV1 : GraphQlQueryBuil
 internal partial class SignupStatusQueryBuilderV1 : GraphQlQueryBuilder<SignupStatusQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "feedStep", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilderV1) },
-            new FieldMetadata { Name = "avatarStep", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilderV1) },
-            new FieldMetadata { Name = "steps", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "feedStep", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilderV1) },
+        new FieldMetadata { Name = "avatarStep", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilderV1) },
+        new FieldMetadata { Name = "steps", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "SignupStatus";
 
@@ -1517,12 +1517,12 @@ internal partial class SignupStatusQueryBuilderV1 : GraphQlQueryBuilder<SignupSt
 internal partial class ProcessStepQueryBuilderV1 : GraphQlQueryBuilder<ProcessStepQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "timestamp" },
-            new FieldMetadata { Name = "isComplete" },
-            new FieldMetadata { Name = "title" },
-            new FieldMetadata { Name = "description" }
-        };
+    {
+        new FieldMetadata { Name = "timestamp" },
+        new FieldMetadata { Name = "isComplete" },
+        new FieldMetadata { Name = "title" },
+        new FieldMetadata { Name = "description" }
+    };
 
     protected override string TypeName { get; } = "ProcessStep";
 
@@ -1552,23 +1552,23 @@ internal partial class ProcessStepQueryBuilderV1 : GraphQlQueryBuilder<ProcessSt
 internal partial class DisaggregationQueryBuilderV1 : GraphQlQueryBuilder<DisaggregationQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "year" },
-            new FieldMetadata { Name = "month" },
-            new FieldMetadata { Name = "fixedConsumptionKwh" },
-            new FieldMetadata { Name = "fixedConsumptionKwhPercent" },
-            new FieldMetadata { Name = "fixedConsumptionCost" },
-            new FieldMetadata { Name = "heatingConsumptionKwh" },
-            new FieldMetadata { Name = "heatingConsumptionKwhPercent" },
-            new FieldMetadata { Name = "heatingConsumptionCost" },
-            new FieldMetadata { Name = "behaviorConsumptionKwh" },
-            new FieldMetadata { Name = "behaviorConsumptionKwhPercent" },
-            new FieldMetadata { Name = "behaviorConsumptionCost" },
-            new FieldMetadata { Name = "currency" },
-            new FieldMetadata { Name = "isValid" },
-            new FieldMetadata { Name = "totalCost" },
-            new FieldMetadata { Name = "totalConsumptionKwh" }
-        };
+    {
+        new FieldMetadata { Name = "year" },
+        new FieldMetadata { Name = "month" },
+        new FieldMetadata { Name = "fixedConsumptionKwh" },
+        new FieldMetadata { Name = "fixedConsumptionKwhPercent" },
+        new FieldMetadata { Name = "fixedConsumptionCost" },
+        new FieldMetadata { Name = "heatingConsumptionKwh" },
+        new FieldMetadata { Name = "heatingConsumptionKwhPercent" },
+        new FieldMetadata { Name = "heatingConsumptionCost" },
+        new FieldMetadata { Name = "behaviorConsumptionKwh" },
+        new FieldMetadata { Name = "behaviorConsumptionKwhPercent" },
+        new FieldMetadata { Name = "behaviorConsumptionCost" },
+        new FieldMetadata { Name = "currency" },
+        new FieldMetadata { Name = "isValid" },
+        new FieldMetadata { Name = "totalCost" },
+        new FieldMetadata { Name = "totalConsumptionKwh" }
+    };
 
     protected override string TypeName { get; } = "Disaggregation";
 
@@ -1642,11 +1642,11 @@ internal partial class DisaggregationQueryBuilderV1 : GraphQlQueryBuilder<Disagg
 internal partial class WeatherQueryBuilderV1 : GraphQlQueryBuilder<WeatherQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "minTemperature" },
-            new FieldMetadata { Name = "maxTemperature" },
-            new FieldMetadata { Name = "entries", IsComplex = true, QueryBuilderType = typeof(WeatherEntryQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "minTemperature" },
+        new FieldMetadata { Name = "maxTemperature" },
+        new FieldMetadata { Name = "entries", IsComplex = true, QueryBuilderType = typeof(WeatherEntryQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "Weather";
 
@@ -1672,16 +1672,16 @@ internal partial class WeatherQueryBuilderV1 : GraphQlQueryBuilder<WeatherQueryB
 internal partial class WeatherEntryQueryBuilderV1 : GraphQlQueryBuilder<WeatherEntryQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "time" },
-            new FieldMetadata { Name = "temperature" },
-            new FieldMetadata { Name = "type" },
-            new FieldMetadata { Name = "fog" },
-            new FieldMetadata { Name = "precipitation" },
-            new FieldMetadata { Name = "cloudiness" },
-            new FieldMetadata { Name = "windSpeed" },
-            new FieldMetadata { Name = "windGust" }
-        };
+    {
+        new FieldMetadata { Name = "time" },
+        new FieldMetadata { Name = "temperature" },
+        new FieldMetadata { Name = "type" },
+        new FieldMetadata { Name = "fog" },
+        new FieldMetadata { Name = "precipitation" },
+        new FieldMetadata { Name = "cloudiness" },
+        new FieldMetadata { Name = "windSpeed" },
+        new FieldMetadata { Name = "windGust" }
+    };
 
     protected override string TypeName { get; } = "WeatherEntry";
 
@@ -1727,10 +1727,10 @@ internal partial class WeatherEntryQueryBuilderV1 : GraphQlQueryBuilder<WeatherE
 internal partial class AwayModeQueryBuilderV1 : GraphQlQueryBuilder<AwayModeQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "isSupported" },
-            new FieldMetadata { Name = "settings", IsComplex = true, QueryBuilderType = typeof(AwayModeSettingsQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "isSupported" },
+        new FieldMetadata { Name = "settings", IsComplex = true, QueryBuilderType = typeof(AwayModeSettingsQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "AwayMode";
 
@@ -1752,10 +1752,10 @@ internal partial class AwayModeQueryBuilderV1 : GraphQlQueryBuilder<AwayModeQuer
 internal partial class AwayModeSettingsQueryBuilderV1 : GraphQlQueryBuilder<AwayModeSettingsQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "from" },
-            new FieldMetadata { Name = "to" }
-        };
+    {
+        new FieldMetadata { Name = "from" },
+        new FieldMetadata { Name = "to" }
+    };
 
     protected override string TypeName { get; } = "AwayModeSettings";
 
@@ -1777,11 +1777,11 @@ internal partial class AwayModeSettingsQueryBuilderV1 : GraphQlQueryBuilder<Away
 internal partial class DayNightScheduleQueryBuilderV1 : GraphQlQueryBuilder<DayNightScheduleQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "isSupported" },
-            new FieldMetadata { Name = "day", IsComplex = true, QueryBuilderType = typeof(DayNightScheduleSettingsQueryBuilderV1) },
-            new FieldMetadata { Name = "night", IsComplex = true, QueryBuilderType = typeof(DayNightScheduleSettingsQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "isSupported" },
+        new FieldMetadata { Name = "day", IsComplex = true, QueryBuilderType = typeof(DayNightScheduleSettingsQueryBuilderV1) },
+        new FieldMetadata { Name = "night", IsComplex = true, QueryBuilderType = typeof(DayNightScheduleSettingsQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "DayNightSchedule";
 
@@ -1807,12 +1807,12 @@ internal partial class DayNightScheduleQueryBuilderV1 : GraphQlQueryBuilder<DayN
 internal partial class DayNightScheduleSettingsQueryBuilderV1 : GraphQlQueryBuilder<DayNightScheduleSettingsQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "isEnabled" },
-            new FieldMetadata { Name = "localTimeFrom" },
-            new FieldMetadata { Name = "localTimeTo" },
-            new FieldMetadata { Name = "recurringDays", IsComplex = true }
-        };
+    {
+        new FieldMetadata { Name = "isEnabled" },
+        new FieldMetadata { Name = "localTimeFrom" },
+        new FieldMetadata { Name = "localTimeTo" },
+        new FieldMetadata { Name = "recurringDays", IsComplex = true }
+    };
 
     protected override string TypeName { get; } = "DayNightScheduleSettings";
 
@@ -1842,9 +1842,9 @@ internal partial class DayNightScheduleSettingsQueryBuilderV1 : GraphQlQueryBuil
 internal partial class ReportRootQueryBuilderV1 : GraphQlQueryBuilder<ReportRootQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "reports", IsComplex = true, QueryBuilderType = typeof(ReportQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "reports", IsComplex = true, QueryBuilderType = typeof(ReportQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "ReportRoot";
 
@@ -1862,14 +1862,14 @@ internal partial class ReportRootQueryBuilderV1 : GraphQlQueryBuilder<ReportRoot
 internal partial class ReportQueryBuilderV1 : GraphQlQueryBuilder<ReportQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "avatar" },
-            new FieldMetadata { Name = "title" },
-            new FieldMetadata { Name = "efficiency" },
-            new FieldMetadata { Name = "year" },
-            new FieldMetadata { Name = "month" },
-            new FieldMetadata { Name = "items", IsComplex = true, QueryBuilderType = typeof(ReportCellQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "avatar" },
+        new FieldMetadata { Name = "title" },
+        new FieldMetadata { Name = "efficiency" },
+        new FieldMetadata { Name = "year" },
+        new FieldMetadata { Name = "month" },
+        new FieldMetadata { Name = "items", IsComplex = true, QueryBuilderType = typeof(ReportCellQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "Report";
 
@@ -1907,16 +1907,16 @@ internal partial class ReportQueryBuilderV1 : GraphQlQueryBuilder<ReportQueryBui
 internal partial class ReportCellQueryBuilderV1 : GraphQlQueryBuilder<ReportCellQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "type" },
-            new FieldMetadata { Name = "style" },
-            new FieldMetadata { Name = "imageSrc" },
-            new FieldMetadata { Name = "title" },
-            new FieldMetadata { Name = "description" },
-            new FieldMetadata { Name = "unitText" },
-            new FieldMetadata { Name = "link" },
-            new FieldMetadata { Name = "properties", IsComplex = true }
-        };
+    {
+        new FieldMetadata { Name = "type" },
+        new FieldMetadata { Name = "style" },
+        new FieldMetadata { Name = "imageSrc" },
+        new FieldMetadata { Name = "title" },
+        new FieldMetadata { Name = "description" },
+        new FieldMetadata { Name = "unitText" },
+        new FieldMetadata { Name = "link" },
+        new FieldMetadata { Name = "properties", IsComplex = true }
+    };
 
     protected override string TypeName { get; } = "ReportCell";
 
@@ -1962,18 +1962,18 @@ internal partial class ReportCellQueryBuilderV1 : GraphQlQueryBuilder<ReportCell
 internal partial class ThermostatQueryBuilderV1 : GraphQlQueryBuilder<ThermostatQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "id" },
-            new FieldMetadata { Name = "name" },
-            new FieldMetadata { Name = "connectivity" },
-            new FieldMetadata { Name = "state", IsComplex = true, QueryBuilderType = typeof(ThermostatStateQueryBuilderV1) },
-            new FieldMetadata { Name = "measurements", IsComplex = true, QueryBuilderType = typeof(ThermostatMeasurementsQueryBuilderV1) },
-            new FieldMetadata { Name = "capabilities", IsComplex = true, QueryBuilderType = typeof(ThermostatCapabilityQueryBuilderV1) },
-            new FieldMetadata { Name = "modes", IsComplex = true, QueryBuilderType = typeof(ThermostatModeQueryBuilderV1) },
-            new FieldMetadata { Name = "template" },
-            new FieldMetadata { Name = "hasSettings" },
-            new FieldMetadata { Name = "supportsDayNightSchedule" }
-        };
+    {
+        new FieldMetadata { Name = "id" },
+        new FieldMetadata { Name = "name" },
+        new FieldMetadata { Name = "connectivity" },
+        new FieldMetadata { Name = "state", IsComplex = true, QueryBuilderType = typeof(ThermostatStateQueryBuilderV1) },
+        new FieldMetadata { Name = "measurements", IsComplex = true, QueryBuilderType = typeof(ThermostatMeasurementsQueryBuilderV1) },
+        new FieldMetadata { Name = "capabilities", IsComplex = true, QueryBuilderType = typeof(ThermostatCapabilityQueryBuilderV1) },
+        new FieldMetadata { Name = "modes", IsComplex = true, QueryBuilderType = typeof(ThermostatModeQueryBuilderV1) },
+        new FieldMetadata { Name = "template" },
+        new FieldMetadata { Name = "hasSettings" },
+        new FieldMetadata { Name = "supportsDayNightSchedule" }
+    };
 
     protected override string TypeName { get; } = "Thermostat";
 
@@ -2027,12 +2027,12 @@ internal partial class ThermostatQueryBuilderV1 : GraphQlQueryBuilder<Thermostat
 internal partial class ThermostatStateQueryBuilderV1 : GraphQlQueryBuilder<ThermostatStateQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "mode" },
-            new FieldMetadata { Name = "comfortTemperature" },
-            new FieldMetadata { Name = "fanLevel" },
-            new FieldMetadata { Name = "onOff" }
-        };
+    {
+        new FieldMetadata { Name = "mode" },
+        new FieldMetadata { Name = "comfortTemperature" },
+        new FieldMetadata { Name = "fanLevel" },
+        new FieldMetadata { Name = "onOff" }
+    };
 
     protected override string TypeName { get; } = "ThermostatState";
 
@@ -2062,11 +2062,11 @@ internal partial class ThermostatStateQueryBuilderV1 : GraphQlQueryBuilder<Therm
 internal partial class ThermostatMeasurementsQueryBuilderV1 : GraphQlQueryBuilder<ThermostatMeasurementsQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "temperature" },
-            new FieldMetadata { Name = "timestamp" },
-            new FieldMetadata { Name = "display", IsComplex = true, QueryBuilderType = typeof(ThermostatMeasurementQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "temperature" },
+        new FieldMetadata { Name = "timestamp" },
+        new FieldMetadata { Name = "display", IsComplex = true, QueryBuilderType = typeof(ThermostatMeasurementQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "ThermostatMeasurements";
 
@@ -2092,18 +2092,18 @@ internal partial class ThermostatMeasurementsQueryBuilderV1 : GraphQlQueryBuilde
 internal partial class ThermostatMeasurementQueryBuilderV1 : GraphQlQueryBuilder<ThermostatMeasurementQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "label" },
-            new FieldMetadata { Name = "description" },
-            new FieldMetadata { Name = "descriptionLong" },
-            new FieldMetadata { Name = "value" },
-            new FieldMetadata { Name = "valueText" },
-            new FieldMetadata { Name = "unit" },
-            new FieldMetadata { Name = "unitText" },
-            new FieldMetadata { Name = "timestamp" },
-            new FieldMetadata { Name = "type" },
-            new FieldMetadata { Name = "typeText" }
-        };
+    {
+        new FieldMetadata { Name = "label" },
+        new FieldMetadata { Name = "description" },
+        new FieldMetadata { Name = "descriptionLong" },
+        new FieldMetadata { Name = "value" },
+        new FieldMetadata { Name = "valueText" },
+        new FieldMetadata { Name = "unit" },
+        new FieldMetadata { Name = "unitText" },
+        new FieldMetadata { Name = "timestamp" },
+        new FieldMetadata { Name = "type" },
+        new FieldMetadata { Name = "typeText" }
+    };
 
     protected override string TypeName { get; } = "ThermostatMeasurement";
 
@@ -2157,11 +2157,11 @@ internal partial class ThermostatMeasurementQueryBuilderV1 : GraphQlQueryBuilder
 internal partial class ThermostatCapabilityQueryBuilderV1 : GraphQlQueryBuilder<ThermostatCapabilityQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "name" },
-            new FieldMetadata { Name = "type" },
-            new FieldMetadata { Name = "values", IsComplex = true }
-        };
+    {
+        new FieldMetadata { Name = "name" },
+        new FieldMetadata { Name = "type" },
+        new FieldMetadata { Name = "values", IsComplex = true }
+    };
 
     protected override string TypeName { get; } = "ThermostatCapability";
 
@@ -2187,10 +2187,10 @@ internal partial class ThermostatCapabilityQueryBuilderV1 : GraphQlQueryBuilder<
 internal partial class ThermostatModeQueryBuilderV1 : GraphQlQueryBuilder<ThermostatModeQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "name" },
-            new FieldMetadata { Name = "capabilities", IsComplex = true }
-        };
+    {
+        new FieldMetadata { Name = "name" },
+        new FieldMetadata { Name = "capabilities", IsComplex = true }
+    };
 
     protected override string TypeName { get; } = "ThermostatMode";
 
@@ -2212,12 +2212,12 @@ internal partial class ThermostatModeQueryBuilderV1 : GraphQlQueryBuilder<Thermo
 internal partial class SensorQueryBuilderV1 : GraphQlQueryBuilder<SensorQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "id" },
-            new FieldMetadata { Name = "idDeprecated" },
-            new FieldMetadata { Name = "hasHistory" },
-            new FieldMetadata { Name = "measurement", IsComplex = true, QueryBuilderType = typeof(ThermostatMeasurementQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "id" },
+        new FieldMetadata { Name = "idDeprecated" },
+        new FieldMetadata { Name = "hasHistory" },
+        new FieldMetadata { Name = "measurement", IsComplex = true, QueryBuilderType = typeof(ThermostatMeasurementQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "Sensor";
 
@@ -2247,11 +2247,11 @@ internal partial class SensorQueryBuilderV1 : GraphQlQueryBuilder<SensorQueryBui
 internal partial class SensorHistoryQueryBuilderV1 : GraphQlQueryBuilder<SensorHistoryQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "sensorId" },
-            new FieldMetadata { Name = "description" },
-            new FieldMetadata { Name = "values", IsComplex = true, QueryBuilderType = typeof(SensorHistoryValueQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "sensorId" },
+        new FieldMetadata { Name = "description" },
+        new FieldMetadata { Name = "values", IsComplex = true, QueryBuilderType = typeof(SensorHistoryValueQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "SensorHistory";
 
@@ -2277,11 +2277,11 @@ internal partial class SensorHistoryQueryBuilderV1 : GraphQlQueryBuilder<SensorH
 internal partial class SensorHistoryValueQueryBuilderV1 : GraphQlQueryBuilder<SensorHistoryValueQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "timestamp" },
-            new FieldMetadata { Name = "value" },
-            new FieldMetadata { Name = "valueText" }
-        };
+    {
+        new FieldMetadata { Name = "timestamp" },
+        new FieldMetadata { Name = "value" },
+        new FieldMetadata { Name = "valueText" }
+    };
 
     protected override string TypeName { get; } = "SensorHistoryValue";
 
@@ -2307,11 +2307,11 @@ internal partial class SensorHistoryValueQueryBuilderV1 : GraphQlQueryBuilder<Se
 internal partial class PairableDeviceQueryBuilderV1 : GraphQlQueryBuilder<PairableDeviceQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "type" },
-            new FieldMetadata { Name = "oauth", IsComplex = true, QueryBuilderType = typeof(PairableDeviceOAuthQueryBuilderV1) },
-            new FieldMetadata { Name = "readMoreUrl" }
-        };
+    {
+        new FieldMetadata { Name = "type" },
+        new FieldMetadata { Name = "oauth", IsComplex = true, QueryBuilderType = typeof(PairableDeviceOAuthQueryBuilderV1) },
+        new FieldMetadata { Name = "readMoreUrl" }
+    };
 
     protected override string TypeName { get; } = "PairableDevice";
 
@@ -2337,10 +2337,10 @@ internal partial class PairableDeviceQueryBuilderV1 : GraphQlQueryBuilder<Pairab
 internal partial class PairableDeviceOAuthQueryBuilderV1 : GraphQlQueryBuilder<PairableDeviceOAuthQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "url" },
-            new FieldMetadata { Name = "redirectUriStartsWith" }
-        };
+    {
+        new FieldMetadata { Name = "url" },
+        new FieldMetadata { Name = "redirectUriStartsWith" }
+    };
 
     protected override string TypeName { get; } = "PairableDeviceOAuth";
 
@@ -2362,17 +2362,17 @@ internal partial class PairableDeviceOAuthQueryBuilderV1 : GraphQlQueryBuilder<P
 internal partial class ProductionMonthQueryBuilderV1 : GraphQlQueryBuilder<ProductionMonthQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "year" },
-            new FieldMetadata { Name = "month" },
-            new FieldMetadata { Name = "kwh" },
-            new FieldMetadata { Name = "cost" },
-            new FieldMetadata { Name = "isComplete" },
-            new FieldMetadata { Name = "title" },
-            new FieldMetadata { Name = "costText" },
-            new FieldMetadata { Name = "kwhText" },
-            new FieldMetadata { Name = "description" }
-        };
+    {
+        new FieldMetadata { Name = "year" },
+        new FieldMetadata { Name = "month" },
+        new FieldMetadata { Name = "kwh" },
+        new FieldMetadata { Name = "cost" },
+        new FieldMetadata { Name = "isComplete" },
+        new FieldMetadata { Name = "title" },
+        new FieldMetadata { Name = "costText" },
+        new FieldMetadata { Name = "kwhText" },
+        new FieldMetadata { Name = "description" }
+    };
 
     protected override string TypeName { get; } = "ProductionMonth";
 
@@ -2422,19 +2422,19 @@ internal partial class ProductionMonthQueryBuilderV1 : GraphQlQueryBuilder<Produ
 internal partial class ProductionQueryBuilderV1 : GraphQlQueryBuilder<ProductionQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "annualValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilderV1) },
-            new FieldMetadata { Name = "monthlyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilderV1) },
-            new FieldMetadata { Name = "weeklyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilderV1) },
-            new FieldMetadata { Name = "dailyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilderV1) },
-            new FieldMetadata { Name = "hourlyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilderV1) },
-            new FieldMetadata { Name = "totalConsumption" },
-            new FieldMetadata { Name = "energyCost" },
-            new FieldMetadata { Name = "totalCost" },
-            new FieldMetadata { Name = "currency" },
-            new FieldMetadata { Name = "latestTransactionTimestamp" },
-            new FieldMetadata { Name = "timeZone" }
-        };
+    {
+        new FieldMetadata { Name = "annualValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilderV1) },
+        new FieldMetadata { Name = "monthlyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilderV1) },
+        new FieldMetadata { Name = "weeklyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilderV1) },
+        new FieldMetadata { Name = "dailyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilderV1) },
+        new FieldMetadata { Name = "hourlyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilderV1) },
+        new FieldMetadata { Name = "totalConsumption" },
+        new FieldMetadata { Name = "energyCost" },
+        new FieldMetadata { Name = "totalCost" },
+        new FieldMetadata { Name = "currency" },
+        new FieldMetadata { Name = "latestTransactionTimestamp" },
+        new FieldMetadata { Name = "timeZone" }
+    };
 
     protected override string TypeName { get; } = "Production";
 
@@ -2492,18 +2492,18 @@ internal partial class ProductionQueryBuilderV1 : GraphQlQueryBuilder<Production
 internal partial class ProductionValueQueryBuilderV1 : GraphQlQueryBuilder<ProductionValueQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "from" },
-            new FieldMetadata { Name = "to" },
-            new FieldMetadata { Name = "unitPrice" },
-            new FieldMetadata { Name = "unitPriceVAT" },
-            new FieldMetadata { Name = "consumption" },
-            new FieldMetadata { Name = "consumptionUnit" },
-            new FieldMetadata { Name = "totalCost" },
-            new FieldMetadata { Name = "unitCost" },
-            new FieldMetadata { Name = "quality" },
-            new FieldMetadata { Name = "consumptionEntries" }
-        };
+    {
+        new FieldMetadata { Name = "from" },
+        new FieldMetadata { Name = "to" },
+        new FieldMetadata { Name = "unitPrice" },
+        new FieldMetadata { Name = "unitPriceVAT" },
+        new FieldMetadata { Name = "consumption" },
+        new FieldMetadata { Name = "consumptionUnit" },
+        new FieldMetadata { Name = "totalCost" },
+        new FieldMetadata { Name = "unitCost" },
+        new FieldMetadata { Name = "quality" },
+        new FieldMetadata { Name = "consumptionEntries" }
+    };
 
     protected override string TypeName { get; } = "ProductionValue";
 
@@ -2557,11 +2557,11 @@ internal partial class ProductionValueQueryBuilderV1 : GraphQlQueryBuilder<Produ
 internal partial class FeedQueryBuilderV1 : GraphQlQueryBuilder<FeedQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "numberOfItems" },
-            new FieldMetadata { Name = "items", IsComplex = true, QueryBuilderType = typeof(FeedItemQueryBuilderV1) },
-            new FieldMetadata { Name = "pushNotifications", IsComplex = true, QueryBuilderType = typeof(PushNotificationQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "numberOfItems" },
+        new FieldMetadata { Name = "items", IsComplex = true, QueryBuilderType = typeof(FeedItemQueryBuilderV1) },
+        new FieldMetadata { Name = "pushNotifications", IsComplex = true, QueryBuilderType = typeof(PushNotificationQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "Feed";
 
@@ -2597,14 +2597,14 @@ internal partial class FeedQueryBuilderV1 : GraphQlQueryBuilder<FeedQueryBuilder
 internal partial class FeedItemQueryBuilderV1 : GraphQlQueryBuilder<FeedItemQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "id" },
-            new FieldMetadata { Name = "messageTypeId" },
-            new FieldMetadata { Name = "link" },
-            new FieldMetadata { Name = "text" },
-            new FieldMetadata { Name = "createdAt" },
-            new FieldMetadata { Name = "modifiedAt" }
-        };
+    {
+        new FieldMetadata { Name = "id" },
+        new FieldMetadata { Name = "messageTypeId" },
+        new FieldMetadata { Name = "link" },
+        new FieldMetadata { Name = "text" },
+        new FieldMetadata { Name = "createdAt" },
+        new FieldMetadata { Name = "modifiedAt" }
+    };
 
     protected override string TypeName { get; } = "FeedItem";
 
@@ -2642,11 +2642,11 @@ internal partial class FeedItemQueryBuilderV1 : GraphQlQueryBuilder<FeedItemQuer
 internal partial class PushNotificationQueryBuilderV1 : GraphQlQueryBuilder<PushNotificationQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "id" },
-            new FieldMetadata { Name = "link" },
-            new FieldMetadata { Name = "text" }
-        };
+    {
+        new FieldMetadata { Name = "id" },
+        new FieldMetadata { Name = "link" },
+        new FieldMetadata { Name = "text" }
+    };
 
     protected override string TypeName { get; } = "PushNotification";
 
@@ -2672,11 +2672,11 @@ internal partial class PushNotificationQueryBuilderV1 : GraphQlQueryBuilder<Push
 internal partial class WalletQueryBuilderV1 : GraphQlQueryBuilder<WalletQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "id" },
-            new FieldMetadata { Name = "paymentMethods", IsComplex = true, QueryBuilderType = typeof(PaymentMethodQueryBuilderV1) },
-            new FieldMetadata { Name = "directDebitToPromote" }
-        };
+    {
+        new FieldMetadata { Name = "id" },
+        new FieldMetadata { Name = "paymentMethods", IsComplex = true, QueryBuilderType = typeof(PaymentMethodQueryBuilderV1) },
+        new FieldMetadata { Name = "directDebitToPromote" }
+    };
 
     protected override string TypeName { get; } = "Wallet";
 
@@ -2702,11 +2702,11 @@ internal partial class WalletQueryBuilderV1 : GraphQlQueryBuilder<WalletQueryBui
 internal partial class PaymentMethodQueryBuilderV1 : GraphQlQueryBuilder<PaymentMethodQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "method" },
-            new FieldMetadata { Name = "status" },
-            new FieldMetadata { Name = "properties", IsComplex = true }
-        };
+    {
+        new FieldMetadata { Name = "method" },
+        new FieldMetadata { Name = "status" },
+        new FieldMetadata { Name = "properties", IsComplex = true }
+    };
 
     protected override string TypeName { get; } = "PaymentMethod";
 
@@ -2732,9 +2732,9 @@ internal partial class PaymentMethodQueryBuilderV1 : GraphQlQueryBuilder<Payment
 internal partial class AboutQueryBuilderV1 : GraphQlQueryBuilder<AboutQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "items", IsComplex = true, QueryBuilderType = typeof(AboutItemQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "items", IsComplex = true, QueryBuilderType = typeof(AboutItemQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "About";
 
@@ -2752,10 +2752,10 @@ internal partial class AboutQueryBuilderV1 : GraphQlQueryBuilder<AboutQueryBuild
 internal partial class AboutItemQueryBuilderV1 : GraphQlQueryBuilder<AboutItemQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "label" },
-            new FieldMetadata { Name = "url" }
-        };
+    {
+        new FieldMetadata { Name = "label" },
+        new FieldMetadata { Name = "url" }
+    };
 
     protected override string TypeName { get; } = "AboutItem";
 
@@ -2777,9 +2777,9 @@ internal partial class AboutItemQueryBuilderV1 : GraphQlQueryBuilder<AboutItemQu
 internal partial class MutationQueryBuilderV1 : GraphQlQueryBuilder<MutationQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "me", IsComplex = true, QueryBuilderType = typeof(MeMutationQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "me", IsComplex = true, QueryBuilderType = typeof(MeMutationQueryBuilderV1) }
+    };
 
     protected override string Prefix { get; } = "mutation";
 
@@ -2801,11 +2801,11 @@ internal partial class MutationQueryBuilderV1 : GraphQlQueryBuilder<MutationQuer
 internal partial class MeMutationQueryBuilderV1 : GraphQlQueryBuilder<MeMutationQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "update", IsComplex = true, QueryBuilderType = typeof(MeQueryBuilderV1) },
-            new FieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(HomeMutationQueryBuilderV1) },
-            new FieldMetadata { Name = "updateAppState", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "update", IsComplex = true, QueryBuilderType = typeof(MeQueryBuilderV1) },
+        new FieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(HomeMutationQueryBuilderV1) },
+        new FieldMetadata { Name = "updateAppState", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "MeMutation";
 
@@ -2855,15 +2855,15 @@ internal partial class MeMutationQueryBuilderV1 : GraphQlQueryBuilder<MeMutation
 internal partial class HomeMutationQueryBuilderV1 : GraphQlQueryBuilder<HomeMutationQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "thermostat", IsComplex = true, QueryBuilderType = typeof(ThermostatMutationQueryBuilderV1) },
-            new FieldMetadata { Name = "pairDeviceWithOAuth", IsComplex = true, QueryBuilderType = typeof(PairDeviceResultQueryBuilderV1) },
-            new FieldMetadata { Name = "pairDeviceWithCredentials", IsComplex = true, QueryBuilderType = typeof(PairDeviceResultQueryBuilderV1) },
-            new FieldMetadata { Name = "answerProfileQuestions", IsComplex = true, QueryBuilderType = typeof(HomeProfileQuestionQueryBuilderV1) },
-            new FieldMetadata { Name = "sendMeterReading", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilderV1) },
-            new FieldMetadata { Name = "setMeteringPointIdAndBindingTime", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilderV1) },
-            new FieldMetadata { Name = "restartSubscription", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "thermostat", IsComplex = true, QueryBuilderType = typeof(ThermostatMutationQueryBuilderV1) },
+        new FieldMetadata { Name = "pairDeviceWithOAuth", IsComplex = true, QueryBuilderType = typeof(PairDeviceResultQueryBuilderV1) },
+        new FieldMetadata { Name = "pairDeviceWithCredentials", IsComplex = true, QueryBuilderType = typeof(PairDeviceResultQueryBuilderV1) },
+        new FieldMetadata { Name = "answerProfileQuestions", IsComplex = true, QueryBuilderType = typeof(HomeProfileQuestionQueryBuilderV1) },
+        new FieldMetadata { Name = "sendMeterReading", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilderV1) },
+        new FieldMetadata { Name = "setMeteringPointIdAndBindingTime", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilderV1) },
+        new FieldMetadata { Name = "restartSubscription", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "HomeMutation";
 
@@ -2962,10 +2962,10 @@ internal partial class HomeMutationQueryBuilderV1 : GraphQlQueryBuilder<HomeMuta
 internal partial class ThermostatMutationQueryBuilderV1 : GraphQlQueryBuilder<ThermostatMutationQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "setState" },
-            new FieldMetadata { Name = "setName" }
-        };
+    {
+        new FieldMetadata { Name = "setState" },
+        new FieldMetadata { Name = "setName" }
+    };
 
     protected override string TypeName { get; } = "ThermostatMutation";
 
@@ -3010,11 +3010,11 @@ internal partial class ThermostatMutationQueryBuilderV1 : GraphQlQueryBuilder<Th
 internal partial class PairDeviceResultQueryBuilderV1 : GraphQlQueryBuilder<PairDeviceResultQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "thermostats", IsComplex = true, QueryBuilderType = typeof(ThermostatQueryBuilderV1) },
-            new FieldMetadata { Name = "sensors", IsComplex = true, QueryBuilderType = typeof(SensorQueryBuilderV1) },
-            new FieldMetadata { Name = "error", IsComplex = true, QueryBuilderType = typeof(GqlMutationErrorQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "thermostats", IsComplex = true, QueryBuilderType = typeof(ThermostatQueryBuilderV1) },
+        new FieldMetadata { Name = "sensors", IsComplex = true, QueryBuilderType = typeof(SensorQueryBuilderV1) },
+        new FieldMetadata { Name = "error", IsComplex = true, QueryBuilderType = typeof(GqlMutationErrorQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "PairDeviceResult";
 
@@ -3040,10 +3040,10 @@ internal partial class PairDeviceResultQueryBuilderV1 : GraphQlQueryBuilder<Pair
 internal partial class GqlMutationErrorQueryBuilderV1 : GraphQlQueryBuilder<GqlMutationErrorQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "statusCode" },
-            new FieldMetadata { Name = "message" }
-        };
+    {
+        new FieldMetadata { Name = "statusCode" },
+        new FieldMetadata { Name = "message" }
+    };
 
     protected override string TypeName { get; } = "GQLMutationError";
 
@@ -3065,9 +3065,9 @@ internal partial class GqlMutationErrorQueryBuilderV1 : GraphQlQueryBuilder<GqlM
 internal partial class GqlMutationGeneralResponseQueryBuilderV1 : GraphQlQueryBuilder<GqlMutationGeneralResponseQueryBuilderV1>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "error", IsComplex = true, QueryBuilderType = typeof(GqlMutationErrorQueryBuilderV1) }
-        };
+    {
+        new FieldMetadata { Name = "error", IsComplex = true, QueryBuilderType = typeof(GqlMutationErrorQueryBuilderV1) }
+    };
 
     protected override string TypeName { get; } = "GQLMutationGeneralResponse";
 

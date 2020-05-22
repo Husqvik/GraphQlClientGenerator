@@ -39,7 +39,7 @@ namespace GraphQlClientGenerator
             Writer.WriteLine();
         }
 
-        public override void BeforeEnumsGeneration() => WriteLine("#region shared types");
+        public override void BeforeEnumsGeneration() => WriteLine("#region enums");
 
         public override void BeforeEnumGeneration(string enumName)
         {

@@ -1,4 +1,4 @@
-#region shared types
+#region enums
 public enum UnderscoreNamedEnum
 {
     [EnumMember(Value = "an_enum_value_1")] AnEnumValue1,
@@ -29,12 +29,12 @@ public class IncludeDirective : GraphQlDirective
 public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "simpleObject", IsComplex = true, QueryBuilderType = typeof(SimpleObjectTypeQueryBuilder) },
-            new FieldMetadata { Name = "union", IsComplex = true, QueryBuilderType = typeof(UnionTypeQueryBuilder) },
-            new FieldMetadata { Name = "interface", IsComplex = true, QueryBuilderType = typeof(NamedTypeQueryBuilder) },
-            new FieldMetadata { Name = "underscore_named_field", IsComplex = true, QueryBuilderType = typeof(UnderscoreNamedClassQueryBuilder) }
-        };
+    {
+        new FieldMetadata { Name = "simpleObject", IsComplex = true, QueryBuilderType = typeof(SimpleObjectTypeQueryBuilder) },
+        new FieldMetadata { Name = "union", IsComplex = true, QueryBuilderType = typeof(UnionTypeQueryBuilder) },
+        new FieldMetadata { Name = "interface", IsComplex = true, QueryBuilderType = typeof(NamedTypeQueryBuilder) },
+        new FieldMetadata { Name = "underscore_named_field", IsComplex = true, QueryBuilderType = typeof(UnderscoreNamedClassQueryBuilder) }
+    };
 
     protected override string Prefix { get; } = "query";
 
@@ -80,12 +80,12 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
 public partial class SimpleObjectTypeQueryBuilder : GraphQlQueryBuilder<SimpleObjectTypeQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "id" },
-            new FieldMetadata { Name = "stringValueNullable" },
-            new FieldMetadata { Name = "stringValue" },
-            new FieldMetadata { Name = "stringArrayValue", IsComplex = true }
-        };
+    {
+        new FieldMetadata { Name = "id" },
+        new FieldMetadata { Name = "stringValueNullable" },
+        new FieldMetadata { Name = "stringValue" },
+        new FieldMetadata { Name = "stringArrayValue", IsComplex = true }
+    };
 
     protected override string TypeName { get; } = "SimpleObjectType";
 
@@ -134,10 +134,10 @@ public partial class UnionTypeQueryBuilder : GraphQlQueryBuilder<UnionTypeQueryB
 public partial class ConcreteType1QueryBuilder : GraphQlQueryBuilder<ConcreteType1QueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "name" },
-            new FieldMetadata { Name = "concreteType1Field" }
-        };
+    {
+        new FieldMetadata { Name = "name" },
+        new FieldMetadata { Name = "concreteType1Field" }
+    };
 
     protected override string TypeName { get; } = "ConcreteType1";
 
@@ -159,9 +159,9 @@ public partial class ConcreteType1QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
 public partial class NamedTypeQueryBuilder : GraphQlQueryBuilder<NamedTypeQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "name" }
-        };
+    {
+        new FieldMetadata { Name = "name" }
+    };
 
     protected override string TypeName { get; } = "NamedType";
 
@@ -185,10 +185,10 @@ public partial class NamedTypeQueryBuilder : GraphQlQueryBuilder<NamedTypeQueryB
 public partial class ConcreteType2QueryBuilder : GraphQlQueryBuilder<ConcreteType2QueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "name" },
-            new FieldMetadata { Name = "concreteType2Field" }
-        };
+    {
+        new FieldMetadata { Name = "name" },
+        new FieldMetadata { Name = "concreteType2Field" }
+    };
 
     protected override string TypeName { get; } = "ConcreteType2";
 
@@ -210,11 +210,11 @@ public partial class ConcreteType2QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
 public partial class ConcreteType3QueryBuilder : GraphQlQueryBuilder<ConcreteType3QueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "name" },
-            new FieldMetadata { Name = "concreteType3Field" },
-            new FieldMetadata { Name = "function" }
-        };
+    {
+        new FieldMetadata { Name = "name" },
+        new FieldMetadata { Name = "concreteType3Field" },
+        new FieldMetadata { Name = "function" }
+    };
 
     protected override string TypeName { get; } = "ConcreteType3";
 
@@ -245,10 +245,10 @@ public partial class ConcreteType3QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
 public partial class UnderscoreNamedClassQueryBuilder : GraphQlQueryBuilder<UnderscoreNamedClassQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
-        {
-            new FieldMetadata { Name = "underscore_named_field_enum" },
-            new FieldMetadata { Name = "underscore_named_field_enum_collection", IsComplex = true }
-        };
+    {
+        new FieldMetadata { Name = "underscore_named_field_enum" },
+        new FieldMetadata { Name = "underscore_named_field_enum_collection", IsComplex = true }
+    };
 
     protected override string TypeName { get; } = "underscore_named_class";
 

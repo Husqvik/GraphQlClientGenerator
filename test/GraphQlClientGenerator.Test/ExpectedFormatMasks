@@ -1,4 +1,4 @@
-#region shared types
+#region enums
 public enum HomeAvatar
 {
     [EnumMember(Value = "APARTMENT")] Apartment,

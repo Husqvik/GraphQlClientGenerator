@@ -762,17 +762,17 @@ using Newtonsoft.Json.Linq;
             {
                 writer.WriteLine();
 
-                var fieldMetadataIndentation = String.Empty;
+                var fieldMetadataIndentation = indentation;
 
                 if (_configuration.CSharpVersion == CSharpVersion.Compatible)
                 {
-                    fieldMetadataIndentation = indentation;
-                    writer.Write(fieldMetadataIndentation);
+                    writer.Write(indentation);
                     writer.WriteLine("        new []");
+                    fieldMetadataIndentation = indentation + "    ";
                 }
 
                 writer.Write(fieldMetadataIndentation);
-                writer.WriteLine("        {");
+                writer.WriteLine("    {");
 
                 for (var i = 0; i < fields.Count; i++)
                 {
@@ -784,7 +784,7 @@ using Newtonsoft.Json.Linq;
                     var isComplex = isList || treatUnknownObjectAsComplex || IsComplexType(fieldType.Kind);
 
                     writer.Write(fieldMetadataIndentation);
-                    writer.Write($"            new FieldMetadata {{ Name = \"{field.Name}\"");
+                    writer.Write($"        new FieldMetadata {{ Name = \"{field.Name}\"");
 
                     if (isComplex)
                     {
@@ -809,7 +809,7 @@ using Newtonsoft.Json.Linq;
                 }
 
                 writer.Write(fieldMetadataIndentation);
-                writer.WriteLine("        };");
+                writer.WriteLine("    };");
                 writer.WriteLine();
             }
 
