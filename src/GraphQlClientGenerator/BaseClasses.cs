@@ -723,3 +723,21 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
         return (TQueryBuilder)this;
     }
 }
+
+public abstract class GraphQlResponse<TDataContract>
+{
+    public TDataContract Data { get; set; }
+    public ICollection<QueryError> Errors { get; set; }
+}
+
+public class QueryError
+{
+    public string Message { get; set; }
+    public ICollection<ErrorLocation> Locations { get; set; }
+}
+
+public class ErrorLocation
+{
+    public int Line { get; set; }
+    public int Column { get; set; }
+}
