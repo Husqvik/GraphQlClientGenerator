@@ -21,6 +21,10 @@
     <EmbeddedResource Include="ExpectedFullClientCSharpFile" />
     <EmbeddedResource Include="ExpectedDataClasses" />
     <EmbeddedResource Include="ExpectedDataClassesWithTypeConfiguration" />
+    <EmbeddedResource Include="ExpectedMultipleFilesContext\Avatar" />
+    <EmbeddedResource Include="ExpectedMultipleFilesContext\Home" />
+    <EmbeddedResource Include="ExpectedMultipleFilesContext\IncludeDirective" />
+    <EmbeddedResource Include="ExpectedMultipleFilesContext\MutationQueryBuilder" />
     <EmbeddedResource Include="ExpectedNewCSharpSyntaxWithClassPostfix" />
     <EmbeddedResource Include="ExpectedDeprecatedAttributes" />
     <EmbeddedResource Include="ExpectedWithNullableReferences" />

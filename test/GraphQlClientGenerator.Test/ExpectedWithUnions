@@ -36,42 +36,40 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
         new FieldMetadata { Name = "underscore_named_field", IsComplex = true, QueryBuilderType = typeof(UnderscoreNamedClassQueryBuilder) }
     };
 
-    protected override string Prefix { get; } = "query";
-
     protected override string TypeName { get; } = "Query";
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public QueryQueryBuilder(string? alias = null) : base(alias, null)
+    public QueryQueryBuilder(string? operationName = null) : base("query", operationName)
     {
     }
 
     public QueryQueryBuilder WithParameter<T>(GraphQlQueryParameter<T> parameter) => WithParameterInternal(parameter);
 
-    public QueryQueryBuilder WithSimpleObject(SimpleObjectTypeQueryBuilder simpleObjectTypeQueryBuilder) => WithObjectField("simpleObject", simpleObjectTypeQueryBuilder);
+    public QueryQueryBuilder WithSimpleObject(SimpleObjectTypeQueryBuilder simpleObjectTypeQueryBuilder, string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithObjectField("simpleObject", alias, simpleObjectTypeQueryBuilder, new GraphQlDirective?[] { skip, include });
 
     public QueryQueryBuilder ExceptSimpleObject() => ExceptField("simpleObject");
 
-    public QueryQueryBuilder WithUnion(UnionTypeQueryBuilder unionTypeQueryBuilder) => WithObjectField("union", unionTypeQueryBuilder);
+    public QueryQueryBuilder WithUnion(UnionTypeQueryBuilder unionTypeQueryBuilder, string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithObjectField("union", alias, unionTypeQueryBuilder, new GraphQlDirective?[] { skip, include });
 
     public QueryQueryBuilder ExceptUnion() => ExceptField("union");
 
-    public QueryQueryBuilder WithInterface(NamedTypeQueryBuilder namedTypeQueryBuilder, QueryBuilderParameter<Guid> parameter)
+    public QueryQueryBuilder WithInterface(NamedTypeQueryBuilder namedTypeQueryBuilder, QueryBuilderParameter<Guid> parameter, string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "parameter", ArgumentValue = parameter} );
-        return WithObjectField("interface", namedTypeQueryBuilder, args);
+        return WithObjectField("interface", alias, namedTypeQueryBuilder, new GraphQlDirective?[] { skip, include }, args);
     }
 
     public QueryQueryBuilder ExceptInterface() => ExceptField("interface");
 
-    public QueryQueryBuilder WithUnderscoreNamedField(UnderscoreNamedClassQueryBuilder underscoreNamedClassQueryBuilder, QueryBuilderParameter<UnderscoreNamedInput?>? underscoreNamedParameter = null)
+    public QueryQueryBuilder WithUnderscoreNamedField(UnderscoreNamedClassQueryBuilder underscoreNamedClassQueryBuilder, QueryBuilderParameter<UnderscoreNamedInput?>? underscoreNamedParameter = null, string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (underscoreNamedParameter != null)
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "underscore_named_parameter", ArgumentValue = underscoreNamedParameter} );
 
-        return WithObjectField("underscore_named_field", underscoreNamedClassQueryBuilder, args);
+        return WithObjectField("underscore_named_field", alias, underscoreNamedClassQueryBuilder, new GraphQlDirective?[] { skip, include }, args);
     }
 
     public QueryQueryBuilder ExceptUnderscoreNamedField() => ExceptField("underscore_named_field");
@@ -90,10 +88,6 @@ public partial class SimpleObjectTypeQueryBuilder : GraphQlQueryBuilder<SimpleOb
     protected override string TypeName { get; } = "SimpleObjectType";
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-    public SimpleObjectTypeQueryBuilder(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) : base(alias, new GraphQlDirective?[] { skip, include })
-    {
-    }
 
     public SimpleObjectTypeQueryBuilder WithId(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("id", alias, new GraphQlDirective?[] { skip, include });
 
@@ -120,15 +114,11 @@ public partial class UnionTypeQueryBuilder : GraphQlQueryBuilder<UnionTypeQueryB
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public UnionTypeQueryBuilder(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) : base(alias, new GraphQlDirective?[] { skip, include })
-    {
-    }
+    public UnionTypeQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder, SkipDirective? skip = null, IncludeDirective? include = null) => WithFragment(concreteType1QueryBuilder, new GraphQlDirective?[] { skip, include });
 
-    public UnionTypeQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder) => WithFragment(concreteType1QueryBuilder);
+    public UnionTypeQueryBuilder WithConcreteType2Fragment(ConcreteType2QueryBuilder concreteType2QueryBuilder, SkipDirective? skip = null, IncludeDirective? include = null) => WithFragment(concreteType2QueryBuilder, new GraphQlDirective?[] { skip, include });
 
-    public UnionTypeQueryBuilder WithConcreteType2Fragment(ConcreteType2QueryBuilder concreteType2QueryBuilder) => WithFragment(concreteType2QueryBuilder);
-
-    public UnionTypeQueryBuilder WithConcreteType3Fragment(ConcreteType3QueryBuilder concreteType3QueryBuilder) => WithFragment(concreteType3QueryBuilder);
+    public UnionTypeQueryBuilder WithConcreteType3Fragment(ConcreteType3QueryBuilder concreteType3QueryBuilder, SkipDirective? skip = null, IncludeDirective? include = null) => WithFragment(concreteType3QueryBuilder, new GraphQlDirective?[] { skip, include });
 }
 
 public partial class ConcreteType1QueryBuilder : GraphQlQueryBuilder<ConcreteType1QueryBuilder>
@@ -142,10 +132,6 @@ public partial class ConcreteType1QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
     protected override string TypeName { get; } = "ConcreteType1";
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-    public ConcreteType1QueryBuilder(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) : base(alias, new GraphQlDirective?[] { skip, include })
-    {
-    }
 
     public ConcreteType1QueryBuilder WithName(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("name", alias, new GraphQlDirective?[] { skip, include });
 
@@ -167,19 +153,15 @@ public partial class NamedTypeQueryBuilder : GraphQlQueryBuilder<NamedTypeQueryB
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public NamedTypeQueryBuilder(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) : base(alias, new GraphQlDirective?[] { skip, include })
-    {
-    }
-
     public NamedTypeQueryBuilder WithName(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("name", alias, new GraphQlDirective?[] { skip, include });
 
     public NamedTypeQueryBuilder ExceptName() => ExceptField("name");
 
-    public NamedTypeQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder) => WithFragment(concreteType1QueryBuilder);
+    public NamedTypeQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder, SkipDirective? skip = null, IncludeDirective? include = null) => WithFragment(concreteType1QueryBuilder, new GraphQlDirective?[] { skip, include });
 
-    public NamedTypeQueryBuilder WithConcreteType2Fragment(ConcreteType2QueryBuilder concreteType2QueryBuilder) => WithFragment(concreteType2QueryBuilder);
+    public NamedTypeQueryBuilder WithConcreteType2Fragment(ConcreteType2QueryBuilder concreteType2QueryBuilder, SkipDirective? skip = null, IncludeDirective? include = null) => WithFragment(concreteType2QueryBuilder, new GraphQlDirective?[] { skip, include });
 
-    public NamedTypeQueryBuilder WithConcreteType3Fragment(ConcreteType3QueryBuilder concreteType3QueryBuilder) => WithFragment(concreteType3QueryBuilder);
+    public NamedTypeQueryBuilder WithConcreteType3Fragment(ConcreteType3QueryBuilder concreteType3QueryBuilder, SkipDirective? skip = null, IncludeDirective? include = null) => WithFragment(concreteType3QueryBuilder, new GraphQlDirective?[] { skip, include });
 }
 
 public partial class ConcreteType2QueryBuilder : GraphQlQueryBuilder<ConcreteType2QueryBuilder>
@@ -193,10 +175,6 @@ public partial class ConcreteType2QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
     protected override string TypeName { get; } = "ConcreteType2";
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-    public ConcreteType2QueryBuilder(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) : base(alias, new GraphQlDirective?[] { skip, include })
-    {
-    }
 
     public ConcreteType2QueryBuilder WithName(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("name", alias, new GraphQlDirective?[] { skip, include });
 
@@ -219,10 +197,6 @@ public partial class ConcreteType3QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
     protected override string TypeName { get; } = "ConcreteType3";
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-    public ConcreteType3QueryBuilder(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) : base(alias, new GraphQlDirective?[] { skip, include })
-    {
-    }
 
     public ConcreteType3QueryBuilder WithName(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("name", alias, new GraphQlDirective?[] { skip, include });
 
@@ -253,10 +227,6 @@ public partial class UnderscoreNamedClassQueryBuilder : GraphQlQueryBuilder<Unde
     protected override string TypeName { get; } = "underscore_named_class";
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-    public UnderscoreNamedClassQueryBuilder(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) : base(alias, new GraphQlDirective?[] { skip, include })
-    {
-    }
 
     public UnderscoreNamedClassQueryBuilder WithUnderscoreNamedFieldEnum(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("underscore_named_field_enum", alias, new GraphQlDirective?[] { skip, include });
 

@@ -95,13 +95,11 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
             new FieldMetadata { Name = "viewer", IsComplex = true, QueryBuilderType = typeof(ViewerQueryBuilder) }
         };
 
-    protected override string Prefix { get { return "query"; } } 
-
     protected override string TypeName { get { return "Query"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
-    public QueryQueryBuilder(string alias = null) : base(alias, null)
+    public QueryQueryBuilder(string operationName = null) : base("query", operationName)
     {
     }
 
@@ -110,9 +108,9 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
         return WithParameterInternal(parameter);
     }
 
-    public QueryQueryBuilder WithViewer(ViewerQueryBuilder viewerQueryBuilder)
+    public QueryQueryBuilder WithViewer(ViewerQueryBuilder viewerQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("viewer", viewerQueryBuilder);
+        return WithObjectField("viewer", alias, viewerQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public QueryQueryBuilder ExceptViewer()
@@ -136,10 +134,6 @@ public partial class ViewerQueryBuilder : GraphQlQueryBuilder<ViewerQueryBuilder
     protected override string TypeName { get { return "Viewer"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
-
-    public ViewerQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
 
     public ViewerQueryBuilder WithLogin(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
@@ -171,9 +165,9 @@ public partial class ViewerQueryBuilder : GraphQlQueryBuilder<ViewerQueryBuilder
         return ExceptField("accountType");
     }
 
-    public ViewerQueryBuilder WithHomes(HomeQueryBuilder homeQueryBuilder)
+    public ViewerQueryBuilder WithHomes(HomeQueryBuilder homeQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("homes", homeQueryBuilder);
+        return WithObjectField("homes", alias, homeQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public ViewerQueryBuilder ExceptHomes()
@@ -181,11 +175,11 @@ public partial class ViewerQueryBuilder : GraphQlQueryBuilder<ViewerQueryBuilder
         return ExceptField("homes");
     }
 
-    public ViewerQueryBuilder WithHome(HomeQueryBuilder homeQueryBuilder, QueryBuilderParameter<Guid> id)
+    public ViewerQueryBuilder WithHome(HomeQueryBuilder homeQueryBuilder, QueryBuilderParameter<Guid> id, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "id", ArgumentValue = id, FormatMask = "N"} );
-        return WithObjectField("home", homeQueryBuilder, args);
+        return WithObjectField("home", alias, homeQueryBuilder, new GraphQlDirective[] { skip, include }, args);
     }
 
     public ViewerQueryBuilder ExceptHome()
@@ -222,10 +216,6 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
     protected override string TypeName { get { return "Home"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
-
-    public HomeQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
 
     public HomeQueryBuilder WithId(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
@@ -327,9 +317,9 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return ExceptField("mainFuseSize");
     }
 
-    public HomeQueryBuilder WithAddress(AddressQueryBuilder addressQueryBuilder)
+    public HomeQueryBuilder WithAddress(AddressQueryBuilder addressQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("address", addressQueryBuilder);
+        return WithObjectField("address", alias, addressQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public HomeQueryBuilder ExceptAddress()
@@ -337,9 +327,9 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return ExceptField("address");
     }
 
-    public HomeQueryBuilder WithOwner(LegalEntityQueryBuilder legalEntityQueryBuilder)
+    public HomeQueryBuilder WithOwner(LegalEntityQueryBuilder legalEntityQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("owner", legalEntityQueryBuilder);
+        return WithObjectField("owner", alias, legalEntityQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public HomeQueryBuilder ExceptOwner()
@@ -347,9 +337,9 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return ExceptField("owner");
     }
 
-    public HomeQueryBuilder WithMeteringPointData(MeteringPointDataQueryBuilder meteringPointDataQueryBuilder)
+    public HomeQueryBuilder WithMeteringPointData(MeteringPointDataQueryBuilder meteringPointDataQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("meteringPointData", meteringPointDataQueryBuilder);
+        return WithObjectField("meteringPointData", alias, meteringPointDataQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public HomeQueryBuilder ExceptMeteringPointData()
@@ -357,9 +347,9 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return ExceptField("meteringPointData");
     }
 
-    public HomeQueryBuilder WithCurrentSubscription(SubscriptionQueryBuilder subscriptionQueryBuilder)
+    public HomeQueryBuilder WithCurrentSubscription(SubscriptionQueryBuilder subscriptionQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("currentSubscription", subscriptionQueryBuilder);
+        return WithObjectField("currentSubscription", alias, subscriptionQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public HomeQueryBuilder ExceptCurrentSubscription()
@@ -367,9 +357,9 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return ExceptField("currentSubscription");
     }
 
-    public HomeQueryBuilder WithSubscriptions(SubscriptionQueryBuilder subscriptionQueryBuilder)
+    public HomeQueryBuilder WithSubscriptions(SubscriptionQueryBuilder subscriptionQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("subscriptions", subscriptionQueryBuilder);
+        return WithObjectField("subscriptions", alias, subscriptionQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public HomeQueryBuilder ExceptSubscriptions()
@@ -377,7 +367,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return ExceptField("subscriptions");
     }
 
-    public HomeQueryBuilder WithConsumption(HomeConsumptionConnectionQueryBuilder homeConsumptionConnectionQueryBuilder, QueryBuilderParameter<EnergyResolution> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<DateTimeOffset> before = null, QueryBuilderParameter<DateTimeOffset> after = null, QueryBuilderParameter<bool?> filterEmptyNodes = null)
+    public HomeQueryBuilder WithConsumption(HomeConsumptionConnectionQueryBuilder homeConsumptionConnectionQueryBuilder, QueryBuilderParameter<EnergyResolution> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<DateTimeOffset> before = null, QueryBuilderParameter<DateTimeOffset> after = null, QueryBuilderParameter<bool?> filterEmptyNodes = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "resolution", ArgumentValue = resolution} );
@@ -396,7 +386,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         if (filterEmptyNodes != null)
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "filterEmptyNodes", ArgumentValue = filterEmptyNodes} );
 
-        return WithObjectField("consumption", homeConsumptionConnectionQueryBuilder, args);
+        return WithObjectField("consumption", alias, homeConsumptionConnectionQueryBuilder, new GraphQlDirective[] { skip, include }, args);
     }
 
     public HomeQueryBuilder ExceptConsumption()
@@ -404,7 +394,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return ExceptField("consumption");
     }
 
-    public HomeQueryBuilder WithProduction(HomeProductionConnectionQueryBuilder homeProductionConnectionQueryBuilder, QueryBuilderParameter<EnergyResolution> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<DateTimeOffset> before = null, QueryBuilderParameter<DateTimeOffset> after = null, QueryBuilderParameter<bool?> filterEmptyNodes = null)
+    public HomeQueryBuilder WithProduction(HomeProductionConnectionQueryBuilder homeProductionConnectionQueryBuilder, QueryBuilderParameter<EnergyResolution> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<DateTimeOffset> before = null, QueryBuilderParameter<DateTimeOffset> after = null, QueryBuilderParameter<bool?> filterEmptyNodes = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "resolution", ArgumentValue = resolution} );
@@ -423,7 +413,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         if (filterEmptyNodes != null)
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "filterEmptyNodes", ArgumentValue = filterEmptyNodes} );
 
-        return WithObjectField("production", homeProductionConnectionQueryBuilder, args);
+        return WithObjectField("production", alias, homeProductionConnectionQueryBuilder, new GraphQlDirective[] { skip, include }, args);
     }
 
     public HomeQueryBuilder ExceptProduction()
@@ -431,9 +421,9 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return ExceptField("production");
     }
 
-    public HomeQueryBuilder WithFeatures(HomeFeaturesQueryBuilder homeFeaturesQueryBuilder)
+    public HomeQueryBuilder WithFeatures(HomeFeaturesQueryBuilder homeFeaturesQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("features", homeFeaturesQueryBuilder);
+        return WithObjectField("features", alias, homeFeaturesQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public HomeQueryBuilder ExceptFeatures()
@@ -460,10 +450,6 @@ public partial class AddressQueryBuilder : GraphQlQueryBuilder<AddressQueryBuild
     protected override string TypeName { get { return "Address"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
-
-    public AddressQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
 
     public AddressQueryBuilder WithAddress1(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
@@ -567,10 +553,6 @@ public partial class LegalEntityQueryBuilder : GraphQlQueryBuilder<LegalEntityQu
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
-    public LegalEntityQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
-
     public LegalEntityQueryBuilder WithId(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         return WithScalarField("id", alias, new GraphQlDirective[] { skip, include });
@@ -651,9 +633,9 @@ public partial class LegalEntityQueryBuilder : GraphQlQueryBuilder<LegalEntityQu
         return ExceptField("language");
     }
 
-    public LegalEntityQueryBuilder WithContactInfo(ContactInfoQueryBuilder contactInfoQueryBuilder)
+    public LegalEntityQueryBuilder WithContactInfo(ContactInfoQueryBuilder contactInfoQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("contactInfo", contactInfoQueryBuilder);
+        return WithObjectField("contactInfo", alias, contactInfoQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public LegalEntityQueryBuilder ExceptContactInfo()
@@ -661,9 +643,9 @@ public partial class LegalEntityQueryBuilder : GraphQlQueryBuilder<LegalEntityQu
         return ExceptField("contactInfo");
     }
 
-    public LegalEntityQueryBuilder WithAddress(AddressQueryBuilder addressQueryBuilder)
+    public LegalEntityQueryBuilder WithAddress(AddressQueryBuilder addressQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("address", addressQueryBuilder);
+        return WithObjectField("address", alias, addressQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public LegalEntityQueryBuilder ExceptAddress()
@@ -684,10 +666,6 @@ public partial class ContactInfoQueryBuilder : GraphQlQueryBuilder<ContactInfoQu
     protected override string TypeName { get { return "ContactInfo"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
-
-    public ContactInfoQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
 
     public ContactInfoQueryBuilder WithEmail(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
@@ -728,10 +706,6 @@ public partial class MeteringPointDataQueryBuilder : GraphQlQueryBuilder<Meterin
     protected override string TypeName { get { return "MeteringPointData"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
-
-    public MeteringPointDataQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
 
     public MeteringPointDataQueryBuilder WithConsumptionEan(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
@@ -831,10 +805,6 @@ public partial class SubscriptionQueryBuilder : GraphQlQueryBuilder<Subscription
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
-    public SubscriptionQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
-
     public SubscriptionQueryBuilder WithId(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         return WithScalarField("id", alias, new GraphQlDirective[] { skip, include });
@@ -845,9 +815,9 @@ public partial class SubscriptionQueryBuilder : GraphQlQueryBuilder<Subscription
         return ExceptField("id");
     }
 
-    public SubscriptionQueryBuilder WithSubscriber(LegalEntityQueryBuilder legalEntityQueryBuilder)
+    public SubscriptionQueryBuilder WithSubscriber(LegalEntityQueryBuilder legalEntityQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("subscriber", legalEntityQueryBuilder);
+        return WithObjectField("subscriber", alias, legalEntityQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public SubscriptionQueryBuilder ExceptSubscriber()
@@ -885,9 +855,9 @@ public partial class SubscriptionQueryBuilder : GraphQlQueryBuilder<Subscription
         return ExceptField("status");
     }
 
-    public SubscriptionQueryBuilder WithPriceInfo(PriceInfoQueryBuilder priceInfoQueryBuilder)
+    public SubscriptionQueryBuilder WithPriceInfo(PriceInfoQueryBuilder priceInfoQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("priceInfo", priceInfoQueryBuilder);
+        return WithObjectField("priceInfo", alias, priceInfoQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public SubscriptionQueryBuilder ExceptPriceInfo()
@@ -911,13 +881,9 @@ public partial class PriceInfoQueryBuilder : GraphQlQueryBuilder<PriceInfoQueryB
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
-    public PriceInfoQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
+    public PriceInfoQueryBuilder WithCurrent(PriceQueryBuilder priceQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-    }
-
-    public PriceInfoQueryBuilder WithCurrent(PriceQueryBuilder priceQueryBuilder)
-    {
-        return WithObjectField("current", priceQueryBuilder);
+        return WithObjectField("current", alias, priceQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public PriceInfoQueryBuilder ExceptCurrent()
@@ -925,9 +891,9 @@ public partial class PriceInfoQueryBuilder : GraphQlQueryBuilder<PriceInfoQueryB
         return ExceptField("current");
     }
 
-    public PriceInfoQueryBuilder WithToday(PriceQueryBuilder priceQueryBuilder)
+    public PriceInfoQueryBuilder WithToday(PriceQueryBuilder priceQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("today", priceQueryBuilder);
+        return WithObjectField("today", alias, priceQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public PriceInfoQueryBuilder ExceptToday()
@@ -935,9 +901,9 @@ public partial class PriceInfoQueryBuilder : GraphQlQueryBuilder<PriceInfoQueryB
         return ExceptField("today");
     }
 
-    public PriceInfoQueryBuilder WithTomorrow(PriceQueryBuilder priceQueryBuilder)
+    public PriceInfoQueryBuilder WithTomorrow(PriceQueryBuilder priceQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("tomorrow", priceQueryBuilder);
+        return WithObjectField("tomorrow", alias, priceQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public PriceInfoQueryBuilder ExceptTomorrow()
@@ -945,7 +911,7 @@ public partial class PriceInfoQueryBuilder : GraphQlQueryBuilder<PriceInfoQueryB
         return ExceptField("tomorrow");
     }
 
-    public PriceInfoQueryBuilder WithRange(SubscriptionPriceConnectionQueryBuilder subscriptionPriceConnectionQueryBuilder, QueryBuilderParameter<PriceResolution> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<DateTimeOffset> before = null, QueryBuilderParameter<DateTimeOffset> after = null)
+    public PriceInfoQueryBuilder WithRange(SubscriptionPriceConnectionQueryBuilder subscriptionPriceConnectionQueryBuilder, QueryBuilderParameter<PriceResolution> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<DateTimeOffset> before = null, QueryBuilderParameter<DateTimeOffset> after = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "resolution", ArgumentValue = resolution} );
@@ -961,7 +927,7 @@ public partial class PriceInfoQueryBuilder : GraphQlQueryBuilder<PriceInfoQueryB
         if (after != null)
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "after", ArgumentValue = after, FormatMask = "yyyy-MM-dd\"T\"HH:mm"} );
 
-        return WithObjectField("range", subscriptionPriceConnectionQueryBuilder, args);
+        return WithObjectField("range", alias, subscriptionPriceConnectionQueryBuilder, new GraphQlDirective[] { skip, include }, args);
     }
 
     public PriceInfoQueryBuilder ExceptRange()
@@ -986,10 +952,6 @@ public partial class PriceQueryBuilder : GraphQlQueryBuilder<PriceQueryBuilder>
     protected override string TypeName { get { return "Price"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
-
-    public PriceQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
 
     public PriceQueryBuilder WithTotal(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
@@ -1066,13 +1028,9 @@ public partial class SubscriptionPriceConnectionQueryBuilder : GraphQlQueryBuild
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
-    public SubscriptionPriceConnectionQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
+    public SubscriptionPriceConnectionQueryBuilder WithPageInfo(SubscriptionPriceConnectionPageInfoQueryBuilder subscriptionPriceConnectionPageInfoQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-    }
-
-    public SubscriptionPriceConnectionQueryBuilder WithPageInfo(SubscriptionPriceConnectionPageInfoQueryBuilder subscriptionPriceConnectionPageInfoQueryBuilder)
-    {
-        return WithObjectField("pageInfo", subscriptionPriceConnectionPageInfoQueryBuilder);
+        return WithObjectField("pageInfo", alias, subscriptionPriceConnectionPageInfoQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public SubscriptionPriceConnectionQueryBuilder ExceptPageInfo()
@@ -1080,9 +1038,9 @@ public partial class SubscriptionPriceConnectionQueryBuilder : GraphQlQueryBuild
         return ExceptField("pageInfo");
     }
 
-    public SubscriptionPriceConnectionQueryBuilder WithEdges(SubscriptionPriceEdgeQueryBuilder subscriptionPriceEdgeQueryBuilder)
+    public SubscriptionPriceConnectionQueryBuilder WithEdges(SubscriptionPriceEdgeQueryBuilder subscriptionPriceEdgeQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("edges", subscriptionPriceEdgeQueryBuilder);
+        return WithObjectField("edges", alias, subscriptionPriceEdgeQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public SubscriptionPriceConnectionQueryBuilder ExceptEdges()
@@ -1090,9 +1048,9 @@ public partial class SubscriptionPriceConnectionQueryBuilder : GraphQlQueryBuild
         return ExceptField("edges");
     }
 
-    public SubscriptionPriceConnectionQueryBuilder WithNodes(PriceQueryBuilder priceQueryBuilder)
+    public SubscriptionPriceConnectionQueryBuilder WithNodes(PriceQueryBuilder priceQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("nodes", priceQueryBuilder);
+        return WithObjectField("nodes", alias, priceQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public SubscriptionPriceConnectionQueryBuilder ExceptNodes()
@@ -1123,10 +1081,6 @@ public partial class SubscriptionPriceConnectionPageInfoQueryBuilder : GraphQlQu
     protected override string TypeName { get { return "SubscriptionPriceConnectionPageInfo"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
-
-    public SubscriptionPriceConnectionPageInfoQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
 
     public SubscriptionPriceConnectionPageInfoQueryBuilder WithEndCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
@@ -1265,10 +1219,6 @@ public partial class PageInfoQueryBuilder : GraphQlQueryBuilder<PageInfoQueryBui
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
-    public PageInfoQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
-
     public PageInfoQueryBuilder WithUnimplementedField(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         return WithScalarField("unimplementedField", alias, new GraphQlDirective[] { skip, include });
@@ -1319,19 +1269,19 @@ public partial class PageInfoQueryBuilder : GraphQlQueryBuilder<PageInfoQueryBui
         return ExceptField("startCursor");
     }
 
-    public PageInfoQueryBuilder WithSubscriptionPriceConnectionPageInfoFragment(SubscriptionPriceConnectionPageInfoQueryBuilder subscriptionPriceConnectionPageInfoQueryBuilder)
+    public PageInfoQueryBuilder WithSubscriptionPriceConnectionPageInfoFragment(SubscriptionPriceConnectionPageInfoQueryBuilder subscriptionPriceConnectionPageInfoQueryBuilder, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithFragment(subscriptionPriceConnectionPageInfoQueryBuilder);
+        return WithFragment(subscriptionPriceConnectionPageInfoQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
-    public PageInfoQueryBuilder WithHomeConsumptionPageInfoFragment(HomeConsumptionPageInfoQueryBuilder homeConsumptionPageInfoQueryBuilder)
+    public PageInfoQueryBuilder WithHomeConsumptionPageInfoFragment(HomeConsumptionPageInfoQueryBuilder homeConsumptionPageInfoQueryBuilder, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithFragment(homeConsumptionPageInfoQueryBuilder);
+        return WithFragment(homeConsumptionPageInfoQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
-    public PageInfoQueryBuilder WithHomeProductionPageInfoFragment(HomeProductionPageInfoQueryBuilder homeProductionPageInfoQueryBuilder)
+    public PageInfoQueryBuilder WithHomeProductionPageInfoFragment(HomeProductionPageInfoQueryBuilder homeProductionPageInfoQueryBuilder, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithFragment(homeProductionPageInfoQueryBuilder);
+        return WithFragment(homeProductionPageInfoQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 }
 
@@ -1348,10 +1298,6 @@ public partial class SubscriptionPriceEdgeQueryBuilder : GraphQlQueryBuilder<Sub
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
-    public SubscriptionPriceEdgeQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
-
     public SubscriptionPriceEdgeQueryBuilder WithCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         return WithScalarField("cursor", alias, new GraphQlDirective[] { skip, include });
@@ -1362,9 +1308,9 @@ public partial class SubscriptionPriceEdgeQueryBuilder : GraphQlQueryBuilder<Sub
         return ExceptField("cursor");
     }
 
-    public SubscriptionPriceEdgeQueryBuilder WithNode(PriceQueryBuilder priceQueryBuilder)
+    public SubscriptionPriceEdgeQueryBuilder WithNode(PriceQueryBuilder priceQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("node", priceQueryBuilder);
+        return WithObjectField("node", alias, priceQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public SubscriptionPriceEdgeQueryBuilder ExceptNode()
@@ -1387,13 +1333,9 @@ public partial class HomeConsumptionConnectionQueryBuilder : GraphQlQueryBuilder
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
-    public HomeConsumptionConnectionQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
+    public HomeConsumptionConnectionQueryBuilder WithPageInfo(HomeConsumptionPageInfoQueryBuilder homeConsumptionPageInfoQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-    }
-
-    public HomeConsumptionConnectionQueryBuilder WithPageInfo(HomeConsumptionPageInfoQueryBuilder homeConsumptionPageInfoQueryBuilder)
-    {
-        return WithObjectField("pageInfo", homeConsumptionPageInfoQueryBuilder);
+        return WithObjectField("pageInfo", alias, homeConsumptionPageInfoQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public HomeConsumptionConnectionQueryBuilder ExceptPageInfo()
@@ -1401,9 +1343,9 @@ public partial class HomeConsumptionConnectionQueryBuilder : GraphQlQueryBuilder
         return ExceptField("pageInfo");
     }
 
-    public HomeConsumptionConnectionQueryBuilder WithNodes(ConsumptionQueryBuilder consumptionQueryBuilder)
+    public HomeConsumptionConnectionQueryBuilder WithNodes(ConsumptionQueryBuilder consumptionQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("nodes", consumptionQueryBuilder);
+        return WithObjectField("nodes", alias, consumptionQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public HomeConsumptionConnectionQueryBuilder ExceptNodes()
@@ -1411,9 +1353,9 @@ public partial class HomeConsumptionConnectionQueryBuilder : GraphQlQueryBuilder
         return ExceptField("nodes");
     }
 
-    public HomeConsumptionConnectionQueryBuilder WithEdges(HomeConsumptionEdgeQueryBuilder homeConsumptionEdgeQueryBuilder)
+    public HomeConsumptionConnectionQueryBuilder WithEdges(HomeConsumptionEdgeQueryBuilder homeConsumptionEdgeQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("edges", homeConsumptionEdgeQueryBuilder);
+        return WithObjectField("edges", alias, homeConsumptionEdgeQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public HomeConsumptionConnectionQueryBuilder ExceptEdges()
@@ -1441,10 +1383,6 @@ public partial class HomeConsumptionPageInfoQueryBuilder : GraphQlQueryBuilder<H
     protected override string TypeName { get { return "HomeConsumptionPageInfo"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
-
-    public HomeConsumptionPageInfoQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
 
     public HomeConsumptionPageInfoQueryBuilder WithEndCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
@@ -1556,10 +1494,6 @@ public partial class ConsumptionQueryBuilder : GraphQlQueryBuilder<ConsumptionQu
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
-    public ConsumptionQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
-
     public ConsumptionQueryBuilder WithFrom(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         return WithScalarField("from", alias, new GraphQlDirective[] { skip, include });
@@ -1654,10 +1588,6 @@ public partial class HomeConsumptionEdgeQueryBuilder : GraphQlQueryBuilder<HomeC
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
-    public HomeConsumptionEdgeQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
-
     public HomeConsumptionEdgeQueryBuilder WithCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         return WithScalarField("cursor", alias, new GraphQlDirective[] { skip, include });
@@ -1668,9 +1598,9 @@ public partial class HomeConsumptionEdgeQueryBuilder : GraphQlQueryBuilder<HomeC
         return ExceptField("cursor");
     }
 
-    public HomeConsumptionEdgeQueryBuilder WithNode(ConsumptionQueryBuilder consumptionQueryBuilder)
+    public HomeConsumptionEdgeQueryBuilder WithNode(ConsumptionQueryBuilder consumptionQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("node", consumptionQueryBuilder);
+        return WithObjectField("node", alias, consumptionQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public HomeConsumptionEdgeQueryBuilder ExceptNode()
@@ -1693,13 +1623,9 @@ public partial class HomeProductionConnectionQueryBuilder : GraphQlQueryBuilder<
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
-    public HomeProductionConnectionQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
+    public HomeProductionConnectionQueryBuilder WithPageInfo(HomeProductionPageInfoQueryBuilder homeProductionPageInfoQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-    }
-
-    public HomeProductionConnectionQueryBuilder WithPageInfo(HomeProductionPageInfoQueryBuilder homeProductionPageInfoQueryBuilder)
-    {
-        return WithObjectField("pageInfo", homeProductionPageInfoQueryBuilder);
+        return WithObjectField("pageInfo", alias, homeProductionPageInfoQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public HomeProductionConnectionQueryBuilder ExceptPageInfo()
@@ -1707,9 +1633,9 @@ public partial class HomeProductionConnectionQueryBuilder : GraphQlQueryBuilder<
         return ExceptField("pageInfo");
     }
 
-    public HomeProductionConnectionQueryBuilder WithNodes(ProductionQueryBuilder productionQueryBuilder)
+    public HomeProductionConnectionQueryBuilder WithNodes(ProductionQueryBuilder productionQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("nodes", productionQueryBuilder);
+        return WithObjectField("nodes", alias, productionQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public HomeProductionConnectionQueryBuilder ExceptNodes()
@@ -1717,9 +1643,9 @@ public partial class HomeProductionConnectionQueryBuilder : GraphQlQueryBuilder<
         return ExceptField("nodes");
     }
 
-    public HomeProductionConnectionQueryBuilder WithEdges(HomeProductionEdgeQueryBuilder homeProductionEdgeQueryBuilder)
+    public HomeProductionConnectionQueryBuilder WithEdges(HomeProductionEdgeQueryBuilder homeProductionEdgeQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("edges", homeProductionEdgeQueryBuilder);
+        return WithObjectField("edges", alias, homeProductionEdgeQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public HomeProductionConnectionQueryBuilder ExceptEdges()
@@ -1747,10 +1673,6 @@ public partial class HomeProductionPageInfoQueryBuilder : GraphQlQueryBuilder<Ho
     protected override string TypeName { get { return "HomeProductionPageInfo"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
-
-    public HomeProductionPageInfoQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
 
     public HomeProductionPageInfoQueryBuilder WithEndCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
@@ -1862,10 +1784,6 @@ public partial class ProductionQueryBuilder : GraphQlQueryBuilder<ProductionQuer
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
-    public ProductionQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
-
     public ProductionQueryBuilder WithFrom(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         return WithScalarField("from", alias, new GraphQlDirective[] { skip, include });
@@ -1960,10 +1878,6 @@ public partial class HomeProductionEdgeQueryBuilder : GraphQlQueryBuilder<HomePr
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
-    public HomeProductionEdgeQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
-
     public HomeProductionEdgeQueryBuilder WithCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         return WithScalarField("cursor", alias, new GraphQlDirective[] { skip, include });
@@ -1974,9 +1888,9 @@ public partial class HomeProductionEdgeQueryBuilder : GraphQlQueryBuilder<HomePr
         return ExceptField("cursor");
     }
 
-    public HomeProductionEdgeQueryBuilder WithNode(ProductionQueryBuilder productionQueryBuilder)
+    public HomeProductionEdgeQueryBuilder WithNode(ProductionQueryBuilder productionQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
-        return WithObjectField("node", productionQueryBuilder);
+        return WithObjectField("node", alias, productionQueryBuilder, new GraphQlDirective[] { skip, include });
     }
 
     public HomeProductionEdgeQueryBuilder ExceptNode()
@@ -1996,10 +1910,6 @@ public partial class HomeFeaturesQueryBuilder : GraphQlQueryBuilder<HomeFeatures
     protected override string TypeName { get { return "HomeFeatures"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
-
-    public HomeFeaturesQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
 
     public HomeFeaturesQueryBuilder WithRealTimeConsumptionEnabled(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
@@ -2022,13 +1932,11 @@ public partial class RootMutationQueryBuilder : GraphQlQueryBuilder<RootMutation
             new FieldMetadata { Name = "sendPushNotification", IsComplex = true, QueryBuilderType = typeof(PushNotificationResponseQueryBuilder) }
         };
 
-    protected override string Prefix { get { return "mutation"; } } 
-
     protected override string TypeName { get { return "RootMutation"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
-    public RootMutationQueryBuilder(string alias = null) : base(alias, null)
+    public RootMutationQueryBuilder(string operationName = null) : base("mutation", operationName)
     {
     }
 
@@ -2037,11 +1945,11 @@ public partial class RootMutationQueryBuilder : GraphQlQueryBuilder<RootMutation
         return WithParameterInternal(parameter);
     }
 
-    public RootMutationQueryBuilder WithSendMeterReading(MeterReadingResponseQueryBuilder meterReadingResponseQueryBuilder, QueryBuilderParameter<MeterReadingInput> input)
+    public RootMutationQueryBuilder WithSendMeterReading(MeterReadingResponseQueryBuilder meterReadingResponseQueryBuilder, QueryBuilderParameter<MeterReadingInput> input, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "input", ArgumentValue = input} );
-        return WithObjectField("sendMeterReading", meterReadingResponseQueryBuilder, args);
+        return WithObjectField("sendMeterReading", alias, meterReadingResponseQueryBuilder, new GraphQlDirective[] { skip, include }, args);
     }
 
     public RootMutationQueryBuilder ExceptSendMeterReading()
@@ -2049,11 +1957,11 @@ public partial class RootMutationQueryBuilder : GraphQlQueryBuilder<RootMutation
         return ExceptField("sendMeterReading");
     }
 
-    public RootMutationQueryBuilder WithUpdateHome(HomeQueryBuilder homeQueryBuilder, QueryBuilderParameter<UpdateHomeInput> input)
+    public RootMutationQueryBuilder WithUpdateHome(HomeQueryBuilder homeQueryBuilder, QueryBuilderParameter<UpdateHomeInput> input, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "input", ArgumentValue = input} );
-        return WithObjectField("updateHome", homeQueryBuilder, args);
+        return WithObjectField("updateHome", alias, homeQueryBuilder, new GraphQlDirective[] { skip, include }, args);
     }
 
     public RootMutationQueryBuilder ExceptUpdateHome()
@@ -2061,7 +1969,7 @@ public partial class RootMutationQueryBuilder : GraphQlQueryBuilder<RootMutation
         return ExceptField("updateHome");
     }
 
-    public RootMutationQueryBuilder WithSendPushNotification(PushNotificationResponseQueryBuilder pushNotificationResponseQueryBuilder, QueryBuilderParameter<PushNotificationInput> input, QueryBuilderParameter<IEnumerable<bool>> flags, QueryBuilderParameter<IEnumerable<Guid>> tags = null, QueryBuilderParameter<IEnumerable<int?>> references = null)
+    public RootMutationQueryBuilder WithSendPushNotification(PushNotificationResponseQueryBuilder pushNotificationResponseQueryBuilder, QueryBuilderParameter<PushNotificationInput> input, QueryBuilderParameter<IEnumerable<bool>> flags, QueryBuilderParameter<IEnumerable<Guid>> tags = null, QueryBuilderParameter<IEnumerable<int?>> references = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "input", ArgumentValue = input} );
@@ -2072,7 +1980,7 @@ public partial class RootMutationQueryBuilder : GraphQlQueryBuilder<RootMutation
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "references", ArgumentValue = references} );
 
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "flags", ArgumentValue = flags} );
-        return WithObjectField("sendPushNotification", pushNotificationResponseQueryBuilder, args);
+        return WithObjectField("sendPushNotification", alias, pushNotificationResponseQueryBuilder, new GraphQlDirective[] { skip, include }, args);
     }
 
     public RootMutationQueryBuilder ExceptSendPushNotification()
@@ -2094,10 +2002,6 @@ public partial class MeterReadingResponseQueryBuilder : GraphQlQueryBuilder<Mete
     protected override string TypeName { get { return "MeterReadingResponse"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
-
-    public MeterReadingResponseQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
 
     public MeterReadingResponseQueryBuilder WithHomeId(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
@@ -2143,10 +2047,6 @@ public partial class PushNotificationResponseQueryBuilder : GraphQlQueryBuilder<
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
-    public PushNotificationResponseQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
-
     public PushNotificationResponseQueryBuilder WithSuccessful(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         return WithScalarField("successful", alias, new GraphQlDirective[] { skip, include });
@@ -2176,13 +2076,11 @@ public partial class RootSubscriptionQueryBuilder : GraphQlQueryBuilder<RootSubs
             new FieldMetadata { Name = "liveMeasurement", IsComplex = true, QueryBuilderType = typeof(LiveMeasurementQueryBuilder) }
         };
 
-    protected override string Prefix { get { return "subscription"; } } 
-
     protected override string TypeName { get { return "RootSubscription"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
-    public RootSubscriptionQueryBuilder(string alias = null) : base(alias, null)
+    public RootSubscriptionQueryBuilder(string operationName = null) : base("subscription", operationName)
     {
     }
 
@@ -2191,11 +2089,11 @@ public partial class RootSubscriptionQueryBuilder : GraphQlQueryBuilder<RootSubs
         return WithParameterInternal(parameter);
     }
 
-    public RootSubscriptionQueryBuilder WithLiveMeasurement(LiveMeasurementQueryBuilder liveMeasurementQueryBuilder, QueryBuilderParameter<Guid> homeId)
+    public RootSubscriptionQueryBuilder WithLiveMeasurement(LiveMeasurementQueryBuilder liveMeasurementQueryBuilder, QueryBuilderParameter<Guid> homeId, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "homeId", ArgumentValue = homeId, FormatMask = "N"} );
-        return WithObjectField("liveMeasurement", liveMeasurementQueryBuilder, args);
+        return WithObjectField("liveMeasurement", alias, liveMeasurementQueryBuilder, new GraphQlDirective[] { skip, include }, args);
     }
 
     public RootSubscriptionQueryBuilder ExceptLiveMeasurement()
@@ -2235,10 +2133,6 @@ public partial class LiveMeasurementQueryBuilder : GraphQlQueryBuilder<LiveMeasu
     protected override string TypeName { get { return "LiveMeasurement"; } } 
 
     protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
-
-    public LiveMeasurementQueryBuilder(string alias = null, SkipDirective skip = null, IncludeDirective include = null) : base(alias, new GraphQlDirective[] { skip, include })
-    {
-    }
 
     public LiveMeasurementQueryBuilder WithTimestamp(string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {

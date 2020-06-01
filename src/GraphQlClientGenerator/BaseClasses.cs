@@ -357,19 +357,18 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 {
     private readonly Dictionary<string, GraphQlFieldCriteria> _fieldCriteria = new Dictionary<string, GraphQlFieldCriteria>();
 
+    private string _operationType { get; }
+    private string _operationName { get; }
     private Dictionary<string, GraphQlFragmentCriteria> _fragments;
     private List<QueryBuilderArgumentInfo> _queryParameters;
-
-    protected virtual string Prefix { get { return null; } }
 
     protected abstract string TypeName { get; }
 
     protected abstract IList<FieldMetadata> AllFields { get; }
 
-    private string _operationName { get; }
-
-    protected GraphQlQueryBuilder(string operationName)
+    protected GraphQlQueryBuilder(string operationType, string operationName)
     {
+        _operationType = operationType;
         _operationName = operationName;
     }
 
@@ -402,9 +401,9 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         var indentationSpace = isIndentedFormatting ? " " : String.Empty;
         var builder = new StringBuilder();
 
-        if (!String.IsNullOrEmpty(Prefix))
+        if (!String.IsNullOrEmpty(_operationType))
         {
-            builder.Append(Prefix);
+            builder.Append(_operationType);
 
             if (!String.IsNullOrEmpty(_operationName))
             {
@@ -537,11 +536,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     private static GraphQlQueryBuilder InitializeChildBuilder(Type parentQueryBuilderType, Type queryBuilderType, List<Type> parentTypes)
     {
-        var constructorInfo = queryBuilderType.GetConstructors().SingleOrDefault(IsCompatibleConstructor);
-        if (constructorInfo == null)
-            throw new InvalidOperationException($"{queryBuilderType.FullName} constructor not found");
-
-        var queryBuilder = (GraphQlQueryBuilder)constructorInfo.Invoke(new object[constructorInfo.GetParameters().Length]);
+        var queryBuilder = (GraphQlQueryBuilder)Activator.CreateInstance(queryBuilderType);
         queryBuilder.IncludeFields(queryBuilder.AllFields, parentTypes ?? new List<Type> { parentQueryBuilderType });
         return queryBuilder;
     }
@@ -669,7 +664,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
 public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder where TQueryBuilder : GraphQlQueryBuilder<TQueryBuilder>
 {
-    protected GraphQlQueryBuilder(string operationName = null) : base(operationName)
+    protected GraphQlQueryBuilder(string operationType = null, string operationName = null) : base(operationType, operationName)
     {
     }
 

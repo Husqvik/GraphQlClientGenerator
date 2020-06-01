@@ -1,0 +1,33 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
+using System.Runtime.Serialization;
+#if!GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+using Newtonsoft.Json;
+#endif
+
+namespace GraphQlGeneratorTest
+{
+    public partial class MutationQueryBuilder : GraphQlQueryBuilder<MutationQueryBuilder>
+    {
+        private static readonly FieldMetadata[] AllFieldMetadata =
+        {
+            new FieldMetadata { Name = "me", IsComplex = true, QueryBuilderType = typeof(MeMutationQueryBuilder) }
+        };
+
+        protected override string TypeName { get; } = "Mutation";
+
+        protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+        public MutationQueryBuilder(string operationName = null) : base("mutation", operationName)
+        {
+        }
+
+        public MutationQueryBuilder WithParameter<T>(GraphQlQueryParameter<T> parameter) => WithParameterInternal(parameter);
+
+        public MutationQueryBuilder WithMe(MeMutationQueryBuilder meMutationQueryBuilder, string alias = null, IncludeDirective include = null, SkipDirective skip = null) => WithObjectField("me", alias, meMutationQueryBuilder, new GraphQlDirective[] { include, skip });
+
+        public MutationQueryBuilder ExceptMe() => ExceptField("me");
+    }
+}

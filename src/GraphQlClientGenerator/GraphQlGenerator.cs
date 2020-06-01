@@ -824,8 +824,6 @@ using Newtonsoft.Json.Linq;
                 directiveLocation = GraphQlDirectiveLocation.Field;
 
             var hasQueryPrefix = directiveLocation != GraphQlDirectiveLocation.Field;
-            if (hasQueryPrefix)
-                WriteOverrideProperty("string", "Prefix", $"\"{directiveLocation.ToString().ToLowerInvariant()}\"", indentation, writer);
 
             WriteOverrideProperty("string", "TypeName", $"\"{type.Name}\"", indentation, writer);
 
@@ -843,7 +841,9 @@ using Newtonsoft.Json.Linq;
                 writer.Write(className);
                 writer.Write("(");
                 writer.Write(stringDataType);
-                writer.Write(" operationName = null) : base(operationName)");
+                writer.Write(" operationName = null) : base(\"");
+                writer.Write(directiveLocation.ToString().ToLowerInvariant());
+                writer.WriteLine("\", operationName)");
                 writer.Write(indentation);
                 writer.WriteLine("    {");
                 writer.Write(indentation);

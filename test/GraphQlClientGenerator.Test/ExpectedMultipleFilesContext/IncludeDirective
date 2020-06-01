@@ -1,0 +1,23 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
+using System.Runtime.Serialization;
+#if!GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+using Newtonsoft.Json;
+#endif
+
+namespace GraphQlGeneratorTest
+{
+    /// <summary>
+    /// Directs the executor to include this field or fragment only when the `if` argument is true.
+    /// </summary>
+    [Description(@"Directs the executor to include this field or fragment only when the `if` argument is true.")]
+    public class IncludeDirective : GraphQlDirective
+    {
+        public IncludeDirective(QueryBuilderParameter<bool> @if) : base("include")
+        {
+            AddArgument("if", @if);
+        }
+    }
+}

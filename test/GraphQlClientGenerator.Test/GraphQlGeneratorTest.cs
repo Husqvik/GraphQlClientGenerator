@@ -207,8 +207,17 @@ namespace GraphQlClientGenerator.Test
                 fileSizes.ShouldBe(
                     new[]
                     {
-                        370L, 399, 1489, 1142, 902, 4323, 443, 493, 2056, 2034, 379, 1038, 1276, 1609, 1608, 680, 418, 1570, 422, 1535, 30807, 716, 415, 1564, 3811, 887, 686, 3758, 5102, 402, 1507, 490, 2060, 537, 2505, 1149, 7011, 371, 1218, 495, 600, 2899, 2405, 413, 1590, 385, 1296, 368, 518, 2325, 1881, 845, 7092, 803, 1454, 417, 1642, 4700, 14665, 731, 1550, 551, 2656, 9675, 896, 5299, 1025, 476, 3026, 6319, 358, 1249, 467, 425, 1649, 1959, 499, 1986, 455, 1931, 545, 2443, 691, 495, 2128, 505, 2286, 3452, 679, 3569, 512, 2276, 600, 461, 1948, 2900, 996, 719, 4064, 5136, 822, 4580, 444, 1883, 347, 1193, 588, 675, 3646, 2842, 374, 1170, 404, 513, 483, 1970, 472, 1968, 2270, 483, 1950, 706, 777, 4131, 862, 454, 1961, 796, 4639, 508, 2082, 425, 1587, 413, 2793, 4624, 510, 2324, 482, 1935, 485, 1154, 3703, 1936
+                        370L, 399, 1290, 1077, 902, 4126, 443, 493, 2056, 1826, 379, 1038, 1071, 1609, 1670, 680, 418, 1502, 422, 1329, 30909, 716, 415, 1360, 4001, 887, 686, 3552, 4901, 402, 1307, 490, 2114, 537, 2291, 1149, 6807, 371, 1148, 495, 600, 2701, 2471, 413, 1384, 385, 1210, 368, 518, 2127, 1881, 845, 7800, 803, 1454, 417, 1428, 4621, 17071, 731, 1550, 551, 2582, 9738, 896, 5095, 1025, 476, 3216, 7037, 358, 1334, 467, 425, 1440, 1885, 499, 2170, 455, 1728, 545, 2496, 691, 495, 1916, 505, 2080, 3511, 679, 3754, 512, 2075, 600, 461, 1744, 2832, 996, 719, 3859, 5586, 822, 4375, 444, 1677, 347, 1278, 588, 675, 3446, 2776, 374, 1100, 404, 513, 483, 1897, 472, 1760, 2204, 483, 2138, 706, 777, 4319, 862, 454, 1751, 796, 4428, 508, 2000, 425, 1383, 413, 2585, 4944, 510, 2119, 482, 1869, 485, 1154, 3501, 1869
                     });
+
+                var expectedOutput = GetTestResource("ExpectedMultipleFilesContext.Avatar");
+                File.ReadAllText(Path.Combine(directoryInfo.FullName, "Avatar.cs")).ShouldBe(expectedOutput);
+                expectedOutput = GetTestResource("ExpectedMultipleFilesContext.Home");
+                File.ReadAllText(Path.Combine(directoryInfo.FullName, "Home.cs")).ShouldBe(expectedOutput);
+                expectedOutput = GetTestResource("ExpectedMultipleFilesContext.IncludeDirective");
+                File.ReadAllText(Path.Combine(directoryInfo.FullName, "IncludeDirective.cs")).ShouldBe(expectedOutput);
+                expectedOutput = GetTestResource("ExpectedMultipleFilesContext.MutationQueryBuilder");
+                File.ReadAllText(Path.Combine(directoryInfo.FullName, "MutationQueryBuilder.cs")).ShouldBe(expectedOutput);
             }
             finally
             {
@@ -402,11 +411,6 @@ namespace GraphQlClientGenerator.Test
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public TestQueryBuilder(string alias = null, SkipDirective skipDirective = null, IncludeDirective includeDirective = null)
-        : base(alias, new GraphQlDirective[] { skipDirective, includeDirective })
-    {
-    }
-
 	public TestQueryBuilder WithTestField(
         QueryBuilderParameter<short?> valueInt16 = null,
         QueryBuilderParameter<ushort?> valueUInt16 = null,
@@ -478,7 +482,7 @@ namespace GraphQlClientGenerator.Test
         return WithScalarField(""objectParameter"", ""fieldAlias"", new GraphQlDirective[] { new IncludeDirective(new GraphQlQueryParameter<bool>(""direct"", ""Boolean"", true)), new SkipDirective((QueryBuilderParameter<bool>)false) }, args);
     }
 
-    public TestQueryBuilder WithTestFragment(MeQueryBuilder queryBuilder) => WithFragment(queryBuilder);
+    public TestQueryBuilder WithTestFragment(MeQueryBuilder queryBuilder) => WithFragment(queryBuilder, null);
 }");
 
             const string assemblyName = "GeneratedQueryTestAssembly";
@@ -489,7 +493,7 @@ namespace GraphQlClientGenerator.Test
             var formattingType = Type.GetType($"{assemblyName}.Formatting, {assemblyName}");
             formattingType.ShouldNotBeNull();
 
-            var builderInstance = Activator.CreateInstance(builderType, null, null, null);
+            var builderInstance = Activator.CreateInstance(builderType);
             builderType
                 .GetMethod("WithTestField", BindingFlags.Instance | BindingFlags.Public)
                 .Invoke(
@@ -551,7 +555,7 @@ namespace GraphQlClientGenerator.Test
                 .Invoke(builderInstance, null);
 
             var meBuilderType = Type.GetType($"{assemblyName}.MeQueryBuilder, {assemblyName}");
-            var childFragmentBuilderInstance = Activator.CreateInstance(meBuilderType, null, null, null);
+            var childFragmentBuilderInstance = Activator.CreateInstance(meBuilderType);
             meBuilderType.GetMethod("WithAllScalarFields", BindingFlags.Instance | BindingFlags.Public).Invoke(childFragmentBuilderInstance, null);
 
             builderType
@@ -694,13 +698,11 @@ namespace {assemblyName}
             new FieldMetadata { Name = ""testAction"" },
         };
 
-    protected override string Prefix { get; } = ""mutation"";
-
     protected override string TypeName { get; } = ""TestMutation"";
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public TestMutationBuilder(string alias = null) : base(alias, null)
+    public TestMutationBuilder(string operationName = null) : base(""mutation"", operationName)
     {
     }
 
