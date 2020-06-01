@@ -203,11 +203,11 @@ namespace GraphQlClientGenerator.Test
                         "WeatherQueryBuilder.cs"
                     });
 
-                var fileSizes = files.Select(f => f.Length);
+                var fileSizes = files.Where(f => f.Name != "BaseClasses.cs").Select(f => f.Length);
                 fileSizes.ShouldBe(
                     new[]
                     {
-                        370L, 399, 1290, 1077, 902, 4126, 443, 493, 2056, 1826, 379, 1038, 1071, 1609, 1670, 680, 418, 1502, 422, 1329, 30909, 716, 415, 1360, 4001, 887, 686, 3552, 4901, 402, 1307, 490, 2114, 537, 2291, 1149, 6807, 371, 1148, 495, 600, 2701, 2471, 413, 1384, 385, 1210, 368, 518, 2127, 1881, 845, 7800, 803, 1454, 417, 1428, 4621, 17071, 731, 1550, 551, 2582, 9738, 896, 5095, 1025, 476, 3216, 7037, 358, 1334, 467, 425, 1440, 1885, 499, 2170, 455, 1728, 545, 2496, 691, 495, 1916, 505, 2080, 3511, 679, 3754, 512, 2075, 600, 461, 1744, 2832, 996, 719, 3859, 5586, 822, 4375, 444, 1677, 347, 1278, 588, 675, 3446, 2776, 374, 1100, 404, 513, 483, 1897, 472, 1760, 2204, 483, 2138, 706, 777, 4319, 862, 454, 1751, 796, 4428, 508, 2000, 425, 1383, 413, 2585, 4944, 510, 2119, 482, 1869, 485, 1154, 3501, 1869
+                        370L, 399, 1290, 1077, 902, 4126, 443, 493, 2056, 1826, 379, 1038, 1071, 1609, 1670, 680, 418, 1502, 422, 1329, 716, 415, 1360, 4001, 887, 686, 3552, 4901, 402, 1307, 490, 2114, 537, 2291, 1149, 6807, 371, 1148, 495, 600, 2701, 2471, 413, 1384, 385, 1210, 368, 518, 2127, 1881, 845, 7800, 803, 1454, 417, 1428, 4621, 17071, 731, 1550, 551, 2582, 9738, 896, 5095, 1025, 476, 3216, 7037, 358, 1334, 467, 425, 1440, 1885, 499, 2170, 455, 1728, 545, 2496, 691, 495, 1916, 505, 2080, 3511, 679, 3754, 512, 2075, 600, 461, 1744, 2832, 996, 719, 3859, 5586, 822, 4375, 444, 1677, 347, 1278, 588, 675, 3446, 2776, 374, 1100, 404, 513, 483, 1897, 472, 1760, 2204, 483, 2138, 706, 777, 4319, 862, 454, 1751, 796, 4428, 508, 2000, 425, 1383, 413, 2585, 4944, 510, 2119, 482, 1869, 485, 1154, 3501, 1869
                     });
 
                 var expectedOutput = GetTestResource("ExpectedMultipleFilesContext.Avatar");
@@ -374,7 +374,13 @@ namespace GraphQlClientGenerator.Test
         [Fact]
         public void WithUnions()
         {
-            var configuration = new GraphQlGeneratorConfiguration { CSharpVersion = CSharpVersion.NewestWithNullableReferences };
+            var configuration =
+                new GraphQlGeneratorConfiguration
+                {
+                    CSharpVersion = CSharpVersion.NewestWithNullableReferences,
+                    JsonPropertyGeneration = JsonPropertyGenerationOption.UseDefaultAlias
+                };
+            
             var schema = DeserializeTestSchema("TestSchemaWithUnions");
 
             var stringBuilder = new StringBuilder();

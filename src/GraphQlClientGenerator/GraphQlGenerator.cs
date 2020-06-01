@@ -784,7 +784,17 @@ using Newtonsoft.Json.Linq;
                     var isComplex = isList || treatUnknownObjectAsComplex || IsComplexType(fieldType.Kind);
 
                     writer.Write(fieldMetadataIndentation);
-                    writer.Write($"        new FieldMetadata {{ Name = \"{field.Name}\"");
+                    writer.Write("        new FieldMetadata { Name = \"");
+                    writer.Write(field.Name);
+                    writer.Write('"');
+
+                    var csharpPropertyName = NamingHelper.ToPascalCase(field.Name);
+                    if (_configuration.JsonPropertyGeneration == JsonPropertyGenerationOption.UseDefaultAlias && !String.Equals(field.Name, csharpPropertyName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        writer.Write(", DefaultAlias = \"");
+                        writer.Write(NamingHelper.LowerFirst(csharpPropertyName));
+                        writer.Write('"');
+                    }
 
                     if (isComplex)
                     {

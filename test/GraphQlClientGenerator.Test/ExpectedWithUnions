@@ -33,7 +33,7 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
         new FieldMetadata { Name = "simpleObject", IsComplex = true, QueryBuilderType = typeof(SimpleObjectTypeQueryBuilder) },
         new FieldMetadata { Name = "union", IsComplex = true, QueryBuilderType = typeof(UnionTypeQueryBuilder) },
         new FieldMetadata { Name = "interface", IsComplex = true, QueryBuilderType = typeof(NamedTypeQueryBuilder) },
-        new FieldMetadata { Name = "underscore_named_field", IsComplex = true, QueryBuilderType = typeof(UnderscoreNamedClassQueryBuilder) }
+        new FieldMetadata { Name = "underscore_named_field", DefaultAlias = "underscoreNamedField", IsComplex = true, QueryBuilderType = typeof(UnderscoreNamedClassQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "Query";
@@ -63,7 +63,7 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
 
     public QueryQueryBuilder ExceptInterface() => ExceptField("interface");
 
-    public QueryQueryBuilder WithUnderscoreNamedField(UnderscoreNamedClassQueryBuilder underscoreNamedClassQueryBuilder, QueryBuilderParameter<UnderscoreNamedInput?>? underscoreNamedParameter = null, string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null)
+    public QueryQueryBuilder WithUnderscoreNamedField(UnderscoreNamedClassQueryBuilder underscoreNamedClassQueryBuilder, QueryBuilderParameter<UnderscoreNamedInput?>? underscoreNamedParameter = null, string? alias = "underscoreNamedField", SkipDirective? skip = null, IncludeDirective? include = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (underscoreNamedParameter != null)
@@ -220,19 +220,19 @@ public partial class UnderscoreNamedClassQueryBuilder : GraphQlQueryBuilder<Unde
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "underscore_named_field_enum" },
-        new FieldMetadata { Name = "underscore_named_field_enum_collection", IsComplex = true }
+        new FieldMetadata { Name = "underscore_named_field_enum", DefaultAlias = "underscoreNamedFieldEnum" },
+        new FieldMetadata { Name = "underscore_named_field_enum_collection", DefaultAlias = "underscoreNamedFieldEnumCollection", IsComplex = true }
     };
 
     protected override string TypeName { get; } = "underscore_named_class";
 
     protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public UnderscoreNamedClassQueryBuilder WithUnderscoreNamedFieldEnum(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("underscore_named_field_enum", alias, new GraphQlDirective?[] { skip, include });
+    public UnderscoreNamedClassQueryBuilder WithUnderscoreNamedFieldEnum(string? alias = "underscoreNamedFieldEnum", SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("underscore_named_field_enum", alias, new GraphQlDirective?[] { skip, include });
 
     public UnderscoreNamedClassQueryBuilder ExceptUnderscoreNamedFieldEnum() => ExceptField("underscore_named_field_enum");
 
-    public UnderscoreNamedClassQueryBuilder WithUnderscoreNamedFieldEnumCollection(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("underscore_named_field_enum_collection", alias, new GraphQlDirective?[] { skip, include });
+    public UnderscoreNamedClassQueryBuilder WithUnderscoreNamedFieldEnumCollection(string? alias = "underscoreNamedFieldEnumCollection", SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("underscore_named_field_enum_collection", alias, new GraphQlDirective?[] { skip, include });
 
     public UnderscoreNamedClassQueryBuilder ExceptUnderscoreNamedFieldEnumCollection() => ExceptField("underscore_named_field_enum_collection");
 }
@@ -245,9 +245,6 @@ public partial class UnderscoreNamedInput : IGraphQlInputObject
     private InputPropertyInfo _underscoreNamedFieldEnumCollection;
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("underscore_named_field_enum")]
-    #endif
-    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<UnderscoreNamedEnum?>))]
     #endif
     public QueryBuilderParameter<UnderscoreNamedEnum?>? UnderscoreNamedFieldEnum
@@ -256,9 +253,6 @@ public partial class UnderscoreNamedInput : IGraphQlInputObject
         set => _underscoreNamedFieldEnum = new InputPropertyInfo { Name = "underscore_named_field_enum", Value = value };
     }
 
-    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("underscore_named_field_enum_collection")]
-    #endif
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<UnderscoreNamedEnum>?>))]
     #endif
@@ -282,9 +276,6 @@ public partial class Query
     public SimpleObjectType? SimpleObject { get; set; }
     public ICollection<UnionType>? Union { get; set; }
     public ICollection<NamedType>? Interface { get; set; }
-    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("underscore_named_field")]
-    #endif
     public UnderscoreNamedClass? UnderscoreNamedField { get; set; }
 }
 
@@ -336,13 +327,7 @@ public partial class ConcreteType3 : INamedType
 
 public partial class UnderscoreNamedClass
 {
-    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("underscore_named_field_enum")]
-    #endif
     public UnderscoreNamedEnum? UnderscoreNamedFieldEnum { get; set; }
-    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("underscore_named_field_enum_collection")]
-    #endif
     public ICollection<UnderscoreNamedEnum>? UnderscoreNamedFieldEnumCollection { get; set; }
 }
 #endregion

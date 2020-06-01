@@ -1,6 +1,7 @@
 ﻿public class FieldMetadata
 {
     public string Name { get; set; }
+    public string DefaultAlias { get; set; }
     public bool IsComplex { get; set; }
     public Type QueryBuilderType { get; set; }
 }
@@ -512,7 +513,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         foreach (var field in fields)
         {
             if (field.QueryBuilderType == null)
-                IncludeScalarField(field.Name, null, null, null);
+                IncludeScalarField(field.Name, field.DefaultAlias, null, null);
             else
             {
                 var builderType = GetType();
@@ -529,7 +530,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
                 foreach (var includeFragmentMethod in includeFragmentMethods)
                     includeFragmentMethod.Invoke(queryBuilder, new object[] { InitializeChildBuilder(builderType, includeFragmentMethod.GetParameters()[0].ParameterType, parentTypes) });
 
-                IncludeObjectField(field.Name, null, queryBuilder, null, null);
+                IncludeObjectField(field.Name, field.DefaultAlias, queryBuilder, null, null);
             }
         }
     }
