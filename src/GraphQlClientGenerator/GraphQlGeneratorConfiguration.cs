@@ -188,6 +188,7 @@ namespace GraphQlClientGenerator
     {
         Never,
         Always,
+        UseDefaultAlias,
         CaseInsensitive,
         CaseSensitive
     }

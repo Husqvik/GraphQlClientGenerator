@@ -591,7 +591,7 @@ using Newtonsoft.Json.Linq;
                         propertyName,
                         _configuration.JsonPropertyGeneration == JsonPropertyGenerationOption.CaseInsensitive ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
 
-                if (_configuration.JsonPropertyGeneration == JsonPropertyGenerationOption.Never)
+                if (_configuration.JsonPropertyGeneration == JsonPropertyGenerationOption.Never || _configuration.JsonPropertyGeneration == JsonPropertyGenerationOption.UseDefaultAlias)
                     decorateWithJsonProperty = false;
             }
 
@@ -831,33 +831,25 @@ using Newtonsoft.Json.Linq;
 
             WriteOverrideProperty("IList<FieldMetadata>", "AllFields", "AllFieldMetadata", indentation, writer);
 
-            var stringDataType = AddQuestionMarkIfNullableReferencesEnabled("string");
-
-            writer.Write(indentation);
-            writer.Write("    public ");
-            writer.Write(className);
-            writer.Write("(");
-            writer.Write(stringDataType);
-            writer.Write(" alias = null");
-
-            var objectDirectiveParameterNameList = WriteDirectiveParameterList(schema, directiveLocation, writer);
-
-            writer.Write(") : base(alias, ");
-            writer.Write(objectDirectiveParameterNameList);
-            writer.WriteLine(")");
-
-            writer.Write(indentation);
-            writer.WriteLine("    {");
-            writer.Write(indentation);
-            writer.WriteLine("    }");
-            writer.WriteLine();
-
             string ReturnPrefix(bool requiresFullBody) => requiresFullBody ? indentation + "        return " : String.Empty;
 
             var useCompatibleSyntax = _configuration.CSharpVersion == CSharpVersion.Compatible;
-            
+            var stringDataType = AddQuestionMarkIfNullableReferencesEnabled("string");
+
             if (hasQueryPrefix)
             {
+                writer.Write(indentation);
+                writer.Write("    public ");
+                writer.Write(className);
+                writer.Write("(");
+                writer.Write(stringDataType);
+                writer.Write(" operationName = null) : base(operationName)");
+                writer.Write(indentation);
+                writer.WriteLine("    {");
+                writer.Write(indentation);
+                writer.WriteLine("    }");
+                writer.WriteLine();
+
                 writer.Write(indentation);
                 writer.Write($"    public {className} WithParameter<T>(GraphQlQueryParameter<T> parameter)");
                 WriteQueryBuilderMethodBody(
@@ -911,6 +903,22 @@ using Newtonsoft.Json.Linq;
 
                 var requiresFullBody = useCompatibleSyntax || argumentDefinitions.Any();
                 var returnPrefix = ReturnPrefix(requiresFullBody);
+                var csharpPropertyName = NamingHelper.ToPascalCase(field.Name);
+
+                void WriteAliasParameter()
+                {
+                    writer.Write(stringDataType);
+                    writer.Write(" alias = ");
+
+                    if (_configuration.JsonPropertyGeneration == JsonPropertyGenerationOption.UseDefaultAlias && !String.Equals(field.Name, csharpPropertyName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        writer.Write('"');
+                        writer.Write(NamingHelper.LowerFirst(csharpPropertyName));
+                        writer.Write('"');
+                    }
+                    else
+                        writer.Write("null");
+                }
 
                 if (fieldType.Kind == GraphQlTypeKind.Scalar || fieldType.Kind == GraphQlTypeKind.Enum)
                 {
@@ -918,16 +926,17 @@ using Newtonsoft.Json.Linq;
                     writer.Write("    public ");
                     writer.Write(className);
                     writer.Write(" With");
-                    writer.Write(NamingHelper.ToPascalCase(field.Name));
+                    writer.Write(csharpPropertyName);
                     writer.Write("(");
                     writer.Write(methodParameters);
 
                     if (!String.IsNullOrEmpty(methodParameters))
                         writer.Write(", ");
 
-                    writer.Write(stringDataType);
-                    writer.Write(" alias = null");
+                    WriteAliasParameter();
+                    
                     var fieldDirectiveParameterNameList = WriteDirectiveParameterList(schema, GraphQlDirectiveLocation.Field, writer);
+                    
                     writer.Write(")");
 
                     WriteQueryBuilderMethodBody(
@@ -961,13 +970,21 @@ using Newtonsoft.Json.Linq;
 
                     var builderParameterName = NamingHelper.LowerFirst(fieldTypeName);
                     writer.Write(indentation);
-                    writer.Write($"    public {className} With{NamingHelper.ToPascalCase(field.Name)}{(isFragment ? "Fragment" : null)}({fieldTypeName}QueryBuilder{_configuration.ClassPostfix} {builderParameterName}QueryBuilder");
+                    writer.Write($"    public {className} With{csharpPropertyName}{(isFragment ? "Fragment" : null)}({fieldTypeName}QueryBuilder{_configuration.ClassPostfix} {builderParameterName}QueryBuilder");
 
                     if (argumentDefinitions.Length > 0)
                     {
                         writer.Write(", ");
                         writer.Write(methodParameters);
                     }
+
+                    if (!isFragment)
+                    {
+                        writer.Write(", ");
+                        WriteAliasParameter();
+                    }
+
+                    var fieldDirectiveParameterNameList = WriteDirectiveParameterList(schema, GraphQlDirectiveLocation.Field, writer);
 
                     writer.Write(")");
 
@@ -988,11 +1005,14 @@ using Newtonsoft.Json.Linq;
                             {
                                 writer.Write("ObjectField(\"");
                                 writer.Write(field.Name);
-                                writer.Write("\", ");
+                                writer.Write("\", alias, ");
                             }
 
                             writer.Write(builderParameterName);
                             writer.Write("QueryBuilder");
+
+                            writer.Write(", ");
+                            writer.Write(fieldDirectiveParameterNameList);
 
                             if (argumentDefinitions.Length > 0)
                                 writer.Write(", args");
@@ -1006,7 +1026,7 @@ using Newtonsoft.Json.Linq;
                     writer.WriteLine();
 
                     writer.Write(indentation);
-                    writer.Write($"    public {className} Except{NamingHelper.ToPascalCase(field.Name)}()");
+                    writer.Write($"    public {className} Except{csharpPropertyName}()");
 
                     WriteQueryBuilderMethodBody(
                         useCompatibleSyntax,
