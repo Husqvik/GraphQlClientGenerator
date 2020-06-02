@@ -224,7 +224,7 @@ internal static class GraphQlQueryHelper
     public static void ValidateGraphQlIdentifier(string name, string identifier)
     {
         if (identifier != null && !RegexGraphQlIdentifier.IsMatch(identifier))
-            throw new ArgumentException("Value must match [_A-Za-z][_0-9A-Za-z]*. ", name);
+            throw new ArgumentException("value must match [_A-Za-z][_0-9A-Za-z]*", name);
     }
 
     private static string ConvertEnumToString(Enum @enum)
@@ -369,6 +369,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     protected GraphQlQueryBuilder(string operationType, string operationName)
     {
+        GraphQlQueryHelper.ValidateGraphQlIdentifier(nameof(operationName), operationName);
         _operationType = operationType;
         _operationName = operationName;
     }
