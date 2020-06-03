@@ -205,9 +205,9 @@ namespace GraphQlClientGenerator.Test
 
                 var fileSizes = files.Where(f => f.Name != "BaseClasses.cs").Select(f => f.Length);
                 fileSizes.ShouldBe(
-                    new[]
+                    new long[]
                     {
-                        370L, 399, 1290, 1077, 902, 4126, 443, 493, 2056, 1826, 379, 1038, 1071, 1609, 1670, 680, 418, 1502, 422, 1329, 716, 415, 1360, 4001, 887, 686, 3552, 4901, 402, 1307, 490, 2114, 537, 2291, 1149, 6807, 371, 1148, 495, 600, 2701, 2471, 413, 1384, 385, 1210, 368, 518, 2127, 1881, 845, 7800, 803, 1454, 417, 1428, 4621, 17071, 731, 1550, 551, 2582, 9738, 896, 5095, 1025, 476, 3216, 7037, 358, 1334, 467, 425, 1440, 1885, 499, 2170, 455, 1728, 545, 2496, 691, 495, 1916, 505, 2080, 3511, 679, 3754, 512, 2075, 600, 461, 1744, 2832, 996, 719, 3859, 5586, 822, 4375, 444, 1677, 347, 1278, 588, 675, 3446, 2776, 374, 1100, 404, 513, 483, 1897, 472, 1760, 2204, 483, 2138, 706, 777, 4319, 862, 454, 1751, 796, 4428, 508, 2000, 425, 1383, 413, 2585, 4944, 510, 2119, 482, 1869, 485, 1154, 3501, 1869
+                        370, 399, 1295, 1082, 902, 4131, 443, 493, 2056, 1831, 379, 1038, 1076, 1609, 1675, 680, 418, 1507, 422, 1334, 716, 415, 1365, 4006, 887, 686, 3557, 4906, 402, 1312, 490, 2119, 537, 2296, 1149, 6812, 371, 1153, 495, 600, 2706, 2476, 413, 1389, 385, 1215, 368, 518, 2132, 1881, 845, 7805, 803, 1454, 417, 1433, 4626, 17076, 731, 1550, 551, 2587, 9743, 896, 5100, 1025, 476, 3221, 7042, 358, 1339, 467, 425, 1445, 1890, 499, 2175, 455, 1733, 545, 2501, 691, 495, 1921, 505, 2085, 3516, 679, 3759, 512, 2080, 600, 461, 1749, 2837, 996, 719, 3864, 5591, 822, 4380, 444, 1682, 347, 1283, 588, 675, 3451, 2781, 374, 1105, 404, 513, 483, 1902, 472, 1765, 2209, 483, 2143, 706, 777, 4324, 862, 454, 1756, 796, 4433, 508, 2005, 425, 1388, 413, 2590, 4949, 510, 2124, 482, 1874, 485, 1154, 3506, 1874
                     });
 
                 var expectedOutput = GetTestResource("ExpectedMultipleFilesContext.Avatar");
@@ -415,7 +415,7 @@ namespace GraphQlClientGenerator.Test
 
     protected override string TypeName { get; } = ""Test"";
 
-    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
 	public TestQueryBuilder WithTestField(
         QueryBuilderParameter<short?> valueInt16 = null,
@@ -706,7 +706,7 @@ namespace {assemblyName}
 
     protected override string TypeName { get; } = ""TestMutation"";
 
-    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public TestMutationBuilder(string operationName = null) : base(""mutation"", operationName)
     {

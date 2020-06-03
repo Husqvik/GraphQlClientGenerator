@@ -1,4 +1,4 @@
-﻿public class FieldMetadata
+﻿public struct FieldMetadata
 {
     public string Name { get; set; }
     public string DefaultAlias { get; set; }
@@ -365,7 +365,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     protected abstract string TypeName { get; }
 
-    protected abstract IList<FieldMetadata> AllFields { get; }
+    public abstract IReadOnlyList<FieldMetadata> AllFields { get; }
 
     protected GraphQlQueryBuilder(string operationType, string operationName)
     {

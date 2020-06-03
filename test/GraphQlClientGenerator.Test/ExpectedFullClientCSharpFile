@@ -18,7 +18,7 @@ using Newtonsoft.Json.Linq;
 namespace GraphQlGeneratorTest
 {
     #region base classes
-    public class FieldMetadata
+    public struct FieldMetadata
     {
         public string Name { get; set; }
         public string DefaultAlias { get; set; }
@@ -385,7 +385,7 @@ namespace GraphQlGeneratorTest
     
         protected abstract string TypeName { get; }
     
-        protected abstract IList<FieldMetadata> AllFields { get; }
+        public abstract IReadOnlyList<FieldMetadata> AllFields { get; }
     
         protected GraphQlQueryBuilder(string operationType, string operationName)
         {
@@ -821,7 +821,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "Query"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public QueryQueryBuilder(string operationName = null) : base("query", operationName)
         {
@@ -865,7 +865,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "Me"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public MeQueryBuilder WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
@@ -1036,7 +1036,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "Home"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public HomeQueryBuilder WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
@@ -1270,7 +1270,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "Subscription"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public SubscriptionQueryBuilder WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
@@ -1362,7 +1362,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "PriceRating"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public PriceRatingQueryBuilder WithMinPrice(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
@@ -1408,7 +1408,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "PriceRatingEntry"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public PriceRatingEntryQueryBuilder WithTime(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
@@ -1467,7 +1467,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "ConsumptionMonth"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public ConsumptionMonthQueryBuilder WithYear(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
@@ -1560,7 +1560,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "Consumption"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public ConsumptionQueryBuilder WithAnnualValues(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
@@ -1686,7 +1686,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "PreLiveComparison"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public PreLiveComparisonQueryBuilder WithHomeId(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
@@ -1746,7 +1746,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "Comparison"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public ComparisonQueryBuilder WithYear(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
@@ -1840,7 +1840,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "ComparisonData"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public ComparisonDataQueryBuilder WithCost(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
@@ -1875,7 +1875,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "SignupStatus"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public SignupStatusQueryBuilder WithFeedStep(ProcessStepQueryBuilder processStepQueryBuilder, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
@@ -1921,7 +1921,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "ProcessStep"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public ProcessStepQueryBuilder WithTimestamp(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
@@ -1986,7 +1986,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "Disaggregation"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public DisaggregationQueryBuilder WithYear(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
@@ -2138,7 +2138,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "Device"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public DeviceQueryBuilder WithDeviceId(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
@@ -2254,7 +2254,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "Weather"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public WeatherQueryBuilder WithTemperature(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
@@ -2308,7 +2308,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "AwayMode"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public AwayModeQueryBuilder WithIsSupported(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
@@ -2342,7 +2342,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "AwayModeSettings"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public AwayModeSettingsQueryBuilder WithFrom(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
@@ -2377,7 +2377,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "Feed"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public FeedQueryBuilder WithNumberOfItems(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
@@ -2432,7 +2432,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "FeedItem"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public FeedItemQueryBuilder WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
@@ -2507,7 +2507,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get { return "PushNotification"; } } 
 
-        protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+        public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
         public PushNotificationQueryBuilder WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {

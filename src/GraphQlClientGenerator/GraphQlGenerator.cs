@@ -835,9 +835,9 @@ using Newtonsoft.Json.Linq;
 
             var hasQueryPrefix = directiveLocation != GraphQlDirectiveLocation.Field;
 
-            WriteOverrideProperty("string", "TypeName", $"\"{type.Name}\"", indentation, writer);
+            WriteOverrideProperty("protected", "string", "TypeName", $"\"{type.Name}\"", indentation, writer);
 
-            WriteOverrideProperty("IList<FieldMetadata>", "AllFields", "AllFieldMetadata", indentation, writer);
+            WriteOverrideProperty("public", "IReadOnlyList<FieldMetadata>", "AllFields", "AllFieldMetadata", indentation, writer);
 
             string ReturnPrefix(bool requiresFullBody) => requiresFullBody ? indentation + "        return " : String.Empty;
 
@@ -1099,10 +1099,12 @@ using Newtonsoft.Json.Linq;
             }
         }
 
-        private void WriteOverrideProperty(string propertyType, string propertyName, string propertyValue, string indentation, TextWriter writer)
+        private void WriteOverrideProperty(string accessibility, string propertyType, string propertyName, string propertyValue, string indentation, TextWriter writer)
         {
             writer.Write(indentation);
-            writer.Write("    protected override ");
+            writer.Write("    ");
+            writer.Write(accessibility);
+            writer.Write(" override ");
             writer.Write(propertyType);
             writer.Write(" ");
             writer.Write(propertyName);

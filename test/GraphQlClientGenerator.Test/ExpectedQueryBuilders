@@ -53,7 +53,7 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
 
     protected override string TypeName { get { return "Query"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public QueryQueryBuilder(string operationName = null) : base("query", operationName)
     {
@@ -97,7 +97,7 @@ public partial class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
 
     protected override string TypeName { get { return "Me"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public MeQueryBuilder WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
@@ -268,7 +268,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
     protected override string TypeName { get { return "Home"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public HomeQueryBuilder WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
@@ -502,7 +502,7 @@ public partial class SubscriptionQueryBuilder : GraphQlQueryBuilder<Subscription
 
     protected override string TypeName { get { return "Subscription"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public SubscriptionQueryBuilder WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
@@ -594,7 +594,7 @@ public partial class PriceRatingQueryBuilder : GraphQlQueryBuilder<PriceRatingQu
 
     protected override string TypeName { get { return "PriceRating"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public PriceRatingQueryBuilder WithMinPrice(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
@@ -640,7 +640,7 @@ public partial class PriceRatingEntryQueryBuilder : GraphQlQueryBuilder<PriceRat
 
     protected override string TypeName { get { return "PriceRatingEntry"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public PriceRatingEntryQueryBuilder WithTime(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
@@ -699,7 +699,7 @@ public partial class ConsumptionMonthQueryBuilder : GraphQlQueryBuilder<Consumpt
 
     protected override string TypeName { get { return "ConsumptionMonth"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public ConsumptionMonthQueryBuilder WithYear(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
@@ -792,7 +792,7 @@ public partial class ConsumptionQueryBuilder : GraphQlQueryBuilder<ConsumptionQu
 
     protected override string TypeName { get { return "Consumption"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public ConsumptionQueryBuilder WithAnnualValues(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
@@ -918,7 +918,7 @@ public partial class PreLiveComparisonQueryBuilder : GraphQlQueryBuilder<PreLive
 
     protected override string TypeName { get { return "PreLiveComparison"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public PreLiveComparisonQueryBuilder WithHomeId(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
@@ -978,7 +978,7 @@ public partial class ComparisonQueryBuilder : GraphQlQueryBuilder<ComparisonQuer
 
     protected override string TypeName { get { return "Comparison"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public ComparisonQueryBuilder WithYear(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
@@ -1072,7 +1072,7 @@ public partial class ComparisonDataQueryBuilder : GraphQlQueryBuilder<Comparison
 
     protected override string TypeName { get { return "ComparisonData"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public ComparisonDataQueryBuilder WithCost(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
@@ -1107,7 +1107,7 @@ public partial class SignupStatusQueryBuilder : GraphQlQueryBuilder<SignupStatus
 
     protected override string TypeName { get { return "SignupStatus"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public SignupStatusQueryBuilder WithFeedStep(ProcessStepQueryBuilder processStepQueryBuilder, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
@@ -1153,7 +1153,7 @@ public partial class ProcessStepQueryBuilder : GraphQlQueryBuilder<ProcessStepQu
 
     protected override string TypeName { get { return "ProcessStep"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public ProcessStepQueryBuilder WithTimestamp(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
@@ -1218,7 +1218,7 @@ public partial class DisaggregationQueryBuilder : GraphQlQueryBuilder<Disaggrega
 
     protected override string TypeName { get { return "Disaggregation"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public DisaggregationQueryBuilder WithYear(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
@@ -1370,7 +1370,7 @@ public partial class DeviceQueryBuilder : GraphQlQueryBuilder<DeviceQueryBuilder
 
     protected override string TypeName { get { return "Device"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public DeviceQueryBuilder WithDeviceId(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
@@ -1486,7 +1486,7 @@ public partial class WeatherQueryBuilder : GraphQlQueryBuilder<WeatherQueryBuild
 
     protected override string TypeName { get { return "Weather"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public WeatherQueryBuilder WithTemperature(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
@@ -1540,7 +1540,7 @@ public partial class VacationModeQueryBuilder : GraphQlQueryBuilder<VacationMode
 
     protected override string TypeName { get { return "AwayMode"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public VacationModeQueryBuilder WithIsSupported(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
@@ -1574,7 +1574,7 @@ public partial class AwayModeSettingsQueryBuilder : GraphQlQueryBuilder<AwayMode
 
     protected override string TypeName { get { return "AwayModeSettings"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public AwayModeSettingsQueryBuilder WithFrom(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
@@ -1609,7 +1609,7 @@ public partial class FeedQueryBuilder : GraphQlQueryBuilder<FeedQueryBuilder>
 
     protected override string TypeName { get { return "Feed"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public FeedQueryBuilder WithNumberOfItems(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
@@ -1664,7 +1664,7 @@ public partial class FeedItemQueryBuilder : GraphQlQueryBuilder<FeedItemQueryBui
 
     protected override string TypeName { get { return "FeedItem"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public FeedItemQueryBuilder WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
@@ -1739,7 +1739,7 @@ public partial class PushNotificationQueryBuilder : GraphQlQueryBuilder<PushNoti
 
     protected override string TypeName { get { return "PushNotification"; } } 
 
-    protected override IList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
 
     public PushNotificationQueryBuilder WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {

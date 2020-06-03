@@ -18,7 +18,7 @@ namespace GraphQlGeneratorTest
 
         protected override string TypeName { get; } = "Mutation";
 
-        protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public MutationQueryBuilder(string operationName = null) : base("mutation", operationName)
         {

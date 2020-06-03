@@ -38,7 +38,7 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
 
     protected override string TypeName { get; } = "Query";
 
-    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public QueryQueryBuilder(string? operationName = null) : base("query", operationName)
     {
@@ -87,7 +87,7 @@ public partial class SimpleObjectTypeQueryBuilder : GraphQlQueryBuilder<SimpleOb
 
     protected override string TypeName { get; } = "SimpleObjectType";
 
-    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public SimpleObjectTypeQueryBuilder WithId(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("id", alias, new GraphQlDirective?[] { skip, include });
 
@@ -112,7 +112,7 @@ public partial class UnionTypeQueryBuilder : GraphQlQueryBuilder<UnionTypeQueryB
 
     protected override string TypeName { get; } = "UnionType";
 
-    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public UnionTypeQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder, SkipDirective? skip = null, IncludeDirective? include = null) => WithFragment(concreteType1QueryBuilder, new GraphQlDirective?[] { skip, include });
 
@@ -131,7 +131,7 @@ public partial class ConcreteType1QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
 
     protected override string TypeName { get; } = "ConcreteType1";
 
-    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ConcreteType1QueryBuilder WithName(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("name", alias, new GraphQlDirective?[] { skip, include });
 
@@ -151,7 +151,7 @@ public partial class NamedTypeQueryBuilder : GraphQlQueryBuilder<NamedTypeQueryB
 
     protected override string TypeName { get; } = "NamedType";
 
-    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public NamedTypeQueryBuilder WithName(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("name", alias, new GraphQlDirective?[] { skip, include });
 
@@ -174,7 +174,7 @@ public partial class ConcreteType2QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
 
     protected override string TypeName { get; } = "ConcreteType2";
 
-    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ConcreteType2QueryBuilder WithName(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("name", alias, new GraphQlDirective?[] { skip, include });
 
@@ -196,7 +196,7 @@ public partial class ConcreteType3QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
 
     protected override string TypeName { get; } = "ConcreteType3";
 
-    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ConcreteType3QueryBuilder WithName(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("name", alias, new GraphQlDirective?[] { skip, include });
 
@@ -226,7 +226,7 @@ public partial class UnderscoreNamedClassQueryBuilder : GraphQlQueryBuilder<Unde
 
     protected override string TypeName { get; } = "underscore_named_class";
 
-    protected override IList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public UnderscoreNamedClassQueryBuilder WithUnderscoreNamedFieldEnum(string? alias = "underscoreNamedFieldEnum", SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("underscore_named_field_enum", alias, new GraphQlDirective?[] { skip, include });
 
