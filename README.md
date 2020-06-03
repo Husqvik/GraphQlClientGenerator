@@ -185,24 +185,26 @@ Aliases
 -------------
 Queried fields can be freely renamed to match target data classes using GraphQL aliases.
 ```csharp
-new ViewerQueryBuilder()
+new ViewerQueryBuilder("MyQuery")
   .WithHome(
-    new HomeQueryBuilder("primaryHome")
+    new HomeQueryBuilder()
       .WithType()
       .WithSize()
-      .WithAddress(new AddressQueryBuilder("primaryAddress").WithAddress1("primaryAddressText").WithCountry()),
-    Guid.NewGuid())
+      .WithAddress(new AddressQueryBuilder().WithAddress1("primaryAddressText").WithCountry(), "primaryAddress"),
+    Guid.NewGuid(),
+    "primaryHome")
   .WithHome(
-    new HomeQueryBuilder("secondaryHome")
+    new HomeQueryBuilder()
       .WithType()
       .WithSize()
-      .WithAddress(new AddressQueryBuilder("secondaryAddress").WithAddress1("secondaryAddressText").WithCountry()),
-    Guid.NewGuid())
+      .WithAddress(new AddressQueryBuilder().WithAddress1("secondaryAddressText").WithCountry(), "secondaryAddress"),
+    Guid.NewGuid(),
+    "secondaryHome")
   .Build(Formatting.Indented);
 ```
 result:
 ```graphql
-query {
+query MyQuery {
   primaryHome: home (id: "120efe4a-6839-45fc-beed-27455d29212f") {
     type
     size
@@ -268,7 +270,7 @@ var builder =
        new ViewerQueryBuilder()
          .WithName(include: includeDirective)
          .WithAccountType(skip: skipDirective)
-         .WithHomes(new HomeQueryBuilder(skip: skipDirective).WithId())
+         .WithHomes(new HomeQueryBuilder().WithId(), skip: skipDirective)
     )
     .WithParameter(includeDirectParameter);
 ```

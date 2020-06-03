@@ -11,7 +11,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
-    <VersionPrefix>0.7</VersionPrefix>
+    <VersionPrefix>0.7.1</VersionPrefix>
     <Title>GraphQL C# Client Generator Console App</Title>
     <PackageId>GraphQlClientGenerator.Tool</PackageId>
     <PackageLicenseFile>License.md</PackageLicenseFile>
