@@ -11,7 +11,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
-    <VersionPrefix>0.7.1</VersionPrefix>
+    <VersionPrefix>0.7.2</VersionPrefix>
     <Title>GraphQL C# Client Generator Console App</Title>
     <PackageId>GraphQlClientGenerator.Tool</PackageId>
     <PackageLicenseFile>License.md</PackageLicenseFile>
@@ -22,8 +22,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>GraphQL Client Generator Tool Console</PackageTags>
-    <PackageReleaseNotes>Support for one class per file generation</PackageReleaseNotes>
-
+    <PackageReleaseNotes>Support for nested lists</PackageReleaseNotes>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>graphql-client-generator</ToolCommandName>
   </PropertyGroup>

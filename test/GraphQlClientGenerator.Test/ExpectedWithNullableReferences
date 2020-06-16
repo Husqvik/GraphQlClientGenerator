@@ -2866,11 +2866,11 @@ public partial class AppStateMutation : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<AppStateFronScreenMutation>?>))]
+    [JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<AppStateFronScreenMutation?>?>))]
     #endif
-    public QueryBuilderParameter<ICollection<AppStateFronScreenMutation>?>? FrontScreens
+    public QueryBuilderParameter<ICollection<AppStateFronScreenMutation?>?>? FrontScreens
     {
-        get => (QueryBuilderParameter<ICollection<AppStateFronScreenMutation>?>?)_frontScreens.Value;
+        get => (QueryBuilderParameter<ICollection<AppStateFronScreenMutation?>?>?)_frontScreens.Value;
         set => _frontScreens = new InputPropertyInfo { Name = "frontScreens", Value = value };
     }
 
@@ -2916,20 +2916,20 @@ public partial class AppStateFronScreenMutation : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<string>?>))]
+    [JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<string?>?>))]
     #endif
-    public QueryBuilderParameter<ICollection<string>?>? Bubbles
+    public QueryBuilderParameter<ICollection<string?>?>? Bubbles
     {
-        get => (QueryBuilderParameter<ICollection<string>?>?)_bubbles.Value;
+        get => (QueryBuilderParameter<ICollection<string?>?>?)_bubbles.Value;
         set => _bubbles = new InputPropertyInfo { Name = "bubbles", Value = value };
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<string>?>))]
+    [JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<string?>?>))]
     #endif
-    public QueryBuilderParameter<ICollection<string>?>? BubblesSortOrder
+    public QueryBuilderParameter<ICollection<string?>?>? BubblesSortOrder
     {
-        get => (QueryBuilderParameter<ICollection<string>?>?)_bubblesSortOrder.Value;
+        get => (QueryBuilderParameter<ICollection<string?>?>?)_bubblesSortOrder.Value;
         set => _bubblesSortOrder = new InputPropertyInfo { Name = "bubblesSortOrder", Value = value };
     }
 
@@ -2962,7 +2962,7 @@ public partial class Me
     public Greeting? WelcomeGreeting { get; set; }
     public AppState? AppState { get; set; }
     public Home? Home { get; set; }
-    public ICollection<Home>? Homes { get; set; }
+    public ICollection<Home?>? Homes { get; set; }
     public Feed? Feed { get; set; }
     public Wallet? Wallet { get; set; }
     public About? About { get; set; }
@@ -2979,7 +2979,7 @@ public partial class Greeting
 public partial class AppState
 {
     public AppStateJourney? Journey { get; set; }
-    public ICollection<AppStateFronScreen>? FrontScreens { get; set; }
+    public ICollection<AppStateFronScreen?>? FrontScreens { get; set; }
 }
 
 public partial class AppStateJourney
@@ -2990,8 +2990,8 @@ public partial class AppStateJourney
 public partial class AppStateFronScreen
 {
     public string? HomeId { get; set; }
-    public ICollection<string>? Bubbles { get; set; }
-    public ICollection<string>? BubblesSortOrder { get; set; }
+    public ICollection<string?>? Bubbles { get; set; }
+    public ICollection<string?>? BubblesSortOrder { get; set; }
 }
 
 public partial class Home
@@ -3004,24 +3004,24 @@ public partial class Home
     public bool? HasEnergyDeal { get; set; }
     public Address? Address { get; set; }
     public Subscription? Subscription { get; set; }
-    public ICollection<ConsumptionMonth>? ConsumptionMonths { get; set; }
+    public ICollection<ConsumptionMonth?>? ConsumptionMonths { get; set; }
     public Consumption? Consumption { get; set; }
     public PreLiveComparison? PreLiveComparison { get; set; }
-    public ICollection<Comparison>? Comparisons { get; set; }
+    public ICollection<Comparison?>? Comparisons { get; set; }
     public Comparison? ComparisonCurrentMonth { get; set; }
-    public ICollection<HomeProfileQuestion>? ProfileQuestions { get; set; }
-    public ICollection<object>? Temperatures { get; set; }
+    public ICollection<HomeProfileQuestion?>? ProfileQuestions { get; set; }
+    public ICollection<object?>? Temperatures { get; set; }
     public SignupStatus? SignupStatus { get; set; }
-    public ICollection<Disaggregation>? Disaggregation { get; set; }
+    public ICollection<Disaggregation?>? Disaggregation { get; set; }
     public Weather? Weather { get; set; }
     public AwayMode? AwayMode { get; set; }
     public DayNightSchedule? DayNightSchedule { get; set; }
     public ReportRoot? Report { get; set; }
-    public ICollection<Thermostat>? Thermostats { get; set; }
-    public ICollection<Sensor>? Sensors { get; set; }
-    public ICollection<SensorHistory>? SensorsHistory { get; set; }
-    public ICollection<PairableDevice>? PairableDevices { get; set; }
-    public ICollection<ProductionMonth>? ProductionMonths { get; set; }
+    public ICollection<Thermostat?>? Thermostats { get; set; }
+    public ICollection<Sensor?>? Sensors { get; set; }
+    public ICollection<SensorHistory?>? SensorsHistory { get; set; }
+    public ICollection<PairableDevice?>? PairableDevices { get; set; }
+    public ICollection<ProductionMonth?>? ProductionMonths { get; set; }
     public Production? Production { get; set; }
 }
 
@@ -3048,7 +3048,7 @@ public partial class Subscription
     public string? Status { get; set; }
     public int? BillingRegionId { get; set; }
     public PriceRatingRoot? PriceRating { get; set; }
-    public ICollection<Invoice>? Invoices { get; set; }
+    public ICollection<Invoice?>? Invoices { get; set; }
     public EnergyDeal? EnergyDeal { get; set; }
 }
 
@@ -3071,7 +3071,7 @@ public partial class PriceRating
     public decimal? MaxTotal { get; set; }
     public string? Currency { get; set; }
     public PriceRatingColorOffset? ColorOffsets { get; set; }
-    public ICollection<PriceRatingEntry>? Entries { get; set; }
+    public ICollection<PriceRatingEntry?>? Entries { get; set; }
 }
 
 public partial class PriceRatingColorOffset
@@ -3112,7 +3112,7 @@ public partial class Invoice
     public string? TimeZone { get; set; }
     public string? Currency { get; set; }
     public InvoicePayment? Payment { get; set; }
-    public ICollection<InvoiceSection>? Sections { get; set; }
+    public ICollection<InvoiceSection?>? Sections { get; set; }
     public DateTimeOffset? From { get; set; }
     public DateTimeOffset? To { get; set; }
 }
@@ -3160,7 +3160,7 @@ public partial class Producer
     public string? Title { get; set; }
     public string? Description { get; set; }
     public string? ImageSrc { get; set; }
-    public ICollection<ProducerBullet>? Bullets { get; set; }
+    public ICollection<ProducerBullet?>? Bullets { get; set; }
 }
 
 public partial class ProducerBullet
@@ -3202,7 +3202,7 @@ public partial class PreLiveComparison
     public string? HomeId { get; set; }
     public bool? BasedOnActuals { get; set; }
     public Comparison? PreviousYear { get; set; }
-    public ICollection<Comparison>? PreviousYearMonths { get; set; }
+    public ICollection<Comparison?>? PreviousYearMonths { get; set; }
 }
 
 public partial class Comparison
@@ -3247,7 +3247,7 @@ public partial class SignupStatus
 {
     public ProcessStep? FeedStep { get; set; }
     public ProcessStep? AvatarStep { get; set; }
-    public ICollection<ProcessStep>? Steps { get; set; }
+    public ICollection<ProcessStep?>? Steps { get; set; }
 }
 
 public partial class ProcessStep
@@ -3281,7 +3281,7 @@ public partial class Weather
 {
     public decimal? MinTemperature { get; set; }
     public decimal? MaxTemperature { get; set; }
-    public ICollection<WeatherEntry>? Entries { get; set; }
+    public ICollection<WeatherEntry?>? Entries { get; set; }
 }
 
 public partial class WeatherEntry
@@ -3320,12 +3320,12 @@ public partial class DayNightScheduleSettings
     public bool? IsEnabled { get; set; }
     public string? LocalTimeFrom { get; set; }
     public string? LocalTimeTo { get; set; }
-    public ICollection<int>? RecurringDays { get; set; }
+    public ICollection<int?>? RecurringDays { get; set; }
 }
 
 public partial class ReportRoot
 {
-    public ICollection<Report>? Reports { get; set; }
+    public ICollection<Report?>? Reports { get; set; }
 }
 
 public partial class Report
@@ -3335,7 +3335,7 @@ public partial class Report
     public string? Efficiency { get; set; }
     public int? Year { get; set; }
     public int? Month { get; set; }
-    public ICollection<ReportCell>? Items { get; set; }
+    public ICollection<ReportCell?>? Items { get; set; }
 }
 
 public partial class ReportCell
@@ -3357,8 +3357,8 @@ public partial class Thermostat
     public string? Connectivity { get; set; }
     public ThermostatState? State { get; set; }
     public ThermostatMeasurements? Measurements { get; set; }
-    public ICollection<ThermostatCapability>? Capabilities { get; set; }
-    public ICollection<ThermostatMode>? Modes { get; set; }
+    public ICollection<ThermostatCapability?>? Capabilities { get; set; }
+    public ICollection<ThermostatMode?>? Modes { get; set; }
     public string? Template { get; set; }
     public bool? HasSettings { get; set; }
     public bool? SupportsDayNightSchedule { get; set; }
@@ -3376,7 +3376,7 @@ public partial class ThermostatMeasurements
 {
     public decimal? Temperature { get; set; }
     public DateTimeOffset? Timestamp { get; set; }
-    public ICollection<ThermostatMeasurement>? Display { get; set; }
+    public ICollection<ThermostatMeasurement?>? Display { get; set; }
 }
 
 public partial class ThermostatMeasurement
@@ -3403,7 +3403,7 @@ public partial class ThermostatCapability
 public partial class ThermostatMode
 {
     public string? Name { get; set; }
-    public ICollection<string>? Capabilities { get; set; }
+    public ICollection<string?>? Capabilities { get; set; }
 }
 
 public partial class Sensor
@@ -3418,7 +3418,7 @@ public partial class SensorHistory
 {
     public string? SensorId { get; set; }
     public string? Description { get; set; }
-    public ICollection<SensorHistoryValue>? Values { get; set; }
+    public ICollection<SensorHistoryValue?>? Values { get; set; }
 }
 
 public partial class SensorHistoryValue
@@ -3456,11 +3456,11 @@ public partial class ProductionMonth
 
 public partial class Production
 {
-    public ICollection<ProductionValue>? AnnualValues { get; set; }
-    public ICollection<ProductionValue>? MonthlyValues { get; set; }
-    public ICollection<ProductionValue>? WeeklyValues { get; set; }
-    public ICollection<ProductionValue>? DailyValues { get; set; }
-    public ICollection<ProductionValue>? HourlyValues { get; set; }
+    public ICollection<ProductionValue?>? AnnualValues { get; set; }
+    public ICollection<ProductionValue?>? MonthlyValues { get; set; }
+    public ICollection<ProductionValue?>? WeeklyValues { get; set; }
+    public ICollection<ProductionValue?>? DailyValues { get; set; }
+    public ICollection<ProductionValue?>? HourlyValues { get; set; }
     public decimal? TotalConsumption { get; set; }
     public decimal? EnergyCost { get; set; }
     public decimal? TotalCost { get; set; }
@@ -3486,8 +3486,8 @@ public partial class ProductionValue
 public partial class Feed
 {
     public int? NumberOfItems { get; set; }
-    public ICollection<FeedItem>? Items { get; set; }
-    public ICollection<PushNotification>? PushNotifications { get; set; }
+    public ICollection<FeedItem?>? Items { get; set; }
+    public ICollection<PushNotification?>? PushNotifications { get; set; }
 }
 
 public partial class FeedItem
@@ -3510,7 +3510,7 @@ public partial class PushNotification
 public partial class Wallet
 {
     public string? Id { get; set; }
-    public ICollection<PaymentMethod>? PaymentMethods { get; set; }
+    public ICollection<PaymentMethod?>? PaymentMethods { get; set; }
     public string? DirectDebitToPromote { get; set; }
 }
 
@@ -3523,7 +3523,7 @@ public partial class PaymentMethod
 
 public partial class About
 {
-    public ICollection<AboutItem>? Items { get; set; }
+    public ICollection<AboutItem?>? Items { get; set; }
 }
 
 public partial class AboutItem
@@ -3549,7 +3549,7 @@ public partial class HomeMutation
     public ThermostatMutation? Thermostat { get; set; }
     public PairDeviceResult? PairDeviceWithOAuth { get; set; }
     public PairDeviceResult? PairDeviceWithCredentials { get; set; }
-    public ICollection<HomeProfileQuestion>? AnswerProfileQuestions { get; set; }
+    public ICollection<HomeProfileQuestion?>? AnswerProfileQuestions { get; set; }
     public GqlMutationGeneralResponse? SendMeterReading { get; set; }
     public GqlMutationGeneralResponse? SetMeteringPointIdAndBindingTime { get; set; }
     public GqlMutationGeneralResponse? RestartSubscription { get; set; }
@@ -3563,8 +3563,8 @@ public partial class ThermostatMutation
 
 public partial class PairDeviceResult
 {
-    public ICollection<Thermostat>? Thermostats { get; set; }
-    public ICollection<Sensor>? Sensors { get; set; }
+    public ICollection<Thermostat?>? Thermostats { get; set; }
+    public ICollection<Sensor?>? Sensors { get; set; }
     public GqlMutationError? Error { get; set; }
 }
 

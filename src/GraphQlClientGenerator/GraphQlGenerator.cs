@@ -663,12 +663,17 @@ using Newtonsoft.Json.Linq;
                     if (!UseCustomClassNameIfDefined(ref itemTypeName))
                         itemTypeName = NamingHelper.ToPascalCase(itemTypeName);
 
-                    var netTypeBase = IsUnknownObjectScalar(baseType, member.Name, itemType) ? "object" : itemTypeName + _configuration.ClassPostfix;
-                    var suggestedNetType = ScalarToNetType(baseType, member.Name, itemType).NetTypeName;
-                    if (!String.Equals(suggestedNetType, "object") && !String.Equals(suggestedNetType, "object?") && !suggestedNetType.TrimEnd().EndsWith("System.Object") && !suggestedNetType.TrimEnd().EndsWith("System.Object?"))
-                        netTypeBase = suggestedNetType.TrimEnd('?');
+                    var netItemType = IsUnknownObjectScalar(baseType, member.Name, itemType) ? "object" : itemTypeName + _configuration.ClassPostfix;
+                    var suggestedScalarNetType = ScalarToNetType(baseType, member.Name, itemType).NetTypeName.TrimEnd('?');
+                    if (!String.Equals(suggestedScalarNetType, "object") && !String.Equals(suggestedScalarNetType, "object?") &&
+                        !suggestedScalarNetType.TrimEnd().EndsWith("System.Object") && !suggestedScalarNetType.TrimEnd().EndsWith("System.Object?"))
+                        netItemType = suggestedScalarNetType;
 
-                    return ConvertToTypeDescription(AddQuestionMarkIfNullableReferencesEnabled(String.Format(netCollectionOpenType, netTypeBase)));
+                    if (itemType.Kind != GraphQlTypeKind.NonNull)
+                        netItemType = AddQuestionMarkIfNullableReferencesEnabled(netItemType);
+
+                    var netCollectionType = String.Format(netCollectionOpenType, netItemType);
+                    return ConvertToTypeDescription(AddQuestionMarkIfNullableReferencesEnabled(netCollectionType));
 
                 case GraphQlTypeKind.Scalar:
                     return fieldType.Name
