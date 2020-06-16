@@ -635,7 +635,6 @@ using Newtonsoft.Json.Linq;
 
         private ScalarFieldTypeDescription GetDataPropertyType(GraphQlType baseType, IGraphQlMember member)
         {
-            string propertyType;
             var fieldType = member.Type.UnwrapIfNonNull();
 
             switch (fieldType.Kind)
@@ -648,36 +647,40 @@ using Newtonsoft.Json.Linq;
                     if (!UseCustomClassNameIfDefined(ref fieldTypeName))
                         fieldTypeName = NamingHelper.ToPascalCase(fieldTypeName);
 
-                    propertyType = fieldTypeName + _configuration.ClassPostfix;
+                    var propertyType = fieldTypeName + _configuration.ClassPostfix;
                     return ConvertToTypeDescription(AddQuestionMarkIfNullableReferencesEnabled(propertyType));
 
                 case GraphQlTypeKind.Enum:
                     return _configuration.CustomScalarFieldTypeMapping(baseType, member.Type, member.Name);
 
                 case GraphQlTypeKind.List:
-                    var itemTypeName = fieldType.OfType.UnwrapIfNonNull().Name;
+                    var itemType = UnwrapListItemType(fieldType, out var netCollectionOpenType);
+                    var unwrappedItemType = itemType?.UnwrapIfNonNull();
+                    if (unwrappedItemType == null)
+                        throw ListItemTypeResolutionFailedException(baseType.Name, fieldType.Name);
+
+                    var itemTypeName = unwrappedItemType.Name;
                     if (!UseCustomClassNameIfDefined(ref itemTypeName))
                         itemTypeName = NamingHelper.ToPascalCase(itemTypeName);
-                    
-                    var itemType = IsUnknownObjectScalar(baseType, member.Name, fieldType.OfType) ? "object" : itemTypeName + _configuration.ClassPostfix;
-                    var suggestedNetType = ScalarToNetType(baseType, member.Name, fieldType.OfType).NetTypeName.TrimEnd('?');
+
+                    var netTypeBase = IsUnknownObjectScalar(baseType, member.Name, itemType) ? "object" : itemTypeName + _configuration.ClassPostfix;
+                    var suggestedNetType = ScalarToNetType(baseType, member.Name, itemType).NetTypeName;
                     if (!String.Equals(suggestedNetType, "object") && !String.Equals(suggestedNetType, "object?") && !suggestedNetType.TrimEnd().EndsWith("System.Object") && !suggestedNetType.TrimEnd().EndsWith("System.Object?"))
-                        itemType = suggestedNetType;
+                        netTypeBase = suggestedNetType.TrimEnd('?');
 
-                    propertyType = $"ICollection<{itemType}>";
-
-                    return ConvertToTypeDescription(AddQuestionMarkIfNullableReferencesEnabled(propertyType));
+                    return ConvertToTypeDescription(AddQuestionMarkIfNullableReferencesEnabled(String.Format(netCollectionOpenType, netTypeBase)));
 
                 case GraphQlTypeKind.Scalar:
-                    return fieldType.Name switch
-                    {
-                        GraphQlTypeBase.GraphQlTypeScalarInteger => GetIntegerNetType(baseType, member.Type, member.Name),
-                        GraphQlTypeBase.GraphQlTypeScalarString => GetCustomScalarType(baseType, member.Type, member.Name),
-                        GraphQlTypeBase.GraphQlTypeScalarFloat => GetFloatNetType(baseType, member.Type, member.Name),
-                        GraphQlTypeBase.GraphQlTypeScalarBoolean => ConvertToTypeDescription(GetBooleanNetType(baseType, member.Type, member.Name)),
-                        GraphQlTypeBase.GraphQlTypeScalarId => GetIdNetType(baseType, member.Type, member.Name),
-                        _ => GetCustomScalarType(baseType, member.Type, member.Name)
-                    };
+                    return fieldType.Name
+                        switch
+                        {
+                            GraphQlTypeBase.GraphQlTypeScalarInteger => GetIntegerNetType(baseType, member.Type, member.Name),
+                            GraphQlTypeBase.GraphQlTypeScalarString => GetCustomScalarType(baseType, member.Type, member.Name),
+                            GraphQlTypeBase.GraphQlTypeScalarFloat => GetFloatNetType(baseType, member.Type, member.Name),
+                            GraphQlTypeBase.GraphQlTypeScalarBoolean => ConvertToTypeDescription(GetBooleanNetType(baseType, member.Type, member.Name)),
+                            GraphQlTypeBase.GraphQlTypeScalarId => GetIdNetType(baseType, member.Type, member.Name),
+                            _ => GetCustomScalarType(baseType, member.Type, member.Name)
+                        };
 
                 default:
                     return ConvertToTypeDescription(AddQuestionMarkIfNullableReferencesEnabled("string"));
@@ -722,8 +725,11 @@ using Newtonsoft.Json.Linq;
                 _ => throw new InvalidOperationException($"'{_configuration.IdTypeMapping}' not supported")
             };
 
-        private static void ThrowFieldTypeResolutionFailed(string typeName, string fieldName) =>
-            throw new InvalidOperationException($"field type resolution failed - type: {typeName}; field: {fieldName}");
+        private static InvalidOperationException ListItemTypeResolutionFailedException(string typeName, string fieldName) =>
+            FieldTypeResolutionFailedException(typeName, fieldName, "list item type was not resolved; nested collections too deep");
+
+        private static InvalidOperationException FieldTypeResolutionFailedException(string typeName, string fieldName, string reason) =>
+            new InvalidOperationException($"field type resolution failed - type: {typeName}; field: {fieldName}{(reason == null ? null : "; reason: " + reason)}");
 
         private void GenerateQueryBuilder(GenerationContext context, GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary)
         {
@@ -800,13 +806,17 @@ using Newtonsoft.Json.Linq;
                     {
                         writer.Write(", IsComplex = true");
 
-                        fieldType = isList ? fieldType.OfType.UnwrapIfNonNull() : fieldType;
+                        if (isList)
+                        {
+                            var itemType = UnwrapListItemType(fieldType, out _)?.UnwrapIfNonNull();
+                            fieldType = itemType ?? throw ListItemTypeResolutionFailedException(type.Name, field.Name);
+                        }
 
-                        if (fieldType.Kind != GraphQlTypeKind.Scalar && fieldType.Kind != GraphQlTypeKind.Enum)
+                        if (fieldType.Kind != GraphQlTypeKind.Scalar && fieldType.Kind != GraphQlTypeKind.Enum && fieldType.Kind != GraphQlTypeKind.List)
                         {
                             var fieldTypeName = fieldType.Name;
                             if (fieldTypeName == null)
-                                ThrowFieldTypeResolutionFailed(type.Name, field.Name);
+                                throw FieldTypeResolutionFailedException(type.Name, field.Name, null);
 
                             if (!UseCustomClassNameIfDefined(ref fieldTypeName))
                                 fieldTypeName = NamingHelper.ToPascalCase(fieldTypeName);
@@ -930,7 +940,7 @@ using Newtonsoft.Json.Linq;
                         writer.Write("null");
                 }
 
-                if (fieldType.Kind == GraphQlTypeKind.Scalar || fieldType.Kind == GraphQlTypeKind.Enum)
+                if (fieldType.Kind == GraphQlTypeKind.Scalar || fieldType.Kind == GraphQlTypeKind.Enum || fieldType.Kind == GraphQlTypeKind.List)
                 {
                     writer.Write(indentation);
                     writer.Write("    public ");
@@ -973,7 +983,7 @@ using Newtonsoft.Json.Linq;
                 {
                     var fieldTypeName = fieldType.Name;
                     if (String.IsNullOrEmpty(fieldTypeName))
-                        ThrowFieldTypeResolutionFailed(type.Name, field.Name);
+                        throw FieldTypeResolutionFailedException(type.Name, field.Name, null);
 
                     if (!UseCustomClassNameIfDefined(ref fieldTypeName))
                         fieldTypeName = NamingHelper.ToPascalCase(fieldTypeName);
@@ -1053,6 +1063,43 @@ using Newtonsoft.Json.Linq;
             writer.WriteLine("}");
 
             context.AfterQueryBuilderGeneration(className);
+        }
+
+        private GraphQlFieldType UnwrapListItemType(GraphQlFieldType type, out string netCollectionOpenType)
+        {
+            var levels = 0;
+
+            var nullableSymbols = new List<string> { String.Empty };
+
+            while (true)
+            {
+                levels++;
+
+                var unwrappedType = type.OfType?.UnwrapIfNonNull();
+                if (unwrappedType == null)
+                {
+                    netCollectionOpenType = null;
+                    return null;
+                }
+
+                if (unwrappedType.Kind != GraphQlTypeKind.List)
+                {
+                    type = type.OfType;
+                    break;
+                }
+
+                nullableSymbols.Add(type.OfType.Kind == GraphQlTypeKind.NonNull ? String.Empty : AddQuestionMarkIfNullableReferencesEnabled(String.Empty));
+                type = unwrappedType;
+            }
+
+            nullableSymbols.Reverse();
+
+            netCollectionOpenType =
+                levels == 1
+                    ? "ICollection<{0}>"
+                    : String.Concat(Enumerable.Repeat("IList<", levels).Concat(new[] { "{0}" }).Concat(nullableSymbols.Select(s => ">" + s)));
+
+            return type;
         }
 
         private string WriteDirectiveParameterList(GraphQlSchema schema, GraphQlDirectiveLocation directiveLocation, TextWriter writer)

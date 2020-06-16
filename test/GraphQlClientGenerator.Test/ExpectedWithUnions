@@ -33,7 +33,8 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
         new FieldMetadata { Name = "simpleObject", IsComplex = true, QueryBuilderType = typeof(SimpleObjectTypeQueryBuilder) },
         new FieldMetadata { Name = "union", IsComplex = true, QueryBuilderType = typeof(UnionTypeQueryBuilder) },
         new FieldMetadata { Name = "interface", IsComplex = true, QueryBuilderType = typeof(NamedTypeQueryBuilder) },
-        new FieldMetadata { Name = "underscore_named_field", DefaultAlias = "underscoreNamedField", IsComplex = true, QueryBuilderType = typeof(UnderscoreNamedClassQueryBuilder) }
+        new FieldMetadata { Name = "underscore_named_field", DefaultAlias = "underscoreNamedField", IsComplex = true, QueryBuilderType = typeof(UnderscoreNamedClassQueryBuilder) },
+        new FieldMetadata { Name = "nestedLists", IsComplex = true }
     };
 
     protected override string TypeName { get; } = "Query";
@@ -73,6 +74,10 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
     }
 
     public QueryQueryBuilder ExceptUnderscoreNamedField() => ExceptField("underscore_named_field");
+
+    public QueryQueryBuilder WithNestedLists(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("nestedLists", alias, new GraphQlDirective?[] { skip, include });
+
+    public QueryQueryBuilder ExceptNestedLists() => ExceptField("nestedLists");
 }
 
 public partial class SimpleObjectTypeQueryBuilder : GraphQlQueryBuilder<SimpleObjectTypeQueryBuilder>
@@ -277,6 +282,7 @@ public partial class Query
     public ICollection<UnionType>? Union { get; set; }
     public ICollection<NamedType>? Interface { get; set; }
     public UnderscoreNamedClass? UnderscoreNamedField { get; set; }
+    public IList<IList<IList<decimal>>?>? NestedLists { get; set; }
 }
 
 public partial class SimpleObjectType
