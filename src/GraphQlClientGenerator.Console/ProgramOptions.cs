@@ -37,7 +37,7 @@ namespace GraphQlClientGenerator.Console
         [Option("partialClasses", Required = false, HelpText = "Mark classes as \"partial\"")]
         public bool PartialClasses { get; set; }
 
-        [Option("idTypeMapping", Required = false, HelpText = "Determines the .NET type generated for GraphQL ID data type.")]
+        [Option("idTypeMapping", Required = false, HelpText = "Determines the .NET type generated for GraphQL ID data type; allowed values: " + nameof(IdTypeMapping.Guid) + " (default), " + nameof(IdTypeMapping.String) + ", " + nameof(IdTypeMapping.Object))]
         public IdTypeMapping IdTypeMapping { get; set; }
     }
 }

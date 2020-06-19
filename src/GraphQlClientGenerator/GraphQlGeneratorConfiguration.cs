@@ -172,8 +172,8 @@ namespace GraphQlClientGenerator
 
     public enum IdTypeMapping
     {
-        String,
         Guid,
+        String,
         Object,
         Custom
     }
