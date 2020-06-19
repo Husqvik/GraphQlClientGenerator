@@ -16,7 +16,8 @@ namespace GraphQlClientGenerator.Console
                     ClassPostfix = options.ClassPostfix,
                     GeneratePartialClasses = options.PartialClasses,
                     MemberAccessibility = options.MemberAccessibility,
-                    IdTypeMapping = options.IdTypeMapping
+                    IdTypeMapping = options.IdTypeMapping,
+                    FloatTypeMapping = options.FloatTypeMapping
                 };
             
             var generator = new GraphQlGenerator(generatorConfiguration);

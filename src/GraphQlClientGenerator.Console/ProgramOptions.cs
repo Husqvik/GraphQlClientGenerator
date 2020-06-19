@@ -39,5 +39,8 @@ namespace GraphQlClientGenerator.Console
 
         [Option("idTypeMapping", Required = false, HelpText = "Determines the .NET type generated for GraphQL ID data type; allowed values: " + nameof(IdTypeMapping.Guid) + " (default), " + nameof(IdTypeMapping.String) + ", " + nameof(IdTypeMapping.Object))]
         public IdTypeMapping IdTypeMapping { get; set; }
+
+        [Option("floatTypeMapping", Required = false, HelpText = "Determines the .NET type generated for GraphQL Float data type; allowed values: " + nameof(FloatTypeMapping.Decimal) + " (default), " + nameof(FloatTypeMapping.Double) + ", " + nameof(FloatTypeMapping.Float))]
+        public FloatTypeMapping FloatTypeMapping { get; set; }
     }
 }
