@@ -25,6 +25,9 @@ namespace GraphQlClientGenerator.Test
             NamingHelper.ToPascalCase(" 1 2 3 ").ShouldBe("123");
             NamingHelper.ToPascalCase("1 AB cd EFDDD 8").ShouldBe("1AbCdEfddd8");
             NamingHelper.ToPascalCase("INVALID VALUE AND _2THINGS").ShouldBe("InvalidValueAnd2Things");
+            NamingHelper.ToPascalCase("_").ShouldBe("_");
+            NamingHelper.ToPascalCase(" _ _ ? ").ShouldBe("__");
+            NamingHelper.ToPascalCase(" _ _ ? x ").ShouldBe("X");
         }
 
         [Fact]

@@ -101,28 +101,33 @@ namespace GraphQlClientGenerator
             return name;
         }
 
-        /// <remarks>https://stackoverflow.com/questions/18627112/how-can-i-convert-text-to-pascal-case</remarks>>
-        public static string ToPascalCase(string value)
-        {
-            var invalidCharsRegex = new Regex("[^_a-zA-Z0-9]");
-            var whiteSpace = new Regex(@"(?<=\s)");
-            var upperCaseFirstLetter = new Regex("^[a-z]");
-            var firstCharFollowedByUpperCasesOnly = new Regex("(?<=[A-Z])[A-Z0-9]+$");
-            var lowerCaseNextToNumber = new Regex("(?<=[0-9])[a-z]");
-            var upperCaseInside = new Regex("(?<=[A-Z])[A-Z]+?((?=[A-Z][a-z])|(?=[0-9]))");
+        private static readonly Regex RegexInvalidCharacters = new Regex("[^_a-zA-Z0-9]");
+        private static readonly Regex RegexNextWhiteSpace = new Regex(@"(?<=\s)");
+        private static readonly Regex RegexWhiteSpace = new Regex(@"\s");
+        private static readonly Regex RegexUpperCaseFirstLetter = new Regex("^[a-z]");
+        private static readonly Regex RegexFirstCharFollowedByUpperCasesOnly = new Regex("(?<=[A-Z])[A-Z0-9]+$");
+        private static readonly Regex RegexLowerCaseNextToNumber = new Regex("(?<=[0-9])[a-z]");
+        private static readonly Regex RegexUpperCaseInside = new Regex("(?<=[A-Z])[A-Z]+?((?=[A-Z][a-z])|(?=[0-9]))");
 
+        /// <remarks>https://stackoverflow.com/questions/18627112/how-can-i-convert-text-to-pascal-case</remarks>>
+        public static string ToPascalCase(string text)
+        {
+            var textWithoutWhiteSpace = RegexInvalidCharacters.Replace(RegexWhiteSpace.Replace(text, String.Empty), String.Empty);
+            if (textWithoutWhiteSpace.All(c => c == '_'))
+                return textWithoutWhiteSpace;
+            
             var pascalCase =
-                invalidCharsRegex
+                RegexInvalidCharacters
                     // Replaces white spaces with underscore, then replace all invalid chars with an empty string.
-                    .Replace(whiteSpace.Replace(value, "_"), String.Empty)
+                    .Replace(RegexNextWhiteSpace.Replace(text, "_"), String.Empty)
                     .Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(w => upperCaseFirstLetter.Replace(w, m => m.Value.ToUpper()))
+                    .Select(w => RegexUpperCaseFirstLetter.Replace(w, m => m.Value.ToUpper()))
                     // Replace second and all following upper case letters to lower if there is no next lower (ABC -> Abc).
-                    .Select(w => firstCharFollowedByUpperCasesOnly.Replace(w, m => m.Value.ToLower()))
+                    .Select(w => RegexFirstCharFollowedByUpperCasesOnly.Replace(w, m => m.Value.ToLower()))
                     // Set upper case the first lower case following a number (Ab9cd -> Ab9Cd).
-                    .Select(w => lowerCaseNextToNumber.Replace(w, m => m.Value.ToUpper()))
+                    .Select(w => RegexLowerCaseNextToNumber.Replace(w, m => m.Value.ToUpper()))
                     // Lower second and next upper case letters except the last if it follows by any lower (ABcDEf -> AbcDef).
-                    .Select(w => upperCaseInside.Replace(w, m => m.Value.ToLower()));
+                    .Select(w => RegexUpperCaseInside.Replace(w, m => m.Value.ToLower()));
 
             return String.Concat(pascalCase);
         }
