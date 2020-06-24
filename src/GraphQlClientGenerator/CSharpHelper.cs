@@ -2,7 +2,7 @@
 
 namespace GraphQlClientGenerator
 {
-    internal class CSharpHelper
+    public class CSharpHelper
     {
         public static bool IsValidIdentifier(string value)
         {

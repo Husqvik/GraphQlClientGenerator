@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -19,6 +20,9 @@ namespace GraphQlClientGenerator.Console
                     IdTypeMapping = options.IdTypeMapping,
                     FloatTypeMapping = options.FloatTypeMapping
                 };
+
+            foreach (var kvp in GetCustomClassMapping(options.ClassMapping))
+                generatorConfiguration.CustomClassNameMapping.Add(kvp);
             
             var generator = new GraphQlGenerator(generatorConfiguration);
 
@@ -31,6 +35,28 @@ namespace GraphQlClientGenerator.Console
             var multipleFileGenerationContext = new MultipleFileGenerationContext(schema, options.OutputPath, options.Namespace);
             generator.Generate(multipleFileGenerationContext);
             return multipleFileGenerationContext.Files;
+        }
+
+        private static IEnumerable<KeyValuePair<string, string>> GetCustomClassMapping(IEnumerable<string> sourceParameters)
+        {
+            foreach (var parameter in sourceParameters)
+            {
+                var parts = parameter.Split(':');
+                if (parts.Length != 2)
+                {
+                    System.Console.WriteLine("ERROR: 'classMapping' value must have format {GraphQlTypeName}:{C#ClassName}. ");
+                    Environment.Exit(3);
+                }
+
+                var cSharpClassName = parts[1];
+                if (!CSharpHelper.IsValidIdentifier(cSharpClassName))
+                {
+                    System.Console.WriteLine($"ERROR: '{cSharpClassName}' is not valid C# class name. ");
+                    Environment.Exit(3);
+                }
+
+                yield return new KeyValuePair<string, string>(parts[0], cSharpClassName);
+            }
         }
     }
 }

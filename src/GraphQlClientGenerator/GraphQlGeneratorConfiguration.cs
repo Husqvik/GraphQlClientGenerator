@@ -20,6 +20,9 @@ namespace GraphQlClientGenerator
 
         public string ClassPostfix { get; set; }
 
+        /// <summary>
+        /// Allows to define custom class names for specific GraphQL types. One common reason for this is to avoid property of the same name as its parent class.
+        /// </summary>
         public IDictionary<string, string> CustomClassNameMapping { get; } = new Dictionary<string, string>();
 
         public CommentGenerationOption CommentGeneration { get; set; }

@@ -544,6 +544,7 @@ using Newtonsoft.Json.Linq;
             if (!_configuration.CustomClassNameMapping.TryGetValue(typeName, out var customTypeName))
                 return false;
 
+            ValidateClassName(customTypeName);
             typeName = customTypeName;
             return true;
         }

@@ -1,4 +1,5 @@
-﻿using CommandLine;
+﻿using System.Collections.Generic;
+using CommandLine;
 
 namespace GraphQlClientGenerator.Console
 {
@@ -36,6 +37,9 @@ namespace GraphQlClientGenerator.Console
 
         [Option("partialClasses", Required = false, HelpText = "Mark classes as \"partial\"")]
         public bool PartialClasses { get; set; }
+
+        [Option("classMapping", Required = false, HelpText = "Format: {GraphQlTypeName}:{C#ClassName}; allows to define custom class names for specific GraphQL types. One common reason for this is to avoid property of the same name as its parent class. ")]
+        public IEnumerable<string> ClassMapping { get; set; }
 
         [Option("idTypeMapping", Required = false, HelpText = "Determines the .NET type generated for GraphQL ID data type; allowed values: " + nameof(IdTypeMapping.Guid) + " (default), " + nameof(IdTypeMapping.String) + ", " + nameof(IdTypeMapping.Object))]
         public IdTypeMapping IdTypeMapping { get; set; }
