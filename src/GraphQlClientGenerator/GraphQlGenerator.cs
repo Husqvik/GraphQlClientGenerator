@@ -89,11 +89,14 @@ using Newtonsoft.Json.Linq;
         {
             try
             {
-                var result = JsonConvert.DeserializeObject<GraphQlResult>(content, SerializerSettings);
-                if (result.Data?.Schema == null)
+                var schema =
+                    JsonConvert.DeserializeObject<GraphQlResult>(content, SerializerSettings)?.Data?.Schema
+                    ?? JsonConvert.DeserializeObject<GraphQlData>(content, SerializerSettings)?.Schema;
+
+                if (schema == null)
                     throw new ArgumentException("not a GraphQL schema", nameof(content));
 
-                return result.Data.Schema;
+                return schema;
             }
             catch (JsonReaderException exception)
             {

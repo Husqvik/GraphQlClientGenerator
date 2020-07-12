@@ -9,7 +9,24 @@ namespace GraphQlClientGenerator.Console
     {
         public static async Task<IReadOnlyCollection<FileInfo>> GenerateClientSourceCode(ProgramOptions options)
         {
-            var schema = await GraphQlGenerator.RetrieveSchema(options.ServiceUrl, options.Authorization);
+            var isServiceUrlMissing = String.IsNullOrWhiteSpace(options.ServiceUrl);
+            if (isServiceUrlMissing && String.IsNullOrWhiteSpace(options.SchemaFileName))
+            {
+                System.Console.WriteLine("ERROR: Either 'serviceUrl' or 'schemaFileName' parameter must be specified. ");
+                Environment.Exit(4);
+            }
+
+            if (!isServiceUrlMissing && !String.IsNullOrWhiteSpace(options.SchemaFileName))
+            {
+                System.Console.WriteLine("ERROR: 'serviceUrl' and 'schemaFileName' parameters are mutually exclusive. ");
+                Environment.Exit(5);
+            }
+
+            var schema =
+                isServiceUrlMissing
+                    ? GraphQlGenerator.DeserializeGraphQlSchema(await File.ReadAllTextAsync(options.SchemaFileName))
+                    : await GraphQlGenerator.RetrieveSchema(options.ServiceUrl, options.Authorization);
+            
             var generatorConfiguration =
                 new GraphQlGeneratorConfiguration
                 {
