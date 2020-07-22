@@ -35,7 +35,8 @@ namespace GraphQlClientGenerator.Console
                     GeneratePartialClasses = options.PartialClasses,
                     MemberAccessibility = options.MemberAccessibility,
                     IdTypeMapping = options.IdTypeMapping,
-                    FloatTypeMapping = options.FloatTypeMapping
+                    FloatTypeMapping = options.FloatTypeMapping,
+                    JsonPropertyGeneration = options.JsonPropertyAttribute
                 };
 
             foreach (var kvp in GetCustomClassMapping(options.ClassMapping))

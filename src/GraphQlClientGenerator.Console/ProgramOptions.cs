@@ -40,14 +40,17 @@ namespace GraphQlClientGenerator.Console
 
         [Option("partialClasses", Required = false, HelpText = "Mark classes as \"partial\"")]
         public bool PartialClasses { get; set; }
-
+        
         [Option("classMapping", Required = false, HelpText = "Format: {GraphQlTypeName}:{C#ClassName}; allows to define custom class names for specific GraphQL types; common reason for this is to avoid property of the same name as its parent class")]
         public IEnumerable<string> ClassMapping { get; set; }
 
-        [Option("idTypeMapping", Required = false, HelpText = "Determines the .NET type generated for GraphQL ID data type; allowed values: " + nameof(IdTypeMapping.Guid) + " (default), " + nameof(IdTypeMapping.String) + ", " + nameof(IdTypeMapping.Object))]
+        [Option("idTypeMapping", Required = false, HelpText = "Specifies the .NET type generated for GraphQL ID data type; allowed values: " + nameof(IdTypeMapping.Guid) + " (default), " + nameof(IdTypeMapping.String) + ", " + nameof(IdTypeMapping.Object))]
         public IdTypeMapping IdTypeMapping { get; set; }
 
-        [Option("floatTypeMapping", Required = false, HelpText = "Determines the .NET type generated for GraphQL Float data type; allowed values: " + nameof(FloatTypeMapping.Decimal) + " (default), " + nameof(FloatTypeMapping.Double) + ", " + nameof(FloatTypeMapping.Float))]
+        [Option("floatTypeMapping", Required = false, HelpText = "Specifies the .NET type generated for GraphQL Float data type; allowed values: " + nameof(FloatTypeMapping.Decimal) + " (default), " + nameof(FloatTypeMapping.Double) + ", " + nameof(FloatTypeMapping.Float))]
         public FloatTypeMapping FloatTypeMapping { get; set; }
+
+        [Option("jsonPropertyAttribute", Required = false, HelpText = "Specifies the condition for using \"JsonPropertyAttribute\"; allowed values: " + nameof(JsonPropertyGenerationOption.CaseInsensitive) + " (default), " + nameof(JsonPropertyGenerationOption.CaseSensitive) + ", " + nameof(JsonPropertyGenerationOption.Always) + ", " + nameof(JsonPropertyGenerationOption.Never) + ", " + nameof(JsonPropertyGenerationOption.UseDefaultAlias))]
+        public JsonPropertyGenerationOption JsonPropertyAttribute { get; set; }
     }
 }

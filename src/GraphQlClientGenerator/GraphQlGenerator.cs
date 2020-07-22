@@ -564,12 +564,11 @@ using Newtonsoft.Json.Linq;
             bool isInterfaceMember,
             bool isDeprecated,
             string deprecationReason,
-            bool decorateWithJsonProperty,
+            bool decorateWithJsonPropertyAttribute,
             WriteDataClassPropertyBodyDelegate writeBody,
             GenerationContext context)
         {
             var propertyName = NamingHelper.ToPascalCase(member.Name);
-
             var propertyTypeDescription = GetDataPropertyType(baseType, member);
             var propertyTypeName = propertyTypeDescription.NetTypeName;
 
@@ -586,20 +585,20 @@ using Newtonsoft.Json.Linq;
                 writer.WriteLine($"    [Obsolete{deprecationReason}]");
             }
 
-            if (decorateWithJsonProperty)
+            if (decorateWithJsonPropertyAttribute)
             {
-                decorateWithJsonProperty =
+                decorateWithJsonPropertyAttribute =
                     _configuration.JsonPropertyGeneration == JsonPropertyGenerationOption.Always ||
                     !String.Equals(
                         member.Name,
-                        propertyName,
+                        propertyName.TrimStart('@'),
                         _configuration.JsonPropertyGeneration == JsonPropertyGenerationOption.CaseInsensitive ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
 
                 if (_configuration.JsonPropertyGeneration == JsonPropertyGenerationOption.Never || _configuration.JsonPropertyGeneration == JsonPropertyGenerationOption.UseDefaultAlias)
-                    decorateWithJsonProperty = false;
+                    decorateWithJsonPropertyAttribute = false;
             }
 
-            if (!isInterfaceMember && decorateWithJsonProperty)
+            if (!isInterfaceMember && decorateWithJsonPropertyAttribute)
             {
                 writer.Write(indentation);
                 writer.Write("    #if !");
