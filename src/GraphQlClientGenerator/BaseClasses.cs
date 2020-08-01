@@ -552,15 +552,6 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         return parameters.Length == 1 && parameters[0].ParameterType.IsSubclassOf(typeof(GraphQlQueryBuilder));
     }
 
-    private static bool IsCompatibleConstructor(ConstructorInfo constructorInfo)
-    {
-        var parameters = constructorInfo.GetParameters();
-        if (parameters.Length == 0 || parameters[0].ParameterType != typeof(String))
-            return false;
-
-        return parameters.Skip(1).All(p => p.ParameterType.IsSubclassOf(typeof(GraphQlDirective)));
-    }
-
     protected void AddParameter<T>(GraphQlQueryParameter<T> parameter)
     {
         if (_queryParameters == null)
