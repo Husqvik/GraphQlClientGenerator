@@ -25,7 +25,7 @@
     <EmbeddedResource Include="ExpectedMultipleFilesContext\Home" />
     <EmbeddedResource Include="ExpectedMultipleFilesContext\IncludeDirective" />
     <EmbeddedResource Include="ExpectedMultipleFilesContext\MutationQueryBuilder" />
-    <EmbeddedResource Include="ExpectedNewCSharpSyntaxWithClassPostfix" />
+    <EmbeddedResource Include="ExpectedNewCSharpSyntaxWithClassPrefixAndSuffix" />
     <EmbeddedResource Include="ExpectedDeprecatedAttributes" />
     <EmbeddedResource Include="ExpectedWithNullableReferences" />
     <EmbeddedResource Include="ExpectedQueryBuilders" />

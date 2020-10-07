@@ -336,7 +336,7 @@ using Newtonsoft.Json.Linq;
 
                     foreach (var @interface in complexType.Interfaces)
                     {
-                        interfacesToImplement.Add("I" + @interface.Name + _configuration.ClassPostfix);
+                        interfacesToImplement.Add("I" + @interface.Name + _configuration.ClassSuffix);
 
                         foreach (var interfaceField in complexTypeDictionary[@interface.Name].Fields.Where(FilterDeprecatedFields))
                             if (fieldNames.Add(interfaceField.Name))
@@ -459,7 +459,7 @@ using Newtonsoft.Json.Linq;
 
         private string GenerateFileMember(GenerationContext context, string memberType, string typeName, string typeDescription, string baseTypeName, Action generateFileMemberBody)
         {
-            typeName += _configuration.ClassPostfix;
+            typeName = _configuration.ClassPrefix + typeName + _configuration.ClassSuffix;
             ValidateClassName(typeName);
 
             context.BeforeDataClassGeneration(typeName);
@@ -650,7 +650,7 @@ using Newtonsoft.Json.Linq;
                     if (!UseCustomClassNameIfDefined(ref fieldTypeName))
                         fieldTypeName = NamingHelper.ToPascalCase(fieldTypeName);
 
-                    var propertyType = fieldTypeName + _configuration.ClassPostfix;
+                    var propertyType = _configuration.ClassPrefix + fieldTypeName + _configuration.ClassSuffix;
                     return ConvertToTypeDescription(AddQuestionMarkIfNullableReferencesEnabled(propertyType));
 
                 case GraphQlTypeKind.Enum:
@@ -666,7 +666,7 @@ using Newtonsoft.Json.Linq;
                     if (!UseCustomClassNameIfDefined(ref itemTypeName))
                         itemTypeName = NamingHelper.ToPascalCase(itemTypeName);
 
-                    var netItemType = IsUnknownObjectScalar(baseType, member.Name, itemType) ? "object" : itemTypeName + _configuration.ClassPostfix;
+                    var netItemType = IsUnknownObjectScalar(baseType, member.Name, itemType) ? "object" : _configuration.ClassPrefix + itemTypeName + _configuration.ClassSuffix;
                     var suggestedScalarNetType = ScalarToNetType(baseType, member.Name, itemType).NetTypeName.TrimEnd('?');
                     if (!String.Equals(suggestedScalarNetType, "object") && !String.Equals(suggestedScalarNetType, "object?") &&
                         !suggestedScalarNetType.TrimEnd().EndsWith("System.Object") && !suggestedScalarNetType.TrimEnd().EndsWith("System.Object?"))
@@ -744,7 +744,7 @@ using Newtonsoft.Json.Linq;
             var schema = context.Schema;
             var typeName = type.Name;
             var useCustomName = UseCustomClassNameIfDefined(ref typeName);
-            var className = (useCustomName ? typeName : NamingHelper.ToPascalCase(typeName)) + "QueryBuilder" + _configuration.ClassPostfix;
+            var className = (useCustomName ? typeName : _configuration.ClassPrefix + NamingHelper.ToPascalCase(typeName)) + "QueryBuilder" + _configuration.ClassSuffix;
             ValidateClassName(className);
 
             context.BeforeQueryBuilderGeneration(className);
@@ -829,7 +829,7 @@ using Newtonsoft.Json.Linq;
                             if (!UseCustomClassNameIfDefined(ref fieldTypeName))
                                 fieldTypeName = NamingHelper.ToPascalCase(fieldTypeName);
                             
-                            writer.Write($", QueryBuilderType = typeof({fieldTypeName}QueryBuilder{_configuration.ClassPostfix})");
+                            writer.Write($", QueryBuilderType = typeof({_configuration.ClassPrefix}{fieldTypeName}QueryBuilder{_configuration.ClassSuffix})");
                         }
                     }
 
@@ -998,7 +998,7 @@ using Newtonsoft.Json.Linq;
 
                     var builderParameterName = NamingHelper.LowerFirst(fieldTypeName);
                     writer.Write(indentation);
-                    writer.Write($"    public {className} With{csharpPropertyName}{(isFragment ? "Fragment" : null)}({fieldTypeName}QueryBuilder{_configuration.ClassPostfix} {builderParameterName}QueryBuilder");
+                    writer.Write($"    public {className} With{csharpPropertyName}{(isFragment ? "Fragment" : null)}({_configuration.ClassPrefix}{fieldTypeName}QueryBuilder{_configuration.ClassSuffix} {builderParameterName}QueryBuilder");
 
                     if (argumentDefinitions.Length > 0)
                     {
@@ -1208,7 +1208,7 @@ using Newtonsoft.Json.Linq;
                 if (!UseCustomClassNameIfDefined(ref argumentNetType))
                     argumentNetType = NamingHelper.ToPascalCase(argumentNetType);
 
-                argumentNetType += _configuration.ClassPostfix;
+                argumentNetType = _configuration.ClassPrefix + argumentNetType + _configuration.ClassSuffix;
                 
                 if (!isTypeNotNull)
                     argumentNetType = AddQuestionMarkIfNullableReferencesEnabled(argumentNetType);

@@ -31,7 +31,7 @@ namespace GraphQlClientGenerator.Console
                 new GraphQlGeneratorConfiguration
                 {
                     CSharpVersion = options.CSharpVersion,
-                    ClassPostfix = options.ClassPostfix,
+                    ClassSuffix = options.ClassPostfix,
                     GeneratePartialClasses = options.PartialClasses,
                     MemberAccessibility = options.MemberAccessibility,
                     IdTypeMapping = options.IdTypeMapping,

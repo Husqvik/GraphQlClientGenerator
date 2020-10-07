@@ -331,13 +331,14 @@ namespace GraphQlClientGenerator.Test
         }
         
         [Fact]
-        public void NewCSharpSyntaxWithClassPostfix()
+        public void NewCSharpSyntaxWithClassPrefixAndSuffix()
         {
             var configuration =
                 new GraphQlGeneratorConfiguration
                 {
                     CSharpVersion = CSharpVersion.Newest,
-                    ClassPostfix = "V1",
+                    ClassPrefix = "Test",
+                    ClassSuffix = "V1",
                     MemberAccessibility = MemberAccessibility.Internal
                 };
             
@@ -347,8 +348,9 @@ namespace GraphQlClientGenerator.Test
             var generator = new GraphQlGenerator(configuration);
             generator.Generate(CreateGenerationContext(stringBuilder, schema));
 
-            var expectedOutput = GetTestResource("ExpectedNewCSharpSyntaxWithClassPostfix");
             var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+            var expectedOutput = GetTestResource("ExpectedNewCSharpSyntaxWithClassPrefixAndSuffix");
+
             generatedSourceCode.ShouldBe(expectedOutput);
 
             CompileIntoAssembly(stringBuilder.ToString(), "GraphQLTestAssembly");

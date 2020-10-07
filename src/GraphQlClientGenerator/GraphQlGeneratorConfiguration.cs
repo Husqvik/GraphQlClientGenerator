@@ -18,7 +18,9 @@ namespace GraphQlClientGenerator
     {
         public CSharpVersion CSharpVersion { get; set; }
 
-        public string ClassPostfix { get; set; }
+        public string ClassPrefix { get; set; }
+
+        public string ClassSuffix { get; set; }
 
         /// <summary>
         /// Allows to define custom class names for specific GraphQL types. One common reason for this is to avoid property of the same name as its parent class.
@@ -83,7 +85,8 @@ namespace GraphQlClientGenerator
 
         public void Reset()
         {
-            ClassPostfix = null;
+            ClassPrefix = null;
+            ClassSuffix = null;
             CustomClassNameMapping.Clear();
             CSharpVersion = CSharpVersion.Compatible;
             CustomScalarFieldTypeMapping = DefaultScalarFieldTypeMapping;
