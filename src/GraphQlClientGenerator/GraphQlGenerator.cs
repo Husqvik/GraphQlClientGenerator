@@ -1195,8 +1195,13 @@ using Newtonsoft.Json.Linq;
                 unwrappedType = argumentType.UnwrapIfNonNull();
             }
 
-            var argumentTypeDescription = unwrappedType.Kind == GraphQlTypeKind.Enum ? ConvertToTypeDescription(NamingHelper.ToPascalCase(unwrappedType.Name) + "?") : ScalarToNetType(baseType, argument.Name, argumentType);
+            var argumentTypeDescription =
+                unwrappedType.Kind == GraphQlTypeKind.Enum
+                    ? ConvertToTypeDescription(_configuration.ClassPrefix + NamingHelper.ToPascalCase(unwrappedType.Name) + _configuration.ClassSuffix + "?")
+                    : ScalarToNetType(baseType, argument.Name, argumentType);
+            
             var argumentNetType = argumentTypeDescription.NetTypeName;
+            
             if (isTypeNotNull)
                 argumentNetType = argumentNetType.TrimEnd('?');
 
@@ -1290,7 +1295,7 @@ using Newtonsoft.Json.Linq;
 
         private void GenerateEnum(GenerationContext context, GraphQlType type)
         {
-            var enumName = NamingHelper.ToPascalCase(type.Name);
+            var enumName = _configuration.ClassPrefix + NamingHelper.ToPascalCase(type.Name) + _configuration.ClassSuffix;
             
             context.BeforeEnumGeneration(enumName);
             

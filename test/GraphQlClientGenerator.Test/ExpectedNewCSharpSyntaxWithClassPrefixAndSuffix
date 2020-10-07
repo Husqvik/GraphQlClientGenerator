@@ -1,5 +1,5 @@
 #region enums
-public enum Avatar
+public enum TestAvatarV1
 {
     [EnumMember(Value = "floorhouse1")] Floorhouse1,
     [EnumMember(Value = "floorhouse2")] Floorhouse2,
@@ -10,7 +10,7 @@ public enum Avatar
     [EnumMember(Value = "rowhouse")] Rowhouse
 }
 
-public enum Resolution
+public enum TestResolutionV1
 {
     [EnumMember(Value = "annual")] Annual,
     [EnumMember(Value = "monthly")] Monthly
@@ -351,7 +351,7 @@ internal partial class TestHomeQueryBuilderV1 : GraphQlQueryBuilder<TestHomeQuer
 
     public TestHomeQueryBuilderV1 ExceptPreLiveComparison() => ExceptField("preLiveComparison");
 
-    public TestHomeQueryBuilderV1 WithComparisons(TestComparisonQueryBuilderV1 comparisonQueryBuilder, QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null, QueryBuilderParameter<Resolution?> resolution = null, QueryBuilderParameter<bool?> useDemoData = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
+    public TestHomeQueryBuilderV1 WithComparisons(TestComparisonQueryBuilderV1 comparisonQueryBuilder, QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null, QueryBuilderParameter<TestResolutionV1?> resolution = null, QueryBuilderParameter<bool?> useDemoData = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (from != null)
@@ -403,7 +403,7 @@ internal partial class TestHomeQueryBuilderV1 : GraphQlQueryBuilder<TestHomeQuer
 
     public TestHomeQueryBuilderV1 ExceptSignupStatus() => ExceptField("signupStatus");
 
-    public TestHomeQueryBuilderV1 WithDisaggregation(TestDisaggregationQueryBuilderV1 disaggregationQueryBuilder, QueryBuilderParameter<Resolution?> resolution = null, QueryBuilderParameter<bool?> useDemoData = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
+    public TestHomeQueryBuilderV1 WithDisaggregation(TestDisaggregationQueryBuilderV1 disaggregationQueryBuilder, QueryBuilderParameter<TestResolutionV1?> resolution = null, QueryBuilderParameter<bool?> useDemoData = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (resolution != null)
@@ -2996,7 +2996,7 @@ internal partial class TestAppStateFronScreenV1
 internal partial class TestHomeV1
 {
     public Guid? Id { get; set; }
-    public Avatar? Avatar { get; set; }
+    public TestAvatarV1? Avatar { get; set; }
     public string TimeZone { get; set; }
     public string Title { get; set; }
     public string Type { get; set; }

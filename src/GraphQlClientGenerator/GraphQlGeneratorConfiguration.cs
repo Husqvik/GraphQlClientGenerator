@@ -115,7 +115,7 @@ namespace GraphQlClientGenerator
 
             valueType = (valueType as GraphQlFieldType)?.UnwrapIfNonNull() ?? valueType;
             if (valueType.Kind == GraphQlTypeKind.Enum)
-                return new ScalarFieldTypeDescription { NetTypeName = NamingHelper.ToPascalCase(valueType.Name) + "?" };
+                return new ScalarFieldTypeDescription { NetTypeName = ClassPrefix + NamingHelper.ToPascalCase(valueType.Name) + ClassSuffix + "?" };
 
             var dataType = valueType.Name == GraphQlTypeBase.GraphQlTypeScalarString ? "string" : "object";
             return new ScalarFieldTypeDescription { NetTypeName = GraphQlGenerator.AddQuestionMarkIfNullableReferencesEnabled(this, dataType) };
