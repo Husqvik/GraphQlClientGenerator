@@ -26,8 +26,11 @@ namespace GraphQlClientGenerator.Console
         [Option("authorization", Required = false, HelpText = "Authorization header value")]
         public string Authorization { get; set; }
 
-        [Option("classPostfix", Required = false, HelpText = "Class postfix, for instance for version control; value \"V2\" extends class name to \"TypeNameV2\"")]
-        public string ClassPostfix { get; set; }
+        [Option("classPrefix", Required = false, HelpText = "Class prefix; value \"Test\" extends class name to \"TestTypeName\"")]
+        public string ClassPrefix { get; set; }
+
+        [Option("classSuffix", Required = false, HelpText = "Class suffix, for instance for version control; value \"V2\" extends class name to \"TypeNameV2\"")]
+        public string ClassSuffix { get; set; }
 
         [Option("csharpVersion", Required = false, HelpText = "C# version compatibility; allowed values: " + nameof(CSharpVersion.Compatible) + " (default), " + nameof(CSharpVersion.Newest) + ", " + nameof(CSharpVersion.NewestWithNullableReferences))]
         public CSharpVersion CSharpVersion { get; set; }

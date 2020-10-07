@@ -13,7 +13,7 @@
     <Copyright>Copyright 2017-2020</Copyright>
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
-    <VersionPrefix>0.7.2</VersionPrefix>
+    <VersionPrefix>0.7.3</VersionPrefix>
     <Title>GraphQL C# Client Generator</Title>
     <PackageLicenseFile>License.md</PackageLicenseFile>
     <PackageLicense>https://raw.githubusercontent.com/Husqvik/GraphQlClientGenerator/master/License.md</PackageLicense>
@@ -23,7 +23,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>GraphQL Client Generator</PackageTags>
-    <PackageReleaseNotes>Support for nested lists</PackageReleaseNotes>
+    <PackageReleaseNotes>Support for class prefix</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
