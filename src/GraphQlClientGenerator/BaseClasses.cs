@@ -358,8 +358,8 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 {
     private readonly Dictionary<string, GraphQlFieldCriteria> _fieldCriteria = new Dictionary<string, GraphQlFieldCriteria>();
 
-    private string _operationType { get; }
-    private string _operationName { get; }
+    private readonly string _operationType;
+    private readonly string _operationName;
     private Dictionary<string, GraphQlFragmentCriteria> _fragments;
     private List<QueryBuilderArgumentInfo> _queryParameters;
 
