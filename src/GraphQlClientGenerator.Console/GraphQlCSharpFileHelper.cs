@@ -25,7 +25,7 @@ namespace GraphQlClientGenerator.Console
             var schema =
                 isServiceUrlMissing
                     ? GraphQlGenerator.DeserializeGraphQlSchema(await File.ReadAllTextAsync(options.SchemaFileName))
-                    : await GraphQlGenerator.RetrieveSchema(options.ServiceUrl, options.Authorization);
+                    : await GraphQlGenerator.RetrieveSchema(options.ServiceUrl, GetCustomHeaders(options.Headers));
             
             var generatorConfiguration =
                 new GraphQlGeneratorConfiguration
@@ -75,6 +75,21 @@ namespace GraphQlClientGenerator.Console
                 }
 
                 yield return new KeyValuePair<string, string>(parts[0], cSharpClassName);
+            }
+        }
+
+        private static IEnumerable<KeyValuePair<string, string>> GetCustomHeaders(IEnumerable<string> sourceParameters)
+        {
+            foreach (var parameter in sourceParameters)
+            {
+                var parts = parameter.Split(':');
+                if (parts.Length != 2)
+                {
+                    System.Console.WriteLine("ERROR: 'headers' value must have format {Header}:{Value};. ");
+                    Environment.Exit(3);
+                }
+
+                yield return new KeyValuePair<string, string>(parts[0], parts[1]);
             }
         }
     }

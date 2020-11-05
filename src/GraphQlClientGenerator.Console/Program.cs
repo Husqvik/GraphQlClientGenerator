@@ -36,7 +36,7 @@ namespace GraphQlClientGenerator.Console
             }
             catch (Exception exception)
             {
-                System.Console.WriteLine($"An error occured:{Environment.NewLine}{exception}");
+                System.Console.WriteLine($"An error occurred:{Environment.NewLine}{exception}");
                 Environment.Exit(2);
             }
         }

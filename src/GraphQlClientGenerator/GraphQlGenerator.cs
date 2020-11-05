@@ -61,7 +61,7 @@ using Newtonsoft.Json.Linq;
             _configuration = configuration ?? new GraphQlGeneratorConfiguration();
         }
 
-        public static async Task<GraphQlSchema> RetrieveSchema(string url, string authorization = null)
+        public static async Task<GraphQlSchema> RetrieveSchema(string url, IEnumerable<KeyValuePair<string, string>> headers = null)
         {
             using var request =
                 new HttpRequestMessage(HttpMethod.Post, url)
@@ -69,9 +69,10 @@ using Newtonsoft.Json.Linq;
                     Content = new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json")
                 };
 
-            if (!String.IsNullOrWhiteSpace(authorization))
-                request.Headers.Authorization = AuthenticationHeaderValue.Parse(authorization);
-            
+            if (headers != null)
+                foreach (var kvp in headers)
+                    request.Headers.TryAddWithoutValidation(kvp.Key, kvp.Value);
+
             using var response = await HttpClient.SendAsync(request);
 
             var content =
