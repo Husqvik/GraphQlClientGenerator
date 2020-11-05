@@ -82,7 +82,7 @@ namespace GraphQlClientGenerator.Console
         {
             foreach (var parameter in sourceParameters)
             {
-                var parts = parameter.Split(':');
+                var parts = parameter.Split(':', 2);
                 if (parts.Length != 2)
                 {
                     System.Console.WriteLine("ERROR: 'headers' value must have format {Header}:{Value};. ");
