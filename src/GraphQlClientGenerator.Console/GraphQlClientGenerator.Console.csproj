@@ -4,7 +4,7 @@
     <AssemblyTitle>GraphQL C# Client Generator Console App</AssemblyTitle>
     <Description>A simple strongly typed C# GraphQL client generator console app</Description>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <LangVersion>latest</LangVersion>
     <Copyright>Copyright 2017-2020</Copyright>

@@ -12,13 +12,13 @@ namespace GraphQlClientGenerator.Console
             var isServiceUrlMissing = String.IsNullOrWhiteSpace(options.ServiceUrl);
             if (isServiceUrlMissing && String.IsNullOrWhiteSpace(options.SchemaFileName))
             {
-                System.Console.WriteLine("ERROR: Either 'serviceUrl' or 'schemaFileName' parameter must be specified. ");
+                System.Console.WriteLine("ERROR: Either \"serviceUrl\" or \"schemaFileName\" parameter must be specified. ");
                 Environment.Exit(4);
             }
 
             if (!isServiceUrlMissing && !String.IsNullOrWhiteSpace(options.SchemaFileName))
             {
-                System.Console.WriteLine("ERROR: 'serviceUrl' and 'schemaFileName' parameters are mutually exclusive. ");
+                System.Console.WriteLine("ERROR: \"serviceUrl\" and \"schemaFileName\" parameters are mutually exclusive. ");
                 Environment.Exit(5);
             }
 
@@ -63,14 +63,14 @@ namespace GraphQlClientGenerator.Console
                 var parts = parameter.Split(':');
                 if (parts.Length != 2)
                 {
-                    System.Console.WriteLine("ERROR: 'classMapping' value must have format {GraphQlTypeName}:{C#ClassName}. ");
+                    System.Console.WriteLine("ERROR: \"classMapping\" value must have format {GraphQlTypeName}:{C#ClassName}. ");
                     Environment.Exit(3);
                 }
 
                 var cSharpClassName = parts[1];
                 if (!CSharpHelper.IsValidIdentifier(cSharpClassName))
                 {
-                    System.Console.WriteLine($"ERROR: '{cSharpClassName}' is not valid C# class name. ");
+                    System.Console.WriteLine($"ERROR: \"{cSharpClassName}\" is not valid C# class name. ");
                     Environment.Exit(3);
                 }
 
@@ -85,7 +85,7 @@ namespace GraphQlClientGenerator.Console
                 var parts = parameter.Split(':', 2);
                 if (parts.Length != 2)
                 {
-                    System.Console.WriteLine("ERROR: 'headers' value must have format {Header}:{Value};. ");
+                    System.Console.WriteLine("ERROR: \"headers\" value must have format {Header}:{Value};. ");
                     Environment.Exit(3);
                 }
 
