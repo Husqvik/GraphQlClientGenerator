@@ -22,10 +22,19 @@ namespace GraphQlClientGenerator.Console
                 Environment.Exit(5);
             }
 
-            var schema =
-                isServiceUrlMissing
-                    ? GraphQlGenerator.DeserializeGraphQlSchema(await File.ReadAllTextAsync(options.SchemaFileName))
-                    : await GraphQlGenerator.RetrieveSchema(options.ServiceUrl, GetCustomHeaders(options.Headers));
+            GraphQlSchema schema;
+            if (isServiceUrlMissing)
+                schema = GraphQlGenerator.DeserializeGraphQlSchema(await File.ReadAllTextAsync(options.SchemaFileName));
+            else
+            {
+                if (!KeyValueParameterParser.TryGetCustomHeaders(options.Headers, out var headers, out var headerParsingErrorMessage))
+                {
+                    System.Console.WriteLine("ERROR: " + headerParsingErrorMessage);
+                    Environment.Exit(3);
+                }
+
+                schema = await GraphQlGenerator.RetrieveSchema(options.ServiceUrl, headers);
+            }
             
             var generatorConfiguration =
                 new GraphQlGeneratorConfiguration
@@ -40,7 +49,13 @@ namespace GraphQlClientGenerator.Console
                     JsonPropertyGeneration = options.JsonPropertyAttribute
                 };
 
-            foreach (var kvp in GetCustomClassMapping(options.ClassMapping))
+            if (!KeyValueParameterParser.TryGetCustomClassMapping(options.ClassMapping, out var customMapping, out var customMappingParsingErrorMessage))
+            {
+                System.Console.WriteLine("ERROR: " + customMappingParsingErrorMessage);
+                Environment.Exit(3);
+            }
+
+            foreach (var kvp in customMapping)
                 generatorConfiguration.CustomClassNameMapping.Add(kvp);
             
             var generator = new GraphQlGenerator(generatorConfiguration);
@@ -54,43 +69,6 @@ namespace GraphQlClientGenerator.Console
             var multipleFileGenerationContext = new MultipleFileGenerationContext(schema, options.OutputPath, options.Namespace);
             generator.Generate(multipleFileGenerationContext);
             return multipleFileGenerationContext.Files;
-        }
-
-        private static IEnumerable<KeyValuePair<string, string>> GetCustomClassMapping(IEnumerable<string> sourceParameters)
-        {
-            foreach (var parameter in sourceParameters)
-            {
-                var parts = parameter.Split(':');
-                if (parts.Length != 2)
-                {
-                    System.Console.WriteLine("ERROR: \"classMapping\" value must have format {GraphQlTypeName}:{C#ClassName}. ");
-                    Environment.Exit(3);
-                }
-
-                var cSharpClassName = parts[1];
-                if (!CSharpHelper.IsValidIdentifier(cSharpClassName))
-                {
-                    System.Console.WriteLine($"ERROR: \"{cSharpClassName}\" is not valid C# class name. ");
-                    Environment.Exit(3);
-                }
-
-                yield return new KeyValuePair<string, string>(parts[0], cSharpClassName);
-            }
-        }
-
-        private static IEnumerable<KeyValuePair<string, string>> GetCustomHeaders(IEnumerable<string> sourceParameters)
-        {
-            foreach (var parameter in sourceParameters)
-            {
-                var parts = parameter.Split(':', 2);
-                if (parts.Length != 2)
-                {
-                    System.Console.WriteLine("ERROR: \"headers\" value must have format {Header}:{Value};. ");
-                    Environment.Exit(3);
-                }
-
-                yield return new KeyValuePair<string, string>(parts[0], parts[1]);
-            }
         }
     }
 }

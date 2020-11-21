@@ -5,11 +5,10 @@
     <Description>A simple strongly typed C# GraphQL client generator library</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
-    <TargetFrameworks>netstandard1.3;net452</TargetFrameworks>
-    <LangVersion>latest</LangVersion>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <IncludeSymbols>true</IncludeSymbols>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>preview</LangVersion>
     <Copyright>Copyright 2017-2020</Copyright>
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
@@ -23,11 +22,13 @@
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>GraphQL Client Generator</PackageTags>
-    <PackageReleaseNotes>Support for class prefix</PackageReleaseNotes>
+    <PackageReleaseNotes>Source generator</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Net.Http" Version="4.*" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.*" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.*" />
     <PackageReference Include="Newtonsoft.Json" Version="12.*" />
   </ItemGroup>
 
