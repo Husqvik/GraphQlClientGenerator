@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace GraphQlClientGenerator
     [Generator]
     public class GraphQlClientSourceGenerator : ISourceGenerator
     {
-        private const string GraphQlClientFileName = "GraphQlClient.cs";
+        private const string GraphQlClientDefaultFileName = "GraphQlClient.cs";
 
         private static readonly DiagnosticDescriptor DescriptorParameterError =
             new DiagnosticDescriptor(
@@ -62,27 +63,27 @@ namespace GraphQlClientGenerator
             try
             {
                 context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.GraphQlClientGenerator_ServiceUrl", out var serviceUrl);
-                context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.GraphQlClientGenerator_SchemaFileName", out var schemaFileName);
                 var isServiceUrlMissing = String.IsNullOrWhiteSpace(serviceUrl);
-                if (isServiceUrlMissing && String.IsNullOrWhiteSpace(schemaFileName))
+                var graphQlSchemaFiles = context.AdditionalFiles.Where(f => String.Equals(Path.GetExtension(f.Path), ".json", StringComparison.OrdinalIgnoreCase)).ToArray();
+                var isSchemaFileSpecified = graphQlSchemaFiles.Any();
+                if (isServiceUrlMissing && !isSchemaFileSpecified)
                 {
                     context.ReportDiagnostic(
                         Diagnostic.Create(
                             DescriptorParameterError,
                             Location.None,
-                            "Either \"GraphQlClientGenerator_ServiceUrl\" or \"GraphQlClientGenerator_SchemaFileName\" parameter must be specified. "));
+                            "Either \"GraphQlClientGenerator_ServiceUrl\" parameter or GraphQL JSON schema additional file must be specified. "));
 
                     return;
                 }
 
-                if (!isServiceUrlMissing && !String.IsNullOrWhiteSpace(schemaFileName))
+                if (!isServiceUrlMissing && isSchemaFileSpecified)
                 {
                     context.ReportDiagnostic(
                         Diagnostic.Create(
                             DescriptorParameterError,
                             Location.None,
-                            DiagnosticSeverity.Error,
-                            "\"GraphQlClientGenerator_ServiceUrl\" and \"GraphQlClientGenerator_SchemaFileName\" parameters are mutually exclusive. "));
+                            "\"GraphQlClientGenerator_ServiceUrl\" parameter and GraphQL JSON schema additional file are mutually exclusive. "));
 
                     return;
                 }
@@ -178,13 +179,35 @@ namespace GraphQlClientGenerator
                     return;
                 }
 
-                var schema = GraphQlGenerator.RetrieveSchema(serviceUrl, headers).GetAwaiter().GetResult();
-                var generator = new GraphQlGenerator(configuration);
-                var builder = new StringBuilder();
-                using (var writer = new StringWriter(builder))
-                    generator.WriteFullClientCSharpFile(schema, @namespace, writer);
+                var graphQlSchemas = new List<(string TargetFileName, GraphQlSchema Schema)>();
+                if (isSchemaFileSpecified)
+                {
+                    foreach (var schemaFile in graphQlSchemaFiles)
+                    {
+                        var targetFileName = Path.GetFileNameWithoutExtension(schemaFile.Path) + ".cs";
+                        graphQlSchemas.Add((targetFileName, GraphQlGenerator.DeserializeGraphQlSchema(schemaFile.GetText().ToString())));
+                    }
+                }
+                else
+                {
+                    graphQlSchemas.Add((GraphQlClientDefaultFileName, GraphQlGenerator.RetrieveSchema(serviceUrl, headers).GetAwaiter().GetResult()));
+                    context.ReportDiagnostic(
+                        Diagnostic.Create(
+                            DescriptorInfo,
+                            Location.None,
+                            "GraphQl schema fetched successfully from " + serviceUrl));
+                }
 
-                context.AddSource(GraphQlClientFileName, SourceText.From(builder.ToString(), Encoding.UTF8));
+                var generator = new GraphQlGenerator(configuration);
+
+                foreach (var (targetFileName, schema) in graphQlSchemas)
+                {
+                    var builder = new StringBuilder();
+                    using (var writer = new StringWriter(builder))
+                        generator.WriteFullClientCSharpFile(schema, @namespace, writer);
+
+                    context.AddSource(targetFileName, SourceText.From(builder.ToString(), Encoding.UTF8));
+                }
 
                 context.ReportDiagnostic(
                     Diagnostic.Create(
