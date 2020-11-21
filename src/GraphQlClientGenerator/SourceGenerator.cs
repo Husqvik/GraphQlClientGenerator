@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Text;
 namespace GraphQlClientGenerator
 {
     [Generator]
-    public class GraphQlSourceGenerator : ISourceGenerator
+    public class GraphQlClientSourceGenerator : ISourceGenerator
     {
         private const string GraphQlClientFileName = "GraphQlClient.cs";
 
