@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 namespace GraphQlClientGenerator
@@ -10,13 +12,33 @@ namespace GraphQlClientGenerator
     [Generator]
     public class GraphQlSourceGenerator : ISourceGenerator
     {
-        private static readonly DiagnosticDescriptor DescriptorError =
+        private const string GraphQlClientFileName = "GraphQlClient.cs";
+
+        private static readonly DiagnosticDescriptor DescriptorParameterError =
             new DiagnosticDescriptor(
                 "GRAPHQLGEN1000",
-                "GraphQlClientGenerator error",
-                "GraphQlClientGenerator error: {0}",
+                "error GRAPHQLGEN1000",
+                "{0}",
                 "GraphQlClientGenerator",
                 DiagnosticSeverity.Error,
+                true);
+
+        private static readonly DiagnosticDescriptor DescriptorGenerationError =
+            new DiagnosticDescriptor(
+                "GRAPHQLGEN1001",
+                "error GRAPHQLGEN1001",
+                "{0}",
+                "GraphQlClientGenerator",
+                DiagnosticSeverity.Error,
+                true);
+
+        private static readonly DiagnosticDescriptor DescriptorInfo =
+            new DiagnosticDescriptor(
+                "GRAPHQLGEN3000",
+                "info GRAPHQLGEN1001",
+                "{0}",
+                "GraphQlClientGenerator",
+                DiagnosticSeverity.Info,
                 true);
 
         public void Initialize(GeneratorInitializationContext context)
@@ -30,9 +52,8 @@ namespace GraphQlClientGenerator
             {
                 context.ReportDiagnostic(
                     Diagnostic.Create(
-                        DescriptorError,
+                        DescriptorParameterError,
                         Location.None,
-                        DiagnosticSeverity.Error,
                         "incompatible language: " + context.Compilation.Language));
 
                 return;
@@ -47,9 +68,8 @@ namespace GraphQlClientGenerator
                 {
                     context.ReportDiagnostic(
                         Diagnostic.Create(
-                            DescriptorError,
+                            DescriptorParameterError,
                             Location.None,
-                            DiagnosticSeverity.Error,
                             "Either \"GraphQlClientGenerator_ServiceUrl\" or \"GraphQlClientGenerator_SchemaFileName\" parameter must be specified. "));
 
                     return;
@@ -59,7 +79,7 @@ namespace GraphQlClientGenerator
                 {
                     context.ReportDiagnostic(
                         Diagnostic.Create(
-                            DescriptorError,
+                            DescriptorParameterError,
                             Location.None,
                             DiagnosticSeverity.Error,
                             "\"GraphQlClientGenerator_ServiceUrl\" and \"GraphQlClientGenerator_SchemaFileName\" parameters are mutually exclusive. "));
@@ -70,14 +90,26 @@ namespace GraphQlClientGenerator
                 context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.GraphQlClientGenerator_Namespace", out var @namespace);
                 if (String.IsNullOrWhiteSpace(@namespace))
                 {
+                    var root = (CompilationUnitSyntax)compilation.SyntaxTrees.FirstOrDefault()?.GetRoot();
+                    var namespaceIdentifier = (IdentifierNameSyntax)root?.Members.OfType<NamespaceDeclarationSyntax>().FirstOrDefault()?.Name;
+                    if (namespaceIdentifier == null)
+                    {
+                        context.ReportDiagnostic(
+                            Diagnostic.Create(
+                                DescriptorParameterError,
+                                Location.None,
+                                "\"GraphQlClientGenerator_Namespace\" required"));
+
+                        return;
+                    }
+
+                    @namespace = namespaceIdentifier.Identifier.ValueText;
+
                     context.ReportDiagnostic(
                         Diagnostic.Create(
-                            DescriptorError,
+                            DescriptorInfo,
                             Location.None,
-                            DiagnosticSeverity.Error,
-                            "\"GraphQlClientGenerator_Namespace\" invalid"));
-
-                    return;
+                            $"\"GraphQlClientGenerator_Namespace\" not specified; using \"{@namespace}\""));
                 }
 
                 var configuration = new GraphQlGeneratorConfiguration { TreatUnknownObjectAsScalar = true };
@@ -91,11 +123,7 @@ namespace GraphQlClientGenerator
                 if (compilation.LanguageVersion >= LanguageVersion.CSharp6)
                     configuration.CSharpVersion = compilation.Options.NullableContextOptions == NullableContextOptions.Disable ? CSharpVersion.Newest : CSharpVersion.NewestWithNullableReferences;
 
-                var currentParameterName = "GeneratePartialClasses";
-                context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.GraphQlClientGenerator_" + currentParameterName, out var generatePartialClassesRaw);
-                configuration.GeneratePartialClasses = !String.IsNullOrWhiteSpace(generatePartialClassesRaw) && Convert.ToBoolean(generatePartialClassesRaw);
-
-                currentParameterName = "IncludeDeprecatedFields";
+                var currentParameterName = "IncludeDeprecatedFields";
                 context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.GraphQlClientGenerator_" + currentParameterName, out var includeDeprecatedFieldsRaw);
                 configuration.IncludeDeprecatedFields = !String.IsNullOrWhiteSpace(includeDeprecatedFieldsRaw) && Convert.ToBoolean(includeDeprecatedFieldsRaw);
 
@@ -132,7 +160,7 @@ namespace GraphQlClientGenerator
                     out var customMapping,
                     out var customMappingParsingErrorMessage))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(DescriptorError, Location.None, DiagnosticSeverity.Error, customMappingParsingErrorMessage));
+                    context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, DiagnosticSeverity.Error, customMappingParsingErrorMessage));
                     return;
                 }
 
@@ -146,7 +174,7 @@ namespace GraphQlClientGenerator
                     out var headers,
                     out var headerParsingErrorMessage))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(DescriptorError, Location.None, DiagnosticSeverity.Error, headerParsingErrorMessage));
+                    context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, DiagnosticSeverity.Error, headerParsingErrorMessage));
                     return;
                 }
 
@@ -156,11 +184,17 @@ namespace GraphQlClientGenerator
                 using (var writer = new StringWriter(builder))
                     generator.WriteFullClientCSharpFile(schema, @namespace, writer);
 
-                context.AddSource("GraphQlClient.cs", SourceText.From(builder.ToString(), Encoding.UTF8));
+                context.AddSource(GraphQlClientFileName, SourceText.From(builder.ToString(), Encoding.UTF8));
+
+                context.ReportDiagnostic(
+                    Diagnostic.Create(
+                        DescriptorInfo,
+                        Location.None,
+                        "GraphQlClientGenerator task completed successfully. "));
             }
             catch (Exception exception)
             {
-                context.ReportDiagnostic(Diagnostic.Create(DescriptorError, Location.None, DiagnosticSeverity.Error, exception.Message));
+                context.ReportDiagnostic(Diagnostic.Create(DescriptorGenerationError, Location.None, exception.Message));
             }
         }
     }
