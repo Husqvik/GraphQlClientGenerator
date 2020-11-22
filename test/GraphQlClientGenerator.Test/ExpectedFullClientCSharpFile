@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
-#if!GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+#if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 #endif

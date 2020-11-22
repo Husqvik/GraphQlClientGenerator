@@ -30,7 +30,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
-#if!" + PreprocessorDirectiveDisableNewtonsoftJson + @"
+#if !" + PreprocessorDirectiveDisableNewtonsoftJson + @"
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 #endif
