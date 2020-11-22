@@ -1,10 +1,8 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -630,56 +628,7 @@ namespace GraphQlClientGenerator.Test
 
         private static void CompileIntoAssembly(string sourceCode, string assemblyName)
         {
-            var syntaxTree =
-                SyntaxFactory.ParseSyntaxTree(
-                    $@"{GraphQlGenerator.RequiredNamespaces}
-
-namespace {assemblyName}
-{{
-{sourceCode}
-}}",
-                    CSharpParseOptions.Default.WithLanguageVersion(Enum.GetValues(typeof(LanguageVersion)).Cast<LanguageVersion>().Max()));
-
-            var compilationOptions =
-                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-                    .WithPlatform(Platform.AnyCpu)
-                    .WithOverflowChecks(true)
-                    .WithOptimizationLevel(OptimizationLevel.Release);
-
-            var systemReference = MetadataReference.CreateFromFile(typeof(DateTimeOffset).Assembly.Location);
-            var systemObjectModelReference = MetadataReference.CreateFromFile(Assembly.Load("System.ObjectModel").Location);
-            var systemTextRegularExpressionsReference = MetadataReference.CreateFromFile(Assembly.Load("System.Text.RegularExpressions").Location);
-            var systemRuntimeReference = MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location);
-            var systemRuntimeExtensionsReference = MetadataReference.CreateFromFile(Assembly.Load("System.Runtime.Extensions").Location);
-            var netStandardReference = MetadataReference.CreateFromFile(Assembly.Load("netstandard").Location);
-            var linqReference = MetadataReference.CreateFromFile(Assembly.Load("System.Linq").Location);
-            var linqExpressionsReference = MetadataReference.CreateFromFile(Assembly.Load("System.Linq.Expressions").Location);
-            var jsonNetReference = MetadataReference.CreateFromFile(Assembly.Load("Newtonsoft.Json").Location);
-            var runtimeSerializationReference = MetadataReference.CreateFromFile(typeof(EnumMemberAttribute).Assembly.Location);
-            var componentModelReference = MetadataReference.CreateFromFile(typeof(DescriptionAttribute).Assembly.Location);
-            var componentModelTypeConverterReference = MetadataReference.CreateFromFile(Assembly.Load("System.ComponentModel.TypeConverter").Location);
-
-            var compilation =
-                CSharpCompilation.Create(
-                    assemblyName,
-                    new[] { syntaxTree },
-                    new[]
-                    {
-                        systemReference,
-                        runtimeSerializationReference,
-                        systemObjectModelReference,
-                        systemTextRegularExpressionsReference,
-                        componentModelReference,
-                        componentModelTypeConverterReference,
-                        systemRuntimeReference,
-                        systemRuntimeExtensionsReference,
-                        jsonNetReference,
-                        linqReference,
-                        linqExpressionsReference,
-                        netStandardReference
-                    },
-                    compilationOptions);
-
+            var compilation = CompilationHelper.CreateCompilation(sourceCode, assemblyName);
             var assemblyFileName = Path.GetTempFileName();
             var result = compilation.Emit(assemblyFileName);
             var errorReport = String.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity != DiagnosticSeverity.Hidden).Select(l => $"[{l.Severity}] {l}"));
