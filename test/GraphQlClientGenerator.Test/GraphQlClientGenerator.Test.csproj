@@ -30,6 +30,7 @@
     <EmbeddedResource Include="ExpectedQueryBuilders" />
     <EmbeddedResource Include="ExpectedWithUnions" />
     <EmbeddedResource Include="ExpectedFormatMasks" />
+    <EmbeddedResource Include="ExpectedSourceGeneratorResult" />
     <EmbeddedResource Include="TestSchema" />
     <EmbeddedResource Include="TestSchema2" />
     <EmbeddedResource Include="TestSchema3" />
