@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
@@ -26,7 +27,12 @@ namespace {assemblyName}
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
                     .WithPlatform(Platform.AnyCpu)
                     .WithOverflowChecks(true)
-                    .WithOptimizationLevel(OptimizationLevel.Release);
+                    .WithOptimizationLevel(OptimizationLevel.Release)
+                    .WithSpecificDiagnosticOptions(
+                        new Dictionary<string, ReportDiagnostic>
+                        {
+                            { "CS1701", ReportDiagnostic.Suppress }
+                        });
 
             var systemReference = MetadataReference.CreateFromFile(typeof(DateTimeOffset).Assembly.Location);
             var systemObjectModelReference = MetadataReference.CreateFromFile(Assembly.Load("System.ObjectModel").Location);

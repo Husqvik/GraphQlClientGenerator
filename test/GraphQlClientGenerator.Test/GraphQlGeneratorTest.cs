@@ -632,7 +632,8 @@ namespace GraphQlClientGenerator.Test
             var assemblyFileName = Path.GetTempFileName();
             var result = compilation.Emit(assemblyFileName);
             var compilationReport = String.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity != DiagnosticSeverity.Hidden).Select(l => $"[{l.Severity}] {l}"));
-            _outputHelper.WriteLine(compilationReport);
+            if (!String.IsNullOrEmpty(compilationReport))
+                _outputHelper.WriteLine(compilationReport);
 
             var errorReport = String.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity == DiagnosticSeverity.Error).Select(l => $"[{l.Severity}] {l}"));
             errorReport.ShouldBeNullOrEmpty();
