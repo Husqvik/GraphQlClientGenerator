@@ -14,7 +14,7 @@
     <Copyright>Copyright 2017-2020</Copyright>
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
-    <VersionPrefix>0.8.0.1</VersionPrefix>
+    <VersionPrefix>0.8.0.2</VersionPrefix>
     <Title>GraphQL C# Client Generator</Title>
     <PackageLicenseFile>License.md</PackageLicenseFile>
     <PackageLicense>https://raw.githubusercontent.com/Husqvik/GraphQlClientGenerator/master/License.md</PackageLicense>

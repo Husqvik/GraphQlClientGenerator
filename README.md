@@ -29,6 +29,8 @@ dotnet tool install GraphQlClientGenerator.Tool --global
 graphql-client-generator --serviceUrl <GraphQlServiceUrl> --outputPath <TargetPath> --namespace <TargetNamespace> [--authorization <header value>]
 ```
 
+Code
+-------------
 Code example for class generation:
 ```csharp
 var schema = await GraphQlGenerator.RetrieveSchema(url);
@@ -42,6 +44,39 @@ or
 var schema = await GraphQlGenerator.RetrieveSchema(url);
 var csharpCode = new GraphQlGenerator().GenerateFullClientCSharpFile(schema, "MyGqlApiClient");
 await File.WriteAllTextAsync("MyGqlApiClient.cs", csharpCode);
+```
+
+C# 9 code generator
+-------------
+C# 9 introduced source generators that can be attached to compilation process. Generated classes will be automatically included in project.
+
+Project file example:
+```xml
+<PropertyGroup>
+  <OutputType>Exe</OutputType>
+  <TargetFramework>net5.0</TargetFramework>
+
+  <!-- GraphQL generator properties -->
+  <GraphQlClientGenerator_ServiceUrl>https://api.tibber.com/v1-beta/gql</GraphQlClientGenerator_ServiceUrl>
+  <!-- GraphQlClientGenerator_Namespace is optional; if omitted the first compilation unit namespace will be used -->
+  <GraphQlClientGenerator_Namespace>$(RootNamespace)</GraphQlClientGenerator_Namespace>
+  <GraphQlClientGenerator_CustomClassMapping>Consumption:ConsumptionEntry|Production:ProductionEntry|RootMutation:TibberMutation|Query:Tibber</GraphQlClientGenerator_CustomClassMapping>
+  
+  <!-- other GraphQL generator property values -->
+  
+</PropertyGroup>
+
+<ItemGroup>
+  <PackageReference Include="GraphQlClientGenerator" Version="0.8.*" IncludeAssets="analyzers" />
+  
+  <!-- AdditionalFiles and GraphQlClientGenerator_ServiceUrl are mutually exclusive -->
+  <!-- <AdditionalFiles Include="GqlSchemaTibberApi.json" CacheObjects="true" /> -->
+  
+  <CompilerVisibleProperty Include="GraphQlClientGenerator_ServiceUrl" />
+  <CompilerVisibleProperty Include="GraphQlClientGenerator_Namespace" />
+  <!-- other configuration properties -->
+  <!--<CompilerVisibleProperty Include="GraphQlClientGenerator_{ConfigurationProperty}" />-->
+</ItemGroup>
 ```
 
 Query builder usage
