@@ -36,6 +36,8 @@ namespace {assemblyName}
             var netStandardReference = MetadataReference.CreateFromFile(Assembly.Load("netstandard").Location);
             var linqReference = MetadataReference.CreateFromFile(Assembly.Load("System.Linq").Location);
             var linqExpressionsReference = MetadataReference.CreateFromFile(Assembly.Load("System.Linq.Expressions").Location);
+            var systemDynamicRuntimeReference = MetadataReference.CreateFromFile(Assembly.Load("System.Dynamic.Runtime").Location);
+            var systemIoReference = MetadataReference.CreateFromFile(Assembly.Load("System.IO").Location);
             var jsonNetReference = MetadataReference.CreateFromFile(Assembly.Load("Newtonsoft.Json").Location);
             var runtimeSerializationReference = MetadataReference.CreateFromFile(typeof(EnumMemberAttribute).Assembly.Location);
             var componentModelReference = MetadataReference.CreateFromFile(typeof(DescriptionAttribute).Assembly.Location);
@@ -48,6 +50,8 @@ namespace {assemblyName}
                     new[]
                     {
                         systemReference,
+                        systemIoReference,
+                        systemDynamicRuntimeReference,
                         runtimeSerializationReference,
                         systemObjectModelReference,
                         systemTextRegularExpressionsReference,

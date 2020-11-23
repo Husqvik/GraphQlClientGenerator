@@ -626,12 +626,15 @@ namespace GraphQlClientGenerator.Test
             return reader.ReadToEnd();
         }
 
-        private static void CompileIntoAssembly(string sourceCode, string assemblyName)
+        private void CompileIntoAssembly(string sourceCode, string assemblyName)
         {
             var compilation = CompilationHelper.CreateCompilation(sourceCode, assemblyName);
             var assemblyFileName = Path.GetTempFileName();
             var result = compilation.Emit(assemblyFileName);
-            var errorReport = String.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity != DiagnosticSeverity.Hidden).Select(l => $"[{l.Severity}] {l}"));
+            var compilationReport = String.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity != DiagnosticSeverity.Hidden).Select(l => $"[{l.Severity}] {l}"));
+            _outputHelper.WriteLine(compilationReport);
+
+            var errorReport = String.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity == DiagnosticSeverity.Error).Select(l => $"[{l.Severity}] {l}"));
             errorReport.ShouldBeNullOrEmpty();
 
             Assembly.LoadFrom(assemblyFileName);
