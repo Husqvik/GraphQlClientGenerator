@@ -5,14 +5,16 @@
     <Description>A simple strongly typed C# GraphQL client generator library</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <IncludeSymbols>false</IncludeSymbols>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <LangVersion>preview</LangVersion>
     <Copyright>Copyright 2017-2020</Copyright>
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
-    <VersionPrefix>0.8.0</VersionPrefix>
+    <VersionPrefix>0.8.0.1</VersionPrefix>
     <Title>GraphQL C# Client Generator</Title>
     <PackageLicenseFile>License.md</PackageLicenseFile>
     <PackageLicense>https://raw.githubusercontent.com/Husqvik/GraphQlClientGenerator/master/License.md</PackageLicense>
@@ -26,17 +28,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Net.Http" Version="4.*" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.*" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.*" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.*" PrivateAssets="All" />
+    <PackageReference Include="System.Net.Http" Version="4.*" />
     <PackageReference Include="Newtonsoft.Json" Version="12.*" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    
     <Compile Remove="BaseClasses.cs" />
     <EmbeddedResource Include="BaseClasses.cs" />
     <None Include="..\..\GraphQlLogo.png">
