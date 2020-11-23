@@ -32,7 +32,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.*" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.*" PrivateAssets="All" />
     <PackageReference Include="System.Net.Http" Version="4.*" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.*" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.*" PrivateAssets="All" GeneratePathProperty="true" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -42,6 +42,7 @@
 
   <ItemGroup>
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(PkgNewtonsoft_Json)\lib\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     
     <Compile Remove="BaseClasses.cs" />
     <EmbeddedResource Include="BaseClasses.cs" />
