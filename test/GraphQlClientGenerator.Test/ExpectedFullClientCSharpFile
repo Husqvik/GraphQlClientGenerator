@@ -15,7 +15,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 #endif
 
-namespace GraphQlGeneratorTest
+namespace GraphQlGenerator.Test
 {
     #region base classes
     public struct FieldMetadata

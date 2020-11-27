@@ -233,7 +233,7 @@ namespace GraphQlClientGenerator.Test
                 };
             
             var generator = new GraphQlGenerator(configuration);
-            var generatedSourceCode = generator.GenerateFullClientCSharpFile(TestSchema, "GraphQlGeneratorTest");
+            var generatedSourceCode = generator.GenerateFullClientCSharpFile(TestSchema, "GraphQlGenerator.Test");
 
             var expectedOutput = GetTestResource("ExpectedFullClientCSharpFile");
             generatedSourceCode.ShouldBe(expectedOutput);
