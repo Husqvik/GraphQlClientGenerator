@@ -280,11 +280,7 @@ namespace GraphQlClientGenerator.Test
                     PropertyGeneration = PropertyGenerationOption.BackingField
                 };
 
-            configuration.CustomScalarFieldTypeMapping =
-                (baseType, valueType, valueName) =>
-                    valueType.Name == "Boolean"
-                        ? new ScalarFieldTypeDescription { NetTypeName = "bool" }
-                        : configuration.DefaultScalarFieldTypeMapping(baseType, valueType, valueName);
+            configuration.ScalarFieldTypeMappingProvider = new TesCustomBooleanTypeMappingProvider();
 
             var stringBuilder = new StringBuilder();
             new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GeneratedObjectType.DataClasses));
@@ -293,29 +289,22 @@ namespace GraphQlClientGenerator.Test
             stringBuilder.ToString().ShouldBe(expectedDataClasses);
         }
 
+        private class TesCustomBooleanTypeMappingProvider : IScalarFieldTypeMappingProvider
+        {
+            public ScalarFieldTypeDescription GetCustomScalarFieldType(GraphQlGeneratorConfiguration configuration, GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
+                valueType.Name == "Boolean"
+                    ? new ScalarFieldTypeDescription { NetTypeName = "bool" }
+                    : DefaultScalarFieldTypeMappingProvider.Instance.GetCustomScalarFieldType(configuration, baseType, valueType, valueName);
+        }
+
         [Fact]
         public void GenerateFormatMasks()
         {
             var configuration =
                 new GraphQlGeneratorConfiguration
                 {
-                    IdTypeMapping = IdTypeMapping.Custom
-                };
-
-            configuration.CustomScalarFieldTypeMapping =
-                (baseType, valueType, valueName) =>
-                {
-                    var isNotNull = valueType.Kind == GraphQlTypeKind.NonNull;
-                    var unwrappedType = valueType is GraphQlFieldType fieldType ? fieldType.UnwrapIfNonNull() : valueType;
-                    var nullablePostfix = isNotNull ? "?" : null;
-
-                    if (unwrappedType.Name == "ID")
-                        return new ScalarFieldTypeDescription { NetTypeName = "Guid" + nullablePostfix, FormatMask = "N" };
-
-                    if (valueName == "before" || valueName == "after")
-                        return new ScalarFieldTypeDescription { NetTypeName = "DateTimeOffset" + nullablePostfix, FormatMask = "yyyy-MM-dd\"T\"HH:mm" };
-
-                    return configuration.DefaultScalarFieldTypeMapping(baseType, valueType, valueName);
+                    IdTypeMapping = IdTypeMapping.Custom,
+                    ScalarFieldTypeMappingProvider = new TestFormatMaskScalarFieldTypeMappingProvider()
                 };
 
             var stringBuilder = new StringBuilder();
@@ -327,7 +316,25 @@ namespace GraphQlClientGenerator.Test
             var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
             generatedSourceCode.ShouldBe(expectedDataClasses);
         }
-        
+
+        private class TestFormatMaskScalarFieldTypeMappingProvider : IScalarFieldTypeMappingProvider
+        {
+            public ScalarFieldTypeDescription GetCustomScalarFieldType(GraphQlGeneratorConfiguration configuration, GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
+            {
+                var isNotNull = valueType.Kind == GraphQlTypeKind.NonNull;
+                var unwrappedType = valueType is GraphQlFieldType fieldType ? fieldType.UnwrapIfNonNull() : valueType;
+                var nullablePostfix = isNotNull ? "?" : null;
+
+                if (unwrappedType.Name == "ID")
+                    return new ScalarFieldTypeDescription { NetTypeName = "Guid" + nullablePostfix, FormatMask = "N" };
+
+                if (valueName == "before" || valueName == "after")
+                    return new ScalarFieldTypeDescription { NetTypeName = "DateTimeOffset" + nullablePostfix, FormatMask = "yyyy-MM-dd\"T\"HH:mm" };
+
+                return DefaultScalarFieldTypeMappingProvider.Instance.GetCustomScalarFieldType(configuration, baseType, valueType, valueName);
+            }
+        }
+
         [Fact]
         public void NewCSharpSyntaxWithClassPrefixAndSuffix()
         {

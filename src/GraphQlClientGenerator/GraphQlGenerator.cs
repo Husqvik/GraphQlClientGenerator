@@ -664,7 +664,7 @@ using Newtonsoft.Json.Linq;
                     return ConvertToTypeDescription(AddQuestionMarkIfNullableReferencesEnabled(propertyType));
 
                 case GraphQlTypeKind.Enum:
-                    return _configuration.CustomScalarFieldTypeMapping(baseType, member.Type, member.Name);
+                    return _configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(_configuration, baseType, member.Type, member.Name);
 
                 case GraphQlTypeKind.List:
                     var itemType = UnwrapListItemType(fieldType, out var netCollectionOpenType);
@@ -709,7 +709,7 @@ using Newtonsoft.Json.Linq;
             _configuration.BooleanTypeMapping switch
             {
                 BooleanTypeMapping.Boolean => "bool?",
-                BooleanTypeMapping.Custom => _configuration.CustomScalarFieldTypeMapping(baseType, valueType, valueName).NetTypeName,
+                BooleanTypeMapping.Custom => _configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(_configuration, baseType, valueType, valueName).NetTypeName,
                 _ => throw new InvalidOperationException($"'{_configuration.BooleanTypeMapping}' not supported")
             };
 
@@ -719,7 +719,7 @@ using Newtonsoft.Json.Linq;
                 FloatTypeMapping.Decimal => ConvertToTypeDescription("decimal?"),
                 FloatTypeMapping.Float => ConvertToTypeDescription("float?"),
                 FloatTypeMapping.Double => ConvertToTypeDescription("double?"),
-                FloatTypeMapping.Custom => _configuration.CustomScalarFieldTypeMapping(baseType, valueType, valueName),
+                FloatTypeMapping.Custom => _configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(_configuration, baseType, valueType, valueName),
                 _ => throw new InvalidOperationException($"'{_configuration.FloatTypeMapping}' not supported")
             };
 
@@ -729,7 +729,7 @@ using Newtonsoft.Json.Linq;
                 IntegerTypeMapping.Int32 => ConvertToTypeDescription("int?"),
                 IntegerTypeMapping.Int16 => ConvertToTypeDescription("short?"),
                 IntegerTypeMapping.Int64 => ConvertToTypeDescription("long?"),
-                IntegerTypeMapping.Custom => _configuration.CustomScalarFieldTypeMapping(baseType, valueType, valueName),
+                IntegerTypeMapping.Custom => _configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(_configuration, baseType, valueType, valueName),
                 _ => throw new InvalidOperationException($"'{_configuration.IntegerTypeMapping}' not supported")
             };
 
@@ -739,7 +739,7 @@ using Newtonsoft.Json.Linq;
                 IdTypeMapping.String => ConvertToTypeDescription(AddQuestionMarkIfNullableReferencesEnabled("string")),
                 IdTypeMapping.Guid => ConvertToTypeDescription("Guid?"),
                 IdTypeMapping.Object => ConvertToTypeDescription(AddQuestionMarkIfNullableReferencesEnabled("object")),
-                IdTypeMapping.Custom => _configuration.CustomScalarFieldTypeMapping(baseType, valueType, valueName),
+                IdTypeMapping.Custom => _configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(_configuration, baseType, valueType, valueName),
                 _ => throw new InvalidOperationException($"'{_configuration.IdTypeMapping}' not supported")
             };
 
@@ -1465,12 +1465,12 @@ using Newtonsoft.Json.Linq;
 
         private ScalarFieldTypeDescription GetCustomScalarType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
         {
-            if (_configuration.CustomScalarFieldTypeMapping == null)
-                throw new InvalidOperationException($"'{nameof(_configuration.CustomScalarFieldTypeMapping)}' missing");
+            if (_configuration.ScalarFieldTypeMappingProvider == null)
+                throw new InvalidOperationException($"'{nameof(_configuration.ScalarFieldTypeMappingProvider)}' missing");
 
-            var typeDescription = _configuration.CustomScalarFieldTypeMapping(baseType, valueType, valueName);
+            var typeDescription = _configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(_configuration, baseType, valueType, valueName);
             if (String.IsNullOrWhiteSpace(typeDescription.NetTypeName))
-                throw new InvalidOperationException($".NET type for '{baseType.Name}.{valueName}' ({valueType.Name}) cannot be resolved. Please check {nameof(_configuration)}.{nameof(_configuration.CustomScalarFieldTypeMapping)} implementation. ");
+                throw new InvalidOperationException($".NET type for '{baseType.Name}.{valueName}' ({valueType.Name}) cannot be resolved. Please check {nameof(_configuration)}.{nameof(_configuration.ScalarFieldTypeMappingProvider)} implementation. ");
 
             if (typeDescription.FormatMask != null && String.IsNullOrWhiteSpace(typeDescription.FormatMask))
                 throw new InvalidOperationException("invalid format mask");
