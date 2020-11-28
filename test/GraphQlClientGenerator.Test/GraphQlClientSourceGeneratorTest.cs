@@ -56,7 +56,8 @@ namespace GraphQlClientGenerator.Test
                             { "build_property.GraphQlClientGenerator_IdTypeMapping", "String" },
                             { "build_property.GraphQlClientGenerator_JsonPropertyGeneration", "Always" },
                             { "build_property.GraphQlClientGenerator_CustomClassMapping", "Query:Tibber|RootMutation:TibberMutation Consumption:ConsumptionEntry;Production:ProductionEntry" },
-                            { "build_property.GraphQlClientGenerator_Headers", "Authorization:Basic XXX|X-REQUEST-ID:123456789" }
+                            { "build_property.GraphQlClientGenerator_Headers", "Authorization:Basic XXX|X-REQUEST-ID:123456789" },
+                            { "build_property.GraphQlClientGenerator_ScalarFieldTypeMappingProvider", "GraphQlClientGenerator.DefaultScalarFieldTypeMappingProvider, GraphQlClientGenerator" }
                         }));
 
             var compilation = CompilationHelper.CreateCompilation(null, "SourceGeneratorTestAssembly");
