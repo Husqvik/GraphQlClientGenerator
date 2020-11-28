@@ -13,34 +13,12 @@ namespace GraphQlClientGenerator
     [Generator]
     public class GraphQlClientSourceGenerator : ISourceGenerator
     {
+        private const string ApplicationCode = "GRAPHQLGEN";
         private const string GraphQlClientDefaultFileName = "GraphQlClient.cs";
 
-        private static readonly DiagnosticDescriptor DescriptorParameterError =
-            new DiagnosticDescriptor(
-                "GRAPHQLGEN1000",
-                "error GRAPHQLGEN1000",
-                "{0}",
-                "GraphQlClientGenerator",
-                DiagnosticSeverity.Error,
-                true);
-
-        private static readonly DiagnosticDescriptor DescriptorGenerationError =
-            new DiagnosticDescriptor(
-                "GRAPHQLGEN1001",
-                "error GRAPHQLGEN1001",
-                "{0}",
-                "GraphQlClientGenerator",
-                DiagnosticSeverity.Error,
-                true);
-
-        private static readonly DiagnosticDescriptor DescriptorInfo =
-            new DiagnosticDescriptor(
-                "GRAPHQLGEN3000",
-                "info GRAPHQLGEN1001",
-                "{0}",
-                "GraphQlClientGenerator",
-                DiagnosticSeverity.Info,
-                true);
+        private static readonly DiagnosticDescriptor DescriptorParameterError = CreateDiagnosticDescriptor(DiagnosticSeverity.Error, 1000);
+        private static readonly DiagnosticDescriptor DescriptorGenerationError = CreateDiagnosticDescriptor(DiagnosticSeverity.Error, 1001);
+        private static readonly DiagnosticDescriptor DescriptorInfo = CreateDiagnosticDescriptor(DiagnosticSeverity.Info, 3000);
 
         public void Initialize(GeneratorInitializationContext context)
         {
@@ -122,7 +100,10 @@ namespace GraphQlClientGenerator
                 configuration.ClassSuffix = classSuffix;
 
                 if (compilation.LanguageVersion >= LanguageVersion.CSharp6)
-                    configuration.CSharpVersion = compilation.Options.NullableContextOptions == NullableContextOptions.Disable ? CSharpVersion.Newest : CSharpVersion.NewestWithNullableReferences;
+                    configuration.CSharpVersion =
+                        compilation.Options.NullableContextOptions == NullableContextOptions.Disable
+                            ? CSharpVersion.Newest
+                            : CSharpVersion.NewestWithNullableReferences;
 
                 var currentParameterName = "IncludeDeprecatedFields";
                 context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.GraphQlClientGenerator_" + currentParameterName, out var includeDeprecatedFieldsRaw);
@@ -137,15 +118,24 @@ namespace GraphQlClientGenerator
 
                 currentParameterName = "FloatTypeMapping";
                 context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.GraphQlClientGenerator_" + currentParameterName, out var floatTypeMappingRaw);
-                configuration.FloatTypeMapping = String.IsNullOrWhiteSpace(floatTypeMappingRaw) ? FloatTypeMapping.Decimal : (FloatTypeMapping)Enum.Parse(typeof(FloatTypeMapping), floatTypeMappingRaw, true);
+                configuration.FloatTypeMapping =
+                    String.IsNullOrWhiteSpace(floatTypeMappingRaw)
+                        ? FloatTypeMapping.Decimal
+                        : (FloatTypeMapping)Enum.Parse(typeof(FloatTypeMapping), floatTypeMappingRaw, true);
 
                 currentParameterName = "BooleanTypeMapping";
                 context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.GraphQlClientGenerator_" + currentParameterName, out var booleanTypeMappingRaw);
-                configuration.BooleanTypeMapping = String.IsNullOrWhiteSpace(booleanTypeMappingRaw) ? BooleanTypeMapping.Boolean : (BooleanTypeMapping)Enum.Parse(typeof(BooleanTypeMapping), booleanTypeMappingRaw, true);
+                configuration.BooleanTypeMapping =
+                    String.IsNullOrWhiteSpace(booleanTypeMappingRaw)
+                        ? BooleanTypeMapping.Boolean
+                        : (BooleanTypeMapping)Enum.Parse(typeof(BooleanTypeMapping), booleanTypeMappingRaw, true);
 
                 currentParameterName = "IdTypeMapping";
                 context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.GraphQlClientGenerator_" + currentParameterName, out var idTypeMappingRaw);
-                configuration.IdTypeMapping = String.IsNullOrWhiteSpace(idTypeMappingRaw) ? IdTypeMapping.Guid : (IdTypeMapping)Enum.Parse(typeof(IdTypeMapping), idTypeMappingRaw, true);
+                configuration.IdTypeMapping =
+                    String.IsNullOrWhiteSpace(idTypeMappingRaw)
+                        ? IdTypeMapping.Guid
+                        : (IdTypeMapping)Enum.Parse(typeof(IdTypeMapping), idTypeMappingRaw, true);
 
                 currentParameterName = "JsonPropertyGeneration";
                 context.AnalyzerConfigOptions.GlobalOptions.TryGetValue("build_property.GraphQlClientGenerator_" + currentParameterName, out var jsonPropertyGenerationRaw);
@@ -220,5 +210,14 @@ namespace GraphQlClientGenerator
                 context.ReportDiagnostic(Diagnostic.Create(DescriptorGenerationError, Location.None, exception.Message));
             }
         }
+
+        private static DiagnosticDescriptor CreateDiagnosticDescriptor(DiagnosticSeverity severity, int code) =>
+            new DiagnosticDescriptor(
+                ApplicationCode + code,
+                severity + " " + ApplicationCode + code,
+                "{0}",
+                "GraphQlClientGenerator",
+                severity,
+                true);
     }
 }

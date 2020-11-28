@@ -9,9 +9,10 @@
     <LangVersion>latest</LangVersion>
     <Copyright>Copyright 2017-2020</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
-    <VersionPrefix>0.7.3.1</VersionPrefix>
+    <VersionPrefix>0.8.0</VersionPrefix>
     <Title>GraphQL C# Client Generator Console App</Title>
     <PackageId>GraphQlClientGenerator.Tool</PackageId>
     <PackageLicenseFile>License.md</PackageLicenseFile>
