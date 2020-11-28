@@ -152,7 +152,7 @@ namespace GraphQlClientGenerator
                     out var customMapping,
                     out var customMappingParsingErrorMessage))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, DiagnosticSeverity.Error, customMappingParsingErrorMessage));
+                    context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, customMappingParsingErrorMessage));
                     return;
                 }
 
@@ -166,8 +166,28 @@ namespace GraphQlClientGenerator
                     out var headers,
                     out var headerParsingErrorMessage))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, DiagnosticSeverity.Error, headerParsingErrorMessage));
+                    context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, headerParsingErrorMessage));
                     return;
+                }
+
+                currentParameterName = "ScalarFieldTypeMappingProvider";
+                if (context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKeyPrefix + currentParameterName, out var scalarFieldTypeMappingProviderName))
+                {
+                    if (String.IsNullOrWhiteSpace(scalarFieldTypeMappingProviderName))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, "\"GraphQlClientGenerator_ScalarFieldTypeMappingProvider\" value missing"));
+                        return;
+                    }
+
+                    var scalarFieldTypeMappingProviderType = Type.GetType(scalarFieldTypeMappingProviderName);
+                    if (scalarFieldTypeMappingProviderType == null)
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, $"ScalarFieldTypeMappingProvider \"{scalarFieldTypeMappingProviderName}\" not found"));
+                        return;
+                    }
+
+                    var scalarFieldTypeMappingProvider = (IScalarFieldTypeMappingProvider)Activator.CreateInstance(scalarFieldTypeMappingProviderType);
+                    configuration.ScalarFieldTypeMappingProvider = scalarFieldTypeMappingProvider;
                 }
 
                 var graphQlSchemas = new List<(string TargetFileName, GraphQlSchema Schema)>();
