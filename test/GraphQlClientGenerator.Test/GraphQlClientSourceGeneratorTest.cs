@@ -17,84 +17,123 @@ namespace GraphQlClientGenerator.Test
 {
     public class GraphQlClientSourceGeneratorTest : IDisposable
     {
-        private const string TestFileName = "GraphQlClientSourceGeneratorTest";
+        private const string FileNameTestSchema = "GraphQlClientSourceGeneratorTest";
 
-        private readonly GraphQlSchemaFile _schemaFile;
+        private readonly AdditionalFile _fileGraphQlSchema;
+        private readonly AdditionalFile _fileMappingRules;
 
         public GraphQlClientSourceGeneratorTest()
         {
-            var resourceStream = typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream("GraphQlClientGenerator.Test.TestSchema3");
-            var fileName = Path.Combine(Path.GetTempPath(), TestFileName + ".json");
-            using var fileStream = File.Create(fileName);
+            _fileGraphQlSchema = CreateAdditionalFile("GraphQlClientGenerator.Test.TestSchema3", FileNameTestSchema + ".json");
+            _fileMappingRules = CreateAdditionalFile("GraphQlClientGenerator.Test.RegexCustomScalarFieldTypeMappingRules", "RegexScalarFieldTypeMappingProviderConfiguration.json");
+        }
+
+        private static AdditionalFile CreateAdditionalFile(string resourceName, string fileName)
+        {
+            var resourceStream = typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream(resourceName);
+            var fullFileName = Path.Combine(Path.GetTempPath(), fileName);
+            using var fileStream = File.Create(fullFileName);
             resourceStream.CopyTo(fileStream);
-            _schemaFile = new GraphQlSchemaFile(fileName);
+            return new AdditionalFile(fullFileName);
         }
 
         public void Dispose()
         {
-            if (File.Exists(_schemaFile.Path))
-                File.Delete(_schemaFile.Path);
+            if (File.Exists(_fileGraphQlSchema.Path))
+                File.Delete(_fileGraphQlSchema.Path);
+
+            if (File.Exists(_fileMappingRules.Path))
+                File.Delete(_fileMappingRules.Path);
         }
 
         [Fact]
         public void SourceGeneration()
         {
+            var generatedSource = GenerateSource(null, "GraphQlClientGenerator.DefaultScalarFieldTypeMappingProvider, GraphQlClientGenerator");
+
+            generatedSource.Encoding.ShouldBe(Encoding.UTF8);
+            var sourceCode = generatedSource.ToString();
+
+            var expectedSourceCode = GetExpectedSourceText();
+            sourceCode.ShouldBe(expectedSourceCode);
+        }
+
+        [Fact]
+        public void SourceGenerationWithRegexCustomScalarFieldTypeMappingProvider()
+        {
+            var generatedSource = GenerateSource(_fileMappingRules, null);
+            var sourceCode = generatedSource.ToString();
+            File.WriteAllText(@"D:\X", sourceCode);
+            var expectedSourceCode = GetExpectedSourceText();
+            sourceCode.ShouldBe(expectedSourceCode);
+        }
+
+        private static string GetExpectedSourceText()
+        {
+            using var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream("GraphQlClientGenerator.Test.ExpectedSourceGeneratorResult"));
+            return reader.ReadToEnd();
+        }
+
+        private SourceText GenerateSource(AdditionalText additionalFile, string scalarFieldTypeMappingProviderTypeName)
+        {
             var sourceGenerator = new GraphQlClientSourceGenerator();
             sourceGenerator.Initialize(new GeneratorInitializationContext());
 
-            var compilerAnalyzerConfigOptionsProvider =
-                new CompilerAnalyzerConfigOptionsProvider(
-                    new CompilerAnalyzerConfigOptions(
-                        new Dictionary<string, string>
-                        {
-                            { "build_property.GraphQlClientGenerator_ClassPrefix", "SourceGenerated" },
-                            { "build_property.GraphQlClientGenerator_ClassSuffix", "V2" },
-                            { "build_property.GraphQlClientGenerator_IncludeDeprecatedFields", "true" },
-                            { "build_property.GraphQlClientGenerator_CommentGeneration", "CodeSummary" },
-                            { "build_property.GraphQlClientGenerator_FloatTypeMapping", "Double" },
-                            { "build_property.GraphQlClientGenerator_BooleanTypeMapping", "Boolean" },
-                            { "build_property.GraphQlClientGenerator_IdTypeMapping", "String" },
-                            { "build_property.GraphQlClientGenerator_JsonPropertyGeneration", "Always" },
-                            { "build_property.GraphQlClientGenerator_CustomClassMapping", "Query:Tibber|RootMutation:TibberMutation Consumption:ConsumptionEntry;Production:ProductionEntry" },
-                            { "build_property.GraphQlClientGenerator_Headers", "Authorization:Basic XXX|X-REQUEST-ID:123456789" },
-                            { "build_property.GraphQlClientGenerator_ScalarFieldTypeMappingProvider", "GraphQlClientGenerator.DefaultScalarFieldTypeMappingProvider, GraphQlClientGenerator" }
-                        }));
+            var configurationOptions =
+                new Dictionary<string, string>
+                {
+                    { "build_property.GraphQlClientGenerator_ClassPrefix", "SourceGenerated" },
+                    { "build_property.GraphQlClientGenerator_ClassSuffix", "V2" },
+                    { "build_property.GraphQlClientGenerator_IncludeDeprecatedFields", "true" },
+                    { "build_property.GraphQlClientGenerator_CommentGeneration", "CodeSummary" },
+                    { "build_property.GraphQlClientGenerator_FloatTypeMapping", "Double" },
+                    { "build_property.GraphQlClientGenerator_BooleanTypeMapping", "Boolean" },
+                    { "build_property.GraphQlClientGenerator_IdTypeMapping", "String" },
+                    { "build_property.GraphQlClientGenerator_JsonPropertyGeneration", "Always" },
+                    { "build_property.GraphQlClientGenerator_CustomClassMapping", "Query:Tibber|RootMutation:TibberMutation Consumption:ConsumptionEntry;Production:ProductionEntry" },
+                    { "build_property.GraphQlClientGenerator_Headers", "Authorization:Basic XXX|X-REQUEST-ID:123456789" }
+                };
+
+            if (scalarFieldTypeMappingProviderTypeName != null)
+                configurationOptions.Add("build_property.GraphQlClientGenerator_ScalarFieldTypeMappingProvider", scalarFieldTypeMappingProviderTypeName);
+
+            var compilerAnalyzerConfigOptionsProvider = new CompilerAnalyzerConfigOptionsProvider(new CompilerAnalyzerConfigOptions(configurationOptions));
 
             var compilation = CompilationHelper.CreateCompilation(null, "SourceGeneratorTestAssembly");
 
             var generatorExecutionContextType = typeof(GeneratorExecutionContext);
             var constructorInfo = generatorExecutionContextType.GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)[0];
+            var additionalFiles = new List<AdditionalText> { _fileGraphQlSchema };
+
+            if (additionalFile != null)
+                additionalFiles.Add(additionalFile);
+
             var executionContext =
                 (GeneratorExecutionContext)constructorInfo.Invoke(
                     new object[]
                     {
                         compilation,
                         new CSharpParseOptions(LanguageVersion.CSharp9),
-                        new AdditionalText [] { _schemaFile }.ToImmutableArray(),
+                        additionalFiles.ToImmutableArray(),
                         compilerAnalyzerConfigOptionsProvider,
                         null,
                         CancellationToken.None
                     });
 
             var additionalSourceFiles = generatorExecutionContextType.GetField("_additionalSources", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(executionContext);
-            
+
             sourceGenerator.Execute(executionContext);
 
             var sourcesAdded = ((IEnumerable)additionalSourceFiles.GetType().GetField("_sourcesAdded", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(additionalSourceFiles)).GetEnumerator();
             sourcesAdded.MoveNext().ShouldBeTrue();
-            var generatedSource = (SourceText)sourcesAdded.Current.GetType().GetProperty("Text").GetValue(sourcesAdded.Current);
+            var sourceText = (SourceText)sourcesAdded.Current.GetType().GetProperty("Text").GetValue(sourcesAdded.Current);
             sourcesAdded.MoveNext().ShouldBeFalse();
-            generatedSource.Encoding.ShouldBe(Encoding.UTF8);
-            var sourceCode = generatedSource.ToString();
-
-            using var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream("GraphQlClientGenerator.Test.ExpectedSourceGeneratorResult"));
-            var expectedSourceCode = reader.ReadToEnd();
-            sourceCode.ShouldBe(expectedSourceCode);
+            return sourceText;
         }
 
-        private class GraphQlSchemaFile : AdditionalText
+        private class AdditionalFile : AdditionalText
         {
-            public GraphQlSchemaFile(string path) => Path = path;
+            public AdditionalFile(string path) => Path = path;
 
             public override SourceText GetText(CancellationToken cancellationToken = default) =>
                 SourceText.From(File.ReadAllText(Path));

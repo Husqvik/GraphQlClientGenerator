@@ -26,6 +26,7 @@
     <EmbeddedResource Include="ExpectedMultipleFilesContext\MutationQueryBuilder" />
     <EmbeddedResource Include="ExpectedNewCSharpSyntaxWithClassPrefixAndSuffix" />
     <EmbeddedResource Include="ExpectedDeprecatedAttributes" />
+    <EmbeddedResource Include="RegexCustomScalarFieldTypeMappingRules" />
     <EmbeddedResource Include="ExpectedWithNullableReferences" />
     <EmbeddedResource Include="ExpectedQueryBuilders" />
     <EmbeddedResource Include="ExpectedWithUnions" />

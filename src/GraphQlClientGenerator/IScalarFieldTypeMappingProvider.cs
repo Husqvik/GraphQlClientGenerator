@@ -15,10 +15,6 @@
     {
         public static readonly DefaultScalarFieldTypeMappingProvider Instance = new DefaultScalarFieldTypeMappingProvider();
 
-        private DefaultScalarFieldTypeMappingProvider()
-        {
-        }
-
         public ScalarFieldTypeDescription GetCustomScalarFieldType(GraphQlGeneratorConfiguration configuration, GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
         {
             valueName = NamingHelper.ToPascalCase(valueName);
