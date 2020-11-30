@@ -63,7 +63,6 @@ namespace GraphQlClientGenerator.Test
         {
             var generatedSource = GenerateSource(_fileMappingRules, null);
             var sourceCode = generatedSource.ToString();
-            File.WriteAllText(@"D:\X", sourceCode);
             var expectedSourceCode = GetExpectedSourceText();
             sourceCode.ShouldBe(expectedSourceCode);
         }
