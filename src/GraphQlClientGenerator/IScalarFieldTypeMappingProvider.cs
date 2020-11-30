@@ -28,6 +28,11 @@
                 valueName.EndsWith("Timestamp"))
                 return new ScalarFieldTypeDescription { NetTypeName = "DateTimeOffset?" };
 
+            return GetFallbackFieldType(configuration, valueType);
+        }
+
+        public static ScalarFieldTypeDescription GetFallbackFieldType(GraphQlGeneratorConfiguration configuration, GraphQlTypeBase valueType)
+        {
             valueType = (valueType as GraphQlFieldType)?.UnwrapIfNonNull() ?? valueType;
             if (valueType.Kind == GraphQlTypeKind.Enum)
                 return new ScalarFieldTypeDescription { NetTypeName = configuration.ClassPrefix + NamingHelper.ToPascalCase(valueType.Name) + configuration.ClassSuffix + "?" };

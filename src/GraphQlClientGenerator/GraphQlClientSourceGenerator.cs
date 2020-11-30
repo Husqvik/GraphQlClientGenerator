@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using Newtonsoft.Json;
 
 namespace GraphQlClientGenerator
 {
@@ -14,7 +15,8 @@ namespace GraphQlClientGenerator
     public class GraphQlClientSourceGenerator : ISourceGenerator
     {
         private const string ApplicationCode = "GRAPHQLGEN";
-        private const string GraphQlClientDefaultFileName = "GraphQlClient.cs";
+        private const string FileNameGraphQlClientSource = "GraphQlClient.cs";
+        private const string FileNameRegexScalarFieldTypeMappingProviderConfiguration = "RegexScalarFieldTypeMappingProviderConfiguration.json";
         private const string BuildPropertyKeyPrefix = "build_property.GraphQlClientGenerator_";
 
         private static readonly DiagnosticDescriptor DescriptorParameterError = CreateDiagnosticDescriptor(DiagnosticSeverity.Error, 1000);
@@ -43,7 +45,20 @@ namespace GraphQlClientGenerator
             {
                 context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKeyPrefix + "ServiceUrl", out var serviceUrl);
                 var isServiceUrlMissing = String.IsNullOrWhiteSpace(serviceUrl);
-                var graphQlSchemaFiles = context.AdditionalFiles.Where(f => String.Equals(Path.GetExtension(f.Path), ".json", StringComparison.OrdinalIgnoreCase)).ToArray();
+                var graphQlSchemaFiles = context.AdditionalFiles.Where(f => String.Equals(Path.GetExtension(f.Path), ".json", StringComparison.OrdinalIgnoreCase)).ToList();
+                var indexRegexScalarFieldTypeMappingProviderConfigurationFile =
+                    graphQlSchemaFiles.FindIndex(f => String.Equals(Path.GetFileName(f.Path), FileNameRegexScalarFieldTypeMappingProviderConfiguration, StringComparison.OrdinalIgnoreCase));
+
+                ICollection<RegexScalarFieldTypeMappingRule> regexScalarFieldTypeMappingProviderRules = null;
+                if (indexRegexScalarFieldTypeMappingProviderConfigurationFile != -1)
+                {
+                    regexScalarFieldTypeMappingProviderRules =
+                        JsonConvert.DeserializeObject<ICollection<RegexScalarFieldTypeMappingRule>>(
+                            graphQlSchemaFiles[indexRegexScalarFieldTypeMappingProviderConfigurationFile].GetText().ToString());
+
+                    graphQlSchemaFiles.RemoveAt(indexRegexScalarFieldTypeMappingProviderConfigurationFile);
+                }
+
                 var isSchemaFileSpecified = graphQlSchemaFiles.Any();
                 if (isServiceUrlMissing && !isSchemaFileSpecified)
                 {
@@ -173,6 +188,12 @@ namespace GraphQlClientGenerator
                 currentParameterName = "ScalarFieldTypeMappingProvider";
                 if (context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKeyPrefix + currentParameterName, out var scalarFieldTypeMappingProviderName))
                 {
+                    if (regexScalarFieldTypeMappingProviderRules != null)
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, "\"GraphQlClientGenerator_ScalarFieldTypeMappingProvider\" and RegexScalarFieldTypeMappingProviderConfiguration are mutually exclusive"));
+                        return;
+                    }
+
                     if (String.IsNullOrWhiteSpace(scalarFieldTypeMappingProviderName))
                     {
                         context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, "\"GraphQlClientGenerator_ScalarFieldTypeMappingProvider\" value missing"));
@@ -189,6 +210,8 @@ namespace GraphQlClientGenerator
                     var scalarFieldTypeMappingProvider = (IScalarFieldTypeMappingProvider)Activator.CreateInstance(scalarFieldTypeMappingProviderType);
                     configuration.ScalarFieldTypeMappingProvider = scalarFieldTypeMappingProvider;
                 }
+                else if (regexScalarFieldTypeMappingProviderRules?.Count > 0)
+                    configuration.ScalarFieldTypeMappingProvider = new RegexScalarFieldTypeMappingProvider(regexScalarFieldTypeMappingProviderRules);
 
                 var graphQlSchemas = new List<(string TargetFileName, GraphQlSchema Schema)>();
                 if (isSchemaFileSpecified)
@@ -201,7 +224,7 @@ namespace GraphQlClientGenerator
                 }
                 else
                 {
-                    graphQlSchemas.Add((GraphQlClientDefaultFileName, GraphQlGenerator.RetrieveSchema(serviceUrl, headers).GetAwaiter().GetResult()));
+                    graphQlSchemas.Add((FileNameGraphQlClientSource, GraphQlGenerator.RetrieveSchema(serviceUrl, headers).GetAwaiter().GetResult()));
                     context.ReportDiagnostic(
                         Diagnostic.Create(
                             DescriptorInfo,
