@@ -24,7 +24,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>GraphQL Client Generator</PackageTags>
-    <PackageReleaseNotes>Source generator</PackageReleaseNotes>
+    <PackageReleaseNotes>added RegexScalarFieldTypeMappingProvider</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
