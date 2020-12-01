@@ -388,12 +388,15 @@ query InlineFragments {
 
 Custom scalar types
 -------------
-GraphQL supports custom scalar types. By default these are mapped to `object` type. To ensure appropriate .NET types are generated for data class properties custom mapping function can be used:
+GraphQL supports custom scalar types. By default these are mapped to `object` type. To ensure appropriate .NET types are generated for data class properties custom mapping interface can be used:
 
 ```csharp
 var configuration = new GraphQlGeneratorConfiguration();
-configuration.CustomScalarFieldTypeMapping =
-    (baseType, valueType, valueName) =>
+configuration.ScalarFieldTypeMappingProvider = new MyCustomScalarFieldTypeMappingProvider();
+
+public class MyCustomScalarFieldTypeMappingProvider : IScalarFieldTypeMappingProvider
+{
+    public ScalarFieldTypeDescription GetCustomScalarFieldType(GraphQlGeneratorConfiguration configuration, GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
     {
         valueType = valueType is GraphQlFieldType fieldType ? fieldType.UnwrapIfNonNull() : valueType;
 
@@ -405,8 +408,9 @@ configuration.CustomScalarFieldTypeMapping =
         }
 
         // fallback - not needed if all fields and arguments are resolved or the expected type is of "object" type
-        return configuration.DefaultScalarFieldTypeMapping(baseType, valueType, valueName);
-    };
+        return DefaultScalarFieldTypeMappingProvider.GetFallbackFieldType(configuration, valueType);
+    }
+}
 ```
 
 Generated class example:
