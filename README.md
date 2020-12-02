@@ -46,7 +46,7 @@ var csharpCode = new GraphQlGenerator().GenerateFullClientCSharpFile(schema, "My
 await File.WriteAllTextAsync("MyGqlApiClient.cs", csharpCode);
 ```
 
-C# 9 code generator
+C# 9 source generator
 -------------
 C# 9 introduced source generators that can be attached to compilation process. Generated classes will be automatically included in project.
 
@@ -430,4 +430,27 @@ public class OrderType
     public object CreatedDateTimeUtc { get; set; }
     public object SomeSmallNumber { get; set; }
 }
+```
+### C# 9 source generator custom types
+
+Source generator supports `RegexScalarFieldTypeMappingProvider` rules using JSON configuration file. Example:
+```json
+[
+  {
+    "patternBaseType": ".+",
+    "patternValueType": ".+",
+    "patternValueName": "^((timestamp)|(.*(f|F)rom)|(.*(t|T)o))$",
+    "netTypeName": "DateTimeOffset?",
+    "formatMask": "O"
+  }
+]
+```
+All pattern values must be specified. `Null` values are not accepted.
+
+The file must be named `RegexScalarFieldTypeMappingProviderConfiguration.json` and included as additional file.
+
+```xml
+<ItemGroup>
+  <AdditionalFiles Include="RegexScalarFieldTypeMappingProviderConfiguration.json" CacheObjects="true" />
+</ItemGroup>
 ```
