@@ -35,7 +35,8 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
         new FieldMetadata { Name = "interface", IsComplex = true, QueryBuilderType = typeof(NamedTypeQueryBuilder) },
         new FieldMetadata { Name = "underscore_named_field", DefaultAlias = "underscoreNamedField", IsComplex = true, QueryBuilderType = typeof(UnderscoreNamedClassQueryBuilder) },
         new FieldMetadata { Name = "nestedLists", IsComplex = true },
-        new FieldMetadata { Name = "_" }
+        new FieldMetadata { Name = "_" },
+        new FieldMetadata { Name = "collisions" }
     };
 
     protected override string TypeName { get; } = "Query";
@@ -83,6 +84,26 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
     public QueryQueryBuilder With_(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("_", alias, new GraphQlDirective?[] { skip, include });
 
     public QueryQueryBuilder Except_() => ExceptField("_");
+
+    public QueryQueryBuilder WithCollisions(QueryBuilderParameter<bool?>? skip = null, QueryBuilderParameter<bool?>? skipDirective = null, QueryBuilderParameter<bool?>? include = null, QueryBuilderParameter<bool?>? includeDirective = null, string? alias = null, SkipDirective? skipDirective1 = null, IncludeDirective? includeDirective1 = null)
+    {
+        var args = new List<QueryBuilderArgumentInfo>();
+        if (skip != null)
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "skip", ArgumentValue = skip} );
+
+        if (skipDirective != null)
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "skipDirective", ArgumentValue = skipDirective} );
+
+        if (include != null)
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "include", ArgumentValue = include} );
+
+        if (includeDirective != null)
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "includeDirective", ArgumentValue = includeDirective} );
+
+        return WithScalarField("collisions", alias, new GraphQlDirective?[] { skipDirective1, includeDirective1 }, args);
+    }
+
+    public QueryQueryBuilder ExceptCollisions() => ExceptField("collisions");
 }
 
 public partial class SimpleObjectTypeQueryBuilder : GraphQlQueryBuilder<SimpleObjectTypeQueryBuilder>
@@ -246,6 +267,56 @@ public partial class UnderscoreNamedClassQueryBuilder : GraphQlQueryBuilder<Unde
 
     public UnderscoreNamedClassQueryBuilder ExceptUnderscoreNamedFieldEnumCollection() => ExceptField("underscore_named_field_enum_collection");
 }
+
+public partial class MutationQueryBuilder : GraphQlQueryBuilder<MutationQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+    {
+        new FieldMetadata { Name = "createMessage", IsComplex = true, QueryBuilderType = typeof(MessageQueryBuilder) }
+    };
+
+    protected override string TypeName { get; } = "Mutation";
+
+    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public MutationQueryBuilder(string? operationName = null) : base("mutation", operationName)
+    {
+    }
+
+    public MutationQueryBuilder WithParameter<T>(GraphQlQueryParameter<T> parameter) => WithParameterInternal(parameter);
+
+    public MutationQueryBuilder WithCreateMessage(MessageQueryBuilder messageQueryBuilder, QueryBuilderParameter<InputType?>? inputMessage = null, string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null)
+    {
+        var args = new List<QueryBuilderArgumentInfo>();
+        if (inputMessage != null)
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "input_message", ArgumentValue = inputMessage} );
+
+        return WithObjectField("createMessage", alias, messageQueryBuilder, new GraphQlDirective?[] { skip, include }, args);
+    }
+
+    public MutationQueryBuilder ExceptCreateMessage() => ExceptField("createMessage");
+}
+
+public partial class MessageQueryBuilder : GraphQlQueryBuilder<MessageQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+    {
+        new FieldMetadata { Name = "id" },
+        new FieldMetadata { Name = "text_value", DefaultAlias = "textValue" }
+    };
+
+    protected override string TypeName { get; } = "Message";
+
+    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public MessageQueryBuilder WithId(string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("id", alias, new GraphQlDirective?[] { skip, include });
+
+    public MessageQueryBuilder ExceptId() => ExceptField("id");
+
+    public MessageQueryBuilder WithTextValue(string? alias = "textValue", SkipDirective? skip = null, IncludeDirective? include = null) => WithScalarField("text_value", alias, new GraphQlDirective?[] { skip, include });
+
+    public MessageQueryBuilder ExceptTextValue() => ExceptField("text_value");
+}
 #endregion
 
 #region input classes
@@ -278,6 +349,36 @@ public partial class UnderscoreNamedInput : IGraphQlInputObject
         if (_underscoreNamedFieldEnumCollection.Name != null) yield return _underscoreNamedFieldEnumCollection;
     }
 }
+
+public partial class InputType : IGraphQlInputObject
+{
+    private InputPropertyInfo _textValue;
+    private InputPropertyInfo _enumValue;
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string?>))]
+    #endif
+    public QueryBuilderParameter<string?>? TextValue
+    {
+        get => (QueryBuilderParameter<string?>?)_textValue.Value;
+        set => _textValue = new InputPropertyInfo { Name = "text_value", Value = value };
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<UnderscoreNamedEnum?>))]
+    #endif
+    public QueryBuilderParameter<UnderscoreNamedEnum?>? EnumValue
+    {
+        get => (QueryBuilderParameter<UnderscoreNamedEnum?>?)_enumValue.Value;
+        set => _enumValue = new InputPropertyInfo { Name = "enum_value", Value = value };
+    }
+
+    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
+    {
+        if (_textValue.Name != null) yield return _textValue;
+        if (_enumValue.Name != null) yield return _enumValue;
+    }
+}
 #endregion
 
 #region data classes
@@ -289,6 +390,7 @@ public partial class Query
     public UnderscoreNamedClass? UnderscoreNamedField { get; set; }
     public IList<IList<IList<decimal>>?>? NestedLists { get; set; }
     public string? _ { get; set; }
+    public string? Collisions { get; set; }
 }
 
 public partial class SimpleObjectType
@@ -341,6 +443,17 @@ public partial class UnderscoreNamedClass
 {
     public UnderscoreNamedEnum? UnderscoreNamedFieldEnum { get; set; }
     public ICollection<UnderscoreNamedEnum>? UnderscoreNamedFieldEnumCollection { get; set; }
+}
+
+public partial class Mutation
+{
+    public Message? CreateMessage { get; set; }
+}
+
+public partial class Message
+{
+    public Guid? Id { get; set; }
+    public string? TextValue { get; set; }
 }
 #endregion
 #nullable restore

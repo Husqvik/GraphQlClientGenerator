@@ -973,7 +973,7 @@ using Newtonsoft.Json.Linq;
 
                     WriteAliasParameter();
                     
-                    var fieldDirectiveParameterNameList = WriteDirectiveParameterList(schema, GraphQlDirectiveLocation.Field, writer);
+                    var fieldDirectiveParameterNameList = WriteDirectiveParameterList(schema, argumentDefinitions, GraphQlDirectiveLocation.Field, writer);
                     
                     writer.Write(")");
 
@@ -1022,7 +1022,7 @@ using Newtonsoft.Json.Linq;
                         WriteAliasParameter();
                     }
 
-                    var fieldDirectiveParameterNameList = WriteDirectiveParameterList(schema, GraphQlDirectiveLocation.Field, writer);
+                    var fieldDirectiveParameterNameList = WriteDirectiveParameterList(schema, argumentDefinitions, GraphQlDirectiveLocation.Field, writer);
 
                     writer.Write(")");
 
@@ -1120,21 +1120,38 @@ using Newtonsoft.Json.Linq;
             return type;
         }
 
-        private string WriteDirectiveParameterList(GraphQlSchema schema, GraphQlDirectiveLocation directiveLocation, TextWriter writer)
+        private string WriteDirectiveParameterList(GraphQlSchema schema, IEnumerable<QueryBuilderParameterDefinition> argumentDefinitions, GraphQlDirectiveLocation directiveLocation, TextWriter writer)
         {
+            var argumentNames = new HashSet<string>(argumentDefinitions.Select(ad => ad.NetParameterName));
             var directiveParameterNames = new List<string>();
 
             foreach (var directive in schema.Directives.Where(d => d.Locations.Contains(directiveLocation)))
             {
                 var csharpDirectiveName = NamingHelper.ToPascalCase(directive.Name);
                 var directiveClassName = csharpDirectiveName + "Directive";
-                var parameterName = NamingHelper.LowerFirst(csharpDirectiveName);
-                directiveParameterNames.Add(parameterName);
+                var directiveParameterName = NamingHelper.LowerFirst(csharpDirectiveName);
+
+                if (argumentNames.Contains(directiveParameterName))
+                {
+                    directiveParameterName += "Directive";
+
+                    var parameterCounter = 0;
+                    var directiveParameterNameWithCounter = directiveParameterName;
+                    while (argumentNames.Contains(directiveParameterNameWithCounter))
+                    {
+                        parameterCounter++;
+                        directiveParameterNameWithCounter = directiveParameterName + parameterCounter;
+                    }
+
+                    directiveParameterName = directiveParameterNameWithCounter;
+                }
+
+                directiveParameterNames.Add(directiveParameterName);
 
                 writer.Write(", ");
                 writer.Write(AddQuestionMarkIfNullableReferencesEnabled(directiveClassName));
                 writer.Write(" ");
-                writer.Write(parameterName);
+                writer.Write(directiveParameterName);
                 writer.Write(" = null");
             }
 
