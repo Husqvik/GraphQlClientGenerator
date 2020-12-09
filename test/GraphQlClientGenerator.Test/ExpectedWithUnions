@@ -85,7 +85,7 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
 
     public QueryQueryBuilder Except_() => ExceptField("_");
 
-    public QueryQueryBuilder WithCollisions(QueryBuilderParameter<bool?>? skip = null, QueryBuilderParameter<bool?>? skipDirective = null, QueryBuilderParameter<bool?>? include = null, QueryBuilderParameter<bool?>? includeDirective = null, string? alias = null, SkipDirective? skipDirective1 = null, IncludeDirective? includeDirective1 = null)
+    public QueryQueryBuilder WithCollisions(QueryBuilderParameter<bool?>? skip = null, QueryBuilderParameter<bool?>? skipDirective = null, QueryBuilderParameter<bool?>? skipDirectiveValue = null, QueryBuilderParameter<bool?>? include = null, QueryBuilderParameter<bool?>? includeDirective = null, QueryBuilderParameter<bool?>? includeDirectiveValue = null, string? alias = null, SkipDirective? skipDirectiveValue1 = null, IncludeDirective? includeDirectiveValue1 = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (skip != null)
@@ -94,13 +94,19 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
         if (skipDirective != null)
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "skipDirective", ArgumentValue = skipDirective} );
 
+        if (skipDirectiveValue != null)
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "skipDirectiveValue", ArgumentValue = skipDirectiveValue} );
+
         if (include != null)
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "include", ArgumentValue = include} );
 
         if (includeDirective != null)
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "includeDirective", ArgumentValue = includeDirective} );
 
-        return WithScalarField("collisions", alias, new GraphQlDirective?[] { skipDirective1, includeDirective1 }, args);
+        if (includeDirectiveValue != null)
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "includeDirectiveValue", ArgumentValue = includeDirectiveValue} );
+
+        return WithScalarField("collisions", alias, new GraphQlDirective?[] { skipDirectiveValue1, includeDirectiveValue1 }, args);
     }
 
     public QueryQueryBuilder ExceptCollisions() => ExceptField("collisions");

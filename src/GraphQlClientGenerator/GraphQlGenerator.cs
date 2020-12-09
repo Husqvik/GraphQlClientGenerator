@@ -1135,15 +1135,17 @@ using Newtonsoft.Json.Linq;
                 {
                     directiveParameterName += "Directive";
 
-                    var parameterCounter = 0;
-                    var directiveParameterNameWithCounter = directiveParameterName;
-                    while (argumentNames.Contains(directiveParameterNameWithCounter))
+                    if (argumentNames.Contains(directiveParameterName))
                     {
-                        parameterCounter++;
-                        directiveParameterNameWithCounter = directiveParameterName + parameterCounter;
-                    }
+                        directiveParameterName += "Value";
 
-                    directiveParameterName = directiveParameterNameWithCounter;
+                        var parameterCounter = 0;
+                        var directiveParameterNameWithCounter = directiveParameterName;
+                        while (argumentNames.Contains(directiveParameterNameWithCounter))
+                            directiveParameterNameWithCounter = directiveParameterName + ++parameterCounter;
+
+                        directiveParameterName = directiveParameterNameWithCounter;
+                    }
                 }
 
                 directiveParameterNames.Add(directiveParameterName);

@@ -196,6 +196,16 @@
                   "defaultValue": null
                 },
                 {
+                  "name": "skipDirectiveValue",
+                  "description": "",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Boolean",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
                   "name": "include",
                   "description": "",
                   "type": {
@@ -207,6 +217,16 @@
                 },
                 {
                   "name": "includeDirective",
+                  "description": "",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Boolean",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "includeDirectiveValue",
                   "description": "",
                   "type": {
                     "kind": "SCALAR",
