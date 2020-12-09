@@ -22,7 +22,10 @@ namespace GraphQlClientGenerator.Test
         private static GraphQlSchema DeserializeTestSchema(string resourceName) =>
             GraphQlGenerator.DeserializeGraphQlSchema(GetTestResource(resourceName));
 
-        private static GenerationContext CreateGenerationContext(StringBuilder builder, GraphQlSchema schema, GeneratedObjectType options = GeneratedObjectType.QueryBuilders | GeneratedObjectType.DataClasses) =>
+        private static GenerationContext CreateGenerationContext(
+            StringBuilder builder,
+            GraphQlSchema schema,
+            GeneratedObjectType options = GeneratedObjectType.QueryBuilders | GeneratedObjectType.DataClasses) =>
             new SingleFileGenerationContext(schema, new StringWriter(builder), options);
 
         public GraphQlGeneratorTest(ITestOutputHelper outputHelper)
@@ -103,6 +106,7 @@ namespace GraphQlClientGenerator.Test
                         "GqlMutationGeneralResponse.cs",
                         "GqlMutationGeneralResponseQueryBuilder.cs",
                         "GraphQlGeneratorTest.csproj",
+                        "GraphQlTypeName.cs",
                         "Greeting.cs",
                         "GreetingQueryBuilder.cs",
                         "Home.cs",
@@ -205,7 +209,7 @@ namespace GraphQlClientGenerator.Test
                 fileSizes.ShouldBe(
                     new long[]
                     {
-                        370, 399, 1295, 1082, 902, 4131, 443, 493, 2056, 1831, 379, 1038, 1076, 1609, 1675, 680, 418, 1507, 422, 1334, 716, 415, 1365, 4006, 887, 686, 3557, 4906, 402, 1312, 490, 2119, 537, 2296, 1149, 6812, 371, 1153, 495, 600, 2706, 2476, 413, 1389, 385, 1215, 368, 518, 2132, 1881, 845, 7805, 803, 1454, 417, 1433, 4626, 17076, 731, 1550, 551, 2587, 9743, 896, 5100, 1025, 476, 3221, 7042, 358, 1339, 467, 425, 1445, 1890, 499, 2175, 455, 1733, 545, 2501, 691, 495, 1921, 505, 2085, 3516, 679, 3759, 512, 2080, 600, 461, 1749, 2837, 996, 719, 3864, 5591, 822, 4380, 444, 1682, 347, 1283, 588, 675, 3451, 2781, 374, 1105, 404, 513, 483, 1902, 472, 1765, 2209, 483, 2143, 706, 777, 4324, 862, 454, 1756, 796, 4433, 508, 2005, 425, 1388, 413, 2590, 4949, 510, 2124, 482, 1874, 485, 1154, 3506, 1874
+                        370, 399, 1295, 1082, 902, 4131, 443, 493, 2151, 1831, 379, 1130, 1076, 1694, 1675, 680, 418, 1507, 422, 1334, 716, 415, 1365, 4006, 887, 686, 3557, 4906, 402, 1312, 490, 2119, 537, 2296, 1149, 6812, 371, 1153, 495, 600, 2706, 2476, 413, 1389, 385, 1215, 368, 5234, 518, 2132, 1881, 845, 7805, 803, 1548, 417, 1433, 4626, 17076, 731, 1550, 551, 2587, 9743, 896, 5100, 1025, 476, 3221, 7042, 358, 1339, 467, 425, 1445, 1890, 499, 2175, 455, 1733, 545, 2501, 691, 495, 1921, 505, 2085, 3516, 679, 3759, 512, 2080, 600, 461, 1749, 2837, 996, 719, 3864, 5591, 822, 4380, 444, 1682, 347, 1283, 588, 675, 3451, 2781, 374, 1105, 404, 513, 483, 1902, 472, 1765, 2209, 483, 2143, 706, 777, 4324, 862, 454, 1756, 796, 4433, 508, 2005, 425, 1388, 413, 2590, 4949, 510, 2124, 482, 1874, 485, 1154, 3506, 1874
                     });
 
                 var expectedOutput = GetTestResource("ExpectedMultipleFilesContext.Avatar");
@@ -720,6 +724,8 @@ namespace GraphQlClientGenerator.Test
 		    get => (QueryBuilderParameter<DateTimeOffset?>)_timestampProperty.Value;
 		    set => _timestampProperty = new InputPropertyInfo { Name = ""timestamp"", Value = value, FormatMask = ""yy-MM-dd HH:mmzzz"" };
 	    }
+
+        string IGraphQlInputObject.GraphQlTypeName { get; } = ""TestInput"";
 
 	    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
 	    {

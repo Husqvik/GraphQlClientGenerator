@@ -28,12 +28,17 @@ namespace GraphQlClientGenerator
             base.BeforeGeneration(configuration);
         }
 
-        public override void BeforeBaseClassGeneration()
-        {
-            WriteLine("#region base classes");
-        }
+        public override void BeforeBaseClassGeneration() => WriteLine("#region base classes");
 
         public override void AfterBaseClassGeneration()
+        {
+            WriteLine("#endregion");
+            Writer.WriteLine();
+        }
+
+        public override void BeforeGraphQlTypeNameGeneration() => WriteLine("#region GraphQL type names");
+
+        public override void AfterGraphQlTypeNameGeneration()
         {
             WriteLine("#endregion");
             Writer.WriteLine();

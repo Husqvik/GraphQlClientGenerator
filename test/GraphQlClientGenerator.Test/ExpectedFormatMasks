@@ -1,3 +1,56 @@
+#region GraphQL type names
+public static class GraphQlTypeName
+{
+    public const string Boolean = "Boolean";
+    public const string Float = "Float";
+    public const string Id = "ID";
+    public const string Int = "Int";
+    public const string String = "String";
+
+    public const string AppScreen = "AppScreen";
+    public const string EnergyResolution = "EnergyResolution";
+    public const string HeatingSource = "HeatingSource";
+    public const string HomeAvatar = "HomeAvatar";
+    public const string HomeType = "HomeType";
+    public const string PriceLevel = "PriceLevel";
+    public const string PriceResolution = "PriceResolution";
+
+    public const string Address = "Address";
+    public const string Consumption = "Consumption";
+    public const string ContactInfo = "ContactInfo";
+    public const string Home = "Home";
+    public const string HomeConsumptionConnection = "HomeConsumptionConnection";
+    public const string HomeConsumptionEdge = "HomeConsumptionEdge";
+    public const string HomeConsumptionPageInfo = "HomeConsumptionPageInfo";
+    public const string HomeFeatures = "HomeFeatures";
+    public const string HomeProductionConnection = "HomeProductionConnection";
+    public const string HomeProductionEdge = "HomeProductionEdge";
+    public const string HomeProductionPageInfo = "HomeProductionPageInfo";
+    public const string LegalEntity = "LegalEntity";
+    public const string LiveMeasurement = "LiveMeasurement";
+    public const string MeteringPointData = "MeteringPointData";
+    public const string MeterReadingResponse = "MeterReadingResponse";
+    public const string Price = "Price";
+    public const string PriceInfo = "PriceInfo";
+    public const string Production = "Production";
+    public const string PushNotificationResponse = "PushNotificationResponse";
+    public const string Query = "Query";
+    public const string RootMutation = "RootMutation";
+    public const string RootSubscription = "RootSubscription";
+    public const string Subscription = "Subscription";
+    public const string SubscriptionPriceConnection = "SubscriptionPriceConnection";
+    public const string SubscriptionPriceConnectionPageInfo = "SubscriptionPriceConnectionPageInfo";
+    public const string SubscriptionPriceEdge = "SubscriptionPriceEdge";
+    public const string Viewer = "Viewer";
+
+    public const string MeterReadingInput = "MeterReadingInput";
+    public const string PushNotificationInput = "PushNotificationInput";
+    public const string UpdateHomeInput = "UpdateHomeInput";
+
+    public const string PageInfo = "PageInfo";
+}
+#endregion
+
 #region enums
 public enum HomeAvatar
 {
@@ -2380,6 +2433,8 @@ public partial class MeterReadingInput : IGraphQlInputObject
         set { _reading = new InputPropertyInfo { Name = "reading", Value = value }; }
     }
 
+    string IGraphQlInputObject.GraphQlTypeName { get; } = "MeterReadingInput";
+
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
         if (_homeId.Name != null) yield return _homeId;
@@ -2481,6 +2536,8 @@ public partial class UpdateHomeInput : IGraphQlInputObject
         set { _mainFuseSize = new InputPropertyInfo { Name = "mainFuseSize", Value = value }; }
     }
 
+    string IGraphQlInputObject.GraphQlTypeName { get; } = "UpdateHomeInput";
+
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
         if (_homeId.Name != null) yield return _homeId;
@@ -2527,6 +2584,8 @@ public partial class PushNotificationInput : IGraphQlInputObject
         get { return (QueryBuilderParameter<AppScreen?>)_screenToOpen.Value; }
         set { _screenToOpen = new InputPropertyInfo { Name = "screenToOpen", Value = value }; }
     }
+
+    string IGraphQlInputObject.GraphQlTypeName { get; } = "PushNotificationInput";
 
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {

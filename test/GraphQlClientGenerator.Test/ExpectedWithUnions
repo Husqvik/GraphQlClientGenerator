@@ -1,3 +1,31 @@
+#region GraphQL type names
+public static class GraphQlTypeName
+{
+    public const string Boolean = "Boolean";
+    public const string Float = "Float";
+    public const string Id = "ID";
+    public const string String = "String";
+
+    public const string UnderscoreNamedEnum = "underscore_named_enum";
+
+    public const string ConcreteType1 = "ConcreteType1";
+    public const string ConcreteType2 = "ConcreteType2";
+    public const string ConcreteType3 = "ConcreteType3";
+    public const string Message = "Message";
+    public const string Mutation = "Mutation";
+    public const string Query = "Query";
+    public const string SimpleObjectType = "SimpleObjectType";
+    public const string UnderscoreNamedClass = "underscore_named_class";
+
+    public const string InputType = "InputType";
+    public const string UnderscoreNamedInput = "underscore_named_input";
+
+    public const string UnionType = "UnionType";
+
+    public const string NamedType = "NamedType";
+}
+#endregion
+
 #region enums
 public enum UnderscoreNamedEnum
 {
@@ -349,6 +377,8 @@ public partial class UnderscoreNamedInput : IGraphQlInputObject
         set => _underscoreNamedFieldEnumCollection = new InputPropertyInfo { Name = "underscore_named_field_enum_collection", Value = value };
     }
 
+    string IGraphQlInputObject.GraphQlTypeName { get; } = "underscore_named_input";
+
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
         if (_underscoreNamedFieldEnum.Name != null) yield return _underscoreNamedFieldEnum;
@@ -378,6 +408,8 @@ public partial class InputType : IGraphQlInputObject
         get => (QueryBuilderParameter<UnderscoreNamedEnum?>?)_enumValue.Value;
         set => _enumValue = new InputPropertyInfo { Name = "enum_value", Value = value };
     }
+
+    string IGraphQlInputObject.GraphQlTypeName { get; } = "InputType";
 
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {

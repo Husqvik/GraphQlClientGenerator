@@ -149,6 +149,8 @@ using Newtonsoft.Json.Linq;
 
             GenerateBaseClasses(context);
 
+            GenerateGraphQlTypeNames(context);
+
             GenerateEnums(context);
 
             GenerateDirectives(context);
@@ -160,6 +162,39 @@ using Newtonsoft.Json.Linq;
             GenerateDataClasses(context, referencedObjectTypes);
 
             context.AfterGeneration();
+        }
+
+        private static void GenerateGraphQlTypeNames(GenerationContext context)
+        {
+            context.BeforeGraphQlTypeNameGeneration();
+
+            var indentation = GetIndentation(context.Indentation);
+            var writer = context.Writer;
+            writer.Write(indentation);
+            writer.WriteLine("public static class GraphQlTypeName");
+            writer.Write(indentation);
+            writer.WriteLine("{");
+
+            var graphQlTypes = context.Schema.Types.Where(t => !t.Name.StartsWith("__")).OrderBy(t => t.Kind).ThenBy(t => t.Name).ToArray();
+            GraphQlType precedingInputObjectType = null;
+            foreach (var inputObjectType in graphQlTypes)
+            {
+                if (precedingInputObjectType != null && inputObjectType.Kind != precedingInputObjectType.Kind)
+                    writer.WriteLine();
+
+                writer.Write(indentation);
+                writer.Write("    public const string ");
+                writer.Write(NamingHelper.ToPascalCase(inputObjectType.Name));
+                writer.Write(" = \"");
+                writer.Write(inputObjectType.Name);
+                writer.WriteLine("\";");
+
+                precedingInputObjectType = inputObjectType;
+            }
+
+            writer.WriteLine("}");
+
+            context.AfterGraphQlTypeNameGeneration();
         }
 
         private void GenerateEnums(GenerationContext context)
@@ -258,15 +293,15 @@ using Newtonsoft.Json.Linq;
 
             context.BeforeInputClassesGeneration();
 
-            foreach (var inputObject in inputObjectTypes)
+            foreach (var inputObjectType in inputObjectTypes)
             {
-                FindAllReferencedObjectTypes(schema, inputObject, referencedObjectTypes);
+                FindAllReferencedObjectTypes(schema, inputObjectType, referencedObjectTypes);
                 GenerateDataClass(
                     context,
-                    NamingHelper.ToPascalCase(inputObject.Name),
-                    inputObject.Description,
+                    NamingHelper.ToPascalCase(inputObjectType.Name),
+                    inputObjectType.Description,
                     "IGraphQlInputObject",
-                    () => GenerateInputDataClassBody(inputObject, inputObject.InputFields.Cast<IGraphQlMember>().ToArray(), context));
+                    () => GenerateInputDataClassBody(inputObjectType, inputObjectType.InputFields.Cast<IGraphQlMember>().ToArray(), context));
             }
 
             context.AfterInputClassesGeneration();
@@ -442,6 +477,11 @@ using Newtonsoft.Json.Linq;
                     },
                     context);
 
+            writer.Write(indentation);
+            writer.Write("    string IGraphQlInputObject.GraphQlTypeName { get; } = \"");
+            writer.Write(type.Name);
+            writer.WriteLine("\";");
+            writer.WriteLine();
             writer.Write(indentation);
             writer.WriteLine("    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()");
             writer.Write(indentation);

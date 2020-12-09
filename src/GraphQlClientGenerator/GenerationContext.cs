@@ -39,6 +39,10 @@ namespace GraphQlClientGenerator
 
         public abstract void AfterBaseClassGeneration();
 
+        public abstract void BeforeGraphQlTypeNameGeneration();
+
+        public abstract void AfterGraphQlTypeNameGeneration();
+
         public abstract void BeforeEnumsGeneration();
 
         public abstract void BeforeEnumGeneration(string enumName);

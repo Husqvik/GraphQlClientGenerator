@@ -250,6 +250,7 @@ internal struct InputPropertyInfo
 
 internal interface IGraphQlInputObject
 {
+    string GraphQlTypeName { get; }
     IEnumerable<InputPropertyInfo> GetPropertyValues();
 }
 
@@ -304,6 +305,8 @@ public class QueryBuilderParameter<T> : QueryBuilderParameter
 
     protected QueryBuilderParameter(string name, string graphQlTypeName, T value) : base(name, graphQlTypeName, value)
     {
+        if (String.IsNullOrWhiteSpace(graphQlTypeName))
+            throw new ArgumentException("value required", nameof(graphQlTypeName));
     }
 
     private QueryBuilderParameter(T value) : base(value)
@@ -330,6 +333,43 @@ public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
 
     public GraphQlQueryParameter(string name, string graphQlTypeName, T value) : base(name, graphQlTypeName, value)
     {
+    }
+
+    public GraphQlQueryParameter(string name, T value, bool isNullable = true) : base(name, GetGraphQlTypeName(value, isNullable), value)
+    {
+    }
+
+    private static string GetGraphQlTypeName(T value, bool isNullable)
+    {
+        var graphQlTypeName = GetGraphQlTypeName(value);
+        if (!isNullable)
+            graphQlTypeName += "!";
+
+        return graphQlTypeName;
+    }
+
+    private static string GetGraphQlTypeName(T value)
+    {
+        if (value is IGraphQlInputObject inputObject)
+            return inputObject.GraphQlTypeName;
+
+        if (typeof(T) == typeof(bool))
+            return "Boolean";
+
+        if (typeof(T) == typeof(float) || typeof(T) == typeof(double) || typeof(T) == typeof(decimal))
+            return "Float";
+
+        if (typeof(T) == typeof(Guid))
+            return "ID";
+
+        if (typeof(T) == typeof(sbyte) || typeof(T) == typeof(byte) || typeof(T) == typeof(short) || typeof(T) == typeof(ushort) || typeof(T) == typeof(int) || typeof(T) == typeof(uint) ||
+            typeof(T) == typeof(long) || typeof(T) == typeof(ulong))
+            return "Int";
+
+        if (typeof(T) == typeof(string))
+            return "String";
+
+        return null;
     }
 }
 

@@ -76,6 +76,10 @@ using Newtonsoft.Json;
 
         public override void AfterBaseClassGeneration() => WriteNamespaceEnd();
 
+        public override void BeforeGraphQlTypeNameGeneration() => InitializeNewSourceCodeFile("GraphQlTypeName");
+
+        public override void AfterGraphQlTypeNameGeneration() => WriteNamespaceEnd();
+
         public override void BeforeEnumsGeneration()
         {
         }

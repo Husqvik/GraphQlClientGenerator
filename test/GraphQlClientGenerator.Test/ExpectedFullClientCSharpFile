@@ -270,6 +270,7 @@ namespace GraphQlGenerator.Test
     
     internal interface IGraphQlInputObject
     {
+        string GraphQlTypeName { get; }
         IEnumerable<InputPropertyInfo> GetPropertyValues();
     }
     
@@ -324,6 +325,8 @@ namespace GraphQlGenerator.Test
     
         protected QueryBuilderParameter(string name, string graphQlTypeName, T value) : base(name, graphQlTypeName, value)
         {
+            if (String.IsNullOrWhiteSpace(graphQlTypeName))
+                throw new ArgumentException("value required", nameof(graphQlTypeName));
         }
     
         private QueryBuilderParameter(T value) : base(value)
@@ -350,6 +353,43 @@ namespace GraphQlGenerator.Test
     
         public GraphQlQueryParameter(string name, string graphQlTypeName, T value) : base(name, graphQlTypeName, value)
         {
+        }
+    
+        public GraphQlQueryParameter(string name, T value, bool isNullable = true) : base(name, GetGraphQlTypeName(value, isNullable), value)
+        {
+        }
+    
+        private static string GetGraphQlTypeName(T value, bool isNullable)
+        {
+            var graphQlTypeName = GetGraphQlTypeName(value);
+            if (!isNullable)
+                graphQlTypeName += "!";
+    
+            return graphQlTypeName;
+        }
+    
+        private static string GetGraphQlTypeName(T value)
+        {
+            if (value is IGraphQlInputObject inputObject)
+                return inputObject.GraphQlTypeName;
+    
+            if (typeof(T) == typeof(bool))
+                return "Boolean";
+    
+            if (typeof(T) == typeof(float) || typeof(T) == typeof(double) || typeof(T) == typeof(decimal))
+                return "Float";
+    
+            if (typeof(T) == typeof(Guid))
+                return "ID";
+    
+            if (typeof(T) == typeof(sbyte) || typeof(T) == typeof(byte) || typeof(T) == typeof(short) || typeof(T) == typeof(ushort) || typeof(T) == typeof(int) || typeof(T) == typeof(uint) ||
+                typeof(T) == typeof(long) || typeof(T) == typeof(ulong))
+                return "Int";
+    
+            if (typeof(T) == typeof(string))
+                return "String";
+    
+            return null;
         }
     }
     
@@ -747,6 +787,44 @@ namespace GraphQlGenerator.Test
         public int Line { get; set; }
         public int Column { get; set; }
     }
+    #endregion
+
+    #region GraphQL type names
+    public static class GraphQlTypeName
+    {
+        public const string Boolean = "Boolean";
+        public const string DynamicType = "DynamicType";
+        public const string Float = "Float";
+        public const string Id = "ID";
+        public const string Int = "Int";
+        public const string String = "String";
+
+        public const string Avatar = "Avatar";
+        public const string PriceLevel = "PriceLevel";
+        public const string Resolution = "Resolution";
+
+        public const string AwayMode = "AwayMode";
+        public const string AwayModeSettings = "AwayModeSettings";
+        public const string Comparison = "Comparison";
+        public const string ComparisonData = "ComparisonData";
+        public const string Consumption = "Consumption";
+        public const string ConsumptionMonth = "ConsumptionMonth";
+        public const string Device = "Device";
+        public const string Disaggregation = "Disaggregation";
+        public const string Feed = "Feed";
+        public const string FeedItem = "FeedItem";
+        public const string Home = "Home";
+        public const string Me = "Me";
+        public const string PreLiveComparison = "PreLiveComparison";
+        public const string PriceRating = "PriceRating";
+        public const string PriceRatingEntry = "PriceRatingEntry";
+        public const string ProcessStep = "ProcessStep";
+        public const string PushNotification = "PushNotification";
+        public const string Query = "Query";
+        public const string SignupStatus = "SignupStatus";
+        public const string Subscription = "Subscription";
+        public const string Weather = "Weather";
+}
     #endregion
 
     #region enums

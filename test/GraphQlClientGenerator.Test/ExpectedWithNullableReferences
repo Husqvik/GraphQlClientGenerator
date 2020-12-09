@@ -1,3 +1,92 @@
+#region GraphQL type names
+public static class GraphQlTypeName
+{
+    public const string Boolean = "Boolean";
+    public const string DynamicType = "DynamicType";
+    public const string Float = "Float";
+    public const string Id = "ID";
+    public const string Int = "Int";
+    public const string ProfileQuestionInput = "ProfileQuestionInput";
+    public const string String = "String";
+
+    public const string Avatar = "Avatar";
+    public const string Resolution = "Resolution";
+
+    public const string About = "About";
+    public const string AboutItem = "AboutItem";
+    public const string Address = "Address";
+    public const string AppState = "AppState";
+    public const string AppStateFronScreen = "AppStateFronScreen";
+    public const string AppStateJourney = "AppStateJourney";
+    public const string AwayMode = "AwayMode";
+    public const string AwayModeSettings = "AwayModeSettings";
+    public const string Comparison = "Comparison";
+    public const string ComparisonData = "ComparisonData";
+    public const string Consumption = "Consumption";
+    public const string ConsumptionMonth = "ConsumptionMonth";
+    public const string CreditCard = "CreditCard";
+    public const string DayNightSchedule = "DayNightSchedule";
+    public const string DayNightScheduleSettings = "DayNightScheduleSettings";
+    public const string Disaggregation = "Disaggregation";
+    public const string EnergyDeal = "EnergyDeal";
+    public const string Feed = "Feed";
+    public const string FeedItem = "FeedItem";
+    public const string GqlMutationError = "GQLMutationError";
+    public const string GqlMutationGeneralResponse = "GQLMutationGeneralResponse";
+    public const string Greeting = "Greeting";
+    public const string Home = "Home";
+    public const string HomeMutation = "HomeMutation";
+    public const string HomeProfileQuestion = "HomeProfileQuestion";
+    public const string HomeProfileQuestionInput = "HomeProfileQuestionInput";
+    public const string Invoice = "Invoice";
+    public const string InvoicePayment = "InvoicePayment";
+    public const string InvoiceSection = "InvoiceSection";
+    public const string Me = "Me";
+    public const string MeMutation = "MeMutation";
+    public const string Mutation = "Mutation";
+    public const string PairableDevice = "PairableDevice";
+    public const string PairableDeviceOAuth = "PairableDeviceOAuth";
+    public const string PairDeviceResult = "PairDeviceResult";
+    public const string PaymentMethod = "PaymentMethod";
+    public const string PreLiveComparison = "PreLiveComparison";
+    public const string PriceRating = "PriceRating";
+    public const string PriceRatingColorOffset = "PriceRatingColorOffset";
+    public const string PriceRatingEntry = "PriceRatingEntry";
+    public const string PriceRatingRoot = "PriceRatingRoot";
+    public const string ProcessStep = "ProcessStep";
+    public const string Producer = "Producer";
+    public const string ProducerBullet = "ProducerBullet";
+    public const string Production = "Production";
+    public const string ProductionMonth = "ProductionMonth";
+    public const string ProductionValue = "ProductionValue";
+    public const string PushNotification = "PushNotification";
+    public const string Query = "Query";
+    public const string Report = "Report";
+    public const string ReportCell = "ReportCell";
+    public const string ReportRoot = "ReportRoot";
+    public const string Sensor = "Sensor";
+    public const string SensorHistory = "SensorHistory";
+    public const string SensorHistoryValue = "SensorHistoryValue";
+    public const string SignupStatus = "SignupStatus";
+    public const string Subscription = "Subscription";
+    public const string Thermostat = "Thermostat";
+    public const string ThermostatCapability = "ThermostatCapability";
+    public const string ThermostatMeasurement = "ThermostatMeasurement";
+    public const string ThermostatMeasurements = "ThermostatMeasurements";
+    public const string ThermostatMode = "ThermostatMode";
+    public const string ThermostatMutation = "ThermostatMutation";
+    public const string ThermostatState = "ThermostatState";
+    public const string Wallet = "Wallet";
+    public const string Weather = "Weather";
+    public const string WeatherEntry = "WeatherEntry";
+
+    public const string AppStateFronScreenMutation = "AppStateFronScreenMutation";
+    public const string AppStateJourneyMutation = "AppStateJourneyMutation";
+    public const string AppStateMutation = "AppStateMutation";
+    public const string HomeProfileQuestionAnswer = "HomeProfileQuestionAnswer";
+}
+#endregion
+
 #region enums
 public enum Avatar
 {
@@ -2844,6 +2933,8 @@ public partial class HomeProfileQuestionAnswer : IGraphQlInputObject
         set => _value = new InputPropertyInfo { Name = "value", Value = value };
     }
 
+    string IGraphQlInputObject.GraphQlTypeName { get; } = "HomeProfileQuestionAnswer";
+
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
         if (_propertyName.Name != null) yield return _propertyName;
@@ -2874,6 +2965,8 @@ public partial class AppStateMutation : IGraphQlInputObject
         set => _frontScreens = new InputPropertyInfo { Name = "frontScreens", Value = value };
     }
 
+    string IGraphQlInputObject.GraphQlTypeName { get; } = "AppStateMutation";
+
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
         if (_journey.Name != null) yield return _journey;
@@ -2893,6 +2986,8 @@ public partial class AppStateJourneyMutation : IGraphQlInputObject
         get => (QueryBuilderParameter<bool?>?)_hasVisitedPairDevices.Value;
         set => _hasVisitedPairDevices = new InputPropertyInfo { Name = "hasVisitedPairDevices", Value = value };
     }
+
+    string IGraphQlInputObject.GraphQlTypeName { get; } = "AppStateJourneyMutation";
 
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
@@ -2932,6 +3027,8 @@ public partial class AppStateFronScreenMutation : IGraphQlInputObject
         get => (QueryBuilderParameter<ICollection<string?>?>?)_bubblesSortOrder.Value;
         set => _bubblesSortOrder = new InputPropertyInfo { Name = "bubblesSortOrder", Value = value };
     }
+
+    string IGraphQlInputObject.GraphQlTypeName { get; } = "AppStateFronScreenMutation";
 
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {

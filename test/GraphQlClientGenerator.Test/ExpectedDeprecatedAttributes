@@ -1,3 +1,41 @@
+#region GraphQL type names
+public static class GraphQlTypeName
+{
+    public const string Boolean = "Boolean";
+    public const string DynamicType = "DynamicType";
+    public const string Float = "Float";
+    public const string Id = "ID";
+    public const string Int = "Int";
+    public const string String = "String";
+
+    public const string Avatar = "Avatar";
+    public const string PriceLevel = "PriceLevel";
+    public const string Resolution = "Resolution";
+
+    public const string AwayMode = "AwayMode";
+    public const string AwayModeSettings = "AwayModeSettings";
+    public const string Comparison = "Comparison";
+    public const string ComparisonData = "ComparisonData";
+    public const string Consumption = "Consumption";
+    public const string ConsumptionMonth = "ConsumptionMonth";
+    public const string Device = "Device";
+    public const string Disaggregation = "Disaggregation";
+    public const string Feed = "Feed";
+    public const string FeedItem = "FeedItem";
+    public const string Home = "Home";
+    public const string Me = "Me";
+    public const string PreLiveComparison = "PreLiveComparison";
+    public const string PriceRating = "PriceRating";
+    public const string PriceRatingEntry = "PriceRatingEntry";
+    public const string ProcessStep = "ProcessStep";
+    public const string PushNotification = "PushNotification";
+    public const string Query = "Query";
+    public const string SignupStatus = "SignupStatus";
+    public const string Subscription = "Subscription";
+    public const string Weather = "Weather";
+}
+#endregion
+
 #region enums
 /// <summary>
 /// Home
