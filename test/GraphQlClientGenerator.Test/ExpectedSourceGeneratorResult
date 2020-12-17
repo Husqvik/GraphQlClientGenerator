@@ -2980,7 +2980,7 @@ namespace SourceGeneratorTestAssembly
         public ICollection<SourceGeneratedPriceV2> Nodes { get; set; }
     }
 
-    public partial class SourceGeneratedSubscriptionPriceConnectionPageInfoV2 : IPageInfoV2
+    public partial class SourceGeneratedSubscriptionPriceConnectionPageInfoV2 : ISourceGeneratedPageInfoV2
     {
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("endCursor")]
@@ -3041,7 +3041,7 @@ namespace SourceGeneratorTestAssembly
         public string UnimplementedDeprecatedField { get; set; }
     }
 
-    public interface SourceGeneratedIPageInfoV2
+    public interface ISourceGeneratedPageInfoV2
     {
         string UnimplementedField { get; set; }
         [Obsolete(@"should not be generated")]
@@ -3052,7 +3052,7 @@ namespace SourceGeneratorTestAssembly
         string StartCursor { get; set; }
     }
 
-    public partial class SourceGeneratedPageInfoV2 : SourceGeneratedIPageInfoV2
+    public partial class SourceGeneratedPageInfoV2 : ISourceGeneratedPageInfoV2
     {
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("unimplementedField")]
@@ -3115,7 +3115,7 @@ namespace SourceGeneratorTestAssembly
         public ICollection<SourceGeneratedHomeConsumptionEdgeV2> Edges { get; set; }
     }
 
-    public partial class SourceGeneratedHomeConsumptionPageInfoV2 : IPageInfoV2
+    public partial class SourceGeneratedHomeConsumptionPageInfoV2 : ISourceGeneratedPageInfoV2
     {
         /// <summary>
         /// The global ID of the last element in the list
@@ -3282,7 +3282,7 @@ namespace SourceGeneratorTestAssembly
         public ICollection<SourceGeneratedHomeProductionEdgeV2> Edges { get; set; }
     }
 
-    public partial class SourceGeneratedHomeProductionPageInfoV2 : IPageInfoV2
+    public partial class SourceGeneratedHomeProductionPageInfoV2 : ISourceGeneratedPageInfoV2
     {
         /// <summary>
         /// The global ID of the last element in the list

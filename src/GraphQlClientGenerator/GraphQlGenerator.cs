@@ -373,7 +373,7 @@ using Newtonsoft.Json.Linq;
                 var interfacesToImplement = new List<string>();
                 if (isInterface)
                 {
-                    interfacesToImplement.Add(GenerateInterface(context, "I" + csharpTypeName, complexType.Description, () => GenerateBody(true)));
+                    interfacesToImplement.Add(GenerateInterface(context, csharpTypeName, complexType.Description, () => GenerateBody(true)));
                 }
                 else if (complexType.Interfaces?.Count > 0)
                 {
@@ -381,7 +381,7 @@ using Newtonsoft.Json.Linq;
 
                     foreach (var @interface in complexType.Interfaces)
                     {
-                        interfacesToImplement.Add("I" + @interface.Name + _configuration.ClassSuffix);
+                        interfacesToImplement.Add("I" + _configuration.ClassPrefix + @interface.Name + _configuration.ClassSuffix);
 
                         foreach (var interfaceField in complexTypeDictionary[@interface.Name].Fields.Where(FilterDeprecatedFields))
                             if (fieldNames.Add(interfaceField.Name))
@@ -510,6 +510,10 @@ using Newtonsoft.Json.Linq;
         private string GenerateFileMember(GenerationContext context, string memberType, string typeName, string typeDescription, string baseTypeName, Action generateFileMemberBody)
         {
             typeName = _configuration.ClassPrefix + typeName + _configuration.ClassSuffix;
+
+            if (memberType == "interface")
+                typeName = "I" + typeName;
+
             ValidateClassName(typeName);
 
             context.BeforeDataClassGeneration(typeName);
