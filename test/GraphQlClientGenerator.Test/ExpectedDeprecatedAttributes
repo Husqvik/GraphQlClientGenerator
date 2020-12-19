@@ -1,5 +1,5 @@
-#region GraphQL type names
-public static class GraphQlTypeName
+#region GraphQL type helpers
+public static class GraphQlTypes
 {
     public const string Boolean = "Boolean";
     public const string DynamicType = "DynamicType";

@@ -38,6 +38,8 @@ namespace {assemblyName}
             var systemObjectModelReference = MetadataReference.CreateFromFile(Assembly.Load("System.ObjectModel").Location);
             var systemTextRegularExpressionsReference = MetadataReference.CreateFromFile(Assembly.Load("System.Text.RegularExpressions").Location);
             var systemRuntimeReference = MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location);
+            var systemCollectionsReference = MetadataReference.CreateFromFile(Assembly.Load("System.Collections").Location);
+            var systemGlobalizationReference = MetadataReference.CreateFromFile(Assembly.Load("System.Globalization").Location);
             var systemRuntimeExtensionsReference = MetadataReference.CreateFromFile(Assembly.Load("System.Runtime.Extensions").Location);
             var netStandardReference = MetadataReference.CreateFromFile(Assembly.Load("netstandard").Location);
             var linqReference = MetadataReference.CreateFromFile(Assembly.Load("System.Linq").Location);
@@ -65,6 +67,8 @@ namespace {assemblyName}
                         componentModelTypeConverterReference,
                         systemRuntimeReference,
                         systemRuntimeExtensionsReference,
+                        systemCollectionsReference,
+                        systemGlobalizationReference,
                         jsonNetReference,
                         linqReference,
                         linqExpressionsReference,

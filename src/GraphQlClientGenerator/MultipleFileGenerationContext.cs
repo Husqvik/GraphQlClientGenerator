@@ -76,7 +76,7 @@ using Newtonsoft.Json;
 
         public override void AfterBaseClassGeneration() => WriteNamespaceEnd();
 
-        public override void BeforeGraphQlTypeNameGeneration() => InitializeNewSourceCodeFile("GraphQlTypeName");
+        public override void BeforeGraphQlTypeNameGeneration() => InitializeNewSourceCodeFile("GraphQlTypes");
 
         public override void AfterGraphQlTypeNameGeneration() => WriteNamespaceEnd();
 

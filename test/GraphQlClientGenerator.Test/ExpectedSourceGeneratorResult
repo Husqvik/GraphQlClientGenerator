@@ -32,6 +32,13 @@ namespace SourceGeneratorTestAssembly
         Indented
     }
     
+    public class GraphQlObjectTypeAttribute : Attribute
+    {
+        public string TypeName { get; }
+    
+        public GraphQlObjectTypeAttribute(string typeName) => TypeName = typeName;
+    }
+    
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     public class QueryBuilderParameterConverter<T> : JsonConverter
     {
@@ -56,6 +63,96 @@ namespace SourceGeneratorTestAssembly
         }
     
         public override bool CanConvert(Type objectType) => objectType.IsSubclassOf(typeof(QueryBuilderParameter));
+    }
+    
+    public class InterfaceJsonConverter : JsonConverter
+    {
+        private const string FieldNameType = "__typename";
+    
+        private static readonly Dictionary<string, Type> InterfaceTypeMapping =
+            typeof(InterfaceJsonConverter).Assembly.GetTypes()
+                .Select(t => new { Type = t, Attribute = t.GetCustomAttribute<GraphQlObjectTypeAttribute>() })
+                .Where(x => x.Attribute != null && x.Type.Namespace == typeof(InterfaceJsonConverter).Namespace)
+                .ToDictionary(x => x.Attribute.TypeName, x => x.Type);
+    
+        public override bool CanConvert(Type objectType) => objectType.IsInterface || objectType.IsArray;
+    
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            while (reader.TokenType == JsonToken.Comment)
+                reader.Read();
+    
+            switch (reader.TokenType)
+            {
+                case JsonToken.Null:
+                    return null;
+    
+                case JsonToken.StartObject:
+                    var jObject = JObject.Load(reader);
+                    if (!jObject.TryGetValue(FieldNameType, out var token) || token.Type != JTokenType.String)
+                        throw new InvalidOperationException($"\"{GetType().FullName}\" requires JSON object to contain \"{FieldNameType}\" field with type name");
+    
+                    var typeName = token.Value<string>();
+                    if (!InterfaceTypeMapping.TryGetValue(typeName, out var type))
+                        throw new InvalidOperationException($"type \"{typeName}\" not found");
+    
+                    using (reader = CloneReader(jObject, reader))
+                        return serializer.Deserialize(reader, type);
+    
+                case JsonToken.StartArray:
+                    var elementType = GetElementType(objectType);
+                    if (elementType == null)
+                        throw CreateJsonReaderException(reader, $"impossible to read JSON array to fill type: {objectType.FullName}");
+    
+                    return ReadArray(reader, objectType, elementType, serializer);
+    
+                default:
+                    throw CreateJsonReaderException(reader, $"unrecognized token: {reader.TokenType}");
+            }
+        }
+    
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => serializer.Serialize(writer, value);
+    
+        private static JsonReader CloneReader(JToken jToken, JsonReader reader)
+        {
+            var jObjectReader = jToken.CreateReader();
+            jObjectReader.Culture = reader.Culture;
+            jObjectReader.CloseInput = reader.CloseInput;
+            jObjectReader.SupportMultipleContent = reader.SupportMultipleContent;
+            jObjectReader.DateTimeZoneHandling = reader.DateTimeZoneHandling;
+            jObjectReader.FloatParseHandling = reader.FloatParseHandling;
+            jObjectReader.DateFormatString = reader.DateFormatString;
+            jObjectReader.DateParseHandling = reader.DateParseHandling;
+            return jObjectReader;
+        }
+    
+        private static JsonReaderException CreateJsonReaderException(JsonReader reader, string message)
+        {
+            if (reader is IJsonLineInfo lineInfo && lineInfo.HasLineInfo())
+                return new JsonReaderException(message, reader.Path, lineInfo.LineNumber, lineInfo.LinePosition, null);
+    
+            return new JsonReaderException(message);
+        }
+    
+        private static Type GetElementType(Type arrayOrGenericContainer) =>
+            arrayOrGenericContainer.IsArray ? arrayOrGenericContainer.GetElementType() : arrayOrGenericContainer.GenericTypeArguments.FirstOrDefault();
+    
+        private IList ReadArray(JsonReader reader, Type targetType, Type elementType, JsonSerializer serializer)
+        {
+            var list = CreateCompatibleList(targetType, elementType);
+            while (reader.Read() && reader.TokenType != JsonToken.EndArray)
+                list.Add(ReadJson(reader, elementType, null, serializer));
+    
+            if (!targetType.IsArray)
+                return list;
+    
+            var array = Array.CreateInstance(elementType, list.Count);
+            list.CopyTo(array, 0);
+            return array;
+        }
+    
+        private static IList CreateCompatibleList(Type targetContainerType, Type elementType) =>
+            (IList)Activator.CreateInstance(targetContainerType.IsArray || targetContainerType.IsAbstract ? typeof(List<>).MakeGenericType(elementType) : targetContainerType);
     }
     #endif
     
@@ -789,8 +886,8 @@ namespace SourceGeneratorTestAssembly
     }
     #endregion
 
-    #region GraphQL type names
-    public static class GraphQlTypeName
+    #region GraphQL type helpers
+    public static class GraphQlTypes
     {
         public const string Boolean = "Boolean";
         public const string Float = "Float";
@@ -2980,6 +3077,7 @@ namespace SourceGeneratorTestAssembly
         public ICollection<SourceGeneratedPriceV2> Nodes { get; set; }
     }
 
+    [GraphQlObjectType("SubscriptionPriceConnectionPageInfo")]
     public partial class SourceGeneratedSubscriptionPriceConnectionPageInfoV2 : ISourceGeneratedPageInfoV2
     {
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
@@ -3115,6 +3213,7 @@ namespace SourceGeneratorTestAssembly
         public ICollection<SourceGeneratedHomeConsumptionEdgeV2> Edges { get; set; }
     }
 
+    [GraphQlObjectType("HomeConsumptionPageInfo")]
     public partial class SourceGeneratedHomeConsumptionPageInfoV2 : ISourceGeneratedPageInfoV2
     {
         /// <summary>
@@ -3282,6 +3381,7 @@ namespace SourceGeneratorTestAssembly
         public ICollection<SourceGeneratedHomeProductionEdgeV2> Edges { get; set; }
     }
 
+    [GraphQlObjectType("HomeProductionPageInfo")]
     public partial class SourceGeneratedHomeProductionPageInfoV2 : ISourceGeneratedPageInfoV2
     {
         /// <summary>

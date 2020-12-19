@@ -1,5 +1,5 @@
-#region GraphQL type names
-public static class GraphQlTypeName
+#region GraphQL type helpers
+public static class GraphQlTypes
 {
     public const string Boolean = "Boolean";
     public const string Float = "Float";
@@ -2712,6 +2712,7 @@ public partial class SubscriptionPriceConnection
     public ICollection<Price> Nodes { get; set; }
 }
 
+[GraphQlObjectType("SubscriptionPriceConnectionPageInfo")]
 public partial class SubscriptionPriceConnectionPageInfo : IPageInfo
 {
     public string EndCursor { get; set; }
@@ -2760,6 +2761,7 @@ public partial class HomeConsumptionConnection
     public ICollection<HomeConsumptionEdge> Edges { get; set; }
 }
 
+[GraphQlObjectType("HomeConsumptionPageInfo")]
 public partial class HomeConsumptionPageInfo : IPageInfo
 {
     public string EndCursor { get; set; }
@@ -2799,6 +2801,7 @@ public partial class HomeProductionConnection
     public ICollection<HomeProductionEdge> Edges { get; set; }
 }
 
+[GraphQlObjectType("HomeProductionPageInfo")]
 public partial class HomeProductionPageInfo : IPageInfo
 {
     public string EndCursor { get; set; }

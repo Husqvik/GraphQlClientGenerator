@@ -171,7 +171,7 @@ using Newtonsoft.Json.Linq;
             var indentation = GetIndentation(context.Indentation);
             var writer = context.Writer;
             writer.Write(indentation);
-            writer.WriteLine("public static class GraphQlTypeName");
+            writer.WriteLine("public static class GraphQlTypes");
             writer.Write(indentation);
             writer.WriteLine("{");
 
@@ -299,7 +299,7 @@ using Newtonsoft.Json.Linq;
                 GenerateDataClass(
                     context,
                     NamingHelper.ToPascalCase(inputObjectType.Name),
-                    inputObjectType.Description,
+                    inputObjectType,
                     "IGraphQlInputObject",
                     () => GenerateInputDataClassBody(inputObjectType, inputObjectType.InputFields.Cast<IGraphQlMember>().ToArray(), context));
             }
@@ -373,7 +373,7 @@ using Newtonsoft.Json.Linq;
                 var interfacesToImplement = new List<string>();
                 if (isInterface)
                 {
-                    interfacesToImplement.Add(GenerateInterface(context, csharpTypeName, complexType.Description, () => GenerateBody(true)));
+                    interfacesToImplement.Add(GenerateInterface(context, csharpTypeName, complexType, () => GenerateBody(true)));
                 }
                 else if (complexType.Interfaces?.Count > 0)
                 {
@@ -392,7 +392,7 @@ using Newtonsoft.Json.Linq;
                 if (hasInputReference)
                     interfacesToImplement.Add("IGraphQlInputObject");
 
-                GenerateDataClass(context, csharpTypeName, complexType.Description, String.Join(", ", interfacesToImplement), () => GenerateBody(false));
+                GenerateDataClass(context, csharpTypeName, complexType, String.Join(", ", interfacesToImplement), () => GenerateBody(false));
             }
 
             context.AfterDataClassesGeneration();
@@ -501,13 +501,13 @@ using Newtonsoft.Json.Linq;
             writer.WriteLine("    }");
         }
 
-        private string GenerateInterface(GenerationContext context, string interfaceName, string interfaceDescription, Action generateInterfaceBody) =>
-            GenerateFileMember(context, "interface", interfaceName, interfaceDescription, null, generateInterfaceBody);
+        private string GenerateInterface(GenerationContext context, string interfaceName, GraphQlType graphQlType, Action generateInterfaceBody) =>
+            GenerateFileMember(context, "interface", interfaceName, graphQlType, null, generateInterfaceBody);
 
-        private string GenerateDataClass(GenerationContext context, string typeName, string typeDescription, string baseTypeName, Action generateClassBody) =>
-            GenerateFileMember(context, (_configuration.GeneratePartialClasses ? "partial " : null) + "class", typeName, typeDescription, baseTypeName, generateClassBody);
+        private string GenerateDataClass(GenerationContext context, string typeName, GraphQlType graphQlType, string baseTypeName, Action generateClassBody) =>
+            GenerateFileMember(context, (_configuration.GeneratePartialClasses ? "partial " : null) + "class", typeName, graphQlType, baseTypeName, generateClassBody);
 
-        private string GenerateFileMember(GenerationContext context, string memberType, string typeName, string typeDescription, string baseTypeName, Action generateFileMemberBody)
+        private string GenerateFileMember(GenerationContext context, string memberType, string typeName, GraphQlType graphQlType, string baseTypeName, Action generateFileMemberBody)
         {
             typeName = _configuration.ClassPrefix + typeName + _configuration.ClassSuffix;
 
@@ -520,9 +520,18 @@ using Newtonsoft.Json.Linq;
 
             var writer = context.Writer;
 
-            GenerateCodeComments(writer, typeDescription, context.Indentation);
+            GenerateCodeComments(writer, graphQlType.Description, context.Indentation);
 
             var indentation = GetIndentation(context.Indentation);
+
+            if (graphQlType.Interfaces?.Count > 0)
+            {
+                writer.Write(indentation);
+                writer.Write("[GraphQlObjectType(\"");
+                writer.Write(graphQlType.Name);
+                writer.WriteLine("\")]");
+            }
+            
             writer.Write(indentation);
             writer.Write(GetMemberAccessibility());
             writer.Write(" ");

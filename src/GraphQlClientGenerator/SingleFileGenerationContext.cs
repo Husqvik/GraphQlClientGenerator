@@ -36,7 +36,7 @@ namespace GraphQlClientGenerator
             Writer.WriteLine();
         }
 
-        public override void BeforeGraphQlTypeNameGeneration() => WriteLine("#region GraphQL type names");
+        public override void BeforeGraphQlTypeNameGeneration() => WriteLine("#region GraphQL type helpers");
 
         public override void AfterGraphQlTypeNameGeneration()
         {

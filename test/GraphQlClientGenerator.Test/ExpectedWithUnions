@@ -1,5 +1,5 @@
-#region GraphQL type names
-public static class GraphQlTypeName
+#region GraphQL type helpers
+public static class GraphQlTypes
 {
     public const string Boolean = "Boolean";
     public const string Float = "Float";
@@ -448,6 +448,7 @@ public partial class UnionType
     public string? Function { get; set; }
 }
 
+[GraphQlObjectType("ConcreteType1")]
 public partial class ConcreteType1 : INamedType
 {
     public string? Name { get; set; }
@@ -464,12 +465,14 @@ public partial class NamedType : INamedType
     public string? Name { get; set; }
 }
 
+[GraphQlObjectType("ConcreteType2")]
 public partial class ConcreteType2 : INamedType
 {
     public string? Name { get; set; }
     public string? ConcreteType2Field { get; set; }
 }
 
+[GraphQlObjectType("ConcreteType3")]
 public partial class ConcreteType3 : INamedType
 {
     public string? Name { get; set; }
