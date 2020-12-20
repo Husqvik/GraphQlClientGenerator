@@ -381,7 +381,8 @@ using Newtonsoft.Json.Linq;
 
                     foreach (var @interface in complexType.Interfaces)
                     {
-                        interfacesToImplement.Add("I" + _configuration.ClassPrefix + @interface.Name + _configuration.ClassSuffix);
+                        var interfaceName = "I" + _configuration.ClassPrefix + @interface.Name + _configuration.ClassSuffix;
+                        interfacesToImplement.Add(interfaceName);
 
                         foreach (var interfaceField in complexTypeDictionary[@interface.Name].Fields.Where(FilterDeprecatedFields))
                             if (fieldNames.Add(interfaceField.Name))
@@ -392,7 +393,8 @@ using Newtonsoft.Json.Linq;
                 if (hasInputReference)
                     interfacesToImplement.Add("IGraphQlInputObject");
 
-                GenerateDataClass(context, csharpTypeName, complexType, String.Join(", ", interfacesToImplement), () => GenerateBody(false));
+                if (!isInterface)
+                    GenerateDataClass(context, csharpTypeName, complexType, String.Join(", ", interfacesToImplement), () => GenerateBody(false));
             }
 
             context.AfterDataClassesGeneration();
@@ -661,27 +663,40 @@ using Newtonsoft.Json.Linq;
                     decorateWithJsonPropertyAttribute = false;
             }
 
-            if (!isInterfaceMember && decorateWithJsonPropertyAttribute)
+            var fieldType = member.Type.UnwrapIfNonNull();
+            var isPreprocessorDirectiveDisableNewtonsoftJsonNeeded =
+                !isInterfaceMember && decorateWithJsonPropertyAttribute || fieldType.Kind == GraphQlTypeKind.Interface || baseType.Kind == GraphQlTypeKind.InputObject;
+
+            if (isPreprocessorDirectiveDisableNewtonsoftJsonNeeded)
             {
                 writer.Write(indentation);
                 writer.Write("    #if !");
                 writer.WriteLine(PreprocessorDirectiveDisableNewtonsoftJson);
+            }
+
+            if (!isInterfaceMember && decorateWithJsonPropertyAttribute)
+            {
                 writer.Write(indentation);
                 writer.WriteLine($"    [JsonProperty(\"{member.Name}\")]");
+            }
+
+            if (fieldType.Kind == GraphQlTypeKind.Interface)
+            {
                 writer.Write(indentation);
-                writer.WriteLine("    #endif");
+                writer.WriteLine("    [JsonConverter(typeof(InterfaceJsonConverter))]");
             }
 
             if (baseType.Kind == GraphQlTypeKind.InputObject)
             {
                 writer.Write(indentation);
-                writer.Write("    #if !");
-                writer.WriteLine(PreprocessorDirectiveDisableNewtonsoftJson);
-                writer.Write(indentation);
                 writer.WriteLine($"    [JsonConverter(typeof(QueryBuilderParameterConverter<{propertyTypeName}>))]");
+                propertyTypeName = AddQuestionMarkIfNullableReferencesEnabled($"QueryBuilderParameter<{propertyTypeName}>");
+            }
+
+            if (isPreprocessorDirectiveDisableNewtonsoftJsonNeeded)
+            {
                 writer.Write(indentation);
                 writer.WriteLine("    #endif");
-                propertyTypeName = AddQuestionMarkIfNullableReferencesEnabled($"QueryBuilderParameter<{propertyTypeName}>");
             }
 
             writer.Write(indentation);
@@ -714,6 +729,9 @@ using Newtonsoft.Json.Linq;
                         fieldTypeName = NamingHelper.ToPascalCase(fieldTypeName);
 
                     var propertyType = _configuration.ClassPrefix + fieldTypeName + _configuration.ClassSuffix;
+                    if (fieldType.Kind == GraphQlTypeKind.Interface)
+                        propertyType = "I" + propertyType;
+
                     return ConvertToTypeDescription(AddQuestionMarkIfNullableReferencesEnabled(propertyType));
 
                 case GraphQlTypeKind.Enum:
@@ -729,7 +747,11 @@ using Newtonsoft.Json.Linq;
                     if (!UseCustomClassNameIfDefined(ref itemTypeName))
                         itemTypeName = NamingHelper.ToPascalCase(itemTypeName);
 
-                    var netItemType = IsUnknownObjectScalar(baseType, member.Name, itemType) ? "object" : _configuration.ClassPrefix + itemTypeName + _configuration.ClassSuffix;
+                    var netItemType =
+                        IsUnknownObjectScalar(baseType, member.Name, itemType)
+                            ? "object"
+                            : (unwrappedItemType.Kind == GraphQlTypeKind.Interface ? "I" : null) + _configuration.ClassPrefix + itemTypeName + _configuration.ClassSuffix;
+
                     var suggestedScalarNetType = ScalarToNetType(baseType, member.Name, itemType).NetTypeName.TrimEnd('?');
                     if (!String.Equals(suggestedScalarNetType, "object") && !String.Equals(suggestedScalarNetType, "object?") &&
                         !suggestedScalarNetType.TrimEnd().EndsWith("System.Object") && !suggestedScalarNetType.TrimEnd().EndsWith("System.Object?"))

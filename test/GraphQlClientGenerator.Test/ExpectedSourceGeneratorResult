@@ -2333,8 +2333,6 @@ namespace SourceGeneratorTestAssembly
 
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("homeId")]
-        #endif
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
         #endif
         public QueryBuilderParameter<string> HomeId
@@ -2345,8 +2343,6 @@ namespace SourceGeneratorTestAssembly
 
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("time")]
-        #endif
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
         #endif
         public QueryBuilderParameter<string> Time
@@ -2357,8 +2353,6 @@ namespace SourceGeneratorTestAssembly
 
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("reading")]
-        #endif
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
         #endif
         public QueryBuilderParameter<int?> Reading
@@ -2391,8 +2385,6 @@ namespace SourceGeneratorTestAssembly
 
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("homeId")]
-        #endif
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
         #endif
         public QueryBuilderParameter<string> HomeId
@@ -2403,8 +2395,6 @@ namespace SourceGeneratorTestAssembly
 
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("appNickname")]
-        #endif
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
         #endif
         public QueryBuilderParameter<string> AppNickname
@@ -2418,8 +2408,6 @@ namespace SourceGeneratorTestAssembly
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("appAvatar")]
-        #endif
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonConverter(typeof(QueryBuilderParameterConverter<SourceGeneratedHomeAvatarV2?>))]
         #endif
         public QueryBuilderParameter<SourceGeneratedHomeAvatarV2?> AppAvatar
@@ -2433,8 +2421,6 @@ namespace SourceGeneratorTestAssembly
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("size")]
-        #endif
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
         #endif
         public QueryBuilderParameter<int?> Size
@@ -2448,8 +2434,6 @@ namespace SourceGeneratorTestAssembly
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("type")]
-        #endif
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonConverter(typeof(QueryBuilderParameterConverter<SourceGeneratedHomeTypeV2?>))]
         #endif
         public QueryBuilderParameter<SourceGeneratedHomeTypeV2?> Type
@@ -2463,8 +2447,6 @@ namespace SourceGeneratorTestAssembly
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("numberOfResidents")]
-        #endif
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
         #endif
         public QueryBuilderParameter<int?> NumberOfResidents
@@ -2478,8 +2460,6 @@ namespace SourceGeneratorTestAssembly
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("primaryHeatingSource")]
-        #endif
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonConverter(typeof(QueryBuilderParameterConverter<SourceGeneratedHeatingSourceV2?>))]
         #endif
         public QueryBuilderParameter<SourceGeneratedHeatingSourceV2?> PrimaryHeatingSource
@@ -2493,8 +2473,6 @@ namespace SourceGeneratorTestAssembly
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("hasVentilationSystem")]
-        #endif
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonConverter(typeof(QueryBuilderParameterConverter<bool?>))]
         #endif
         public QueryBuilderParameter<bool?> HasVentilationSystem
@@ -2508,8 +2486,6 @@ namespace SourceGeneratorTestAssembly
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("mainFuseSize")]
-        #endif
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
         #endif
         public QueryBuilderParameter<int?> MainFuseSize
@@ -2542,8 +2518,6 @@ namespace SourceGeneratorTestAssembly
 
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("title")]
-        #endif
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
         #endif
         public QueryBuilderParameter<string> Title
@@ -2554,8 +2528,6 @@ namespace SourceGeneratorTestAssembly
 
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("message")]
-        #endif
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
         #endif
         public QueryBuilderParameter<string> Message
@@ -2566,8 +2538,6 @@ namespace SourceGeneratorTestAssembly
 
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("screenToOpen")]
-        #endif
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonConverter(typeof(QueryBuilderParameterConverter<SourceGeneratedAppScreenV2?>))]
         #endif
         public QueryBuilderParameter<SourceGeneratedAppScreenV2?> ScreenToOpen
@@ -3148,35 +3118,6 @@ namespace SourceGeneratorTestAssembly
         bool? HasNextPage { get; set; }
         bool? HasPreviousPage { get; set; }
         string StartCursor { get; set; }
-    }
-
-    public partial class SourceGeneratedPageInfoV2 : ISourceGeneratedPageInfoV2
-    {
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("unimplementedField")]
-        #endif
-        public string UnimplementedField { get; set; }
-        [Obsolete(@"should not be generated")]
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("unimplementedDeprecatedField")]
-        #endif
-        public string UnimplementedDeprecatedField { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("endCursor")]
-        #endif
-        public string EndCursor { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("hasNextPage")]
-        #endif
-        public bool? HasNextPage { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("hasPreviousPage")]
-        #endif
-        public bool? HasPreviousPage { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("startCursor")]
-        #endif
-        public string StartCursor { get; set; }
     }
 
     public partial class SourceGeneratedSubscriptionPriceEdgeV2

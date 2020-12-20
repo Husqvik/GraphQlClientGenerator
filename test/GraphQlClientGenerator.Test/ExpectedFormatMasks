@@ -2739,15 +2739,6 @@ public interface IPageInfo
     string StartCursor { get; set; }
 }
 
-public partial class PageInfo : IPageInfo
-{
-    public string UnimplementedField { get; set; }
-    public string EndCursor { get; set; }
-    public bool? HasNextPage { get; set; }
-    public bool? HasPreviousPage { get; set; }
-    public string StartCursor { get; set; }
-}
-
 public partial class SubscriptionPriceEdge
 {
     public string Cursor { get; set; }
