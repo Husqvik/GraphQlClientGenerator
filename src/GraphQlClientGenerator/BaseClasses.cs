@@ -82,7 +82,7 @@ public class InterfaceJsonConverter : JsonConverter
             case JsonToken.StartArray:
                 var elementType = GetElementType(objectType);
                 if (elementType == null)
-                    throw CreateJsonReaderException(reader, $"impossible to read JSON array to fill type: {objectType.FullName}");
+                    throw CreateJsonReaderException(reader, $"array element type could not be resolved for type \"{objectType.FullName}\"");
 
                 return ReadArray(reader, objectType, elementType, serializer);
 
