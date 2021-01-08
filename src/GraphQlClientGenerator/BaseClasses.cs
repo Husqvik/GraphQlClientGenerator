@@ -70,11 +70,11 @@ public class InterfaceJsonConverter : JsonConverter
             case JsonToken.StartObject:
                 var jObject = JObject.Load(reader);
                 if (!jObject.TryGetValue(FieldNameType, out var token) || token.Type != JTokenType.String)
-                    throw new InvalidOperationException($"\"{GetType().FullName}\" requires JSON object to contain \"{FieldNameType}\" field with type name");
+                    throw CreateJsonReaderException(reader, $"\"{GetType().FullName}\" requires JSON object to contain \"{FieldNameType}\" field with type name");
 
                 var typeName = token.Value<string>();
                 if (!InterfaceTypeMapping.TryGetValue(typeName, out var type))
-                    throw new InvalidOperationException($"type \"{typeName}\" not found");
+                    throw CreateJsonReaderException(reader, $"type \"{typeName}\" not found");
 
                 using (reader = CloneReader(jObject, reader))
                     return serializer.Deserialize(reader, type);

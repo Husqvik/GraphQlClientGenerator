@@ -67,7 +67,7 @@ Project file example:
 </PropertyGroup>
 
 <ItemGroup>
-  <PackageReference Include="GraphQlClientGenerator" Version="0.8.*" IncludeAssets="analyzers" />
+  <PackageReference Include="GraphQlClientGenerator" Version="0.9.*" IncludeAssets="analyzers" />
   
   <!-- AdditionalFiles and GraphQlClientGenerator_ServiceUrl are mutually exclusive -->
   <!-- <AdditionalFiles Include="GqlSchemaTibberApi.json" CacheObjects="true" /> -->
