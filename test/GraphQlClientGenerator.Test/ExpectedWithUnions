@@ -61,6 +61,7 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
         new FieldMetadata { Name = "simpleObject", IsComplex = true, QueryBuilderType = typeof(SimpleObjectTypeQueryBuilder) },
         new FieldMetadata { Name = "union", IsComplex = true, QueryBuilderType = typeof(UnionTypeQueryBuilder) },
         new FieldMetadata { Name = "interface", IsComplex = true, QueryBuilderType = typeof(NamedTypeQueryBuilder) },
+        new FieldMetadata { Name = "interfaces", IsComplex = true, QueryBuilderType = typeof(NamedTypeQueryBuilder) },
         new FieldMetadata { Name = "underscore_named_field", DefaultAlias = "underscoreNamedField", IsComplex = true, QueryBuilderType = typeof(UnderscoreNamedClassQueryBuilder) },
         new FieldMetadata { Name = "nestedLists", IsComplex = true },
         new FieldMetadata { Name = "_" },
@@ -93,6 +94,15 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
     }
 
     public QueryQueryBuilder ExceptInterface() => ExceptField("interface");
+
+    public QueryQueryBuilder WithInterfaces(NamedTypeQueryBuilder namedTypeQueryBuilder, QueryBuilderParameter<Guid> parameter, string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null)
+    {
+        var args = new List<QueryBuilderArgumentInfo>();
+        args.Add(new QueryBuilderArgumentInfo { ArgumentName = "parameter", ArgumentValue = parameter} );
+        return WithObjectField("interfaces", alias, namedTypeQueryBuilder, new GraphQlDirective?[] { skip, include }, args);
+    }
+
+    public QueryQueryBuilder ExceptInterfaces() => ExceptField("interfaces");
 
     public QueryQueryBuilder WithUnderscoreNamedField(UnderscoreNamedClassQueryBuilder underscoreNamedClassQueryBuilder, QueryBuilderParameter<UnderscoreNamedInput?>? underscoreNamedParameter = null, string? alias = "underscoreNamedField", SkipDirective? skip = null, IncludeDirective? include = null)
     {
@@ -424,7 +434,14 @@ public partial class Query
 {
     public SimpleObjectType? SimpleObject { get; set; }
     public ICollection<UnionType>? Union { get; set; }
-    public ICollection<INamedType>? Interface { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
+    #endif
+    public INamedType? Interface { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
+    #endif
+    public ICollection<INamedType>? Interfaces { get; set; }
     public UnderscoreNamedClass? UnderscoreNamedField { get; set; }
     public IList<IList<IList<decimal>>?>? NestedLists { get; set; }
     public string? _ { get; set; }

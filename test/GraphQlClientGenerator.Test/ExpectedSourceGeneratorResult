@@ -65,14 +65,14 @@ namespace SourceGeneratorTestAssembly
         public override bool CanConvert(Type objectType) => objectType.IsSubclassOf(typeof(QueryBuilderParameter));
     }
     
-    public class InterfaceJsonConverter : JsonConverter
+    public class GraphQlInterfaceJsonConverter : JsonConverter
     {
         private const string FieldNameType = "__typename";
     
         private static readonly Dictionary<string, Type> InterfaceTypeMapping =
-            typeof(InterfaceJsonConverter).Assembly.GetTypes()
+            typeof(GraphQlInterfaceJsonConverter).Assembly.GetTypes()
                 .Select(t => new { Type = t, Attribute = t.GetCustomAttribute<GraphQlObjectTypeAttribute>() })
-                .Where(x => x.Attribute != null && x.Type.Namespace == typeof(InterfaceJsonConverter).Namespace)
+                .Where(x => x.Attribute != null && x.Type.Namespace == typeof(GraphQlInterfaceJsonConverter).Namespace)
                 .ToDictionary(x => x.Attribute.TypeName, x => x.Type);
     
         public override bool CanConvert(Type objectType) => objectType.IsInterface || objectType.IsArray;

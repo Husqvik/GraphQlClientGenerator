@@ -74,6 +74,33 @@
                 }
               ],
               "type": {
+                "kind": "INTERFACE",
+                "name": "NamedType",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "interfaces",
+              "description": "",
+              "args": [
+                {
+                  "name": "parameter",
+                  "description": "",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
                 "kind": "NON_NULL",
                 "name": null,
                 "ofType": {

@@ -664,10 +664,10 @@ using Newtonsoft.Json.Linq;
             }
 
             var fieldType = member.Type.UnwrapIfNonNull();
-            var isPreprocessorDirectiveDisableNewtonsoftJsonNeeded =
-                !isInterfaceMember && decorateWithJsonPropertyAttribute || fieldType.Kind == GraphQlTypeKind.Interface || baseType.Kind == GraphQlTypeKind.InputObject;
-
-            if (isPreprocessorDirectiveDisableNewtonsoftJsonNeeded)
+            var isGraphQlInterfaceJsonConverterRequired = fieldType.Kind == GraphQlTypeKind.Interface || fieldType.Kind == GraphQlTypeKind.List && UnwrapListItemType(fieldType, out _).UnwrapIfNonNull().Kind == GraphQlTypeKind.Interface;
+            var isBaseTypeInputObject = baseType.Kind == GraphQlTypeKind.InputObject;
+            var isPreprocessorDirectiveDisableNewtonsoftJsonRequired = !isInterfaceMember && decorateWithJsonPropertyAttribute || isGraphQlInterfaceJsonConverterRequired || isBaseTypeInputObject;
+            if (isPreprocessorDirectiveDisableNewtonsoftJsonRequired)
             {
                 writer.Write(indentation);
                 writer.Write("    #if !");
@@ -680,20 +680,19 @@ using Newtonsoft.Json.Linq;
                 writer.WriteLine($"    [JsonProperty(\"{member.Name}\")]");
             }
 
-            if (fieldType.Kind == GraphQlTypeKind.Interface)
+            if (isGraphQlInterfaceJsonConverterRequired)
             {
                 writer.Write(indentation);
-                writer.WriteLine("    [JsonConverter(typeof(InterfaceJsonConverter))]");
+                writer.WriteLine("    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]");
             }
-
-            if (baseType.Kind == GraphQlTypeKind.InputObject)
+            else if (isBaseTypeInputObject)
             {
                 writer.Write(indentation);
                 writer.WriteLine($"    [JsonConverter(typeof(QueryBuilderParameterConverter<{propertyTypeName}>))]");
                 propertyTypeName = AddQuestionMarkIfNullableReferencesEnabled($"QueryBuilderParameter<{propertyTypeName}>");
             }
 
-            if (isPreprocessorDirectiveDisableNewtonsoftJsonNeeded)
+            if (isPreprocessorDirectiveDisableNewtonsoftJsonRequired)
             {
                 writer.Write(indentation);
                 writer.WriteLine("    #endif");
