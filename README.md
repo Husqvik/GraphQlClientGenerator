@@ -12,7 +12,7 @@ Generator app usage
 -------------
 
 ```console
-GraphQlClientGenerator.Console --serviceUrl <GraphQlServiceUrl> --outputPath <TargetPath> --namespace <TargetNamespace> [--authorization <header value>]
+GraphQlClientGenerator.Console --serviceUrl <GraphQlServiceUrl> --outputPath <TargetPath> --namespace <TargetNamespace> [--headers <header value>]
 ```
 
 Nuget package
@@ -26,7 +26,7 @@ dotnet tool
 -------------
 ```console
 dotnet tool install GraphQlClientGenerator.Tool --global
-graphql-client-generator --serviceUrl <GraphQlServiceUrl> --outputPath <TargetPath> --namespace <TargetNamespace> [--authorization <header value>]
+graphql-client-generator --serviceUrl <GraphQlServiceUrl> --outputPath <TargetPath> --namespace <TargetNamespace> [--headers <header value>]
 ```
 
 Code
