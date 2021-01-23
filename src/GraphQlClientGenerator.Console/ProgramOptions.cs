@@ -23,7 +23,7 @@ namespace GraphQlClientGenerator.Console
         [Option('s', "schemaFileName", HelpText = "Path to schema metadata file in JSON format")]
         public string SchemaFileName { get; set; }
 
-        [Option("headers", Required = false, HelpText = "Format: {Header}:{Value}; allows to enter custom headers required to fetch GraphQL metadata")]
+        [Option("header", Required = false, HelpText = "Format: {Header}:{Value}; allows to enter custom headers required to fetch GraphQL metadata")]
         public IEnumerable<string> Headers { get; set; }
 
         [Option("classPrefix", Required = false, HelpText = "Class prefix; value \"Test\" extends class name to \"TestTypeName\"")]

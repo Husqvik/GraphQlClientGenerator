@@ -41,7 +41,7 @@ namespace GraphQlClientGenerator
                 var parts = parameter.Split(new[] { ':' }, 2);
                 if (parts.Length != 2)
                 {
-                    errorMessage = "\"headers\" value must have format {Header}:{Value}. ";
+                    errorMessage = "\"header\" value must have format {Header}:{Value}. ";
                     return false;
                 }
 
