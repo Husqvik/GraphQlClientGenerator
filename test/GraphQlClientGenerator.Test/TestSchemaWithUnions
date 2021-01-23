@@ -15,6 +15,29 @@
           "description": "",
           "fields": [
             {
+              "name": "scalarValue",
+              "description": "",
+              "args": [
+                {
+                  "name": "timestamp",
+                  "description": "",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "DateTimeOffset",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "DateTimeOffset",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "simpleObject",
               "description": "",
               "args": [],
@@ -274,6 +297,16 @@
           ],
           "inputFields": null,
           "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "DateTimeOffset",
+          "description": "",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
         },

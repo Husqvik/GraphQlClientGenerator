@@ -2,6 +2,7 @@
 public static class GraphQlTypes
 {
     public const string Boolean = "Boolean";
+    public const string DateTimeOffset = "DateTimeOffset";
     public const string Float = "Float";
     public const string Id = "ID";
     public const string String = "String";
@@ -58,6 +59,7 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
     {
+        new FieldMetadata { Name = "scalarValue" },
         new FieldMetadata { Name = "simpleObject", IsComplex = true, QueryBuilderType = typeof(SimpleObjectTypeQueryBuilder) },
         new FieldMetadata { Name = "union", IsComplex = true, QueryBuilderType = typeof(UnionTypeQueryBuilder) },
         new FieldMetadata { Name = "interface", IsComplex = true, QueryBuilderType = typeof(NamedTypeQueryBuilder) },
@@ -77,6 +79,17 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
     }
 
     public QueryQueryBuilder WithParameter<T>(GraphQlQueryParameter<T> parameter) => WithParameterInternal(parameter);
+
+    public QueryQueryBuilder WithScalarValue(QueryBuilderParameter<DateTimeOffset?>? timestamp = null, string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null)
+    {
+        var args = new List<QueryBuilderArgumentInfo>();
+        if (timestamp != null)
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "timestamp", ArgumentValue = timestamp, FormatMask = "yyyy-MM-dd\"T\"HH:mm"} );
+
+        return WithScalarField("scalarValue", alias, new GraphQlDirective?[] { skip, include }, args);
+    }
+
+    public QueryQueryBuilder ExceptScalarValue() => ExceptField("scalarValue");
 
     public QueryQueryBuilder WithSimpleObject(SimpleObjectTypeQueryBuilder simpleObjectTypeQueryBuilder, string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null) => WithObjectField("simpleObject", alias, simpleObjectTypeQueryBuilder, new GraphQlDirective?[] { skip, include });
 
@@ -432,6 +445,7 @@ public partial class InputType : IGraphQlInputObject
 #region data classes
 public partial class Query
 {
+    public DateTimeOffset? ScalarValue { get; set; }
     public SimpleObjectType? SimpleObject { get; set; }
     public ICollection<UnionType>? Union { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON

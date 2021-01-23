@@ -305,7 +305,7 @@ namespace GraphQlClientGenerator.Test
                 new GraphQlGeneratorConfiguration
                 {
                     IdTypeMapping = IdTypeMapping.Custom,
-                    ScalarFieldTypeMappingProvider = new TestFormatMaskScalarFieldTypeMappingProvider()
+                    ScalarFieldTypeMappingProvider = TestFormatMaskScalarFieldTypeMappingProvider.Instance
                 };
 
             var stringBuilder = new StringBuilder();
@@ -320,16 +320,18 @@ namespace GraphQlClientGenerator.Test
 
         private class TestFormatMaskScalarFieldTypeMappingProvider : IScalarFieldTypeMappingProvider
         {
+            public static readonly TestFormatMaskScalarFieldTypeMappingProvider Instance = new();
+
             public ScalarFieldTypeDescription GetCustomScalarFieldType(GraphQlGeneratorConfiguration configuration, GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
             {
                 var isNotNull = valueType.Kind == GraphQlTypeKind.NonNull;
                 var unwrappedType = valueType is GraphQlFieldType fieldType ? fieldType.UnwrapIfNonNull() : valueType;
-                var nullablePostfix = isNotNull ? "?" : null;
+                var nullablePostfix = isNotNull ? null : "?";
 
                 if (unwrappedType.Name == "ID")
                     return new ScalarFieldTypeDescription { NetTypeName = "Guid" + nullablePostfix, FormatMask = "N" };
 
-                if (valueName == "before" || valueName == "after")
+                if (valueName == "before" || valueName == "after" || unwrappedType.Name == "DateTimeOffset")
                     return new ScalarFieldTypeDescription { NetTypeName = "DateTimeOffset" + nullablePostfix, FormatMask = "yyyy-MM-dd\"T\"HH:mm" };
 
                 return DefaultScalarFieldTypeMappingProvider.Instance.GetCustomScalarFieldType(configuration, baseType, valueType, valueName);
@@ -385,7 +387,8 @@ namespace GraphQlClientGenerator.Test
                 new GraphQlGeneratorConfiguration
                 {
                     CSharpVersion = CSharpVersion.NewestWithNullableReferences,
-                    JsonPropertyGeneration = JsonPropertyGenerationOption.UseDefaultAlias
+                    JsonPropertyGeneration = JsonPropertyGenerationOption.UseDefaultAlias,
+                    ScalarFieldTypeMappingProvider = TestFormatMaskScalarFieldTypeMappingProvider.Instance
                 };
             
             var schema = DeserializeTestSchema("TestSchemaWithUnions");
