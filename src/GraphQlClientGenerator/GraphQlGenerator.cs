@@ -39,16 +39,16 @@ using Newtonsoft.Json.Linq;
         private delegate void WriteDataClassPropertyBodyDelegate(ScalarFieldTypeDescription netType, string backingFieldName);
 
         private static readonly HttpClient HttpClient =
-            new HttpClient
+            new()
             {
                 DefaultRequestHeaders =
                 {
-                    UserAgent = { ProductInfoHeaderValue.Parse("GraphQlGenerator/" + typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetName().Version) }
+                    UserAgent = { ProductInfoHeaderValue.Parse("GraphQlClientGenerator/" + typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetName().Version) }
                 }
             };
 
         internal static readonly JsonSerializerSettings SerializerSettings =
-            new JsonSerializerSettings
+            new()
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
                 Converters = { new StringEnumConverter() }
@@ -233,16 +233,16 @@ using Newtonsoft.Json.Linq;
 
             var indentation = GetIndentation(context.Indentation);
 
-            using (var reader = new StreamReader(typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses.cs")))
-                do
-                {
-                    var line = reader.ReadLine();
-                    if (line == null)
-                        break;
+            using var reader = new StreamReader(typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses.cs"));
+            do
+            {
+                var line = reader.ReadLine();
+                if (line == null)
+                    break;
 
-                    context.Writer.Write(indentation);
-                    context.Writer.WriteLine(line.Replace("GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON", PreprocessorDirectiveDisableNewtonsoftJson));
-                } while (true);
+                context.Writer.Write(indentation);
+                context.Writer.WriteLine(line.Replace("GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON", PreprocessorDirectiveDisableNewtonsoftJson));
+            } while (true);
 
             context.AfterBaseClassGeneration();
         }
@@ -251,7 +251,7 @@ using Newtonsoft.Json.Linq;
 
         private static bool IsDataClassGenerationDisabled(GeneratedObjectType objectTypes) => !objectTypes.HasFlag(GeneratedObjectType.DataClasses);
 
-        private static string GetIndentation(int size) => new String(' ', size);
+        private static string GetIndentation(int size) => new(' ', size);
 
         private static void FindAllReferencedObjectTypes(GraphQlSchema schema, GraphQlType type, ISet<string> objectTypes)
         {
@@ -763,21 +763,24 @@ using Newtonsoft.Json.Linq;
                     return ConvertToTypeDescription(AddQuestionMarkIfNullableReferencesEnabled(netCollectionType));
 
                 case GraphQlTypeKind.Scalar:
-                    return fieldType.Name
-                        switch
-                        {
-                            GraphQlTypeBase.GraphQlTypeScalarInteger => GetIntegerNetType(baseType, member.Type, member.Name),
-                            GraphQlTypeBase.GraphQlTypeScalarString => GetCustomScalarType(baseType, member.Type, member.Name),
-                            GraphQlTypeBase.GraphQlTypeScalarFloat => GetFloatNetType(baseType, member.Type, member.Name),
-                            GraphQlTypeBase.GraphQlTypeScalarBoolean => ConvertToTypeDescription(GetBooleanNetType(baseType, member.Type, member.Name)),
-                            GraphQlTypeBase.GraphQlTypeScalarId => GetIdNetType(baseType, member.Type, member.Name),
-                            _ => GetCustomScalarType(baseType, member.Type, member.Name)
-                        };
+                    return GetScalarNetType(fieldType.Name, baseType, member);
 
                 default:
                     return ConvertToTypeDescription(AddQuestionMarkIfNullableReferencesEnabled("string"));
             }
         }
+
+        private ScalarFieldTypeDescription GetScalarNetType(string scalarTypeName, GraphQlType baseType, IGraphQlMember member) =>
+            scalarTypeName
+                switch
+                {
+                    GraphQlTypeBase.GraphQlTypeScalarInteger => GetIntegerNetType(baseType, member.Type, member.Name),
+                    GraphQlTypeBase.GraphQlTypeScalarString => GetCustomScalarNetType(baseType, member.Type, member.Name),
+                    GraphQlTypeBase.GraphQlTypeScalarFloat => GetFloatNetType(baseType, member.Type, member.Name),
+                    GraphQlTypeBase.GraphQlTypeScalarBoolean => ConvertToTypeDescription(GetBooleanNetType(baseType, member.Type, member.Name)),
+                    GraphQlTypeBase.GraphQlTypeScalarId => GetIdNetType(baseType, member.Type, member.Name),
+                    _ => GetCustomScalarNetType(baseType, member.Type, member.Name)
+                };
 
         private string GetBooleanNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
             _configuration.BooleanTypeMapping switch
@@ -821,7 +824,7 @@ using Newtonsoft.Json.Linq;
             FieldTypeResolutionFailedException(typeName, fieldName, "list item type was not resolved; nested collections too deep");
 
         private static InvalidOperationException FieldTypeResolutionFailedException(string typeName, string fieldName, string reason) =>
-            new InvalidOperationException($"field type resolution failed - type: {typeName}; field: {fieldName}{(reason == null ? null : "; reason: " + reason)}");
+            new($"field type resolution failed - type: {typeName}; field: {fieldName}{(reason == null ? null : "; reason: " + reason)}");
 
         private void GenerateQueryBuilder(GenerationContext context, GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary)
         {
@@ -1438,7 +1441,7 @@ using Newtonsoft.Json.Linq;
         }
 
         private static readonly HashSet<GraphQlDirectiveLocation> SupportedDirectiveLocations =
-            new HashSet<GraphQlDirectiveLocation>
+            new()
             {
                 GraphQlDirectiveLocation.Object,
                 GraphQlDirectiveLocation.Field,
@@ -1549,14 +1552,14 @@ using Newtonsoft.Json.Linq;
             valueType.UnwrapIfNonNull().Name switch
             {
                 GraphQlTypeBase.GraphQlTypeScalarInteger => GetIntegerNetType(baseType, valueType, valueName),
-                GraphQlTypeBase.GraphQlTypeScalarString => GetCustomScalarType(baseType, valueType, valueName),
+                GraphQlTypeBase.GraphQlTypeScalarString => GetCustomScalarNetType(baseType, valueType, valueName),
                 GraphQlTypeBase.GraphQlTypeScalarFloat => GetFloatNetType(baseType, valueType, valueName),
                 GraphQlTypeBase.GraphQlTypeScalarBoolean => ConvertToTypeDescription(GetBooleanNetType(baseType, valueType, valueName)),
                 GraphQlTypeBase.GraphQlTypeScalarId => GetIdNetType(baseType, valueType, valueName),
-                _ => GetCustomScalarType(baseType, valueType, valueName)
+                _ => GetCustomScalarNetType(baseType, valueType, valueName)
             };
 
-        private ScalarFieldTypeDescription GetCustomScalarType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
+        private ScalarFieldTypeDescription GetCustomScalarNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
         {
             if (_configuration.ScalarFieldTypeMappingProvider == null)
                 throw new InvalidOperationException($"'{nameof(_configuration.ScalarFieldTypeMappingProvider)}' missing");
@@ -1571,7 +1574,7 @@ using Newtonsoft.Json.Linq;
             return typeDescription;
         }
 
-        private static ScalarFieldTypeDescription ConvertToTypeDescription(string netTypeName) => new ScalarFieldTypeDescription { NetTypeName = netTypeName };
+        private static ScalarFieldTypeDescription ConvertToTypeDescription(string netTypeName) => new() { NetTypeName = netTypeName };
 
         private struct QueryBuilderParameterDefinition
         {
