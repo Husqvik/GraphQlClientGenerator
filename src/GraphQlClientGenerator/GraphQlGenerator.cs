@@ -164,7 +164,7 @@ using Newtonsoft.Json.Linq;
             context.AfterGeneration();
         }
 
-        private static void GenerateGraphQlTypeNames(GenerationContext context)
+        private void GenerateGraphQlTypeNames(GenerationContext context)
         {
             context.BeforeGraphQlTypeNameGeneration();
 
@@ -191,6 +191,71 @@ using Newtonsoft.Json.Linq;
 
                 precedingInputObjectType = inputObjectType;
             }
+
+            writer.WriteLine();
+            writer.Write(indentation);
+            writer.WriteLine("    public static readonly IReadOnlyDictionary<Type, string> ReverseMapping =");
+            writer.Write(indentation);
+            writer.WriteLine("        new Dictionary<Type, string>");
+            writer.Write(indentation);
+            writer.WriteLine("        {");
+
+            var netTypeKeys = new HashSet<string>();
+            string typeMappingSeparator = null;
+
+            void WriteMappingEntry(string netType, string graphQlTypeName)
+            {
+                if (!netTypeKeys.Add(netType))
+                    return;
+
+                if (typeMappingSeparator != null)
+                    writer.WriteLine(typeMappingSeparator);
+
+                writer.Write(indentation);
+                writer.Write("            { typeof(");
+                writer.Write(netType);
+                writer.Write("), \"");
+                writer.Write(graphQlTypeName);
+                writer.Write("\" }");
+
+                typeMappingSeparator = ",";
+            }
+
+            foreach (var type in graphQlTypes.Where(t => t.Kind == GraphQlTypeKind.Object || t.Kind == GraphQlTypeKind.InputObject))
+            {
+                if (type.Kind == GraphQlTypeKind.InputObject)
+                {
+                    var netType = _configuration.ClassPrefix + NamingHelper.ToPascalCase(type.Name) + _configuration.ClassSuffix;
+                    WriteMappingEntry(netType, type.Name);
+                }
+                else
+                {
+                    foreach (var member in type.Kind == GraphQlTypeKind.Object ? (IEnumerable<IGraphQlMember>)type.Fields : type.InputFields)
+                    {
+                        var fieldType = member.Type.UnwrapIfNonNull();
+                        if (fieldType.Kind == GraphQlTypeKind.List)
+                        {
+                            var itemType = UnwrapListItemType(fieldType, out _);
+                            fieldType = itemType?.UnwrapIfNonNull();
+                            if (fieldType == null)
+                                continue;
+                        }
+
+                        if (fieldType.Kind != GraphQlTypeKind.Scalar)
+                            continue;
+
+                        var netType = GetScalarNetType(fieldType.Name, type, member).NetTypeName.Trim().TrimEnd('?');
+                        if (netType.EndsWith("object") || netType.EndsWith("System.Object"))
+                            continue;
+
+                        WriteMappingEntry(netType, fieldType.Name);
+                    }
+                }
+            }
+
+            writer.WriteLine();
+            writer.Write(indentation);
+            writer.WriteLine("        };");
 
             writer.WriteLine("}");
 
@@ -479,11 +544,6 @@ using Newtonsoft.Json.Linq;
                     },
                     context);
 
-            writer.Write(indentation);
-            writer.Write("    string IGraphQlInputObject.GraphQlTypeName { get; } = \"");
-            writer.Write(type.Name);
-            writer.WriteLine("\";");
-            writer.WriteLine();
             writer.Write(indentation);
             writer.WriteLine("    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()");
             writer.Write(indentation);

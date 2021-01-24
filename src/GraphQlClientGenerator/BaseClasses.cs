@@ -347,7 +347,6 @@ internal struct InputPropertyInfo
 
 internal interface IGraphQlInputObject
 {
-    string GraphQlTypeName { get; }
     IEnumerable<InputPropertyInfo> GetPropertyValues();
 }
 
@@ -438,32 +437,50 @@ public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
 
     private static string GetGraphQlTypeName(T value, bool isNullable)
     {
-        var graphQlTypeName = GetGraphQlTypeName(value);
+        var graphQlTypeName = GetGraphQlTypeName(typeof(T));
         if (!isNullable)
             graphQlTypeName += "!";
 
         return graphQlTypeName;
     }
 
-    private static string GetGraphQlTypeName(T value)
+    private static string GetGraphQlTypeName(Type valueType)
     {
-        if (value is IGraphQlInputObject inputObject)
-            return inputObject.GraphQlTypeName;
+        valueType = Nullable.GetUnderlyingType(valueType) ?? valueType;
 
-        if (typeof(T) == typeof(bool))
+        if (valueType.IsArray)
+        {
+            var arrayItemType = GetGraphQlTypeName(valueType.GetElementType());
+            return arrayItemType == null ? null : "[" + arrayItemType + "]";
+        }
+
+        if (valueType.IsAssignableTo(typeof(IEnumerable)))
+        {
+            var genericArguments = valueType.GetGenericArguments();
+            if (genericArguments.Length == 1)
+            {
+                var listItemType = GetGraphQlTypeName(valueType.GetGenericArguments()[0]);
+                return listItemType == null ? null : "[" + listItemType + "]";
+            }
+        }
+
+        if (GraphQlTypes.ReverseMapping.TryGetValue(valueType, out var graphQlTypeName))
+            return graphQlTypeName;
+
+        if (valueType == typeof(bool))
             return "Boolean";
 
-        if (typeof(T) == typeof(float) || typeof(T) == typeof(double) || typeof(T) == typeof(decimal))
+        if (valueType == typeof(float) || valueType == typeof(double) || valueType == typeof(decimal))
             return "Float";
 
-        if (typeof(T) == typeof(Guid))
+        if (valueType == typeof(Guid))
             return "ID";
 
-        if (typeof(T) == typeof(sbyte) || typeof(T) == typeof(byte) || typeof(T) == typeof(short) || typeof(T) == typeof(ushort) || typeof(T) == typeof(int) || typeof(T) == typeof(uint) ||
-            typeof(T) == typeof(long) || typeof(T) == typeof(ulong))
+        if (valueType == typeof(sbyte) || valueType == typeof(byte) || valueType == typeof(short) || valueType == typeof(ushort) || valueType == typeof(int) || valueType == typeof(uint) ||
+            valueType == typeof(long) || valueType == typeof(ulong))
             return "Int";
 
-        if (typeof(T) == typeof(string))
+        if (valueType == typeof(string))
             return "String";
 
         return null;
