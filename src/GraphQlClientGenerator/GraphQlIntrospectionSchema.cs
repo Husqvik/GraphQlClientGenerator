@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
@@ -24,6 +25,7 @@ namespace GraphQlClientGenerator
         public GraphQlRequestType SubscriptionType { get; set; }
     }
 
+    [DebuggerDisplay(nameof(GraphQlDirective) + " (" + nameof(Name) + "={" + nameof(Name) + ",nq}; " + nameof(Description) + "={" + nameof(Description) + ",nq})")]
     public class GraphQlDirective
     {
         public string Name { get; set; }
@@ -37,6 +39,7 @@ namespace GraphQlClientGenerator
         public string Name { get; set; }
     }
 
+    [DebuggerDisplay(nameof(GraphQlType) + " (" + nameof(Name) + "={" + nameof(Name) + ",nq}; " + nameof(Kind) + "={" + nameof(Kind) + "}; " + nameof(Description) + "={" + nameof(Description) + ",nq})")]
     public class GraphQlType : GraphQlTypeBase
     {
         public string Description { get; set; }
@@ -53,24 +56,28 @@ namespace GraphQlClientGenerator
         public string Description { get; set; }
     }
 
+    [DebuggerDisplay(nameof(GraphQlEnumValue) + " (" + nameof(Name) + "={" + nameof(Name) + ",nq}; " + nameof(Description) + "={" + nameof(Description) + ",nq})")]
     public class GraphQlEnumValue : GraphQlValueBase
     {
         public bool IsDeprecated { get; set; }
         public string DeprecationReason { get; set; }
     }
 
+    [DebuggerDisplay(nameof(GraphQlField) + " (" + nameof(Name) + "={" + nameof(Name) + ",nq}; " + nameof(Description) + "={" + nameof(Description) + ",nq})")]
     public class GraphQlField : GraphQlEnumValue, IGraphQlMember
     {
         public IList<GraphQlArgument> Args { get; set; }
         public GraphQlFieldType Type { get; set; }
     }
 
+    [DebuggerDisplay(nameof(GraphQlArgument) + " (" + nameof(Name) + "={" + nameof(Name) + ",nq}; " + nameof(Description) + "={" + nameof(Description) + ",nq})")]
     public class GraphQlArgument : GraphQlValueBase, IGraphQlMember
     {
         public GraphQlFieldType Type { get; set; }
         public object DefaultValue { get; set; }
     }
 
+    [DebuggerDisplay(nameof(GraphQlFieldType) + " (" + nameof(Name) + "={" + nameof(Name) + ",nq}; " + nameof(Kind) + "={" + nameof(Kind) + "})")]
     public class GraphQlFieldType : GraphQlTypeBase
     {
         public GraphQlFieldType OfType { get; set; }
@@ -83,6 +90,16 @@ namespace GraphQlClientGenerator
         public const string GraphQlTypeScalarId = "ID";
         public const string GraphQlTypeScalarInteger = "Int";
         public const string GraphQlTypeScalarString = "String";
+
+        internal static readonly ICollection<string> AllBuiltInScalarTypeNames =
+            new HashSet<string>
+            {
+                GraphQlTypeScalarBoolean,
+                GraphQlTypeScalarFloat,
+                GraphQlTypeScalarId,
+                GraphQlTypeScalarInteger,
+                GraphQlTypeScalarString
+            };
 
         public GraphQlTypeKind Kind { get; set; }
         public string Name { get; set; }
