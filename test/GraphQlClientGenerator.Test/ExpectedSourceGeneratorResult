@@ -367,7 +367,6 @@ namespace SourceGeneratorTestAssembly
     
     internal interface IGraphQlInputObject
     {
-        string GraphQlTypeName { get; }
         IEnumerable<InputPropertyInfo> GetPropertyValues();
     }
     
@@ -458,32 +457,50 @@ namespace SourceGeneratorTestAssembly
     
         private static string GetGraphQlTypeName(T value, bool isNullable)
         {
-            var graphQlTypeName = GetGraphQlTypeName(value);
+            var graphQlTypeName = GetGraphQlTypeName(typeof(T));
             if (!isNullable)
                 graphQlTypeName += "!";
     
             return graphQlTypeName;
         }
     
-        private static string GetGraphQlTypeName(T value)
+        private static string GetGraphQlTypeName(Type valueType)
         {
-            if (value is IGraphQlInputObject inputObject)
-                return inputObject.GraphQlTypeName;
+            valueType = Nullable.GetUnderlyingType(valueType) ?? valueType;
     
-            if (typeof(T) == typeof(bool))
+            if (valueType.IsArray)
+            {
+                var arrayItemType = GetGraphQlTypeName(valueType.GetElementType());
+                return arrayItemType == null ? null : "[" + arrayItemType + "]";
+            }
+    
+            if (valueType.IsAssignableTo(typeof(IEnumerable)))
+            {
+                var genericArguments = valueType.GetGenericArguments();
+                if (genericArguments.Length == 1)
+                {
+                    var listItemType = GetGraphQlTypeName(valueType.GetGenericArguments()[0]);
+                    return listItemType == null ? null : "[" + listItemType + "]";
+                }
+            }
+    
+            if (GraphQlTypes.ReverseMapping.TryGetValue(valueType, out var graphQlTypeName))
+                return graphQlTypeName;
+    
+            if (valueType == typeof(bool))
                 return "Boolean";
     
-            if (typeof(T) == typeof(float) || typeof(T) == typeof(double) || typeof(T) == typeof(decimal))
+            if (valueType == typeof(float) || valueType == typeof(double) || valueType == typeof(decimal))
                 return "Float";
     
-            if (typeof(T) == typeof(Guid))
+            if (valueType == typeof(Guid))
                 return "ID";
     
-            if (typeof(T) == typeof(sbyte) || typeof(T) == typeof(byte) || typeof(T) == typeof(short) || typeof(T) == typeof(ushort) || typeof(T) == typeof(int) || typeof(T) == typeof(uint) ||
-                typeof(T) == typeof(long) || typeof(T) == typeof(ulong))
+            if (valueType == typeof(sbyte) || valueType == typeof(byte) || valueType == typeof(short) || valueType == typeof(ushort) || valueType == typeof(int) || valueType == typeof(uint) ||
+                valueType == typeof(long) || valueType == typeof(ulong))
                 return "Int";
     
-            if (typeof(T) == typeof(string))
+            if (valueType == typeof(string))
                 return "String";
     
             return null;
@@ -936,6 +953,19 @@ namespace SourceGeneratorTestAssembly
         public const string UpdateHomeInput = "UpdateHomeInput";
 
         public const string PageInfo = "PageInfo";
+
+        public static readonly IReadOnlyDictionary<Type, string> ReverseMapping =
+            new Dictionary<Type, string>
+            {
+                { typeof(string), "String" },
+                { typeof(DateTimeOffset), "String" },
+                { typeof(double), "Float" },
+                { typeof(int), "Int" },
+                { typeof(bool), "Boolean" },
+                { typeof(SourceGeneratedMeterReadingInputV2), "MeterReadingInput" },
+                { typeof(SourceGeneratedPushNotificationInputV2), "PushNotificationInput" },
+                { typeof(SourceGeneratedUpdateHomeInputV2), "UpdateHomeInput" }
+            };
 }
     #endregion
 
@@ -2361,8 +2391,6 @@ namespace SourceGeneratorTestAssembly
             set => _reading = new InputPropertyInfo { Name = "reading", Value = value };
         }
 
-        string IGraphQlInputObject.GraphQlTypeName { get; } = "MeterReadingInput";
-
         IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
         {
             if (_homeId.Name != null) yield return _homeId;
@@ -2494,8 +2522,6 @@ namespace SourceGeneratorTestAssembly
             set => _mainFuseSize = new InputPropertyInfo { Name = "mainFuseSize", Value = value };
         }
 
-        string IGraphQlInputObject.GraphQlTypeName { get; } = "UpdateHomeInput";
-
         IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
         {
             if (_homeId.Name != null) yield return _homeId;
@@ -2545,8 +2571,6 @@ namespace SourceGeneratorTestAssembly
             get => (QueryBuilderParameter<SourceGeneratedAppScreenV2?>)_screenToOpen.Value;
             set => _screenToOpen = new InputPropertyInfo { Name = "screenToOpen", Value = value };
         }
-
-        string IGraphQlInputObject.GraphQlTypeName { get; } = "PushNotificationInput";
 
         IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
         {

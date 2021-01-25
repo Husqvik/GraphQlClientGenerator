@@ -48,6 +48,20 @@ public static class GraphQlTypes
     public const string UpdateHomeInput = "UpdateHomeInput";
 
     public const string PageInfo = "PageInfo";
+
+    public static readonly IReadOnlyDictionary<Type, string> ReverseMapping =
+        new Dictionary<Type, string>
+        {
+            { typeof(string), "String" },
+            { typeof(DateTimeOffset), "String" },
+            { typeof(decimal), "Float" },
+            { typeof(Guid), "ID" },
+            { typeof(int), "Int" },
+            { typeof(bool), "Boolean" },
+            { typeof(MeterReadingInput), "MeterReadingInput" },
+            { typeof(PushNotificationInput), "PushNotificationInput" },
+            { typeof(UpdateHomeInput), "UpdateHomeInput" }
+        };
 }
 #endregion
 
@@ -2433,8 +2447,6 @@ public partial class MeterReadingInput : IGraphQlInputObject
         set { _reading = new InputPropertyInfo { Name = "reading", Value = value }; }
     }
 
-    string IGraphQlInputObject.GraphQlTypeName { get; } = "MeterReadingInput";
-
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
         if (_homeId.Name != null) yield return _homeId;
@@ -2536,8 +2548,6 @@ public partial class UpdateHomeInput : IGraphQlInputObject
         set { _mainFuseSize = new InputPropertyInfo { Name = "mainFuseSize", Value = value }; }
     }
 
-    string IGraphQlInputObject.GraphQlTypeName { get; } = "UpdateHomeInput";
-
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
         if (_homeId.Name != null) yield return _homeId;
@@ -2584,8 +2594,6 @@ public partial class PushNotificationInput : IGraphQlInputObject
         get { return (QueryBuilderParameter<AppScreen?>)_screenToOpen.Value; }
         set { _screenToOpen = new InputPropertyInfo { Name = "screenToOpen", Value = value }; }
     }
-
-    string IGraphQlInputObject.GraphQlTypeName { get; } = "PushNotificationInput";
 
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {

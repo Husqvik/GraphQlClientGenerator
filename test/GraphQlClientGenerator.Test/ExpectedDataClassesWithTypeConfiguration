@@ -33,6 +33,16 @@ public static class GraphQlTypes
     public const string SignupStatus = "SignupStatus";
     public const string Subscription = "Subscription";
     public const string Weather = "Weather";
+
+    public static readonly IReadOnlyDictionary<Type, string> ReverseMapping =
+        new Dictionary<Type, string>
+        {
+            { typeof(bool), "Boolean" },
+            { typeof(DateTimeOffset), "String" },
+            { typeof(long), "Int" },
+            { typeof(string), "String" },
+            { typeof(double), "Float" }
+        };
 }
 #endregion
 

@@ -24,6 +24,17 @@ public static class GraphQlTypes
     public const string UnionType = "UnionType";
 
     public const string NamedType = "NamedType";
+
+    public static readonly IReadOnlyDictionary<Type, string> ReverseMapping =
+        new Dictionary<Type, string>
+        {
+            { typeof(string), "String" },
+            { typeof(Guid), "ID" },
+            { typeof(DateTimeOffset), "DateTimeOffset" },
+            { typeof(decimal), "Float" },
+            { typeof(InputType), "InputType" },
+            { typeof(UnderscoreNamedInput), "underscore_named_input" }
+        };
 }
 #endregion
 
@@ -400,8 +411,6 @@ public partial class UnderscoreNamedInput : IGraphQlInputObject
         set => _underscoreNamedFieldEnumCollection = new InputPropertyInfo { Name = "underscore_named_field_enum_collection", Value = value };
     }
 
-    string IGraphQlInputObject.GraphQlTypeName { get; } = "underscore_named_input";
-
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
         if (_underscoreNamedFieldEnum.Name != null) yield return _underscoreNamedFieldEnum;
@@ -431,8 +440,6 @@ public partial class InputType : IGraphQlInputObject
         get => (QueryBuilderParameter<UnderscoreNamedEnum?>?)_enumValue.Value;
         set => _enumValue = new InputPropertyInfo { Name = "enum_value", Value = value };
     }
-
-    string IGraphQlInputObject.GraphQlTypeName { get; } = "InputType";
 
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {

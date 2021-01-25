@@ -84,6 +84,21 @@ public static class GraphQlTypes
     public const string AppStateJourneyMutation = "AppStateJourneyMutation";
     public const string AppStateMutation = "AppStateMutation";
     public const string HomeProfileQuestionAnswer = "HomeProfileQuestionAnswer";
+
+    public static readonly IReadOnlyDictionary<Type, string> ReverseMapping =
+        new Dictionary<Type, string>
+        {
+            { typeof(string), "String" },
+            { typeof(decimal), "Float" },
+            { typeof(int), "Int" },
+            { typeof(bool), "Boolean" },
+            { typeof(DateTimeOffset), "String" },
+            { typeof(Guid), "ID" },
+            { typeof(TestAppStateFronScreenMutationV1), "AppStateFronScreenMutation" },
+            { typeof(TestAppStateJourneyMutationV1), "AppStateJourneyMutation" },
+            { typeof(TestAppStateMutationV1), "AppStateMutation" },
+            { typeof(TestHomeProfileQuestionAnswerV1), "HomeProfileQuestionAnswer" }
+        };
 }
 #endregion
 
@@ -2932,8 +2947,6 @@ internal partial class TestHomeProfileQuestionAnswerV1 : IGraphQlInputObject
         set => _value = new InputPropertyInfo { Name = "value", Value = value };
     }
 
-    string IGraphQlInputObject.GraphQlTypeName { get; } = "HomeProfileQuestionAnswer";
-
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
         if (_propertyName.Name != null) yield return _propertyName;
@@ -2964,8 +2977,6 @@ internal partial class TestAppStateMutationV1 : IGraphQlInputObject
         set => _frontScreens = new InputPropertyInfo { Name = "frontScreens", Value = value };
     }
 
-    string IGraphQlInputObject.GraphQlTypeName { get; } = "AppStateMutation";
-
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
         if (_journey.Name != null) yield return _journey;
@@ -2985,8 +2996,6 @@ internal partial class TestAppStateJourneyMutationV1 : IGraphQlInputObject
         get => (QueryBuilderParameter<bool?>)_hasVisitedPairDevices.Value;
         set => _hasVisitedPairDevices = new InputPropertyInfo { Name = "hasVisitedPairDevices", Value = value };
     }
-
-    string IGraphQlInputObject.GraphQlTypeName { get; } = "AppStateJourneyMutation";
 
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
@@ -3026,8 +3035,6 @@ internal partial class TestAppStateFronScreenMutationV1 : IGraphQlInputObject
         get => (QueryBuilderParameter<ICollection<string>>)_bubblesSortOrder.Value;
         set => _bubblesSortOrder = new InputPropertyInfo { Name = "bubblesSortOrder", Value = value };
     }
-
-    string IGraphQlInputObject.GraphQlTypeName { get; } = "AppStateFronScreenMutation";
 
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
