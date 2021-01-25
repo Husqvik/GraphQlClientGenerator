@@ -890,8 +890,10 @@ using Newtonsoft.Json.Linq;
         {
             var schema = context.Schema;
             var typeName = type.Name;
-            var useCustomName = UseCustomClassNameIfDefined(ref typeName);
-            var className = (useCustomName ? typeName : _configuration.ClassPrefix + NamingHelper.ToPascalCase(typeName)) + "QueryBuilder" + _configuration.ClassSuffix;
+            if (!UseCustomClassNameIfDefined(ref typeName))
+                typeName = NamingHelper.ToPascalCase(typeName);
+
+            var className = _configuration.ClassPrefix + typeName + "QueryBuilder" + _configuration.ClassSuffix;
             ValidateClassName(className);
 
             context.BeforeQueryBuilderGeneration(className);
