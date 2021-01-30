@@ -7,7 +7,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <LangVersion>latest</LangVersion>
-    <Copyright>Copyright 2017-2020</Copyright>
+    <Copyright>Copyright 2017-2021</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <Authors>Husqvik</Authors>
