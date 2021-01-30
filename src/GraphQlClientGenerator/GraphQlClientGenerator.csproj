@@ -14,7 +14,7 @@
     <Copyright>Copyright 2017-2020</Copyright>
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
-    <VersionPrefix>0.9.1</VersionPrefix>
+    <VersionPrefix>0.9.2</VersionPrefix>
     <Title>GraphQL C# Client Generator</Title>
     <PackageLicenseFile>License.md</PackageLicenseFile>
     <PackageLicense>https://raw.githubusercontent.com/Husqvik/GraphQlClientGenerator/master/License.md</PackageLicense>
@@ -24,7 +24,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>GraphQL Client Generator</PackageTags>
-    <PackageReleaseNotes>fixed GraphQlInterfaceJsonConverter generation for list of GraphQL interfaces</PackageReleaseNotes>
+    <PackageReleaseNotes>improved GraphQL query parameter type auto-detection</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
