@@ -326,7 +326,7 @@ internal static class GraphQlQueryHelper
 
     private static string ConvertEnumToString(Enum @enum)
     {
-        var enumMember = @enum.GetType().GetTypeInfo().GetField(@enum.ToString());
+        var enumMember = @enum.GetType().GetField(@enum.ToString());
             if (enumMember == null)
                 throw new InvalidOperationException("enum member resolution failed");
 
@@ -422,7 +422,7 @@ public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
     {
         get => _formatMask;
         set => _formatMask =
-            typeof(IFormattable).GetTypeInfo().IsAssignableFrom(typeof(T))
+            typeof(IFormattable).IsAssignableFrom(typeof(T))
                 ? value
                 : throw new InvalidOperationException($"Value must be of {nameof(IFormattable)} type. ");
     }
@@ -454,7 +454,7 @@ public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
             return arrayItemType == null ? null : "[" + arrayItemType + "]";
         }
 
-        if (valueType.IsAssignableTo(typeof(IEnumerable)))
+        if (typeof(IEnumerable).IsAssignableFrom(valueType))
         {
             var genericArguments = valueType.GetGenericArguments();
             if (genericArguments.Length == 1)
