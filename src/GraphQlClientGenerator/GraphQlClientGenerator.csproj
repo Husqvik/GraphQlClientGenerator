@@ -6,23 +6,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <LangVersion>preview</LangVersion>
-    <Copyright>Copyright 2017-2021</Copyright>
-    <Authors>Husqvik</Authors>
-    <Company>Tibber</Company>
-    <VersionPrefix>0.9.2</VersionPrefix>
     <Title>GraphQL C# Client Generator</Title>
-    <PackageLicenseFile>License.md</PackageLicenseFile>
-    <PackageLicense>https://raw.githubusercontent.com/Husqvik/GraphQlClientGenerator/master/License.md</PackageLicense>
-    <PackageProjectUrl>https://github.com/Husqvik/GraphQlClientGenerator</PackageProjectUrl>
-    <PackageIcon>GraphQlLogo.png</PackageIcon>
-    <RepositoryUrl>https://github.com/Husqvik/GraphQlClientGenerator</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>GraphQL Client Generator</PackageTags>
     <PackageReleaseNotes>improved GraphQL query parameter type auto-detection</PackageReleaseNotes>
   </PropertyGroup>
@@ -43,7 +27,7 @@
   <ItemGroup>
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
     <None Include="$(PkgNewtonsoft_Json)\lib\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    
+
     <Compile Remove="BaseClasses.cs" />
     <EmbeddedResource Include="BaseClasses.cs" />
     <None Include="..\..\GraphQlLogo.png">
