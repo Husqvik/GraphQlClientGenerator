@@ -567,7 +567,7 @@ using Newtonsoft.Json.Linq;
             GenerateFileMember(context, "interface", interfaceName, graphQlType, null, generateInterfaceBody);
 
         private string GenerateDataClass(GenerationContext context, string typeName, GraphQlType graphQlType, string baseTypeName, Action generateClassBody) =>
-            GenerateFileMember(context, (_configuration.GeneratePartialClasses ? "partial " : null) + "class", typeName, graphQlType, baseTypeName, generateClassBody);
+            GenerateFileMember(context, "class", typeName, graphQlType, baseTypeName, generateClassBody);
 
         private string GenerateFileMember(GenerationContext context, string memberType, string typeName, GraphQlType graphQlType, string baseTypeName, Action generateFileMemberBody)
         {
@@ -597,6 +597,10 @@ using Newtonsoft.Json.Linq;
             writer.Write(indentation);
             writer.Write(GetMemberAccessibility());
             writer.Write(" ");
+
+            if (_configuration.GeneratePartialClasses)
+                writer.Write("partial ");
+
             writer.Write(memberType);
             writer.Write(" ");
             writer.Write(typeName);

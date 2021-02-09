@@ -2738,7 +2738,7 @@ public partial class SubscriptionPriceConnectionPageInfo : IPageInfo
     public string UnimplementedField { get; set; }
 }
 
-public interface IPageInfo
+public partial interface IPageInfo
 {
     string UnimplementedField { get; set; }
     string EndCursor { get; set; }

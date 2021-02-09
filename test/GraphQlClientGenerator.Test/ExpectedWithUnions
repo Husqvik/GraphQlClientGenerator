@@ -493,7 +493,7 @@ public partial class ConcreteType1 : INamedType
     public string? ConcreteType1Field { get; set; }
 }
 
-public interface INamedType
+public partial interface INamedType
 {
     string? Name { get; set; }
 }
