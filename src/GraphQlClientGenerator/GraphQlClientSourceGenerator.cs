@@ -64,9 +64,9 @@ namespace GraphQlClientGenerator
                 {
                     context.ReportDiagnostic(
                         Diagnostic.Create(
-                            DescriptorParameterError,
+                            DescriptorInfo,
                             Location.None,
-                            "Either \"GraphQlClientGenerator_ServiceUrl\" parameter or GraphQL JSON schema additional file must be specified. "));
+                            "Neither \"GraphQlClientGenerator_ServiceUrl\" parameter nor GraphQL JSON schema additional file specified; terminating. "));
 
                     return;
                 }
