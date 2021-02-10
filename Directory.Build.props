@@ -6,8 +6,7 @@
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
     <VersionPrefix>0.9.3</VersionPrefix>
-    <PackageLicenseFile>License.md</PackageLicenseFile>
-    <PackageLicense>https://raw.githubusercontent.com/Husqvik/GraphQlClientGenerator/master/License.md</PackageLicense>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Husqvik/GraphQlClientGenerator</PackageProjectUrl>
     <PackageIcon>GraphQlLogo.png</PackageIcon>
     <RepositoryUrl>https://github.com/Husqvik/GraphQlClientGenerator</RepositoryUrl>
