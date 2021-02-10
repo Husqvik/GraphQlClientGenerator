@@ -8,7 +8,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Title>GraphQL C# Client Generator</Title>
     <PackageTags>GraphQL Client Generator</PackageTags>
-    <PackageReleaseNotes>improved GraphQL query parameter type auto-detection</PackageReleaseNotes>
+    <PackageReleaseNotes>partial interfaces</PackageReleaseNotes>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
 
   <ItemGroup>

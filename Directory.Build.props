@@ -5,12 +5,14 @@
     <Copyright>Copyright 2017-2021</Copyright>
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
-    <VersionPrefix>0.9.2</VersionPrefix>
+    <VersionPrefix>0.9.3</VersionPrefix>
     <PackageLicenseFile>License.md</PackageLicenseFile>
     <PackageLicense>https://raw.githubusercontent.com/Husqvik/GraphQlClientGenerator/master/License.md</PackageLicense>
     <PackageProjectUrl>https://github.com/Husqvik/GraphQlClientGenerator</PackageProjectUrl>
     <PackageIcon>GraphQlLogo.png</PackageIcon>
     <RepositoryUrl>https://github.com/Husqvik/GraphQlClientGenerator</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 </Project>
