@@ -38,10 +38,6 @@
       <Pack>True</Pack>
       <PackagePath />
     </None>
-    <None Include="..\..\License.md">
-      <Pack>True</Pack>
-      <PackagePath />
-    </None>
   </ItemGroup>
 
 </Project>
