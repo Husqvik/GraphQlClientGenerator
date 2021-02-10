@@ -7,7 +7,6 @@
     <TargetFramework>net5.0</TargetFramework>
     <Title>GraphQL C# Client Generator Console App</Title>
     <PackageId>GraphQlClientGenerator.Tool</PackageId>
-    <PackageLicenseFile>License.md</PackageLicenseFile>
     <PackageTags>GraphQL Client Generator Tool Console</PackageTags>
     <PackageReleaseNotes>improved GraphQL query parameter type auto-detection</PackageReleaseNotes>
     <PackAsTool>true</PackAsTool>
