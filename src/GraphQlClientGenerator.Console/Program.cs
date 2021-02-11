@@ -26,11 +26,11 @@ static async Task GenerateGraphQlClientSourceCode(ProgramOptions options)
     {
         var files = await GraphQlCSharpFileHelper.GenerateClientSourceCode(options);
         foreach (var file in files)
-            System.Console.WriteLine($"File {file.FullName} generated successfully ({file.Length:N0} B). ");
+            Console.WriteLine($"File {file.FullName} generated successfully ({file.Length:N0} B). ");
     }
     catch (Exception exception)
     {
-        System.Console.WriteLine($"An error occurred: {exception}");
+        Console.WriteLine($"An error occurred: {exception}");
         Environment.Exit(2);
     }
 }
