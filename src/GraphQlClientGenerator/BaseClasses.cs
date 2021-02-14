@@ -148,7 +148,7 @@ internal static class GraphQlQueryHelper
 
     public static string BuildArgumentValue(object value, string formatMask, Formatting formatting, int level, byte indentationSize)
     {
-        if (value is null || value is QueryBuilderParameter queryBuilderParameter && queryBuilderParameter.Value == null)
+        if (value is null)
             return "null";
 
 #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
@@ -258,7 +258,7 @@ internal static class GraphQlQueryHelper
             var value =
                 queryBuilderParameter?.Name != null
                     ? "$" + queryBuilderParameter.Name
-                    : BuildArgumentValue(queryBuilderParameter?.Value ?? propertyValue.Value, propertyValue.FormatMask, formatting, level, indentationSize);
+                    : BuildArgumentValue(queryBuilderParameter == null ? propertyValue.Value : queryBuilderParameter.Value, propertyValue.FormatMask, formatting, level, indentationSize);
 
             builder.Append(isIndentedFormatting ? GetIndentation(level, indentationSize) : separator);
             builder.Append(propertyValue.Name);
