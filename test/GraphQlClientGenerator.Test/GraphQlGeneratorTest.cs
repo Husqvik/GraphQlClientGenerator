@@ -623,9 +623,9 @@ namespace GraphQlClientGenerator.Test
             stringBuilder.ToString().Replace("\r", String.Empty).ShouldBe(expectedOutput);
         }
 
-        private static object CreateParameter(string sourceAssembly, object value, string name = null, string graphQlType = null)
+        private static object CreateParameter(string sourceAssembly, object value, string name = null, string graphQlType = null, Type netParameterType = null)
         {
-            var genericType = value.GetType();
+            var genericType = netParameterType ?? value.GetType();
             if (genericType.IsValueType)
                 genericType = typeof(Nullable<>).MakeGenericType(value.GetType());
 
