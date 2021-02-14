@@ -148,7 +148,7 @@ internal static class GraphQlQueryHelper
 
     public static string BuildArgumentValue(object value, string formatMask, Formatting formatting, int level, byte indentationSize)
     {
-        if (value is null)
+        if (value is null || value is QueryBuilderParameter queryBuilderParameter && queryBuilderParameter.Value == null)
             return "null";
 
 #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
