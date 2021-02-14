@@ -711,6 +711,7 @@ namespace GraphQlClientGenerator.Test
 	    private InputPropertyInfo _inputObject1;
 	    private InputPropertyInfo _inputObject2;
         private InputPropertyInfo _testProperty;
+        private InputPropertyInfo _testNullValueProperty;
         private InputPropertyInfo _timestampProperty;
 
 	    [JsonConverter(typeof(QueryBuilderParameterConverter<TestInput>))]
@@ -734,6 +735,13 @@ namespace GraphQlClientGenerator.Test
 		    set => _testProperty = new InputPropertyInfo { Name = ""testProperty"", Value = value };
 	    }
 
+        [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+	    public QueryBuilderParameter<string> TestNullValueProperty
+	    {
+		    get => (QueryBuilderParameter<string>)_testNullValueProperty.Value;
+		    set => _testNullValueProperty = new InputPropertyInfo { Name = ""testNullValueProperty"", Value = value };
+	    }
+
         [JsonConverter(typeof(QueryBuilderParameterConverter<DateTimeOffset?>))]
 	    public QueryBuilderParameter<DateTimeOffset?> Timestamp
 	    {
@@ -746,6 +754,7 @@ namespace GraphQlClientGenerator.Test
 		    if (_inputObject1.Name != null) yield return _inputObject1;
 		    if (_inputObject2.Name != null) yield return _inputObject2;
             if (_testProperty.Name != null) yield return _testProperty;
+            if (_testNullValueProperty.Name != null) yield return _testNullValueProperty;
             if (_timestampProperty.Name != null) yield return _timestampProperty;
 	    }
     }");
@@ -777,6 +786,7 @@ namespace GraphQlClientGenerator.Test
             testPropertyInfo.SetValue(nestedObject, CreateParameter(assemblyName, "Nested Value"));
             inputObjectType.GetProperty("InputObject1").SetValue(inputObject, CreateParameter(assemblyName, nestedObject));
             inputObjectType.GetProperty("InputObject2").SetValue(inputObject, queryParameter2);
+            inputObjectType.GetProperty("TestNullValueProperty").SetValue(inputObject, CreateParameter(assemblyName, null, null, "String", typeof(String)));
 
             builderType
                 .GetMethod("WithTestAction", BindingFlags.Instance | BindingFlags.Public)
@@ -796,10 +806,10 @@ namespace GraphQlClientGenerator.Test
                     .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
                     .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
 
-            mutation.ShouldBe("mutation($stringParameter:String=\"Test Value\",$objectParameter:[TestInput!]={testProperty:\"Input Object Parameter Value\",timestamp:\"19-06-30 02:27+02:00\"}){testAction(objectParameter:{inputObject1:{testProperty:\"Nested Value\"},inputObject2:$objectParameter,testProperty:$stringParameter})}");
+            mutation.ShouldBe("mutation($stringParameter:String=\"Test Value\",$objectParameter:[TestInput!]={testProperty:\"Input Object Parameter Value\",timestamp:\"19-06-30 02:27+02:00\"}){testAction(objectParameter:{inputObject1:{testProperty:\"Nested Value\"},inputObject2:$objectParameter,testProperty:$stringParameter,testNullValueProperty:null})}");
 
             var inputObjectJson = JsonConvert.SerializeObject(inputObject);
-            inputObjectJson.ShouldBe("{\"TestProperty\":\"Test Value\",\"Timestamp\":null,\"InputObject1\":{\"TestProperty\":\"Nested Value\",\"Timestamp\":null,\"InputObject1\":null,\"InputObject2\":null},\"InputObject2\":{\"TestProperty\":\"Input Object Parameter Value\",\"Timestamp\":\"2019-06-30T02:27:47.1234567+02:00\",\"InputObject1\":null,\"InputObject2\":null}}");
+            inputObjectJson.ShouldBe("{\"TestProperty\":\"Test Value\",\"Timestamp\":null,\"InputObject1\":{\"TestProperty\":\"Nested Value\",\"Timestamp\":null,\"InputObject1\":null,\"InputObject2\":null,\"TestNullValueProperty\":null},\"InputObject2\":{\"TestProperty\":\"Input Object Parameter Value\",\"Timestamp\":\"2019-06-30T02:27:47.1234567+02:00\",\"InputObject1\":null,\"InputObject2\":null,\"TestNullValueProperty\":null},\"TestNullValueProperty\":null}");
 
             var deserializedInputObject = JsonConvert.DeserializeObject(inputObjectJson, inputObjectType);
             var testPropertyValue = testPropertyInfo.GetValue(deserializedInputObject);
