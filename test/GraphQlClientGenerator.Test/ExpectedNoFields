@@ -1,0 +1,105 @@
+#region GraphQL type helpers
+public static class GraphQlTypes
+{
+    public const string Boolean = "Boolean";
+    public const string String = "String";
+
+    public const string Query = "Query";
+    public const string ResultGraph = "ResultGraph";
+
+    public const string InputGraph = "InputGraph";
+
+    public static readonly IReadOnlyDictionary<Type, string> ReverseMapping =
+        new Dictionary<Type, string>
+        {
+            { typeof(InputGraph), "InputGraph" }
+        };
+}
+#endregion
+
+#region directives
+public class IncludeDirective : GraphQlDirective
+{
+    public IncludeDirective(QueryBuilderParameter<bool> @if) : base("include")
+    {
+        AddArgument("if", @if);
+    }
+}
+
+public class SkipDirective : GraphQlDirective
+{
+    public SkipDirective(QueryBuilderParameter<bool> @if) : base("skip")
+    {
+        AddArgument("if", @if);
+    }
+}
+#endregion
+
+#region builder classes
+public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new FieldMetadata { Name = "inputQuery", IsComplex = true, QueryBuilderType = typeof(ResultGraphQueryBuilder) }
+        };
+
+    protected override string TypeName { get { return "Query"; } } 
+
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public QueryQueryBuilder(string operationName = null) : base("query", operationName)
+    {
+    }
+
+    public QueryQueryBuilder WithParameter<T>(GraphQlQueryParameter<T> parameter)
+    {
+        return WithParameterInternal(parameter);
+    }
+
+    public QueryQueryBuilder WithInputQuery(ResultGraphQueryBuilder resultGraphQueryBuilder, QueryBuilderParameter<InputGraph> input = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
+    {
+        var args = new List<QueryBuilderArgumentInfo>();
+        if (input != null)
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "input", ArgumentValue = input} );
+
+        return WithObjectField("inputQuery", alias, resultGraphQueryBuilder, new GraphQlDirective[] { include, skip }, args);
+    }
+
+    public QueryQueryBuilder ExceptInputQuery()
+    {
+        return ExceptField("inputQuery");
+    }
+}
+
+public partial class ResultGraphQueryBuilder : GraphQlQueryBuilder<ResultGraphQueryBuilder>
+{
+    private static readonly FieldMetadata[] AllFieldMetadata = new FieldMetadata[0];
+
+    protected override string TypeName { get { return "ResultGraph"; } } 
+
+    public override IReadOnlyList<FieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+}
+#endregion
+
+#region input classes
+public partial class InputGraph : IGraphQlInputObject
+{
+
+    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
+    {
+    }
+}
+#endregion
+
+#region data classes
+public partial class Query
+{
+    public ResultGraph InputQuery { get; set; }
+}
+
+public partial class ResultGraph
+{
+}
+#endregion

@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.*" />
     <PackageReference Include="Shouldly" Version="4.*" />
@@ -15,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="ExpectedNoFields" />
     <EmbeddedResource Include="ExpectedFullClientCSharpFile" />
     <EmbeddedResource Include="ExpectedDataClasses" />
     <EmbeddedResource Include="ExpectedDataClassesWithTypeConfiguration" />
@@ -30,6 +30,7 @@
     <EmbeddedResource Include="ExpectedWithUnions" />
     <EmbeddedResource Include="ExpectedFormatMasks" />
     <EmbeddedResource Include="ExpectedSourceGeneratorResult" />
+    <EmbeddedResource Include="NoFieldsSchema" />
     <EmbeddedResource Include="TestSchema" />
     <EmbeddedResource Include="TestSchema2" />
     <EmbeddedResource Include="TestSchema3" />

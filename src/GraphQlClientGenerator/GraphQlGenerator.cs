@@ -593,7 +593,7 @@ using Newtonsoft.Json.Linq;
                 writer.Write(graphQlType.Name);
                 writer.WriteLine("\")]");
             }
-            
+
             writer.Write(indentation);
             writer.Write(GetMemberAccessibility());
             writer.Write(" ");
@@ -920,7 +920,7 @@ using Newtonsoft.Json.Linq;
             writer.Write("    private static readonly FieldMetadata[] AllFieldMetadata =");
 
             var fields = type.Kind == GraphQlTypeKind.Union ? null : GetFieldsToGenerate(type, complexTypeDictionary);
-            if (fields == null)
+            if (fields == null || !fields.Any())
             {
                 writer.WriteLine(" new FieldMetadata[0];");
                 writer.WriteLine();
@@ -981,7 +981,7 @@ using Newtonsoft.Json.Linq;
 
                             if (!UseCustomClassNameIfDefined(ref fieldTypeName))
                                 fieldTypeName = NamingHelper.ToPascalCase(fieldTypeName);
-                            
+
                             writer.Write($", QueryBuilderType = typeof({_configuration.ClassPrefix}{fieldTypeName}QueryBuilder{_configuration.ClassSuffix})");
                         }
                     }
@@ -1053,7 +1053,7 @@ using Newtonsoft.Json.Linq;
                 var fieldType = field.Type.UnwrapIfNonNull();
                 if (fieldType.Kind == GraphQlTypeKind.List)
                     fieldType = fieldType.OfType;
-                
+
                 fieldType = fieldType.UnwrapIfNonNull();
                 var isFragment = i >= firstFragmentIndex;
 
@@ -1115,9 +1115,9 @@ using Newtonsoft.Json.Linq;
                         writer.Write(", ");
 
                     WriteAliasParameter();
-                    
+
                     var fieldDirectiveParameterNameList = WriteDirectiveParameterList(schema, argumentDefinitions, GraphQlDirectiveLocation.Field, writer);
-                    
+
                     writer.Write(")");
 
                     WriteQueryBuilderMethodBody(
@@ -1371,9 +1371,9 @@ using Newtonsoft.Json.Linq;
                 unwrappedType.Kind == GraphQlTypeKind.Enum
                     ? ConvertToTypeDescription(_configuration.ClassPrefix + NamingHelper.ToPascalCase(unwrappedType.Name) + _configuration.ClassSuffix + "?")
                     : ScalarToNetType(baseType, argument.Name, argumentType);
-            
+
             var argumentNetType = argumentTypeDescription.NetTypeName;
-            
+
             if (isTypeNotNull)
                 argumentNetType = argumentNetType.TrimEnd('?');
 
@@ -1386,7 +1386,7 @@ using Newtonsoft.Json.Linq;
                     argumentNetType = NamingHelper.ToPascalCase(argumentNetType);
 
                 argumentNetType = _configuration.ClassPrefix + argumentNetType + _configuration.ClassSuffix;
-                
+
                 if (!isTypeNotNull)
                     argumentNetType = AddQuestionMarkIfNullableReferencesEnabled(argumentNetType);
             }
@@ -1468,9 +1468,9 @@ using Newtonsoft.Json.Linq;
         private void GenerateEnum(GenerationContext context, GraphQlType type)
         {
             var enumName = _configuration.ClassPrefix + NamingHelper.ToPascalCase(type.Name) + _configuration.ClassSuffix;
-            
+
             context.BeforeEnumGeneration(enumName);
-            
+
             var writer = context.Writer;
 
             GenerateCodeComments(writer, type.Description, context.Indentation);
