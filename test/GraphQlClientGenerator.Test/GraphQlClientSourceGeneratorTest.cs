@@ -63,6 +63,7 @@ namespace GraphQlClientGenerator.Test
         {
             var generatedSource = GenerateSource(_fileMappingRules, null);
             var sourceCode = generatedSource.ToString();
+
             var expectedSourceCode = GetExpectedSourceText();
             sourceCode.ShouldBe(expectedSourceCode);
         }
@@ -107,15 +108,19 @@ namespace GraphQlClientGenerator.Test
             if (additionalFile != null)
                 additionalFiles.Add(additionalFile);
 
+            var additionalSourcesCollectionType = Type.GetType("Microsoft.CodeAnalysis.AdditionalSourcesCollection, Microsoft.CodeAnalysis");
+            var additionalSourcesCollection = additionalSourcesCollectionType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(string) }, null).Invoke(new object[] { ".cs" });
+
             var executionContext =
                 (GeneratorExecutionContext)constructorInfo.Invoke(
-                    new object[]
+                    new[]
                     {
                         compilation,
                         new CSharpParseOptions(LanguageVersion.CSharp9),
                         additionalFiles.ToImmutableArray(),
                         compilerAnalyzerConfigOptionsProvider,
                         null,
+                        additionalSourcesCollection,
                         CancellationToken.None
                     });
 
