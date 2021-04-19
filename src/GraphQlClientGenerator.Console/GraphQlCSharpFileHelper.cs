@@ -33,7 +33,7 @@ namespace GraphQlClientGenerator.Console
                     Environment.Exit(3);
                 }
 
-                schema = await GraphQlGenerator.RetrieveSchema(options.ServiceUrl, headers);
+                schema = await GraphQlGenerator.RetrieveSchema(options.ServiceUrl, options.HttpGet, headers);
             }
             
             var generatorConfiguration =

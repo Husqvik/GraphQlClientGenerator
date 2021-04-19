@@ -20,6 +20,9 @@ namespace GraphQlClientGenerator.Console
         [Option('u', "serviceUrl", HelpText = "GraphQL service URL used for retrieving schema metadata")]
         public string ServiceUrl { get; set; }
 
+        [Option("get", HelpText = "Use HTTP GET instead of POST")]
+        public bool HttpGet { get; set; }
+
         [Option('s', "schemaFileName", HelpText = "Path to schema metadata file in JSON format")]
         public string SchemaFileName { get; set; }
 

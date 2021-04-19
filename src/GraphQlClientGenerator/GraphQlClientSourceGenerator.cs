@@ -224,7 +224,9 @@ namespace GraphQlClientGenerator
                 }
                 else
                 {
-                    graphQlSchemas.Add((FileNameGraphQlClientSource, GraphQlGenerator.RetrieveSchema(serviceUrl, headers).GetAwaiter().GetResult()));
+                    context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKeyPrefix + "HttpGet", out var httpGet);
+                    
+                    graphQlSchemas.Add((FileNameGraphQlClientSource, GraphQlGenerator.RetrieveSchema(serviceUrl, httpGet.Equals("true"), headers).GetAwaiter().GetResult()));
                     context.ReportDiagnostic(
                         Diagnostic.Create(
                             DescriptorInfo,
