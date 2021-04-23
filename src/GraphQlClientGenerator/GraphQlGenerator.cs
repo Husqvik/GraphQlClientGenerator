@@ -61,13 +61,15 @@ using Newtonsoft.Json.Linq;
             _configuration = configuration ?? new GraphQlGeneratorConfiguration();
         }
 
-        public static async Task<GraphQlSchema> RetrieveSchema(string url, IEnumerable<KeyValuePair<string, string>> headers = null)
+        public static async Task<GraphQlSchema> RetrieveSchema(HttpMethod method, string url, IEnumerable<KeyValuePair<string, string>> headers = null)
         {
-            using var request =
-                new HttpRequestMessage(HttpMethod.Post, url)
-                {
-                    Content = new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json")
-                };
+            StringContent requestContent = null;
+            if (method == HttpMethod.Get)
+                url += "?&query=" + IntrospectionQuery.Text;
+            else
+                requestContent = new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json");
+
+            using var request = new HttpRequestMessage(method, url) { Content = requestContent };
 
             if (headers != null)
                 foreach (var kvp in headers)

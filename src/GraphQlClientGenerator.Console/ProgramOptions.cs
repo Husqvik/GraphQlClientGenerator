@@ -23,6 +23,9 @@ namespace GraphQlClientGenerator.Console
         [Option('s', "schemaFileName", HelpText = "Path to schema metadata file in JSON format")]
         public string SchemaFileName { get; set; }
 
+        [Option("httpMethod", Required = false, HelpText = "GraphQL schema metadata retrieval HTTP method; defaults to POST")]
+        public string HttpMethod { get; set; } = "POST";
+
         [Option("header", Required = false, HelpText = "Format: {Header}:{Value}; allows to enter custom headers required to fetch GraphQL metadata")]
         public IEnumerable<string> Headers { get; set; }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -29,8 +30,7 @@ namespace GraphQlClientGenerator
 
         public void Execute(GeneratorExecutionContext context)
         {
-            var compilation = context.Compilation as CSharpCompilation;
-            if (compilation == null)
+            if (context.Compilation is not CSharpCompilation compilation)
             {
                 context.ReportDiagnostic(
                     Diagnostic.Create(
@@ -124,6 +124,10 @@ namespace GraphQlClientGenerator
                 var currentParameterName = "IncludeDeprecatedFields";
                 context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKeyPrefix + currentParameterName, out var includeDeprecatedFieldsRaw);
                 configuration.IncludeDeprecatedFields = !String.IsNullOrWhiteSpace(includeDeprecatedFieldsRaw) && Convert.ToBoolean(includeDeprecatedFieldsRaw);
+
+                currentParameterName = "HttpMethod";
+                if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKeyPrefix + currentParameterName, out var httpMethod))
+                    httpMethod = "POST";
 
                 currentParameterName = "CommentGeneration";
                 context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKeyPrefix + currentParameterName, out var commentGenerationRaw);
@@ -224,7 +228,7 @@ namespace GraphQlClientGenerator
                 }
                 else
                 {
-                    graphQlSchemas.Add((FileNameGraphQlClientSource, GraphQlGenerator.RetrieveSchema(serviceUrl, headers).GetAwaiter().GetResult()));
+                    graphQlSchemas.Add((FileNameGraphQlClientSource, GraphQlGenerator.RetrieveSchema(new HttpMethod(httpMethod), serviceUrl, headers).GetAwaiter().GetResult()));
                     context.ReportDiagnostic(
                         Diagnostic.Create(
                             DescriptorInfo,

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace GraphQlClientGenerator.Console
@@ -33,7 +34,7 @@ namespace GraphQlClientGenerator.Console
                     Environment.Exit(3);
                 }
 
-                schema = await GraphQlGenerator.RetrieveSchema(options.ServiceUrl, headers);
+                schema = await GraphQlGenerator.RetrieveSchema(new HttpMethod(options.HttpMethod), options.ServiceUrl, headers);
             }
             
             var generatorConfiguration =
