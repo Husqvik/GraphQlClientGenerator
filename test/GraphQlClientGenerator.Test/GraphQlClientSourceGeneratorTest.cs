@@ -30,7 +30,7 @@ namespace GraphQlClientGenerator.Test
 
         private static AdditionalFile CreateAdditionalFile(string resourceName, string fileName)
         {
-            var resourceStream = typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream(resourceName);
+            var resourceStream = typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream(resourceName) ?? throw new InvalidOperationException($"resource \"{resourceName}\" not found");
             var fullFileName = Path.Combine(Path.GetTempPath(), fileName);
             using var fileStream = File.Create(fullFileName);
             resourceStream.CopyTo(fileStream);
@@ -148,7 +148,7 @@ namespace GraphQlClientGenerator.Test
 
         private class CompilerAnalyzerConfigOptionsProvider : AnalyzerConfigOptionsProvider
         {
-            private static readonly CompilerAnalyzerConfigOptions DummyOptions = new CompilerAnalyzerConfigOptions(new Dictionary<string, string>());
+            private static readonly CompilerAnalyzerConfigOptions DummyOptions = new(new Dictionary<string, string>());
 
             public CompilerAnalyzerConfigOptionsProvider(AnalyzerConfigOptions globalOptions) => GlobalOptions = globalOptions;
 

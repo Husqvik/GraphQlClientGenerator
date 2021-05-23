@@ -56,10 +56,8 @@ using Newtonsoft.Json.Linq;
 
         private readonly GraphQlGeneratorConfiguration _configuration;
 
-        public GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null)
-        {
+        public GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null) =>
             _configuration = configuration ?? new GraphQlGeneratorConfiguration();
-        }
 
         public static async Task<GraphQlSchema> RetrieveSchema(HttpMethod method, string url, IEnumerable<KeyValuePair<string, string>> headers = null)
         {
@@ -1077,6 +1075,18 @@ using Newtonsoft.Json.Linq;
                     field.Args?.Where(a => IsCompatibleArgument(a.Type)).Select(a => BuildMethodParameterDefinition(type, a)).ToArray()
                     ?? new QueryBuilderParameterDefinition[0];
 
+                var argumentCollectionVariableName = "args";
+                var counter = 0;
+                while (argumentDefinitions.Any(a => a.NetParameterName == argumentCollectionVariableName))
+                    switch (argumentCollectionVariableName)
+                    {
+                        case "args": argumentCollectionVariableName = "inputArgs"; break;
+                        default:
+                            argumentCollectionVariableName = $"inputArgs{(counter == 0 ? null : counter)}";
+                            counter++;
+                            break;
+                    }
+
                 var methodParameters =
                     String.Join(
                         ", ",
@@ -1103,7 +1113,7 @@ using Newtonsoft.Json.Linq;
                         writer.Write("null");
                 }
 
-                if (fieldType.Kind == GraphQlTypeKind.Scalar || fieldType.Kind == GraphQlTypeKind.Enum || fieldType.Kind == GraphQlTypeKind.List)
+                if (fieldType.Kind is GraphQlTypeKind.Scalar or GraphQlTypeKind.Enum or GraphQlTypeKind.List)
                 {
                     writer.Write(indentation);
                     writer.Write("    public ");
@@ -1128,7 +1138,7 @@ using Newtonsoft.Json.Linq;
                         writer,
                         () =>
                         {
-                            AppendArgumentDictionary(indentation, writer, argumentDefinitions);
+                            AppendArgumentDictionary(indentation, writer, argumentDefinitions, argumentCollectionVariableName);
 
                             writer.Write(returnPrefix);
                             writer.Write("WithScalarField(\"");
@@ -1137,7 +1147,10 @@ using Newtonsoft.Json.Linq;
                             writer.Write(fieldDirectiveParameterNameList);
 
                             if (argumentDefinitions.Length > 0)
-                                writer.Write(", args");
+                            {
+                                writer.Write(", ");
+                                writer.Write(argumentCollectionVariableName);
+                            }
 
                             writer.WriteLine(");");
                         });
@@ -1177,7 +1190,7 @@ using Newtonsoft.Json.Linq;
                         writer,
                         () =>
                         {
-                            AppendArgumentDictionary(indentation, writer, argumentDefinitions);
+                            AppendArgumentDictionary(indentation, writer, argumentDefinitions, argumentCollectionVariableName);
 
                             writer.Write(returnPrefix);
                             writer.Write("With");
@@ -1198,7 +1211,10 @@ using Newtonsoft.Json.Linq;
                             writer.Write(fieldDirectiveParameterNameList);
 
                             if (argumentDefinitions.Length > 0)
-                                writer.Write(", args");
+                            {
+                                writer.Write(", ");
+                                writer.Write(argumentCollectionVariableName);
+                            }
 
                             writer.WriteLine(");");
                         });
@@ -1419,18 +1435,21 @@ using Newtonsoft.Json.Linq;
                 throw new InvalidOperationException($"Resulting class name '{className}' is not valid. ");
         }
 
-        private static void AppendArgumentDictionary(string indentation, TextWriter writer, ICollection<QueryBuilderParameterDefinition> argumentDefinitions)
+        private static void AppendArgumentDictionary(string indentation, TextWriter writer, ICollection<QueryBuilderParameterDefinition> argumentDefinitions, string argumentCollectionVariableName)
         {
             if (argumentDefinitions.Count == 0)
                 return;
 
             writer.Write(indentation);
-            writer.WriteLine("        var args = new List<QueryBuilderArgumentInfo>();");
+            writer.Write("        var ");
+            writer.Write(argumentCollectionVariableName);
+            writer.WriteLine(" = new List<QueryBuilderArgumentInfo>();");
 
-            static void WriteAddKeyValuePair(TextWriter writer, QueryBuilderParameterDefinition argumentDefinition)
+            static void WriteAddKeyValuePair(TextWriter writer, QueryBuilderParameterDefinition argumentDefinition, string variableName)
             {
                 var argument = argumentDefinition.Argument;
-                writer.Write("args.Add(new QueryBuilderArgumentInfo { ArgumentName = \"");
+                writer.Write(variableName);
+                writer.Write(".Add(new QueryBuilderArgumentInfo { ArgumentName = \"");
                 writer.Write(argument.Name);
                 writer.Write("\", ArgumentValue = ");
                 writer.Write(argumentDefinition.NetParameterName);
@@ -1452,7 +1471,7 @@ using Newtonsoft.Json.Linq;
                 if (argumentDefinition.Argument.Type.Kind == GraphQlTypeKind.NonNull)
                 {
                     writer.Write("        ");
-                    WriteAddKeyValuePair(writer, argumentDefinition);
+                    WriteAddKeyValuePair(writer, argumentDefinition, argumentCollectionVariableName);
                 }
                 else
                 {
@@ -1461,7 +1480,7 @@ using Newtonsoft.Json.Linq;
                     writer.WriteLine(" != null)");
                     writer.Write(indentation);
                     writer.Write("            ");
-                    WriteAddKeyValuePair(writer, argumentDefinition);
+                    WriteAddKeyValuePair(writer, argumentDefinition, argumentCollectionVariableName);
                     writer.WriteLine();
                 }
             }
