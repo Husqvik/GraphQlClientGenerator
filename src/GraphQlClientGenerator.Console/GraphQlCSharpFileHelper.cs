@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.IO;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -8,31 +10,34 @@ namespace GraphQlClientGenerator.Console
 {
     internal static class GraphQlCSharpFileHelper
     {
-        public static async Task<IReadOnlyCollection<FileInfo>> GenerateClientSourceCode(ProgramOptions options)
+        public static async Task<int> GenerateGraphQlClientSourceCode(IConsole console, ProgramOptions options)
         {
-            var isServiceUrlMissing = String.IsNullOrWhiteSpace(options.ServiceUrl);
-            if (isServiceUrlMissing && String.IsNullOrWhiteSpace(options.SchemaFileName))
+            try
             {
-                System.Console.WriteLine("ERROR: Either \"serviceUrl\" or \"schemaFileName\" parameter must be specified. ");
-                Environment.Exit(4);
-            }
+                var generatedFiles = new List<FileInfo>();
+                await GenerateClientSourceCode(options, generatedFiles);
 
-            if (!isServiceUrlMissing && !String.IsNullOrWhiteSpace(options.SchemaFileName))
+                foreach (var file in generatedFiles)
+                    console.Out.WriteLine($"File {file.FullName} generated successfully ({file.Length:N0} B). ");
+
+                return 0;
+            }
+            catch (Exception exception)
             {
-                System.Console.WriteLine("ERROR: \"serviceUrl\" and \"schemaFileName\" parameters are mutually exclusive. ");
-                Environment.Exit(5);
+                console.Error.WriteLine($"An error occurred: {exception}");
+                return 2;
             }
+        }
 
+        private static async Task GenerateClientSourceCode(ProgramOptions options, List<FileInfo> generatedFiles)
+        {
             GraphQlSchema schema;
-            if (isServiceUrlMissing)
+            if (String.IsNullOrWhiteSpace(options.ServiceUrl))
                 schema = GraphQlGenerator.DeserializeGraphQlSchema(await File.ReadAllTextAsync(options.SchemaFileName));
             else
             {
-                if (!KeyValueParameterParser.TryGetCustomHeaders(options.Headers, out var headers, out var headerParsingErrorMessage))
-                {
-                    System.Console.WriteLine("ERROR: " + headerParsingErrorMessage);
-                    Environment.Exit(3);
-                }
+                if (!KeyValueParameterParser.TryGetCustomHeaders(options.Header, out var headers, out var headerParsingErrorMessage))
+                    throw new InvalidOperationException(headerParsingErrorMessage);
 
                 schema = await GraphQlGenerator.RetrieveSchema(new HttpMethod(options.HttpMethod), options.ServiceUrl, headers);
             }
@@ -51,10 +56,7 @@ namespace GraphQlClientGenerator.Console
                 };
 
             if (!KeyValueParameterParser.TryGetCustomClassMapping(options.ClassMapping, out var customMapping, out var customMappingParsingErrorMessage))
-            {
-                System.Console.WriteLine("ERROR: " + customMappingParsingErrorMessage);
-                Environment.Exit(3);
-            }
+                throw new InvalidOperationException(customMappingParsingErrorMessage);
 
             foreach (var kvp in customMapping)
                 generatorConfiguration.CustomClassNameMapping.Add(kvp);
@@ -64,12 +66,14 @@ namespace GraphQlClientGenerator.Console
             if (options.OutputType == OutputType.SingleFile)
             {
                 await File.WriteAllTextAsync(options.OutputPath, generator.GenerateFullClientCSharpFile(schema, options.Namespace));
-                return new[] { new FileInfo(options.OutputPath) };
+                generatedFiles.Add(new FileInfo(options.OutputPath));
             }
-
-            var multipleFileGenerationContext = new MultipleFileGenerationContext(schema, options.OutputPath, options.Namespace);
-            generator.Generate(multipleFileGenerationContext);
-            return multipleFileGenerationContext.Files;
+            else
+            {
+                var multipleFileGenerationContext = new MultipleFileGenerationContext(schema, options.OutputPath, options.Namespace);
+                generator.Generate(multipleFileGenerationContext);
+                generatedFiles.AddRange(multipleFileGenerationContext.Files);
+            }
         }
     }
 }
