@@ -446,7 +446,8 @@ public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
 
     private static string GetGraphQlTypeName(Type valueType)
     {
-        valueType = Nullable.GetUnderlyingType(valueType) ?? valueType;
+        var nullableUnderlyingType = Nullable.GetUnderlyingType(valueType);
+        valueType = nullableUnderlyingType ?? valueType;
 
         if (valueType.IsArray)
         {
@@ -467,6 +468,16 @@ public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
         if (GraphQlTypes.ReverseMapping.TryGetValue(valueType, out var graphQlTypeName))
             return graphQlTypeName;
 
+        if (valueType == typeof(string))
+            return "String";
+
+        var nullableSuffix = nullableUnderlyingType == null ? null : "?";
+        graphQlTypeName = GetValueTypeGraphQlTypeName(valueType);
+        return graphQlTypeName == null ? null : graphQlTypeName + nullableSuffix;
+    }
+
+    private static string GetValueTypeGraphQlTypeName(Type valueType)
+    {
         if (valueType == typeof(bool))
             return "Boolean";
 
@@ -479,9 +490,6 @@ public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
         if (valueType == typeof(sbyte) || valueType == typeof(byte) || valueType == typeof(short) || valueType == typeof(ushort) || valueType == typeof(int) || valueType == typeof(uint) ||
             valueType == typeof(long) || valueType == typeof(ulong))
             return "Int";
-
-        if (valueType == typeof(string))
-            return "String";
 
         return null;
     }
