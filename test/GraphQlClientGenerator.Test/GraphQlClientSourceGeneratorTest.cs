@@ -24,7 +24,7 @@ namespace GraphQlClientGenerator.Test
 
         public GraphQlClientSourceGeneratorTest()
         {
-            _fileGraphQlSchema = CreateAdditionalFile("GraphQlClientGenerator.Test.TestSchema3", FileNameTestSchema + ".json");
+            _fileGraphQlSchema = CreateAdditionalFile("GraphQlClientGenerator.Test.TestSchemas.TestSchema3", FileNameTestSchema + ".json");
             _fileMappingRules = CreateAdditionalFile("GraphQlClientGenerator.Test.RegexCustomScalarFieldTypeMappingRules", "RegexScalarFieldTypeMappingProviderConfiguration.json");
         }
 
@@ -70,7 +70,7 @@ namespace GraphQlClientGenerator.Test
 
         private static string GetExpectedSourceText()
         {
-            using var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream("GraphQlClientGenerator.Test.ExpectedSourceGeneratorResult"));
+            using var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream("GraphQlClientGenerator.Test.ExpectedSingleFileGenerationContext.ExpectedSourceGeneratorResult"));
             return reader.ReadToEnd();
         }
 
