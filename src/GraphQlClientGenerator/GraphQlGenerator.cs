@@ -47,7 +47,7 @@ using Newtonsoft.Json.Linq;
                 }
             };
 
-        internal static readonly JsonSerializerSettings SerializerSettings =
+        private static readonly JsonSerializerSettings SerializerSettings =
             new()
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
@@ -69,14 +69,14 @@ using Newtonsoft.Json.Linq;
 
             using var request = new HttpRequestMessage(method, url) { Content = requestContent };
 
-            if (headers != null)
+            if (headers is not null)
                 foreach (var kvp in headers)
                     request.Headers.TryAddWithoutValidation(kvp.Key, kvp.Value);
 
             using var response = await HttpClient.SendAsync(request);
 
             var content =
-                response.Content == null
+                response.Content is null
                     ? "(no content)"
                     : await response.Content.ReadAsStringAsync();
 
@@ -94,7 +94,7 @@ using Newtonsoft.Json.Linq;
                     JsonConvert.DeserializeObject<GraphQlResult>(content, SerializerSettings)?.Data?.Schema
                     ?? JsonConvert.DeserializeObject<GraphQlData>(content, SerializerSettings)?.Schema;
 
-                if (schema == null)
+                if (schema is null)
                     throw new ArgumentException("not a GraphQL schema", nameof(content));
 
                 return schema;
@@ -179,7 +179,7 @@ using Newtonsoft.Json.Linq;
             GraphQlType precedingInputObjectType = null;
             foreach (var inputObjectType in graphQlTypes)
             {
-                if (precedingInputObjectType != null && inputObjectType.Kind != precedingInputObjectType.Kind)
+                if (precedingInputObjectType is not null && inputObjectType.Kind != precedingInputObjectType.Kind)
                     writer.WriteLine();
 
                 writer.Write(indentation);
@@ -208,7 +208,7 @@ using Newtonsoft.Json.Linq;
                 if (!netTypeKeys.Add(netType))
                     return;
 
-                if (typeMappingSeparator != null)
+                if (typeMappingSeparator is not null)
                     writer.WriteLine(typeMappingSeparator);
 
                 writer.Write(indentation);
@@ -237,7 +237,7 @@ using Newtonsoft.Json.Linq;
                         {
                             var itemType = UnwrapListItemType(fieldType, out _);
                             fieldType = itemType?.UnwrapIfNonNull();
-                            if (fieldType == null)
+                            if (fieldType is null)
                                 continue;
                         }
 
@@ -302,7 +302,7 @@ using Newtonsoft.Json.Linq;
             do
             {
                 var line = reader.ReadLine();
-                if (line == null)
+                if (line is null)
                     break;
 
                 context.Writer.Write(indentation);
@@ -401,7 +401,7 @@ using Newtonsoft.Json.Linq;
                     var writer = context.Writer;
                     if (hasInputReference)
                         GenerateInputDataClassBody(complexType, fieldsToGenerate, context);
-                    else if (fieldsToGenerate != null)
+                    else if (fieldsToGenerate is not null)
                     {
                         var generateBackingFields = _configuration.PropertyGeneration == PropertyGenerationOption.BackingField && !isInterfaceMember;
                         if (generateBackingFields)
@@ -632,7 +632,7 @@ using Newtonsoft.Json.Linq;
                 return fragments;
 
             foreach (var possibleType in type.PossibleTypes)
-                if (complexTypeDictionary.TryGetValue(possibleType.Name, out var consistOfType) && consistOfType.Fields != null)
+                if (complexTypeDictionary.TryGetValue(possibleType.Name, out var consistOfType) && consistOfType.Fields is not null)
                     fragments.Add(
                         new GraphQlField
                         {
@@ -657,7 +657,7 @@ using Newtonsoft.Json.Linq;
                 var unionFields = new List<GraphQlField>();
                 var unionFieldNames = new HashSet<string>();
                 foreach (var possibleType in type.PossibleTypes)
-                    if (complexTypeDictionary.TryGetValue(possibleType.Name, out var consistOfType) && consistOfType.Fields != null)
+                    if (complexTypeDictionary.TryGetValue(possibleType.Name, out var consistOfType) && consistOfType.Fields is not null)
                         unionFields.AddRange(consistOfType.Fields.Where(f => unionFieldNames.Add(f.Name)));
 
                 typeFields = unionFields;
@@ -803,7 +803,7 @@ using Newtonsoft.Json.Linq;
                 case GraphQlTypeKind.List:
                     var itemType = UnwrapListItemType(fieldType, out var netCollectionOpenType);
                     var unwrappedItemType = itemType?.UnwrapIfNonNull();
-                    if (unwrappedItemType == null)
+                    if (unwrappedItemType is null)
                         throw ListItemTypeResolutionFailedException(baseType.Name, fieldType.Name);
 
                     var itemTypeName = unwrappedItemType.Name;
@@ -888,7 +888,7 @@ using Newtonsoft.Json.Linq;
             FieldTypeResolutionFailedException(typeName, fieldName, "list item type was not resolved; nested collections too deep");
 
         private static InvalidOperationException FieldTypeResolutionFailedException(string typeName, string fieldName, string reason) =>
-            new($"field type resolution failed - type: {typeName}; field: {fieldName}{(reason == null ? null : "; reason: " + reason)}");
+            new($"field type resolution failed - type: {typeName}; field: {fieldName}{(reason is null ? null : "; reason: " + reason)}");
 
         private void GenerateQueryBuilder(GenerationContext context, GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary)
         {
@@ -920,7 +920,7 @@ using Newtonsoft.Json.Linq;
             writer.Write("    private static readonly FieldMetadata[] AllFieldMetadata =");
 
             var fields = type.Kind == GraphQlTypeKind.Union ? null : GetFieldsToGenerate(type, complexTypeDictionary);
-            if (fields == null)
+            if (fields is null)
             {
                 writer.WriteLine(" new FieldMetadata[0];");
                 writer.WriteLine();
@@ -976,7 +976,7 @@ using Newtonsoft.Json.Linq;
                         if (fieldType.Kind != GraphQlTypeKind.Scalar && fieldType.Kind != GraphQlTypeKind.Enum && fieldType.Kind != GraphQlTypeKind.List)
                         {
                             var fieldTypeName = fieldType.Name;
-                            if (fieldTypeName == null)
+                            if (fieldTypeName is null)
                                 throw FieldTypeResolutionFailedException(type.Name, field.Name, null);
 
                             if (!UseCustomClassNameIfDefined(ref fieldTypeName))
@@ -1255,7 +1255,7 @@ using Newtonsoft.Json.Linq;
                 levels++;
 
                 var unwrappedType = type.OfType?.UnwrapIfNonNull();
-                if (unwrappedType == null)
+                if (unwrappedType is null)
                 {
                     netCollectionOpenType = null;
                     return null;
@@ -1648,14 +1648,14 @@ using Newtonsoft.Json.Linq;
 
         private ScalarFieldTypeDescription GetCustomScalarNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
         {
-            if (_configuration.ScalarFieldTypeMappingProvider == null)
+            if (_configuration.ScalarFieldTypeMappingProvider is null)
                 throw new InvalidOperationException($"'{nameof(_configuration.ScalarFieldTypeMappingProvider)}' missing");
 
             var typeDescription = _configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(_configuration, baseType, valueType, valueName);
             if (String.IsNullOrWhiteSpace(typeDescription.NetTypeName))
                 throw new InvalidOperationException($".NET type for '{baseType.Name}.{valueName}' ({valueType.Name}) cannot be resolved. Please check {nameof(_configuration)}.{nameof(_configuration.ScalarFieldTypeMappingProvider)} implementation. ");
 
-            if (typeDescription.FormatMask != null && String.IsNullOrWhiteSpace(typeDescription.FormatMask))
+            if (typeDescription.FormatMask is not null && String.IsNullOrWhiteSpace(typeDescription.FormatMask))
                 throw new InvalidOperationException("invalid format mask");
 
             return typeDescription;

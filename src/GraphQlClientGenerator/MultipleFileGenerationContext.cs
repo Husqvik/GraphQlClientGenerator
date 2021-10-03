@@ -21,7 +21,7 @@ namespace GraphQlClientGenerator
 </Project>
 ";
 
-        internal const string RequiredNamespaces =
+        private const string RequiredNamespaces =
             @"using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -32,7 +32,7 @@ using Newtonsoft.Json;
 #endif
 ";
 
-        private readonly List<FileInfo> _files = new List<FileInfo>();
+        private readonly List<FileInfo> _files = new();
 
         private readonly string _outputDirectory;
         private readonly string _namespace;
@@ -41,7 +41,7 @@ using Newtonsoft.Json;
         private string _currentFileName;
         private TextWriter _currentWriter;
         
-        public override byte Indentation { get; } = 4;
+        public override byte Indentation => 4;
 
         public override TextWriter Writer => _currentWriter;
 

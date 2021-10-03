@@ -13,15 +13,13 @@
 
     public sealed class DefaultScalarFieldTypeMappingProvider : IScalarFieldTypeMappingProvider
     {
-        public static readonly DefaultScalarFieldTypeMappingProvider Instance = new DefaultScalarFieldTypeMappingProvider();
+        public static readonly DefaultScalarFieldTypeMappingProvider Instance = new();
 
         public ScalarFieldTypeDescription GetCustomScalarFieldType(GraphQlGeneratorConfiguration configuration, GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
         {
             valueName = NamingHelper.ToPascalCase(valueName);
 
-            if (valueName == "From" || valueName == "ValidFrom" || valueName == "To" || valueName == "ValidTo" ||
-                valueName == "CreatedAt" || valueName == "UpdatedAt" || valueName == "ModifiedAt" || valueName == "DeletedAt" ||
-                valueName.EndsWith("Timestamp"))
+            if (valueName is "From" or "ValidFrom" or "To" or "ValidTo" or "CreatedAt" or "UpdatedAt" or "ModifiedAt" or "DeletedAt" || valueName.EndsWith("Timestamp"))
                 return new ScalarFieldTypeDescription { NetTypeName = "DateTimeOffset?" };
 
             return GetFallbackFieldType(configuration, valueType);
