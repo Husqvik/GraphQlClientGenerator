@@ -70,7 +70,7 @@ namespace GraphQlClientGenerator.Test
 
         private static string GetExpectedSourceText()
         {
-            using var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream("GraphQlClientGenerator.Test.ExpectedSingleFileGenerationContext.ExpectedSourceGeneratorResult"));
+            using var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream("GraphQlClientGenerator.Test.ExpectedSingleFileGenerationContext.SourceGeneratorResult"));
             return reader.ReadToEnd();
         }
 

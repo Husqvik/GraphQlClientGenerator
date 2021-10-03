@@ -291,7 +291,7 @@ using Newtonsoft.Json.Linq;
 
         private static void GenerateBaseClasses(GenerationContext context)
         {
-            if (IsQueryBuilderGenerationDisabled(context.ObjectTypes))
+            if (!context.ObjectTypes.HasFlag(GeneratedObjectType.BaseClasses))
                 return;
 
             context.BeforeBaseClassGeneration();

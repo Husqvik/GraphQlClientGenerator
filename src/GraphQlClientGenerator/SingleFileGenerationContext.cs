@@ -15,7 +15,7 @@ namespace GraphQlClientGenerator
 
         public override TextWriter Writer { get; }
 
-        public SingleFileGenerationContext(GraphQlSchema schema, TextWriter writer, GeneratedObjectType objectTypes = GeneratedObjectType.DataClasses | GeneratedObjectType.QueryBuilders, byte indentationSize = 0)
+        public SingleFileGenerationContext(GraphQlSchema schema, TextWriter writer, GeneratedObjectType objectTypes = GeneratedObjectType.All, byte indentationSize = 0)
             : base(schema, objectTypes, indentationSize)
         {
             Writer = writer ?? throw new ArgumentNullException(nameof(writer));

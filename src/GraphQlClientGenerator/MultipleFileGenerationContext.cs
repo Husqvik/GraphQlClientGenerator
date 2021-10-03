@@ -52,7 +52,7 @@ using Newtonsoft.Json;
             string outputDirectory,
             string @namespace,
             string projectFileName = null,
-            GeneratedObjectType objectTypes = GeneratedObjectType.DataClasses | GeneratedObjectType.QueryBuilders)
+            GeneratedObjectType objectTypes = GeneratedObjectType.All)
             : base(schema, objectTypes, 4)
         {
             if (!Directory.Exists(outputDirectory))

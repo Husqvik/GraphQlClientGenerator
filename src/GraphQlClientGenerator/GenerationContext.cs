@@ -6,8 +6,10 @@ namespace GraphQlClientGenerator
     [Flags]
     public enum GeneratedObjectType
     {
-        QueryBuilders = 1,
-        DataClasses = 2
+        BaseClasses = 1,
+        QueryBuilders = 2,
+        DataClasses = 4,
+        All = BaseClasses | QueryBuilders | DataClasses
     }
 
     public abstract class GenerationContext
@@ -25,7 +27,7 @@ namespace GraphQlClientGenerator
         protected GenerationContext(GraphQlSchema schema, GeneratedObjectType objectTypes, byte indentationSize)
         {
             var optionsInteger = (int)objectTypes;
-            if (optionsInteger != 1 && optionsInteger != 2 && optionsInteger != 3)
+            if (optionsInteger is < 1 or > 7)
                 throw new ArgumentException("invalid value", nameof(objectTypes));
 
             Schema = schema ?? throw new ArgumentNullException(nameof(schema));
