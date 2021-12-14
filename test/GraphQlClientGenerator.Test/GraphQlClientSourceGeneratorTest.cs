@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -76,9 +73,6 @@ namespace GraphQlClientGenerator.Test
 
         private SourceText GenerateSource(AdditionalText additionalFile, string scalarFieldTypeMappingProviderTypeName)
         {
-            var sourceGenerator = new GraphQlClientSourceGenerator();
-            sourceGenerator.Initialize(new GeneratorInitializationContext());
-
             var configurationOptions =
                 new Dictionary<string, string>
                 {
@@ -95,45 +89,26 @@ namespace GraphQlClientGenerator.Test
                     { "build_property.GraphQlClientGenerator_HttpMethod", "GET" }
                 };
 
-            if (scalarFieldTypeMappingProviderTypeName != null)
+            if (scalarFieldTypeMappingProviderTypeName is not null)
                 configurationOptions.Add("build_property.GraphQlClientGenerator_ScalarFieldTypeMappingProvider", scalarFieldTypeMappingProviderTypeName);
 
             var compilerAnalyzerConfigOptionsProvider = new CompilerAnalyzerConfigOptionsProvider(new CompilerAnalyzerConfigOptions(configurationOptions));
 
             var compilation = CompilationHelper.CreateCompilation(null, "SourceGeneratorTestAssembly");
 
-            var generatorExecutionContextType = typeof(GeneratorExecutionContext);
-            var constructorInfo = generatorExecutionContextType.GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)[0];
             var additionalFiles = new List<AdditionalText> { _fileGraphQlSchema };
 
-            if (additionalFile != null)
+            if (additionalFile is not null)
                 additionalFiles.Add(additionalFile);
 
-            var additionalSourcesCollectionType = Type.GetType("Microsoft.CodeAnalysis.AdditionalSourcesCollection, Microsoft.CodeAnalysis");
-            var additionalSourcesCollection = additionalSourcesCollectionType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(string) }, null).Invoke(new object[] { ".cs" });
-
-            var executionContext =
-                (GeneratorExecutionContext)constructorInfo.Invoke(
-                    new[]
-                    {
-                        compilation,
-                        new CSharpParseOptions(LanguageVersion.CSharp9),
-                        additionalFiles.ToImmutableArray(),
-                        compilerAnalyzerConfigOptionsProvider,
-                        null,
-                        additionalSourcesCollection,
-                        CancellationToken.None
-                    });
-
-            var additionalSourceFiles = generatorExecutionContextType.GetField("_additionalSources", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(executionContext);
-
-            sourceGenerator.Execute(executionContext);
-
-            var sourcesAdded = ((IEnumerable)additionalSourceFiles.GetType().GetField("_sourcesAdded", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(additionalSourceFiles)).GetEnumerator();
-            sourcesAdded.MoveNext().ShouldBeTrue();
-            var sourceText = (SourceText)sourcesAdded.Current.GetType().GetProperty("Text").GetValue(sourcesAdded.Current);
-            sourcesAdded.MoveNext().ShouldBeFalse();
-            return sourceText;
+            var sourceGenerator = new GraphQlClientSourceGenerator();
+            var driver = CSharpGeneratorDriver.Create(new [] { sourceGenerator}, additionalFiles, optionsProvider: compilerAnalyzerConfigOptionsProvider);
+            var csharpDriver = driver.RunGenerators(compilation);
+            var runResult = csharpDriver.GetRunResult();
+            var results = runResult.Results;
+            results.Length.ShouldBe(1);
+            results[0].GeneratedSources.Length.ShouldBe(1);
+            return results[0].GeneratedSources[0].SourceText;
         }
 
         private class AdditionalFile : AdditionalText
