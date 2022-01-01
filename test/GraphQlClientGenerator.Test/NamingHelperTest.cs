@@ -1,7 +1,4 @@
-﻿using Shouldly;
-using Xunit;
-
-namespace GraphQlClientGenerator.Test
+﻿namespace GraphQlClientGenerator.Test
 {
     public class NamingHelperTest
     {

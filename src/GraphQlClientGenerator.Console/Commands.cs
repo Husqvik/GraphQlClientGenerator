@@ -1,6 +1,5 @@
 ﻿using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.Linq;
+using System.CommandLine.NamingConventionBinder;
 
 namespace GraphQlClientGenerator.Console
 {

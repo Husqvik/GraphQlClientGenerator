@@ -10,6 +10,8 @@
     <PackageTags>GraphQL Client Generator</PackageTags>
     <PackageReleaseNotes>fixed argument naming collision</PackageReleaseNotes>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>

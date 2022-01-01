@@ -4,17 +4,20 @@
     <AssemblyTitle>GraphQL C# Client Generator Console App</AssemblyTitle>
     <Description>A simple strongly typed C# GraphQL client generator console app</Description>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Title>GraphQL C# Client Generator Console App</Title>
     <PackageId>GraphQlClientGenerator.Tool</PackageId>
     <PackageTags>GraphQL Client Generator Tool Console</PackageTags>
     <PackageReleaseNotes>fixed argument naming collision</PackageReleaseNotes>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>graphql-client-generator</ToolCommandName>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta*" />
+    <PackageReference Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta*" />
     <ProjectReference Include="..\GraphQlClientGenerator\GraphQlClientGenerator.csproj">
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <IncludeAssets>all</IncludeAssets>

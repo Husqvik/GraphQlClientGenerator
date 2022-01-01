@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace GraphQlClientGenerator
+﻿namespace GraphQlClientGenerator
 {
     public class SingleFileGenerationContext : GenerationContext
     {

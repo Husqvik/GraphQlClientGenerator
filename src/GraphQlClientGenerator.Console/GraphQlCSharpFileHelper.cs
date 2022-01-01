@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.CommandLine;
+﻿using System.CommandLine;
 using System.CommandLine.IO;
-using System.IO;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace GraphQlClientGenerator.Console
 {

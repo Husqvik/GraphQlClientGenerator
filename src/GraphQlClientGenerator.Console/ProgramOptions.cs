@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace GraphQlClientGenerator.Console
+﻿namespace GraphQlClientGenerator.Console
 {
     public class ProgramOptions
     {

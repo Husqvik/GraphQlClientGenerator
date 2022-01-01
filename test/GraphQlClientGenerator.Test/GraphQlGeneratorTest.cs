@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
+﻿using System.Globalization;
 using System.Reflection;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Newtonsoft.Json;
-using Shouldly;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace GraphQlClientGenerator.Test
