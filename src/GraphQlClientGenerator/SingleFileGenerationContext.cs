@@ -1,155 +1,154 @@
-﻿namespace GraphQlClientGenerator
+﻿namespace GraphQlClientGenerator;
+
+public class SingleFileGenerationContext : GenerationContext
 {
-    public class SingleFileGenerationContext : GenerationContext
+    private readonly string _indentation;
+
+    private bool _isNullableReferenceScopeEnabled;
+    private int _enums;
+    private int _directives;
+    private int _queryBuilders;
+    private int _dataClasses;
+
+    public override TextWriter Writer { get; }
+
+    public SingleFileGenerationContext(GraphQlSchema schema, TextWriter writer, GeneratedObjectType objectTypes = GeneratedObjectType.All, byte indentationSize = 0)
+        : base(schema, objectTypes, indentationSize)
     {
-        private readonly string _indentation;
+        Writer = writer ?? throw new ArgumentNullException(nameof(writer));
+        _indentation = new String(' ', indentationSize);
+    }
 
-        private bool _isNullableReferenceScopeEnabled;
-        private int _enums;
-        private int _directives;
-        private int _queryBuilders;
-        private int _dataClasses;
+    public override void BeforeGeneration(GraphQlGeneratorConfiguration configuration)
+    {
+        _enums = _directives = _queryBuilders = _dataClasses = 0;
+        base.BeforeGeneration(configuration);
+    }
 
-        public override TextWriter Writer { get; }
+    public override void BeforeBaseClassGeneration() => WriteLine("#region base classes");
 
-        public SingleFileGenerationContext(GraphQlSchema schema, TextWriter writer, GeneratedObjectType objectTypes = GeneratedObjectType.All, byte indentationSize = 0)
-            : base(schema, objectTypes, indentationSize)
-        {
-            Writer = writer ?? throw new ArgumentNullException(nameof(writer));
-            _indentation = new String(' ', indentationSize);
-        }
+    public override void AfterBaseClassGeneration()
+    {
+        WriteLine("#endregion");
+        Writer.WriteLine();
+    }
 
-        public override void BeforeGeneration(GraphQlGeneratorConfiguration configuration)
-        {
-            _enums = _directives = _queryBuilders = _dataClasses = 0;
-            base.BeforeGeneration(configuration);
-        }
+    public override void BeforeGraphQlTypeNameGeneration() => WriteLine("#region GraphQL type helpers");
 
-        public override void BeforeBaseClassGeneration() => WriteLine("#region base classes");
+    public override void AfterGraphQlTypeNameGeneration()
+    {
+        WriteLine("#endregion");
+        Writer.WriteLine();
+    }
 
-        public override void AfterBaseClassGeneration()
-        {
-            WriteLine("#endregion");
+    public override void BeforeEnumsGeneration() => WriteLine("#region enums");
+
+    public override void BeforeEnumGeneration(string enumName)
+    {
+        if (_enums > 0)
             Writer.WriteLine();
-        }
+    }
 
-        public override void BeforeGraphQlTypeNameGeneration() => WriteLine("#region GraphQL type helpers");
+    public override void AfterEnumGeneration(string enumName) => _enums++;
 
-        public override void AfterGraphQlTypeNameGeneration()
-        {
-            WriteLine("#endregion");
+    public override void AfterEnumsGeneration()
+    {
+        WriteLine("#endregion");
+        Writer.WriteLine();
+    }
+
+    public override void BeforeDirectivesGeneration()
+    {
+        EnterNullableReferenceScope();
+        WriteLine("#region directives");
+    }
+
+    public override void BeforeDirectiveGeneration(string className)
+    {
+        if (_directives > 0)
             Writer.WriteLine();
-        }
+    }
 
-        public override void BeforeEnumsGeneration() => WriteLine("#region enums");
+    public override void AfterDirectiveGeneration(string className) => _directives++;
 
-        public override void BeforeEnumGeneration(string enumName)
-        {
-            if (_enums > 0)
-                Writer.WriteLine();
-        }
+    public override void AfterDirectivesGeneration()
+    {
+        WriteLine("#endregion");
+        Writer.WriteLine();
+    }
 
-        public override void AfterEnumGeneration(string enumName) => _enums++;
+    public override void BeforeQueryBuildersGeneration()
+    {
+        EnterNullableReferenceScope();
+        WriteLine("#region builder classes");
+    }
 
-        public override void AfterEnumsGeneration()
-        {
-            WriteLine("#endregion");
+    public override void BeforeQueryBuilderGeneration(string className)
+    {
+        if (_queryBuilders > 0)
             Writer.WriteLine();
-        }
+    }
 
-        public override void BeforeDirectivesGeneration()
-        {
-            EnterNullableReferenceScope();
-            WriteLine("#region directives");
-        }
+    public override void AfterQueryBuilderGeneration(string className) => _queryBuilders++;
 
-        public override void BeforeDirectiveGeneration(string className)
-        {
-            if (_directives > 0)
-                Writer.WriteLine();
-        }
+    public override void AfterQueryBuildersGeneration()
+    {
+        WriteLine("#endregion");
+        Writer.WriteLine();
+    }
 
-        public override void AfterDirectiveGeneration(string className) => _directives++;
+    public override void BeforeInputClassesGeneration()
+    {
+        EnterNullableReferenceScope();
+        WriteLine("#region input classes");
+    }
 
-        public override void AfterDirectivesGeneration()
-        {
-            WriteLine("#endregion");
+    public override void AfterInputClassesGeneration()
+    {
+        WriteLine("#endregion");
+        Writer.WriteLine();
+    }
+
+    public override void BeforeDataClassesGeneration()
+    {
+        _dataClasses = 0;
+        EnterNullableReferenceScope();
+        WriteLine("#region data classes");
+    }
+
+    public override void BeforeDataClassGeneration(string className)
+    {
+        if (_dataClasses > 0)
             Writer.WriteLine();
-        }
+    }
 
-        public override void BeforeQueryBuildersGeneration()
-        {
-            EnterNullableReferenceScope();
-            WriteLine("#region builder classes");
-        }
+    public override void AfterDataClassGeneration(string className) => _dataClasses++;
 
-        public override void BeforeQueryBuilderGeneration(string className)
-        {
-            if (_queryBuilders > 0)
-                Writer.WriteLine();
-        }
+    public override void AfterDataClassesGeneration() => WriteLine("#endregion");
 
-        public override void AfterQueryBuilderGeneration(string className) => _queryBuilders++;
+    public override void AfterGeneration() => ExitNullableReferenceScope();
 
-        public override void AfterQueryBuildersGeneration()
-        {
-            WriteLine("#endregion");
-            Writer.WriteLine();
-        }
+    private void EnterNullableReferenceScope()
+    {
+        if (_isNullableReferenceScopeEnabled || Configuration.CSharpVersion != CSharpVersion.NewestWithNullableReferences)
+            return;
 
-        public override void BeforeInputClassesGeneration()
-        {
-            EnterNullableReferenceScope();
-            WriteLine("#region input classes");
-        }
+        WriteLine("#nullable enable");
+        _isNullableReferenceScopeEnabled = true;
+    }
 
-        public override void AfterInputClassesGeneration()
-        {
-            WriteLine("#endregion");
-            Writer.WriteLine();
-        }
+    private void ExitNullableReferenceScope()
+    {
+        if (!_isNullableReferenceScopeEnabled)
+            return;
 
-        public override void BeforeDataClassesGeneration()
-        {
-            _dataClasses = 0;
-            EnterNullableReferenceScope();
-            WriteLine("#region data classes");
-        }
+        Writer.WriteLine("#nullable restore");
+        _isNullableReferenceScopeEnabled = false;
+    }
 
-        public override void BeforeDataClassGeneration(string className)
-        {
-            if (_dataClasses > 0)
-                Writer.WriteLine();
-        }
-
-        public override void AfterDataClassGeneration(string className) => _dataClasses++;
-
-        public override void AfterDataClassesGeneration() => WriteLine("#endregion");
-
-        public override void AfterGeneration() => ExitNullableReferenceScope();
-
-        private void EnterNullableReferenceScope()
-        {
-            if (_isNullableReferenceScopeEnabled || Configuration.CSharpVersion != CSharpVersion.NewestWithNullableReferences)
-                return;
-
-            WriteLine("#nullable enable");
-            _isNullableReferenceScopeEnabled = true;
-        }
-
-        private void ExitNullableReferenceScope()
-        {
-            if (!_isNullableReferenceScopeEnabled)
-                return;
-
-            Writer.WriteLine("#nullable restore");
-            _isNullableReferenceScopeEnabled = false;
-        }
-
-        private void WriteLine(string text)
-        {
-            Writer.Write(_indentation);
-            Writer.WriteLine(text);
-        }
+    private void WriteLine(string text)
+    {
+        Writer.Write(_indentation);
+        Writer.WriteLine(text);
     }
 }

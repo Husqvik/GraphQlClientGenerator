@@ -1,8 +1,7 @@
-﻿namespace GraphQlClientGenerator.Console
+﻿namespace GraphQlClientGenerator.Console;
+
+public enum OutputType
 {
-    public enum OutputType
-    {
-        SingleFile,
-        OneClassPerFile
-    }
+    SingleFile,
+    OneClassPerFile
 }

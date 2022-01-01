@@ -1,32 +1,31 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace GraphQlClientGenerator
+namespace GraphQlClientGenerator;
+
+internal class RegexScalarFieldTypeMappingProvider : IScalarFieldTypeMappingProvider
 {
-    internal class RegexScalarFieldTypeMappingProvider : IScalarFieldTypeMappingProvider
+    private readonly ICollection<RegexScalarFieldTypeMappingRule> _rules;
+
+    public RegexScalarFieldTypeMappingProvider(ICollection<RegexScalarFieldTypeMappingRule> rules) =>
+        _rules = rules ?? throw new ArgumentNullException(nameof(rules));
+
+    public ScalarFieldTypeDescription GetCustomScalarFieldType(GraphQlGeneratorConfiguration configuration, GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
     {
-        private readonly ICollection<RegexScalarFieldTypeMappingRule> _rules;
+        valueType = (valueType as GraphQlFieldType)?.UnwrapIfNonNull() ?? valueType;
 
-        public RegexScalarFieldTypeMappingProvider(ICollection<RegexScalarFieldTypeMappingRule> rules) =>
-            _rules = rules ?? throw new ArgumentNullException(nameof(rules));
+        foreach (var rule in _rules)
+            if (Regex.IsMatch(valueName, rule.PatternValueName) && Regex.IsMatch(baseType.Name, rule.PatternBaseType) && Regex.IsMatch(valueType.Name ?? String.Empty, rule.PatternValueType))
+                return new ScalarFieldTypeDescription { NetTypeName = rule.NetTypeName, FormatMask = rule.FormatMask };
 
-        public ScalarFieldTypeDescription GetCustomScalarFieldType(GraphQlGeneratorConfiguration configuration, GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
-        {
-            valueType = (valueType as GraphQlFieldType)?.UnwrapIfNonNull() ?? valueType;
-
-            foreach (var rule in _rules)
-                if (Regex.IsMatch(valueName, rule.PatternValueName) && Regex.IsMatch(baseType.Name, rule.PatternBaseType) && Regex.IsMatch(valueType.Name ?? String.Empty, rule.PatternValueType))
-                    return new ScalarFieldTypeDescription { NetTypeName = rule.NetTypeName, FormatMask = rule.FormatMask };
-
-            return DefaultScalarFieldTypeMappingProvider.GetFallbackFieldType(configuration, valueType);
-        }
+        return DefaultScalarFieldTypeMappingProvider.GetFallbackFieldType(configuration, valueType);
     }
+}
 
-    public class RegexScalarFieldTypeMappingRule
-    {
-        public string PatternBaseType { get; set; }
-        public string PatternValueType { get; set; }
-        public string PatternValueName { get; set; }
-        public string NetTypeName { get; set; }
-        public string FormatMask { get; set; }
-    }
+public class RegexScalarFieldTypeMappingRule
+{
+    public string PatternBaseType { get; set; }
+    public string PatternValueType { get; set; }
+    public string PatternValueName { get; set; }
+    public string NetTypeName { get; set; }
+    public string FormatMask { get; set; }
 }

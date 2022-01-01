@@ -1,9 +1,9 @@
-﻿namespace GraphQlClientGenerator
+﻿namespace GraphQlClientGenerator;
+
+public static class IntrospectionQuery
 {
-    public static class IntrospectionQuery
-    {
-        public const string Text =
-    @"query IntrospectionQuery {
+    public const string Text =
+        @"query IntrospectionQuery {
     __schema {
       queryType { name }
       mutationType { name }
@@ -90,5 +90,4 @@
       }
     }
   }";
-    }
 }

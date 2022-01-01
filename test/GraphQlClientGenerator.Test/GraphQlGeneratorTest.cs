@@ -6,409 +6,409 @@ using Microsoft.CodeAnalysis.CSharp;
 using Newtonsoft.Json;
 using Xunit.Abstractions;
 
-namespace GraphQlClientGenerator.Test
+namespace GraphQlClientGenerator.Test;
+
+public class GraphQlGeneratorTest
 {
-    public class GraphQlGeneratorTest
+    private static readonly GraphQlSchema TestSchema = DeserializeTestSchema("TestSchema");
+
+    private readonly ITestOutputHelper _outputHelper;
+
+    private static GraphQlSchema DeserializeTestSchema(string resourceName) =>
+        GraphQlGenerator.DeserializeGraphQlSchema(GetTestResource("TestSchemas." + resourceName));
+
+    private static GenerationContext CreateGenerationContext(
+        StringBuilder builder,
+        GraphQlSchema schema,
+        GeneratedObjectType objectTypes = GeneratedObjectType.All) =>
+        new SingleFileGenerationContext(schema, new StringWriter(builder), objectTypes);
+
+    public GraphQlGeneratorTest(ITestOutputHelper outputHelper)
     {
-        private static readonly GraphQlSchema TestSchema = DeserializeTestSchema("TestSchema");
+        _outputHelper = outputHelper;
+    }
 
-        private readonly ITestOutputHelper _outputHelper;
-
-        private static GraphQlSchema DeserializeTestSchema(string resourceName) =>
-            GraphQlGenerator.DeserializeGraphQlSchema(GetTestResource("TestSchemas." + resourceName));
-
-        private static GenerationContext CreateGenerationContext(
-            StringBuilder builder,
-            GraphQlSchema schema,
-            GeneratedObjectType objectTypes = GeneratedObjectType.All) =>
-            new SingleFileGenerationContext(schema, new StringWriter(builder), objectTypes);
-
-        public GraphQlGeneratorTest(ITestOutputHelper outputHelper)
-        {
-            _outputHelper = outputHelper;
-        }
-
-        [Fact]
-        public void MultipleFileGeneration()
-        {
-            var configuration =
-                new GraphQlGeneratorConfiguration
-                {
-                    CommentGeneration = CommentGenerationOption.CodeSummary | CommentGenerationOption.DescriptionAttribute,
-                    CSharpVersion = CSharpVersion.Newest
-                };
-
-            var generator = new GraphQlGenerator(configuration);
-
-            var tempPath = Path.GetTempPath();
-            var directoryInfo = Directory.CreateDirectory(Path.Combine(tempPath, "GraphQlGeneratorTest"));
-
-            try
+    [Fact]
+    public void MultipleFileGeneration()
+    {
+        var configuration =
+            new GraphQlGeneratorConfiguration
             {
-                var context = new MultipleFileGenerationContext(DeserializeTestSchema("TestSchema2"), directoryInfo.FullName, "GraphQlGeneratorTest", "GraphQlGeneratorTest.csproj");
-                generator.Generate(context);
+                CommentGeneration = CommentGenerationOption.CodeSummary | CommentGenerationOption.DescriptionAttribute,
+                CSharpVersion = CSharpVersion.Newest
+            };
 
-                var files = directoryInfo.GetFiles().OrderBy(f => f.Name).ToArray();
-                var fileNames = files.Select(f => f.Name);
-                fileNames.ShouldBe(
-                    new[]
-                    {
-                        "About.cs",
-                        "AboutItem.cs",
-                        "AboutItemQueryBuilder.cs",
-                        "AboutQueryBuilder.cs",
-                        "Address.cs",
-                        "AddressQueryBuilder.cs",
-                        "AppState.cs",
-                        "AppStateFronScreen.cs",
-                        "AppStateFronScreenMutation.cs",
-                        "AppStateFronScreenQueryBuilder.cs",
-                        "AppStateJourney.cs",
-                        "AppStateJourneyMutation.cs",
-                        "AppStateJourneyQueryBuilder.cs",
-                        "AppStateMutation.cs",
-                        "AppStateQueryBuilder.cs",
-                        "Avatar.cs",
-                        "AwayMode.cs",
-                        "AwayModeQueryBuilder.cs",
-                        "AwayModeSettings.cs",
-                        "AwayModeSettingsQueryBuilder.cs",
-                        "BaseClasses.cs",
-                        "Comparison.cs",
-                        "ComparisonData.cs",
-                        "ComparisonDataQueryBuilder.cs",
-                        "ComparisonQueryBuilder.cs",
-                        "Consumption.cs",
-                        "ConsumptionMonth.cs",
-                        "ConsumptionMonthQueryBuilder.cs",
-                        "ConsumptionQueryBuilder.cs",
-                        "CreditCard.cs",
-                        "CreditCardQueryBuilder.cs",
-                        "DayNightSchedule.cs",
-                        "DayNightScheduleQueryBuilder.cs",
-                        "DayNightScheduleSettings.cs",
-                        "DayNightScheduleSettingsQueryBuilder.cs",
-                        "Disaggregation.cs",
-                        "DisaggregationQueryBuilder.cs",
-                        "EnergyDeal.cs",
-                        "EnergyDealQueryBuilder.cs",
-                        "Feed.cs",
-                        "FeedItem.cs",
-                        "FeedItemQueryBuilder.cs",
-                        "FeedQueryBuilder.cs",
-                        "GqlMutationError.cs",
-                        "GqlMutationErrorQueryBuilder.cs",
-                        "GqlMutationGeneralResponse.cs",
-                        "GqlMutationGeneralResponseQueryBuilder.cs",
-                        "GraphQlGeneratorTest.csproj",
-                        "GraphQlTypes.cs",
-                        "Greeting.cs",
-                        "GreetingQueryBuilder.cs",
-                        "Home.cs",
-                        "HomeMutation.cs",
-                        "HomeMutationQueryBuilder.cs",
-                        "HomeProfileQuestion.cs",
-                        "HomeProfileQuestionAnswer.cs",
-                        "HomeProfileQuestionInput.cs",
-                        "HomeProfileQuestionInputQueryBuilder.cs",
-                        "HomeProfileQuestionQueryBuilder.cs",
-                        "HomeQueryBuilder.cs",
-                        "IncludeDirective.cs",
-                        "Invoice.cs",
-                        "InvoicePayment.cs",
-                        "InvoicePaymentQueryBuilder.cs",
-                        "InvoiceQueryBuilder.cs",
-                        "InvoiceSection.cs",
-                        "InvoiceSectionQueryBuilder.cs",
-                        "Me.cs",
-                        "MeMutation.cs",
-                        "MeMutationQueryBuilder.cs",
-                        "MeQueryBuilder.cs",
-                        "Mutation.cs",
-                        "MutationQueryBuilder.cs",
-                        "PairableDevice.cs",
-                        "PairableDeviceOAuth.cs",
-                        "PairableDeviceOAuthQueryBuilder.cs",
-                        "PairableDeviceQueryBuilder.cs",
-                        "PairDeviceResult.cs",
-                        "PairDeviceResultQueryBuilder.cs",
-                        "PaymentMethod.cs",
-                        "PaymentMethodQueryBuilder.cs",
-                        "PreLiveComparison.cs",
-                        "PreLiveComparisonQueryBuilder.cs",
-                        "PriceRating.cs",
-                        "PriceRatingColorOffset.cs",
-                        "PriceRatingColorOffsetQueryBuilder.cs",
-                        "PriceRatingEntry.cs",
-                        "PriceRatingEntryQueryBuilder.cs",
-                        "PriceRatingQueryBuilder.cs",
-                        "PriceRatingRoot.cs",
-                        "PriceRatingRootQueryBuilder.cs",
-                        "ProcessStep.cs",
-                        "ProcessStepQueryBuilder.cs",
-                        "Producer.cs",
-                        "ProducerBullet.cs",
-                        "ProducerBulletQueryBuilder.cs",
-                        "ProducerQueryBuilder.cs",
-                        "Production.cs",
-                        "ProductionMonth.cs",
-                        "ProductionMonthQueryBuilder.cs",
-                        "ProductionQueryBuilder.cs",
-                        "ProductionValue.cs",
-                        "ProductionValueQueryBuilder.cs",
-                        "PushNotification.cs",
-                        "PushNotificationQueryBuilder.cs",
-                        "Query.cs",
-                        "QueryQueryBuilder.cs",
-                        "Report.cs",
-                        "ReportCell.cs",
-                        "ReportCellQueryBuilder.cs",
-                        "ReportQueryBuilder.cs",
-                        "ReportRoot.cs",
-                        "ReportRootQueryBuilder.cs",
-                        "Resolution.cs",
-                        "Sensor.cs",
-                        "SensorHistory.cs",
-                        "SensorHistoryQueryBuilder.cs",
-                        "SensorHistoryValue.cs",
-                        "SensorHistoryValueQueryBuilder.cs",
-                        "SensorQueryBuilder.cs",
-                        "SignupStatus.cs",
-                        "SignupStatusQueryBuilder.cs",
-                        "SkipDirective.cs",
-                        "Subscription.cs",
-                        "SubscriptionQueryBuilder.cs",
-                        "Thermostat.cs",
-                        "ThermostatCapability.cs",
-                        "ThermostatCapabilityQueryBuilder.cs",
-                        "ThermostatMeasurement.cs",
-                        "ThermostatMeasurementQueryBuilder.cs",
-                        "ThermostatMeasurements.cs",
-                        "ThermostatMeasurementsQueryBuilder.cs",
-                        "ThermostatMode.cs",
-                        "ThermostatModeQueryBuilder.cs",
-                        "ThermostatMutation.cs",
-                        "ThermostatMutationQueryBuilder.cs",
-                        "ThermostatQueryBuilder.cs",
-                        "ThermostatState.cs",
-                        "ThermostatStateQueryBuilder.cs",
-                        "Wallet.cs",
-                        "WalletQueryBuilder.cs",
-                        "Weather.cs",
-                        "WeatherEntry.cs",
-                        "WeatherEntryQueryBuilder.cs",
-                        "WeatherQueryBuilder.cs"
-                    });
+        var generator = new GraphQlGenerator(configuration);
 
-                var fileSizes = files.Where(f => f.Name != "BaseClasses.cs").Select(f => f.Length);
-                fileSizes.ShouldBe(
-                    new long[]
-                    {
-                        446, 475, 1371, 1158, 978, 4207, 519, 569, 2132, 1907, 455, 1114, 1152, 1685, 1751, 756, 494, 1583, 498, 1410, 792, 491, 1441, 4082, 963, 762, 3633, 4982, 478, 1388, 566, 2195, 613, 2372, 1225, 6888, 447, 1229, 571, 676, 2782, 2552, 489, 1465, 461, 1291, 368, 6061, 594, 2208, 1957, 921, 7881, 879, 1530, 493, 1509, 4702, 17152, 807, 1626, 627, 2663, 9819, 972, 5176, 1101, 552, 3297, 7118, 434, 1415, 543, 501, 1521, 1966, 575, 2251, 531, 1809, 621, 2577, 767, 571, 1997, 581, 2161, 3592, 755, 3835, 588, 2156, 676, 537, 1825, 2913, 1072, 795, 3940, 5667, 898, 4456, 520, 1758, 423, 1359, 664, 751, 3527, 2857, 450, 1181, 480, 589, 559, 1978, 548, 1841, 2285, 559, 2219, 782, 853, 4400, 938, 530, 1832, 872, 4509, 584, 2081, 501, 1464, 489, 2666, 5025, 586, 2200, 558, 1950, 561, 1230, 3582, 1950
-                    });
+        var tempPath = Path.GetTempPath();
+        var directoryInfo = Directory.CreateDirectory(Path.Combine(tempPath, "GraphQlGeneratorTest"));
 
-                var expectedOutput = GetTestResource("ExpectedMultipleFilesContext.Avatar");
-                File.ReadAllText(Path.Combine(directoryInfo.FullName, "Avatar.cs")).ShouldBe(expectedOutput);
-                expectedOutput = GetTestResource("ExpectedMultipleFilesContext.Home");
-                File.ReadAllText(Path.Combine(directoryInfo.FullName, "Home.cs")).ShouldBe(expectedOutput);
-                expectedOutput = GetTestResource("ExpectedMultipleFilesContext.IncludeDirective");
-                File.ReadAllText(Path.Combine(directoryInfo.FullName, "IncludeDirective.cs")).ShouldBe(expectedOutput);
-                expectedOutput = GetTestResource("ExpectedMultipleFilesContext.MutationQueryBuilder");
-                File.ReadAllText(Path.Combine(directoryInfo.FullName, "MutationQueryBuilder.cs")).ShouldBe(expectedOutput);
-            }
-            finally
+        try
+        {
+            var context = new MultipleFileGenerationContext(DeserializeTestSchema("TestSchema2"), directoryInfo.FullName, "GraphQlGeneratorTest", "GraphQlGeneratorTest.csproj");
+            generator.Generate(context);
+
+            var files = directoryInfo.GetFiles().OrderBy(f => f.Name).ToArray();
+            var fileNames = files.Select(f => f.Name);
+            fileNames.ShouldBe(
+                new[]
+                {
+                    "About.cs",
+                    "AboutItem.cs",
+                    "AboutItemQueryBuilder.cs",
+                    "AboutQueryBuilder.cs",
+                    "Address.cs",
+                    "AddressQueryBuilder.cs",
+                    "AppState.cs",
+                    "AppStateFronScreen.cs",
+                    "AppStateFronScreenMutation.cs",
+                    "AppStateFronScreenQueryBuilder.cs",
+                    "AppStateJourney.cs",
+                    "AppStateJourneyMutation.cs",
+                    "AppStateJourneyQueryBuilder.cs",
+                    "AppStateMutation.cs",
+                    "AppStateQueryBuilder.cs",
+                    "Avatar.cs",
+                    "AwayMode.cs",
+                    "AwayModeQueryBuilder.cs",
+                    "AwayModeSettings.cs",
+                    "AwayModeSettingsQueryBuilder.cs",
+                    "BaseClasses.cs",
+                    "Comparison.cs",
+                    "ComparisonData.cs",
+                    "ComparisonDataQueryBuilder.cs",
+                    "ComparisonQueryBuilder.cs",
+                    "Consumption.cs",
+                    "ConsumptionMonth.cs",
+                    "ConsumptionMonthQueryBuilder.cs",
+                    "ConsumptionQueryBuilder.cs",
+                    "CreditCard.cs",
+                    "CreditCardQueryBuilder.cs",
+                    "DayNightSchedule.cs",
+                    "DayNightScheduleQueryBuilder.cs",
+                    "DayNightScheduleSettings.cs",
+                    "DayNightScheduleSettingsQueryBuilder.cs",
+                    "Disaggregation.cs",
+                    "DisaggregationQueryBuilder.cs",
+                    "EnergyDeal.cs",
+                    "EnergyDealQueryBuilder.cs",
+                    "Feed.cs",
+                    "FeedItem.cs",
+                    "FeedItemQueryBuilder.cs",
+                    "FeedQueryBuilder.cs",
+                    "GqlMutationError.cs",
+                    "GqlMutationErrorQueryBuilder.cs",
+                    "GqlMutationGeneralResponse.cs",
+                    "GqlMutationGeneralResponseQueryBuilder.cs",
+                    "GraphQlGeneratorTest.csproj",
+                    "GraphQlTypes.cs",
+                    "Greeting.cs",
+                    "GreetingQueryBuilder.cs",
+                    "Home.cs",
+                    "HomeMutation.cs",
+                    "HomeMutationQueryBuilder.cs",
+                    "HomeProfileQuestion.cs",
+                    "HomeProfileQuestionAnswer.cs",
+                    "HomeProfileQuestionInput.cs",
+                    "HomeProfileQuestionInputQueryBuilder.cs",
+                    "HomeProfileQuestionQueryBuilder.cs",
+                    "HomeQueryBuilder.cs",
+                    "IncludeDirective.cs",
+                    "Invoice.cs",
+                    "InvoicePayment.cs",
+                    "InvoicePaymentQueryBuilder.cs",
+                    "InvoiceQueryBuilder.cs",
+                    "InvoiceSection.cs",
+                    "InvoiceSectionQueryBuilder.cs",
+                    "Me.cs",
+                    "MeMutation.cs",
+                    "MeMutationQueryBuilder.cs",
+                    "MeQueryBuilder.cs",
+                    "Mutation.cs",
+                    "MutationQueryBuilder.cs",
+                    "PairableDevice.cs",
+                    "PairableDeviceOAuth.cs",
+                    "PairableDeviceOAuthQueryBuilder.cs",
+                    "PairableDeviceQueryBuilder.cs",
+                    "PairDeviceResult.cs",
+                    "PairDeviceResultQueryBuilder.cs",
+                    "PaymentMethod.cs",
+                    "PaymentMethodQueryBuilder.cs",
+                    "PreLiveComparison.cs",
+                    "PreLiveComparisonQueryBuilder.cs",
+                    "PriceRating.cs",
+                    "PriceRatingColorOffset.cs",
+                    "PriceRatingColorOffsetQueryBuilder.cs",
+                    "PriceRatingEntry.cs",
+                    "PriceRatingEntryQueryBuilder.cs",
+                    "PriceRatingQueryBuilder.cs",
+                    "PriceRatingRoot.cs",
+                    "PriceRatingRootQueryBuilder.cs",
+                    "ProcessStep.cs",
+                    "ProcessStepQueryBuilder.cs",
+                    "Producer.cs",
+                    "ProducerBullet.cs",
+                    "ProducerBulletQueryBuilder.cs",
+                    "ProducerQueryBuilder.cs",
+                    "Production.cs",
+                    "ProductionMonth.cs",
+                    "ProductionMonthQueryBuilder.cs",
+                    "ProductionQueryBuilder.cs",
+                    "ProductionValue.cs",
+                    "ProductionValueQueryBuilder.cs",
+                    "PushNotification.cs",
+                    "PushNotificationQueryBuilder.cs",
+                    "Query.cs",
+                    "QueryQueryBuilder.cs",
+                    "Report.cs",
+                    "ReportCell.cs",
+                    "ReportCellQueryBuilder.cs",
+                    "ReportQueryBuilder.cs",
+                    "ReportRoot.cs",
+                    "ReportRootQueryBuilder.cs",
+                    "Resolution.cs",
+                    "Sensor.cs",
+                    "SensorHistory.cs",
+                    "SensorHistoryQueryBuilder.cs",
+                    "SensorHistoryValue.cs",
+                    "SensorHistoryValueQueryBuilder.cs",
+                    "SensorQueryBuilder.cs",
+                    "SignupStatus.cs",
+                    "SignupStatusQueryBuilder.cs",
+                    "SkipDirective.cs",
+                    "Subscription.cs",
+                    "SubscriptionQueryBuilder.cs",
+                    "Thermostat.cs",
+                    "ThermostatCapability.cs",
+                    "ThermostatCapabilityQueryBuilder.cs",
+                    "ThermostatMeasurement.cs",
+                    "ThermostatMeasurementQueryBuilder.cs",
+                    "ThermostatMeasurements.cs",
+                    "ThermostatMeasurementsQueryBuilder.cs",
+                    "ThermostatMode.cs",
+                    "ThermostatModeQueryBuilder.cs",
+                    "ThermostatMutation.cs",
+                    "ThermostatMutationQueryBuilder.cs",
+                    "ThermostatQueryBuilder.cs",
+                    "ThermostatState.cs",
+                    "ThermostatStateQueryBuilder.cs",
+                    "Wallet.cs",
+                    "WalletQueryBuilder.cs",
+                    "Weather.cs",
+                    "WeatherEntry.cs",
+                    "WeatherEntryQueryBuilder.cs",
+                    "WeatherQueryBuilder.cs"
+                });
+
+            var fileSizes = files.Where(f => f.Name != "BaseClasses.cs").Select(f => f.Length);
+            fileSizes.ShouldBe(
+                new long[]
+                {
+                    446, 475, 1371, 1158, 978, 4207, 519, 569, 2132, 1907, 455, 1114, 1152, 1685, 1751, 756, 494, 1583, 498, 1410, 792, 491, 1441, 4082, 963, 762, 3633, 4982, 478, 1388, 566, 2195, 613, 2372, 1225, 6888, 447, 1229, 571, 676, 2782, 2552, 489, 1465, 461, 1291, 368, 6061, 594, 2208, 1957, 921, 7881, 879, 1530, 493, 1509, 4702, 17152, 807, 1626, 627, 2663, 9819, 972, 5176, 1101, 552, 3297, 7118, 434, 1415, 543, 501, 1521, 1966, 575, 2251, 531, 1809, 621, 2577, 767, 571, 1997, 581, 2161, 3592, 755, 3835, 588, 2156, 676, 537, 1825, 2913, 1072, 795, 3940, 5667, 898, 4456, 520, 1758, 423, 1359, 664, 751, 3527, 2857, 450, 1181, 480, 589, 559, 1978, 548, 1841, 2285, 559, 2219, 782, 853, 4400, 938, 530, 1832, 872, 4509, 584, 2081, 501, 1464, 489, 2666, 5025, 586, 2200, 558, 1950, 561, 1230, 3582, 1950
+                });
+
+            var expectedOutput = GetTestResource("ExpectedMultipleFilesContext.Avatar");
+            File.ReadAllText(Path.Combine(directoryInfo.FullName, "Avatar.cs")).ShouldBe(expectedOutput);
+            expectedOutput = GetTestResource("ExpectedMultipleFilesContext.Home");
+            File.ReadAllText(Path.Combine(directoryInfo.FullName, "Home.cs")).ShouldBe(expectedOutput);
+            expectedOutput = GetTestResource("ExpectedMultipleFilesContext.IncludeDirective");
+            File.ReadAllText(Path.Combine(directoryInfo.FullName, "IncludeDirective.cs")).ShouldBe(expectedOutput);
+            expectedOutput = GetTestResource("ExpectedMultipleFilesContext.MutationQueryBuilder");
+            File.ReadAllText(Path.Combine(directoryInfo.FullName, "MutationQueryBuilder.cs")).ShouldBe(expectedOutput);
+        }
+        finally
+        {
+            Directory.Delete(directoryInfo.FullName, true);
+        }
+    }
+
+    [Fact]
+    public void GenerateFullClientCSharpFile()
+    {
+        var configuration =
+            new GraphQlGeneratorConfiguration
             {
-                Directory.Delete(directoryInfo.FullName, true);
-            }
-        }
-
-        [Fact]
-        public void GenerateFullClientCSharpFile()
-        {
-            var configuration =
-                new GraphQlGeneratorConfiguration
-                {
-                    CommentGeneration = CommentGenerationOption.CodeSummary | CommentGenerationOption.DescriptionAttribute
-                };
+                CommentGeneration = CommentGenerationOption.CodeSummary | CommentGenerationOption.DescriptionAttribute
+            };
             
-            var generator = new GraphQlGenerator(configuration);
-            var generatedSourceCode = generator.GenerateFullClientCSharpFile(TestSchema, "GraphQlGenerator.Test");
-            var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.FullClientCSharpFile");
-            generatedSourceCode.ShouldBe(expectedOutput);
-        }
+        var generator = new GraphQlGenerator(configuration);
+        var generatedSourceCode = generator.GenerateFullClientCSharpFile(TestSchema, "GraphQlGenerator.Test");
+        var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.FullClientCSharpFile");
+        generatedSourceCode.ShouldBe(expectedOutput);
+    }
 
-        [Fact]
-        public void GenerateQueryBuilder()
-        {
-            var configuration = new GraphQlGeneratorConfiguration();
-            configuration.CustomClassNameMapping.Add("AwayMode", "VacationMode");
+    [Fact]
+    public void GenerateQueryBuilder()
+    {
+        var configuration = new GraphQlGeneratorConfiguration();
+        configuration.CustomClassNameMapping.Add("AwayMode", "VacationMode");
 
-            var stringBuilder = new StringBuilder();
-            new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GeneratedObjectType.BaseClasses | GeneratedObjectType.QueryBuilders));
+        var stringBuilder = new StringBuilder();
+        new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GeneratedObjectType.BaseClasses | GeneratedObjectType.QueryBuilders));
 
-            var expectedQueryBuilders = GetTestResource("ExpectedSingleFileGenerationContext.QueryBuilders");
-            var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
-            generatedSourceCode.ShouldBe(expectedQueryBuilders);
-        }
+        var expectedQueryBuilders = GetTestResource("ExpectedSingleFileGenerationContext.QueryBuilders");
+        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+        generatedSourceCode.ShouldBe(expectedQueryBuilders);
+    }
 
-        [Fact]
-        public void GenerateDataClasses()
-        {
-            var configuration = new GraphQlGeneratorConfiguration();
-            configuration.CustomClassNameMapping.Add("AwayMode", "VacationMode");
+    [Fact]
+    public void GenerateDataClasses()
+    {
+        var configuration = new GraphQlGeneratorConfiguration();
+        configuration.CustomClassNameMapping.Add("AwayMode", "VacationMode");
 
-            var stringBuilder = new StringBuilder();
-            new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GeneratedObjectType.DataClasses));
-            var expectedDataClasses = GetTestResource("ExpectedSingleFileGenerationContext.DataClasses");
-            stringBuilder.ToString().ShouldBe(expectedDataClasses);
-        }
+        var stringBuilder = new StringBuilder();
+        new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GeneratedObjectType.DataClasses));
+        var expectedDataClasses = GetTestResource("ExpectedSingleFileGenerationContext.DataClasses");
+        stringBuilder.ToString().ShouldBe(expectedDataClasses);
+    }
 
-        [Fact]
-        public void GenerateDataClassesWithTypeConfiguration()
-        {
-            var configuration =
-                new GraphQlGeneratorConfiguration
-                {
-                    IntegerTypeMapping = IntegerTypeMapping.Int64,
-                    FloatTypeMapping = FloatTypeMapping.Double,
-                    BooleanTypeMapping = BooleanTypeMapping.Custom,
-                    IdTypeMapping = IdTypeMapping.String,
-                    GeneratePartialClasses = false,
-                    PropertyGeneration = PropertyGenerationOption.BackingField,
-                    ScalarFieldTypeMappingProvider = new TestCustomBooleanTypeMappingProvider()
-                };
-
-            var stringBuilder = new StringBuilder();
-            new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GeneratedObjectType.DataClasses));
-            var expectedDataClasses = GetTestResource("ExpectedSingleFileGenerationContext.DataClassesWithTypeConfiguration");
-            stringBuilder.ToString().ShouldBe(expectedDataClasses);
-        }
-
-        private class TestCustomBooleanTypeMappingProvider : IScalarFieldTypeMappingProvider
-        {
-            public ScalarFieldTypeDescription GetCustomScalarFieldType(GraphQlGeneratorConfiguration configuration, GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
-                valueType.Name == "Boolean"
-                    ? new ScalarFieldTypeDescription { NetTypeName = "bool" }
-                    : DefaultScalarFieldTypeMappingProvider.Instance.GetCustomScalarFieldType(configuration, baseType, valueType, valueName);
-        }
-
-        [Fact]
-        public void GenerateFormatMasks()
-        {
-            var configuration =
-                new GraphQlGeneratorConfiguration
-                {
-                    IdTypeMapping = IdTypeMapping.Custom,
-                    ScalarFieldTypeMappingProvider = TestFormatMaskScalarFieldTypeMappingProvider.Instance
-                };
-
-            var stringBuilder = new StringBuilder();
-            var generator = new GraphQlGenerator(configuration);
-            var schema = DeserializeTestSchema("TestSchema3");
-            generator.Generate(CreateGenerationContext(stringBuilder, schema));
-
-            var expectedDataClasses = GetTestResource("ExpectedSingleFileGenerationContext.FormatMasks");
-            var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
-            generatedSourceCode.ShouldBe(expectedDataClasses);
-        }
-
-        private class TestFormatMaskScalarFieldTypeMappingProvider : IScalarFieldTypeMappingProvider
-        {
-            public static readonly TestFormatMaskScalarFieldTypeMappingProvider Instance = new();
-
-            public ScalarFieldTypeDescription GetCustomScalarFieldType(GraphQlGeneratorConfiguration configuration, GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
+    [Fact]
+    public void GenerateDataClassesWithTypeConfiguration()
+    {
+        var configuration =
+            new GraphQlGeneratorConfiguration
             {
-                var isNotNull = valueType.Kind == GraphQlTypeKind.NonNull;
-                var unwrappedType = valueType is GraphQlFieldType fieldType ? fieldType.UnwrapIfNonNull() : valueType;
-                var nullablePostfix = isNotNull ? null : "?";
+                IntegerTypeMapping = IntegerTypeMapping.Int64,
+                FloatTypeMapping = FloatTypeMapping.Double,
+                BooleanTypeMapping = BooleanTypeMapping.Custom,
+                IdTypeMapping = IdTypeMapping.String,
+                GeneratePartialClasses = false,
+                PropertyGeneration = PropertyGenerationOption.BackingField,
+                ScalarFieldTypeMappingProvider = new TestCustomBooleanTypeMappingProvider()
+            };
 
-                if (unwrappedType.Name == "ID")
-                    return new ScalarFieldTypeDescription { NetTypeName = "Guid" + nullablePostfix, FormatMask = "N" };
+        var stringBuilder = new StringBuilder();
+        new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GeneratedObjectType.DataClasses));
+        var expectedDataClasses = GetTestResource("ExpectedSingleFileGenerationContext.DataClassesWithTypeConfiguration");
+        stringBuilder.ToString().ShouldBe(expectedDataClasses);
+    }
 
-                if (valueName == "before" || valueName == "after" || unwrappedType.Name == "DateTimeOffset")
-                    return new ScalarFieldTypeDescription { NetTypeName = "DateTimeOffset" + nullablePostfix, FormatMask = "yyyy-MM-dd\"T\"HH:mm" };
+    private class TestCustomBooleanTypeMappingProvider : IScalarFieldTypeMappingProvider
+    {
+        public ScalarFieldTypeDescription GetCustomScalarFieldType(GraphQlGeneratorConfiguration configuration, GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
+            valueType.Name == "Boolean"
+                ? new ScalarFieldTypeDescription { NetTypeName = "bool" }
+                : DefaultScalarFieldTypeMappingProvider.Instance.GetCustomScalarFieldType(configuration, baseType, valueType, valueName);
+    }
 
-                return DefaultScalarFieldTypeMappingProvider.Instance.GetCustomScalarFieldType(configuration, baseType, valueType, valueName);
-            }
-        }
+    [Fact]
+    public void GenerateFormatMasks()
+    {
+        var configuration =
+            new GraphQlGeneratorConfiguration
+            {
+                IdTypeMapping = IdTypeMapping.Custom,
+                ScalarFieldTypeMappingProvider = TestFormatMaskScalarFieldTypeMappingProvider.Instance
+            };
 
-        [Fact]
-        public void NewCSharpSyntaxWithClassPrefixAndSuffix()
+        var stringBuilder = new StringBuilder();
+        var generator = new GraphQlGenerator(configuration);
+        var schema = DeserializeTestSchema("TestSchema3");
+        generator.Generate(CreateGenerationContext(stringBuilder, schema));
+
+        var expectedDataClasses = GetTestResource("ExpectedSingleFileGenerationContext.FormatMasks");
+        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+        generatedSourceCode.ShouldBe(expectedDataClasses);
+    }
+
+    private class TestFormatMaskScalarFieldTypeMappingProvider : IScalarFieldTypeMappingProvider
+    {
+        public static readonly TestFormatMaskScalarFieldTypeMappingProvider Instance = new();
+
+        public ScalarFieldTypeDescription GetCustomScalarFieldType(GraphQlGeneratorConfiguration configuration, GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
         {
-            var configuration =
-                new GraphQlGeneratorConfiguration
-                {
-                    CSharpVersion = CSharpVersion.Newest,
-                    ClassPrefix = "Test",
-                    ClassSuffix = "V1",
-                    MemberAccessibility = MemberAccessibility.Internal
-                };
+            var isNotNull = valueType.Kind == GraphQlTypeKind.NonNull;
+            var unwrappedType = valueType is GraphQlFieldType fieldType ? fieldType.UnwrapIfNonNull() : valueType;
+            var nullablePostfix = isNotNull ? null : "?";
+
+            if (unwrappedType.Name == "ID")
+                return new ScalarFieldTypeDescription { NetTypeName = "Guid" + nullablePostfix, FormatMask = "N" };
+
+            if (valueName == "before" || valueName == "after" || unwrappedType.Name == "DateTimeOffset")
+                return new ScalarFieldTypeDescription { NetTypeName = "DateTimeOffset" + nullablePostfix, FormatMask = "yyyy-MM-dd\"T\"HH:mm" };
+
+            return DefaultScalarFieldTypeMappingProvider.Instance.GetCustomScalarFieldType(configuration, baseType, valueType, valueName);
+        }
+    }
+
+    [Fact]
+    public void NewCSharpSyntaxWithClassPrefixAndSuffix()
+    {
+        var configuration =
+            new GraphQlGeneratorConfiguration
+            {
+                CSharpVersion = CSharpVersion.Newest,
+                ClassPrefix = "Test",
+                ClassSuffix = "V1",
+                MemberAccessibility = MemberAccessibility.Internal
+            };
             
-            var schema = DeserializeTestSchema("TestSchema2");
+        var schema = DeserializeTestSchema("TestSchema2");
 
-            var stringBuilder = new StringBuilder();
-            var generator = new GraphQlGenerator(configuration);
-            generator.Generate(CreateGenerationContext(stringBuilder, schema));
+        var stringBuilder = new StringBuilder();
+        var generator = new GraphQlGenerator(configuration);
+        generator.Generate(CreateGenerationContext(stringBuilder, schema));
 
-            var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
-            var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.NewCSharpSyntaxWithClassPrefixAndSuffix");
-            generatedSourceCode.ShouldBe(expectedOutput);
+        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+        var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.NewCSharpSyntaxWithClassPrefixAndSuffix");
+        generatedSourceCode.ShouldBe(expectedOutput);
 
-            CompileIntoAssembly(stringBuilder.ToString(), "GraphQLTestAssembly");
+        CompileIntoAssembly(stringBuilder.ToString(), "GraphQLTestAssembly");
 
-            Type.GetType("GraphQLTestAssembly.GraphQlQueryBuilder, GraphQLTestAssembly").ShouldNotBeNull();
-        }
+        Type.GetType("GraphQLTestAssembly.GraphQlQueryBuilder, GraphQLTestAssembly").ShouldNotBeNull();
+    }
 
-        [Fact]
-        public void WithNullableReferences()
-        {
-            var configuration = new GraphQlGeneratorConfiguration { CSharpVersion = CSharpVersion.NewestWithNullableReferences };
-            var schema = DeserializeTestSchema("TestSchema2");
+    [Fact]
+    public void WithNullableReferences()
+    {
+        var configuration = new GraphQlGeneratorConfiguration { CSharpVersion = CSharpVersion.NewestWithNullableReferences };
+        var schema = DeserializeTestSchema("TestSchema2");
 
-            var stringBuilder = new StringBuilder();
-            var generator = new GraphQlGenerator(configuration);
-            generator.Generate(CreateGenerationContext(stringBuilder, schema));
+        var stringBuilder = new StringBuilder();
+        var generator = new GraphQlGenerator(configuration);
+        generator.Generate(CreateGenerationContext(stringBuilder, schema));
 
-            var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.NullableReferences");
-            var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
-            generatedSourceCode.ShouldBe(expectedOutput);
-        }
+        var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.NullableReferences");
+        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+        generatedSourceCode.ShouldBe(expectedOutput);
+    }
 
-        [Fact]
-        public void WithUnions()
-        {
-            var configuration =
-                new GraphQlGeneratorConfiguration
-                {
-                    CSharpVersion = CSharpVersion.NewestWithNullableReferences,
-                    JsonPropertyGeneration = JsonPropertyGenerationOption.UseDefaultAlias,
-                    ScalarFieldTypeMappingProvider = TestFormatMaskScalarFieldTypeMappingProvider.Instance
-                };
+    [Fact]
+    public void WithUnions()
+    {
+        var configuration =
+            new GraphQlGeneratorConfiguration
+            {
+                CSharpVersion = CSharpVersion.NewestWithNullableReferences,
+                JsonPropertyGeneration = JsonPropertyGenerationOption.UseDefaultAlias,
+                ScalarFieldTypeMappingProvider = TestFormatMaskScalarFieldTypeMappingProvider.Instance
+            };
             
-            var schema = DeserializeTestSchema("TestSchemaWithUnions");
+        var schema = DeserializeTestSchema("TestSchemaWithUnions");
 
-            var stringBuilder = new StringBuilder();
-            var generator = new GraphQlGenerator(configuration);
-            generator.Generate(CreateGenerationContext(stringBuilder, schema));
+        var stringBuilder = new StringBuilder();
+        var generator = new GraphQlGenerator(configuration);
+        generator.Generate(CreateGenerationContext(stringBuilder, schema));
 
-            var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.Unions");
-            var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
-            generatedSourceCode.ShouldBe(expectedOutput);
-        }
+        var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.Unions");
+        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+        generatedSourceCode.ShouldBe(expectedOutput);
+    }
 
-        [Fact]
-        public void GeneratedQuery()
-        {
-            var configuration = new GraphQlGeneratorConfiguration { JsonPropertyGeneration = JsonPropertyGenerationOption.Always };
+    [Fact]
+    public void GeneratedQuery()
+    {
+        var configuration = new GraphQlGeneratorConfiguration { JsonPropertyGeneration = JsonPropertyGenerationOption.Always };
 
-            var schema = DeserializeTestSchema("TestSchema2");
-            var stringBuilder = new StringBuilder();
-            var generator = new GraphQlGenerator(configuration);
-            generator.Generate(CreateGenerationContext(stringBuilder, schema));
+        var schema = DeserializeTestSchema("TestSchema2");
+        var stringBuilder = new StringBuilder();
+        var generator = new GraphQlGenerator(configuration);
+        generator.Generate(CreateGenerationContext(stringBuilder, schema));
 
-            stringBuilder.AppendLine();
-            stringBuilder.AppendLine(
-                @"public class TestQueryBuilder : GraphQlQueryBuilder<TestQueryBuilder>
+        stringBuilder.AppendLine();
+        stringBuilder.AppendLine(
+            @"public class TestQueryBuilder : GraphQlQueryBuilder<TestQueryBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -495,167 +495,167 @@ namespace GraphQlClientGenerator.Test
     public TestQueryBuilder WithTestFragment(MeQueryBuilder queryBuilder) => WithFragment(queryBuilder, null);
 }");
 
-            const string assemblyName = "GeneratedQueryTestAssembly";
-            CompileIntoAssembly(stringBuilder.ToString(), assemblyName);
+        const string assemblyName = "GeneratedQueryTestAssembly";
+        CompileIntoAssembly(stringBuilder.ToString(), assemblyName);
 
-            var builderType = Type.GetType($"{assemblyName}.TestQueryBuilder, {assemblyName}");
-            builderType.ShouldNotBeNull();
-            var formattingType = Type.GetType($"{assemblyName}.Formatting, {assemblyName}");
-            formattingType.ShouldNotBeNull();
+        var builderType = Type.GetType($"{assemblyName}.TestQueryBuilder, {assemblyName}");
+        builderType.ShouldNotBeNull();
+        var formattingType = Type.GetType($"{assemblyName}.Formatting, {assemblyName}");
+        formattingType.ShouldNotBeNull();
 
-            var builderInstance = Activator.CreateInstance(builderType);
-            builderType
-                .GetMethod("WithTestField", BindingFlags.Instance | BindingFlags.Public)
-                .Invoke(
-                    builderInstance,
-                    new object[]
-                    {
-                        (short)1,
-                        (ushort)2,
-                        (byte)3,
-                        4,
-                        (uint)5,
-                        6L,
-                        (ulong)7,
-                        8.123f,
-                        9.456d,
-                        10.789m,
-                        new DateTime(2019, 6, 30, 0, 27, 47, DateTimeKind.Utc).AddTicks(1234567),
-                        new DateTimeOffset(2019, 6, 30, 2, 27, 47, TimeSpan.FromHours(2)).AddTicks(1234567),
-                        Guid.Empty,
-                        "string value"
-                    }.Select(p => CreateParameter(assemblyName, p)).ToArray());
-
-            builderType
-                .GetMethod("WithObjectParameterField", BindingFlags.Instance | BindingFlags.Public)
-                .Invoke(
-                    builderInstance,
-                    new object[]
-                    {
-                        new []
-                        {
-                            JsonConvert.DeserializeObject("{ \"rootProperty1\": \"root value 1\", \"rootProperty2\": 123.456, \"rootProperty3\": true, \"rootProperty4\": null, \"rootProperty5\": { \"nestedProperty\": 987 } }"),
-                            JsonConvert.DeserializeObject("[{ \"rootProperty1\": \"root value 2\" }, { \"rootProperty1\": false }]")
-                        }
-                    }.Select(p => CreateParameter(assemblyName, p)).ToArray());
-
-            var query =
-                builderType
-                    .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
-                    .Invoke(builderInstance, new [] { Enum.Parse(formattingType, "None"), (byte)2 });
-
-            query.ShouldBe("{testField(valueInt16:1,valueUInt16:2,valueByte:3,valueInt32:4,valueUInt32:5,valueInt64:6,valueUInt64:7,valueSingle:8.123,valueDouble:9.456,valueDecimal:10.789,valueDateTime:\"19-06-30 00:27Z\",valueDateTimeOffset:\"2019-06-30T02:27:47.1234567+02:00\",valueGuid:\"00000000-0000-0000-0000-000000000000\",valueString:\"string value\"),fieldAlias:objectParameter(objectParameter:[{rootProperty1:\"root value 1\",rootProperty2:123.456,rootProperty3:true,rootProperty4:null,rootProperty5:{nestedProperty:987}},[{rootProperty1:\"root value 2\"},{rootProperty1:false}]])@include(if:$direct)@skip(if:false)}");
-            query =
-                builderType
-                    .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
-                    .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "Indented"), (byte)2 });
-
-            query.ShouldBe($" {{{Environment.NewLine}  testField(valueInt16: 1, valueUInt16: 2, valueByte: 3, valueInt32: 4, valueUInt32: 5, valueInt64: 6, valueUInt64: 7, valueSingle: 8.123, valueDouble: 9.456, valueDecimal: 10.789, valueDateTime: \"19-06-30 00:27Z\", valueDateTimeOffset: \"2019-06-30T02:27:47.1234567+02:00\", valueGuid: \"00000000-0000-0000-0000-000000000000\", valueString: \"string value\"){Environment.NewLine}  fieldAlias: objectParameter(objectParameter: [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 1\",{Environment.NewLine}      rootProperty2: 123.456,{Environment.NewLine}      rootProperty3: true,{Environment.NewLine}      rootProperty4: null,{Environment.NewLine}      rootProperty5: {{{Environment.NewLine}        nestedProperty: 987}}}},{Environment.NewLine}    [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 2\"}},{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: false}}]]) @include(if: $direct) @skip(if: false){Environment.NewLine}}}");
-
-            var rootQueryBuilderType = Type.GetType($"{assemblyName}.QueryQueryBuilder, {assemblyName}");
-            rootQueryBuilderType.ShouldNotBeNull();
-            var rootQueryBuilderInstance = rootQueryBuilderType.GetConstructor(new [] { typeof(string) }).Invoke(new object[1]);
-            rootQueryBuilderType.GetMethod("WithAllFields", BindingFlags.Instance | BindingFlags.Public).Invoke(rootQueryBuilderInstance, null);
-            rootQueryBuilderType
-                .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
-                .Invoke(rootQueryBuilderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
-
-            builderType
-                .GetMethod("Clear", BindingFlags.Instance | BindingFlags.Public)
-                .Invoke(builderInstance, null);
-
-            var meBuilderType = Type.GetType($"{assemblyName}.MeQueryBuilder, {assemblyName}");
-            var childFragmentBuilderInstance = Activator.CreateInstance(meBuilderType);
-            meBuilderType.GetMethod("WithAllScalarFields", BindingFlags.Instance | BindingFlags.Public).Invoke(childFragmentBuilderInstance, null);
-
-            builderType
-                .GetMethod("WithTestFragment", BindingFlags.Instance | BindingFlags.Public)
-                .Invoke(builderInstance, new [] { childFragmentBuilderInstance });
-
-            query =
-                builderType
-                    .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
-                    .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
-
-            query.ShouldBe("{...on Me{id,firstName,lastName,fullName,ssn,email,language,tone,mobile}}");
-        }
-
-        [Fact]
-        public void DeprecatedAttributes()
-        {
-            var configuration =
-                new GraphQlGeneratorConfiguration
+        var builderInstance = Activator.CreateInstance(builderType);
+        builderType
+            .GetMethod("WithTestField", BindingFlags.Instance | BindingFlags.Public)
+            .Invoke(
+                builderInstance,
+                new object[]
                 {
-                    CSharpVersion = CSharpVersion.Newest,
-                    CommentGeneration = CommentGenerationOption.CodeSummary | CommentGenerationOption.DescriptionAttribute,
-                    IncludeDeprecatedFields = true,
-                    GeneratePartialClasses = false
-                };
+                    (short)1,
+                    (ushort)2,
+                    (byte)3,
+                    4,
+                    (uint)5,
+                    6L,
+                    (ulong)7,
+                    8.123f,
+                    9.456d,
+                    10.789m,
+                    new DateTime(2019, 6, 30, 0, 27, 47, DateTimeKind.Utc).AddTicks(1234567),
+                    new DateTimeOffset(2019, 6, 30, 2, 27, 47, TimeSpan.FromHours(2)).AddTicks(1234567),
+                    Guid.Empty,
+                    "string value"
+                }.Select(p => CreateParameter(assemblyName, p)).ToArray());
 
-            var schema = DeserializeTestSchema("TestSchemaWithDeprecatedFields");
+        builderType
+            .GetMethod("WithObjectParameterField", BindingFlags.Instance | BindingFlags.Public)
+            .Invoke(
+                builderInstance,
+                new object[]
+                {
+                    new []
+                    {
+                        JsonConvert.DeserializeObject("{ \"rootProperty1\": \"root value 1\", \"rootProperty2\": 123.456, \"rootProperty3\": true, \"rootProperty4\": null, \"rootProperty5\": { \"nestedProperty\": 987 } }"),
+                        JsonConvert.DeserializeObject("[{ \"rootProperty1\": \"root value 2\" }, { \"rootProperty1\": false }]")
+                    }
+                }.Select(p => CreateParameter(assemblyName, p)).ToArray());
 
-            var stringBuilder = new StringBuilder();
-            new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, schema, GeneratedObjectType.DataClasses));
-            var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.DeprecatedAttributes").Replace("\r", String.Empty);
-            stringBuilder.ToString().Replace("\r", String.Empty).ShouldBe(expectedOutput);
-        }
+        var query =
+            builderType
+                .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
+                .Invoke(builderInstance, new [] { Enum.Parse(formattingType, "None"), (byte)2 });
 
-        private static object CreateParameter(string sourceAssembly, object value, string name = null, string graphQlType = null, Type netParameterType = null)
-        {
-            var genericType = netParameterType ?? value.GetType();
-            if (genericType.IsValueType)
-                genericType = typeof(Nullable<>).MakeGenericType(value.GetType());
+        query.ShouldBe("{testField(valueInt16:1,valueUInt16:2,valueByte:3,valueInt32:4,valueUInt32:5,valueInt64:6,valueUInt64:7,valueSingle:8.123,valueDouble:9.456,valueDecimal:10.789,valueDateTime:\"19-06-30 00:27Z\",valueDateTimeOffset:\"2019-06-30T02:27:47.1234567+02:00\",valueGuid:\"00000000-0000-0000-0000-000000000000\",valueString:\"string value\"),fieldAlias:objectParameter(objectParameter:[{rootProperty1:\"root value 1\",rootProperty2:123.456,rootProperty3:true,rootProperty4:null,rootProperty5:{nestedProperty:987}},[{rootProperty1:\"root value 2\"},{rootProperty1:false}]])@include(if:$direct)@skip(if:false)}");
+        query =
+            builderType
+                .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
+                .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "Indented"), (byte)2 });
 
-            if (value is object[])
-                genericType = typeof(object);
+        query.ShouldBe($" {{{Environment.NewLine}  testField(valueInt16: 1, valueUInt16: 2, valueByte: 3, valueInt32: 4, valueUInt32: 5, valueInt64: 6, valueUInt64: 7, valueSingle: 8.123, valueDouble: 9.456, valueDecimal: 10.789, valueDateTime: \"19-06-30 00:27Z\", valueDateTimeOffset: \"2019-06-30T02:27:47.1234567+02:00\", valueGuid: \"00000000-0000-0000-0000-000000000000\", valueString: \"string value\"){Environment.NewLine}  fieldAlias: objectParameter(objectParameter: [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 1\",{Environment.NewLine}      rootProperty2: 123.456,{Environment.NewLine}      rootProperty3: true,{Environment.NewLine}      rootProperty4: null,{Environment.NewLine}      rootProperty5: {{{Environment.NewLine}        nestedProperty: 987}}}},{Environment.NewLine}    [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 2\"}},{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: false}}]]) @include(if: $direct) @skip(if: false){Environment.NewLine}}}");
 
-            object parameter;
-            if (name == null)
+        var rootQueryBuilderType = Type.GetType($"{assemblyName}.QueryQueryBuilder, {assemblyName}");
+        rootQueryBuilderType.ShouldNotBeNull();
+        var rootQueryBuilderInstance = rootQueryBuilderType.GetConstructor(new [] { typeof(string) }).Invoke(new object[1]);
+        rootQueryBuilderType.GetMethod("WithAllFields", BindingFlags.Instance | BindingFlags.Public).Invoke(rootQueryBuilderInstance, null);
+        rootQueryBuilderType
+            .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
+            .Invoke(rootQueryBuilderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
+
+        builderType
+            .GetMethod("Clear", BindingFlags.Instance | BindingFlags.Public)
+            .Invoke(builderInstance, null);
+
+        var meBuilderType = Type.GetType($"{assemblyName}.MeQueryBuilder, {assemblyName}");
+        var childFragmentBuilderInstance = Activator.CreateInstance(meBuilderType);
+        meBuilderType.GetMethod("WithAllScalarFields", BindingFlags.Instance | BindingFlags.Public).Invoke(childFragmentBuilderInstance, null);
+
+        builderType
+            .GetMethod("WithTestFragment", BindingFlags.Instance | BindingFlags.Public)
+            .Invoke(builderInstance, new [] { childFragmentBuilderInstance });
+
+        query =
+            builderType
+                .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
+                .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
+
+        query.ShouldBe("{...on Me{id,firstName,lastName,fullName,ssn,email,language,tone,mobile}}");
+    }
+
+    [Fact]
+    public void DeprecatedAttributes()
+    {
+        var configuration =
+            new GraphQlGeneratorConfiguration
             {
-                var makeGenericType = Type.GetType($"{sourceAssembly}.QueryBuilderParameter`1, {sourceAssembly}").MakeGenericType(genericType);
-                parameter = Activator.CreateInstance(makeGenericType, BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { value }, CultureInfo.InvariantCulture);
-            }
-            else
-            {
-                var makeGenericType = Type.GetType($"{sourceAssembly}.GraphQlQueryParameter`1, {sourceAssembly}").MakeGenericType(genericType);
-                parameter = Activator.CreateInstance(makeGenericType, BindingFlags.Instance | BindingFlags.Public, null, new[] { name, graphQlType, value }, CultureInfo.InvariantCulture);
-            }
+                CSharpVersion = CSharpVersion.Newest,
+                CommentGeneration = CommentGenerationOption.CodeSummary | CommentGenerationOption.DescriptionAttribute,
+                IncludeDeprecatedFields = true,
+                GeneratePartialClasses = false
+            };
 
-            return parameter;
+        var schema = DeserializeTestSchema("TestSchemaWithDeprecatedFields");
+
+        var stringBuilder = new StringBuilder();
+        new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, schema, GeneratedObjectType.DataClasses));
+        var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.DeprecatedAttributes").Replace("\r", String.Empty);
+        stringBuilder.ToString().Replace("\r", String.Empty).ShouldBe(expectedOutput);
+    }
+
+    private static object CreateParameter(string sourceAssembly, object value, string name = null, string graphQlType = null, Type netParameterType = null)
+    {
+        var genericType = netParameterType ?? value.GetType();
+        if (genericType.IsValueType)
+            genericType = typeof(Nullable<>).MakeGenericType(value.GetType());
+
+        if (value is object[])
+            genericType = typeof(object);
+
+        object parameter;
+        if (name == null)
+        {
+            var makeGenericType = Type.GetType($"{sourceAssembly}.QueryBuilderParameter`1, {sourceAssembly}").MakeGenericType(genericType);
+            parameter = Activator.CreateInstance(makeGenericType, BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { value }, CultureInfo.InvariantCulture);
+        }
+        else
+        {
+            var makeGenericType = Type.GetType($"{sourceAssembly}.GraphQlQueryParameter`1, {sourceAssembly}").MakeGenericType(genericType);
+            parameter = Activator.CreateInstance(makeGenericType, BindingFlags.Instance | BindingFlags.Public, null, new[] { name, graphQlType, value }, CultureInfo.InvariantCulture);
         }
 
-        private static string GetTestResource(string name)
-        {
-            using var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream($"GraphQlClientGenerator.Test.{name}"));
-            return reader.ReadToEnd();
-        }
+        return parameter;
+    }
 
-        private void CompileIntoAssembly(string sourceCode, string assemblyName)
-        {
-            var compilation = CompilationHelper.CreateCompilation(sourceCode, assemblyName);
-            var assemblyFileName = Path.GetTempFileName();
-            var result = compilation.Emit(assemblyFileName);
-            var compilationReport = String.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity != DiagnosticSeverity.Hidden).Select(l => $"[{l.Severity}] {l}"));
-            if (!String.IsNullOrEmpty(compilationReport))
-                _outputHelper.WriteLine(compilationReport);
+    private static string GetTestResource(string name)
+    {
+        using var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream($"GraphQlClientGenerator.Test.{name}"));
+        return reader.ReadToEnd();
+    }
 
-            var errorReport = String.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity == DiagnosticSeverity.Error).Select(l => $"[{l.Severity}] {l}"));
-            errorReport.ShouldBeNullOrEmpty();
+    private void CompileIntoAssembly(string sourceCode, string assemblyName)
+    {
+        var compilation = CompilationHelper.CreateCompilation(sourceCode, assemblyName);
+        var assemblyFileName = Path.GetTempFileName();
+        var result = compilation.Emit(assemblyFileName);
+        var compilationReport = String.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity != DiagnosticSeverity.Hidden).Select(l => $"[{l.Severity}] {l}"));
+        if (!String.IsNullOrEmpty(compilationReport))
+            _outputHelper.WriteLine(compilationReport);
 
-            Assembly.LoadFrom(assemblyFileName);
-        }
+        var errorReport = String.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity == DiagnosticSeverity.Error).Select(l => $"[{l.Severity}] {l}"));
+        errorReport.ShouldBeNullOrEmpty();
 
-        [Fact]
-        public void GeneratedMutation()
-        {
-            var schema = DeserializeTestSchema("TestSchema2");
-            var stringBuilder = new StringBuilder();
-            var generator = new GraphQlGenerator();
-            generator.Generate(CreateGenerationContext(stringBuilder, schema));
+        Assembly.LoadFrom(assemblyFileName);
+    }
 
-            stringBuilder.AppendLine();
-            stringBuilder.AppendLine(
-                @"public class TestMutationBuilder : GraphQlQueryBuilder<TestMutationBuilder>
+    [Fact]
+    public void GeneratedMutation()
+    {
+        var schema = DeserializeTestSchema("TestSchema2");
+        var stringBuilder = new StringBuilder();
+        var generator = new GraphQlGenerator();
+        generator.Generate(CreateGenerationContext(stringBuilder, schema));
+
+        stringBuilder.AppendLine();
+        stringBuilder.AppendLine(
+            @"public class TestMutationBuilder : GraphQlQueryBuilder<TestMutationBuilder>
 {
     private static readonly FieldMetadata[] AllFieldMetadata =
         new []
@@ -736,101 +736,100 @@ namespace GraphQlClientGenerator.Test
 	    }
     }");
 
-            const string assemblyName = "GeneratedMutationTestAssembly";
-            CompileIntoAssembly(stringBuilder.ToString(), assemblyName);
+        const string assemblyName = "GeneratedMutationTestAssembly";
+        CompileIntoAssembly(stringBuilder.ToString(), assemblyName);
 
-            var builderType = Type.GetType($"{assemblyName}.TestMutationBuilder, {assemblyName}");
-            builderType.ShouldNotBeNull();
-            var formattingType = Type.GetType($"{assemblyName}.Formatting, {assemblyName}");
-            formattingType.ShouldNotBeNull();
+        var builderType = Type.GetType($"{assemblyName}.TestMutationBuilder, {assemblyName}");
+        builderType.ShouldNotBeNull();
+        var formattingType = Type.GetType($"{assemblyName}.Formatting, {assemblyName}");
+        formattingType.ShouldNotBeNull();
 
-            var builderInstance = Activator.CreateInstance(builderType, new object[] { null });
+        var builderInstance = Activator.CreateInstance(builderType, new object[] { null });
 
-            var inputObjectType = Type.GetType($"{assemblyName}.TestInput, {assemblyName}");
-            inputObjectType.ShouldNotBeNull();
+        var inputObjectType = Type.GetType($"{assemblyName}.TestInput, {assemblyName}");
+        inputObjectType.ShouldNotBeNull();
 
-            var queryParameter2Value = Activator.CreateInstance(inputObjectType);
-            var queryParameter1 = CreateParameter(assemblyName, "Test Value", "stringParameter", "String");
-            var queryParameter2 = CreateParameter(assemblyName, queryParameter2Value, "objectParameter", "[TestInput!]");
-            var testPropertyInfo = inputObjectType.GetProperty("TestProperty");
-            testPropertyInfo.SetValue(queryParameter2Value, CreateParameter(assemblyName, "Input Object Parameter Value"));
-            var timestampPropertyInfo = inputObjectType.GetProperty("Timestamp");
-            timestampPropertyInfo.SetValue(queryParameter2Value, CreateParameter(assemblyName, new DateTimeOffset(2019, 6, 30, 2, 27, 47, TimeSpan.FromHours(2)).AddTicks(1234567)));
+        var queryParameter2Value = Activator.CreateInstance(inputObjectType);
+        var queryParameter1 = CreateParameter(assemblyName, "Test Value", "stringParameter", "String");
+        var queryParameter2 = CreateParameter(assemblyName, queryParameter2Value, "objectParameter", "[TestInput!]");
+        var testPropertyInfo = inputObjectType.GetProperty("TestProperty");
+        testPropertyInfo.SetValue(queryParameter2Value, CreateParameter(assemblyName, "Input Object Parameter Value"));
+        var timestampPropertyInfo = inputObjectType.GetProperty("Timestamp");
+        timestampPropertyInfo.SetValue(queryParameter2Value, CreateParameter(assemblyName, new DateTimeOffset(2019, 6, 30, 2, 27, 47, TimeSpan.FromHours(2)).AddTicks(1234567)));
 
-            var inputObject = Activator.CreateInstance(inputObjectType);
-            testPropertyInfo.SetValue(inputObject, queryParameter1);
-            var nestedObject = Activator.CreateInstance(inputObjectType);
-            testPropertyInfo.SetValue(nestedObject, CreateParameter(assemblyName, "Nested Value"));
-            inputObjectType.GetProperty("InputObject1").SetValue(inputObject, CreateParameter(assemblyName, nestedObject));
-            inputObjectType.GetProperty("InputObject2").SetValue(inputObject, queryParameter2);
-            inputObjectType.GetProperty("TestNullValueProperty").SetValue(inputObject, CreateParameter(assemblyName, null, null, "String", typeof(String)));
+        var inputObject = Activator.CreateInstance(inputObjectType);
+        testPropertyInfo.SetValue(inputObject, queryParameter1);
+        var nestedObject = Activator.CreateInstance(inputObjectType);
+        testPropertyInfo.SetValue(nestedObject, CreateParameter(assemblyName, "Nested Value"));
+        inputObjectType.GetProperty("InputObject1").SetValue(inputObject, CreateParameter(assemblyName, nestedObject));
+        inputObjectType.GetProperty("InputObject2").SetValue(inputObject, queryParameter2);
+        inputObjectType.GetProperty("TestNullValueProperty").SetValue(inputObject, CreateParameter(assemblyName, null, null, "String", typeof(String)));
 
+        builderType
+            .GetMethod("WithTestAction", BindingFlags.Instance | BindingFlags.Public)
+            .Invoke(
+                builderInstance,
+                new []
+                {
+                    inputObject
+                }.Select(p => CreateParameter(assemblyName, p)).ToArray());
+
+        var withParameterMethod = builderType.GetMethod("WithParameter", BindingFlags.Instance | BindingFlags.Public);
+        withParameterMethod.MakeGenericMethod(typeof(String)).Invoke(builderInstance, new[] { queryParameter1 });
+        withParameterMethod.MakeGenericMethod(queryParameter2Value.GetType()).Invoke(builderInstance, new[] { queryParameter2 });
+
+        var mutation =
             builderType
-                .GetMethod("WithTestAction", BindingFlags.Instance | BindingFlags.Public)
-                .Invoke(
-                    builderInstance,
-                    new []
-                    {
-                        inputObject
-                    }.Select(p => CreateParameter(assemblyName, p)).ToArray());
+                .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
+                .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
 
-            var withParameterMethod = builderType.GetMethod("WithParameter", BindingFlags.Instance | BindingFlags.Public);
-            withParameterMethod.MakeGenericMethod(typeof(String)).Invoke(builderInstance, new[] { queryParameter1 });
-            withParameterMethod.MakeGenericMethod(queryParameter2Value.GetType()).Invoke(builderInstance, new[] { queryParameter2 });
+        mutation.ShouldBe("mutation($stringParameter:String=\"Test Value\",$objectParameter:[TestInput!]={testProperty:\"Input Object Parameter Value\",timestamp:\"19-06-30 02:27+02:00\"}){testAction(objectParameter:{inputObject1:{testProperty:\"Nested Value\"},inputObject2:$objectParameter,testProperty:$stringParameter,testNullValueProperty:null})}");
 
-            var mutation =
-                builderType
-                    .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
-                    .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
+        var inputObjectJson = JsonConvert.SerializeObject(inputObject);
+        inputObjectJson.ShouldBe("{\"TestProperty\":\"Test Value\",\"Timestamp\":null,\"InputObject1\":{\"TestProperty\":\"Nested Value\",\"Timestamp\":null,\"InputObject1\":null,\"InputObject2\":null,\"TestNullValueProperty\":null},\"InputObject2\":{\"TestProperty\":\"Input Object Parameter Value\",\"Timestamp\":\"2019-06-30T02:27:47.1234567+02:00\",\"InputObject1\":null,\"InputObject2\":null,\"TestNullValueProperty\":null},\"TestNullValueProperty\":null}");
 
-            mutation.ShouldBe("mutation($stringParameter:String=\"Test Value\",$objectParameter:[TestInput!]={testProperty:\"Input Object Parameter Value\",timestamp:\"19-06-30 02:27+02:00\"}){testAction(objectParameter:{inputObject1:{testProperty:\"Nested Value\"},inputObject2:$objectParameter,testProperty:$stringParameter,testNullValueProperty:null})}");
+        var deserializedInputObject = JsonConvert.DeserializeObject(inputObjectJson, inputObjectType);
+        var testPropertyValue = testPropertyInfo.GetValue(deserializedInputObject);
+        var converter = testPropertyValue.GetType().GetMethod("op_Implicit", new[] { testPropertyValue.GetType() });
+        var testPropertyPlainValue = converter.Invoke(null, new[] { testPropertyValue });
+        testPropertyPlainValue.ShouldBe("Test Value");
+    }
 
-            var inputObjectJson = JsonConvert.SerializeObject(inputObject);
-            inputObjectJson.ShouldBe("{\"TestProperty\":\"Test Value\",\"Timestamp\":null,\"InputObject1\":{\"TestProperty\":\"Nested Value\",\"Timestamp\":null,\"InputObject1\":null,\"InputObject2\":null,\"TestNullValueProperty\":null},\"InputObject2\":{\"TestProperty\":\"Input Object Parameter Value\",\"Timestamp\":\"2019-06-30T02:27:47.1234567+02:00\",\"InputObject1\":null,\"InputObject2\":null,\"TestNullValueProperty\":null},\"TestNullValueProperty\":null}");
+    [Fact]
+    public void QueryParameterReverseMapping()
+    {
+        var schema = DeserializeTestSchema("TestSchemaWithUnions");
+        var stringBuilder = new StringBuilder();
+        var generator = new GraphQlGenerator();
+        generator.Generate(CreateGenerationContext(stringBuilder, schema));
+        const string assemblyName = "QueryParameterReverseMappingTestAssembly";
+        CompileIntoAssembly(stringBuilder.ToString(), assemblyName);
 
-            var deserializedInputObject = JsonConvert.DeserializeObject(inputObjectJson, inputObjectType);
-            var testPropertyValue = testPropertyInfo.GetValue(deserializedInputObject);
-            var converter = testPropertyValue.GetType().GetMethod("op_Implicit", new[] { testPropertyValue.GetType() });
-            var testPropertyPlainValue = converter.Invoke(null, new[] { testPropertyValue });
-            testPropertyPlainValue.ShouldBe("Test Value");
-        }
+        GetQueryParameterGraphQlType(GetGeneratedType("UnderscoreNamedInput"), true).ShouldBe("underscore_named_input");
+        GetQueryParameterGraphQlType(GetGeneratedType("UnderscoreNamedInput").MakeArrayType(), false).ShouldBe("[underscore_named_input]!");
+        GetQueryParameterGraphQlType(typeof(ICollection<>).MakeGenericType(typeof(Int32)), true).ShouldBe("[Int]");
+        GetQueryParameterGraphQlType(typeof(Double), true).ShouldBe("Float");
+        GetQueryParameterGraphQlType(typeof(Decimal), false).ShouldBe("Float!");
+        GetQueryParameterGraphQlType(typeof(Guid), true).ShouldBe("ID");
+        GetQueryParameterGraphQlType(typeof(String), false).ShouldBe("String!");
 
-        [Fact]
-        public void QueryParameterReverseMapping()
+        string GetQueryParameterGraphQlType(Type valueType, bool nullable)
         {
-            var schema = DeserializeTestSchema("TestSchemaWithUnions");
-            var stringBuilder = new StringBuilder();
-            var generator = new GraphQlGenerator();
-            generator.Generate(CreateGenerationContext(stringBuilder, schema));
-            const string assemblyName = "QueryParameterReverseMappingTestAssembly";
-            CompileIntoAssembly(stringBuilder.ToString(), assemblyName);
-
-            GetQueryParameterGraphQlType(GetGeneratedType("UnderscoreNamedInput"), true).ShouldBe("underscore_named_input");
-            GetQueryParameterGraphQlType(GetGeneratedType("UnderscoreNamedInput").MakeArrayType(), false).ShouldBe("[underscore_named_input]!");
-            GetQueryParameterGraphQlType(typeof(ICollection<>).MakeGenericType(typeof(Int32)), true).ShouldBe("[Int]");
-            GetQueryParameterGraphQlType(typeof(Double), true).ShouldBe("Float");
-            GetQueryParameterGraphQlType(typeof(Decimal), false).ShouldBe("Float!");
-            GetQueryParameterGraphQlType(typeof(Guid), true).ShouldBe("ID");
-            GetQueryParameterGraphQlType(typeof(String), false).ShouldBe("String!");
-
-            string GetQueryParameterGraphQlType(Type valueType, bool nullable)
-            {
-                var queryParameterType = GetGeneratedType("GraphQlQueryParameter`1");
-                var queryParameter = Activator.CreateInstance(queryParameterType.MakeGenericType(valueType), "parameter_name", null, nullable);
-                return (string)queryParameterType.GetProperty("GraphQlTypeName", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(queryParameter);
-            }
-
-            Type GetGeneratedType(string typeName)
-            {
-                typeName = $"{assemblyName}.{typeName}, {assemblyName}";
-                return Type.GetType(typeName) ?? throw new InvalidOperationException($"value type \"{typeName}\" not found");
-            }
+            var queryParameterType = GetGeneratedType("GraphQlQueryParameter`1");
+            var queryParameter = Activator.CreateInstance(queryParameterType.MakeGenericType(valueType), "parameter_name", null, nullable);
+            return (string)queryParameterType.GetProperty("GraphQlTypeName", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(queryParameter);
         }
 
-        private static string StripBaseClasses(string sourceCode)
+        Type GetGeneratedType(string typeName)
         {
-            using var reader = new StreamReader(typeof(GraphQlGenerator).Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses.cs"));
-            return sourceCode.Replace("#region base classes" + Environment.NewLine + reader.ReadToEnd() + Environment.NewLine + "#endregion", null).Trim();
+            typeName = $"{assemblyName}.{typeName}, {assemblyName}";
+            return Type.GetType(typeName) ?? throw new InvalidOperationException($"value type \"{typeName}\" not found");
         }
+    }
+
+    private static string StripBaseClasses(string sourceCode)
+    {
+        using var reader = new StreamReader(typeof(GraphQlGenerator).Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses.cs"));
+        return sourceCode.Replace("#region base classes" + Environment.NewLine + reader.ReadToEnd() + Environment.NewLine + "#endregion", null).Trim();
     }
 }
