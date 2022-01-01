@@ -10,7 +10,7 @@ namespace GraphQlClientGenerator.Console
             try
             {
                 var generatedFiles = new List<FileInfo>();
-                await GenerateClientSourceCode(options, generatedFiles);
+                await GenerateClientSourceCode(console, options, generatedFiles);
 
                 foreach (var file in generatedFiles)
                     console.Out.WriteLine($"File {file.FullName} generated successfully ({file.Length:N0} B). ");
@@ -24,17 +24,23 @@ namespace GraphQlClientGenerator.Console
             }
         }
 
-        private static async Task GenerateClientSourceCode(ProgramOptions options, List<FileInfo> generatedFiles)
+        private static async Task GenerateClientSourceCode(IConsole console, ProgramOptions options, List<FileInfo> generatedFiles)
         {
             GraphQlSchema schema;
+
             if (String.IsNullOrWhiteSpace(options.ServiceUrl))
-                schema = GraphQlGenerator.DeserializeGraphQlSchema(await File.ReadAllTextAsync(options.SchemaFileName));
+            {
+                var schemaJson = await File.ReadAllTextAsync(options.SchemaFileName);
+                console.Out.WriteLine($"GraphQL schema file {options.SchemaFileName} loaded ({schemaJson.Length:N0} B). ");
+                schema = GraphQlGenerator.DeserializeGraphQlSchema(schemaJson);
+            }
             else
             {
                 if (!KeyValueParameterParser.TryGetCustomHeaders(options.Header, out var headers, out var headerParsingErrorMessage))
                     throw new InvalidOperationException(headerParsingErrorMessage);
 
                 schema = await GraphQlGenerator.RetrieveSchema(new HttpMethod(options.HttpMethod), options.ServiceUrl, headers);
+                console.Out.WriteLine($"GraphQL Schema retrieved from {options.ServiceUrl}. ");
             }
             
             var generatorConfiguration =
