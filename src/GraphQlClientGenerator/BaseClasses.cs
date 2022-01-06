@@ -161,6 +161,8 @@ internal static class GraphQlQueryHelper
                 case JTokenType.Float:
                 case JTokenType.Boolean:
                     return BuildArgumentValue(jValue.Value, null, formatting, level, indentationSize);
+                case JTokenType.String:
+                    return "\"" + ((string)jValue.Value).Replace("\"", "\\\"") + "\"";
                 default:
                     return "\"" + jValue.Value + "\"";
             }
