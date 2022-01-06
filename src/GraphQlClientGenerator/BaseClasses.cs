@@ -200,8 +200,11 @@ internal static class GraphQlQueryHelper
         if (value is IGraphQlInputObject inputObject)
             return BuildInputObject(inputObject, formatting, level + 2, indentationSize);
 
-        if (value is String || value is Guid)
+        if (value is Guid)
             return "\"" + value + "\"";
+
+        if (value is String @string)
+            return "\"" + @string.Replace("\"", "\\\"") + "\"";
 
         if (enumerable != null)
             return BuildEnumerableArgument(enumerable, formatMask, formatting, level, indentationSize, '[', ']');
