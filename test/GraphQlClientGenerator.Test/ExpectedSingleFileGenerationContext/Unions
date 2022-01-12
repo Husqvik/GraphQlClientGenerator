@@ -362,11 +362,17 @@ public partial class MutationQueryBuilder : GraphQlQueryBuilder<MutationQueryBui
 
     public MutationQueryBuilder WithParameter<T>(GraphQlQueryParameter<T> parameter) => WithParameterInternal(parameter);
 
-    public MutationQueryBuilder WithCreateMessage(MessageQueryBuilder messageQueryBuilder, QueryBuilderParameter<InputType?>? inputMessage = null, string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null)
+    public MutationQueryBuilder WithCreateMessage(MessageQueryBuilder messageQueryBuilder, QueryBuilderParameter<InputType?>? inputMessage = null, QueryBuilderParameter<InputType?>? inputMessage2 = null, QueryBuilderParameter<InputType?>? inputMessage3 = null, string? alias = null, SkipDirective? skip = null, IncludeDirective? include = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (inputMessage != null)
-            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "input_message", ArgumentValue = inputMessage} );
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "inputMessage", ArgumentValue = inputMessage} );
+
+        if (inputMessage2 != null)
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "input_message", ArgumentValue = inputMessage2} );
+
+        if (inputMessage3 != null)
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "input__message", ArgumentValue = inputMessage3} );
 
         return WithObjectField("createMessage", alias, messageQueryBuilder, new GraphQlDirective?[] { skip, include }, args);
     }

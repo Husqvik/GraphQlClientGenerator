@@ -1057,25 +1057,7 @@ using Newtonsoft.Json.Linq;
                 
             fieldType = fieldType.UnwrapIfNonNull();
             var isFragment = i >= firstFragmentIndex;
-
-            static bool IsCompatibleArgument(GraphQlFieldType argumentType)
-            {
-                argumentType = argumentType.UnwrapIfNonNull();
-                return
-                    argumentType.Kind switch
-                    {
-                        GraphQlTypeKind.Scalar => true,
-                        GraphQlTypeKind.Enum => true,
-                        GraphQlTypeKind.InputObject => true,
-                        GraphQlTypeKind.List => IsCompatibleArgument(argumentType.OfType),
-                        _ => false
-                    };
-            }
-
-            var argumentDefinitions =
-                field.Args?.Where(a => IsCompatibleArgument(a.Type)).Select(a => BuildMethodParameterDefinition(type, a)).ToArray()
-                ?? Array.Empty<QueryBuilderParameterDefinition>();
-
+            var argumentDefinitions = ResolveParameterDefinitions(type, field.Args);
             var argumentCollectionVariableName = "args";
             var counter = 0;
             while (argumentDefinitions.Any(a => a.NetParameterName == argumentCollectionVariableName))
@@ -1147,7 +1129,7 @@ using Newtonsoft.Json.Linq;
                         writer.Write("\", alias, ");
                         writer.Write(fieldDirectiveParameterNameList);
 
-                        if (argumentDefinitions.Length > 0)
+                        if (argumentDefinitions.Count > 0)
                         {
                             writer.Write(", ");
                             writer.Write(argumentCollectionVariableName);
@@ -1169,7 +1151,7 @@ using Newtonsoft.Json.Linq;
                 writer.Write(indentation);
                 writer.Write($"    public {className} With{csharpPropertyName}{(isFragment ? "Fragment" : null)}({_configuration.ClassPrefix}{fieldTypeName}QueryBuilder{_configuration.ClassSuffix} {builderParameterName}QueryBuilder");
 
-                if (argumentDefinitions.Length > 0)
+                if (argumentDefinitions.Count > 0)
                 {
                     writer.Write(", ");
                     writer.Write(methodParameters);
@@ -1211,7 +1193,7 @@ using Newtonsoft.Json.Linq;
                         writer.Write(", ");
                         writer.Write(fieldDirectiveParameterNameList);
 
-                        if (argumentDefinitions.Length > 0)
+                        if (argumentDefinitions.Count > 0)
                         {
                             writer.Write(", ");
                             writer.Write(argumentCollectionVariableName);
@@ -1243,6 +1225,41 @@ using Newtonsoft.Json.Linq;
         writer.WriteLine("}");
 
         context.AfterQueryBuilderGeneration(className);
+    }
+
+    private IList<QueryBuilderParameterDefinition> ResolveParameterDefinitions(GraphQlType type, IEnumerable<GraphQlArgument> graphQlArguments)
+    {
+        if (graphQlArguments is null)
+            return Array.Empty<QueryBuilderParameterDefinition>();
+
+        var parameterDefinitions = new List<QueryBuilderParameterDefinition>();
+        var collidingNames = new Dictionary<string, int>();
+        foreach (var argument in graphQlArguments.Where(a => IsCompatibleArgument(a.Type)))
+        {
+            var netParameterName = NamingHelper.ToValidCSharpName(NamingHelper.LowerFirst(NamingHelper.ToPascalCase(argument.Name)));
+            collidingNames[netParameterName] = collidingNames.TryGetValue(netParameterName, out var extendingIndex) ? extendingIndex + 1 : 1;
+
+            if (extendingIndex > 0)
+                netParameterName = $"{netParameterName}{++extendingIndex}";
+
+            parameterDefinitions.Add(BuildMethodParameterDefinition(type, argument, netParameterName));
+        }
+
+        return parameterDefinitions;
+
+        static bool IsCompatibleArgument(GraphQlFieldType argumentType)
+        {
+            argumentType = argumentType.UnwrapIfNonNull();
+            return
+                argumentType.Kind switch
+                {
+                    GraphQlTypeKind.Scalar => true,
+                    GraphQlTypeKind.Enum => true,
+                    GraphQlTypeKind.InputObject => true,
+                    GraphQlTypeKind.List => IsCompatibleArgument(argumentType.OfType),
+                    _ => false
+                };
+        }
     }
 
     private GraphQlFieldType UnwrapListItemType(GraphQlFieldType type, out string netCollectionOpenType)
@@ -1372,7 +1389,7 @@ using Newtonsoft.Json.Linq;
         writer.WriteLine();
     }
 
-    private QueryBuilderParameterDefinition BuildMethodParameterDefinition(GraphQlType baseType, GraphQlArgument argument)
+    private QueryBuilderParameterDefinition BuildMethodParameterDefinition(GraphQlType baseType, GraphQlArgument argument, string netParameterName)
     {
         var argumentType = argument.Type;
         var isArgumentNotNull = argumentType.Kind == GraphQlTypeKind.NonNull;
@@ -1415,7 +1432,6 @@ using Newtonsoft.Json.Linq;
         if (!isArgumentNotNull)
             argumentNetType = AddQuestionMarkIfNullableReferencesEnabled(argumentNetType);
 
-        var netParameterName = NamingHelper.ToValidCSharpName(NamingHelper.LowerFirst(NamingHelper.ToPascalCase(argument.Name)));
         var argumentDefinition = $"{argumentNetType} {netParameterName}";
         if (!isArgumentNotNull)
             argumentDefinition += " = null";
@@ -1564,7 +1580,7 @@ using Newtonsoft.Json.Linq;
 
         GenerateCodeComments(writer, directive.Description, context.Indentation);
 
-        var orderedArgumentDefinitions = directive.Args.OrderByDescending(a => a.Type.Kind == GraphQlTypeKind.NonNull).Select(a => BuildMethodParameterDefinition(null, a)).ToArray();
+        var orderedArgumentDefinitions = ResolveParameterDefinitions(null, directive.Args.OrderByDescending(a => a.Type.Kind == GraphQlTypeKind.NonNull));
         var argumentList = String.Join(", ", orderedArgumentDefinitions.Select(d => d.NetParameterDefinitionClause));
 
         var indentation = GetIndentation(context.Indentation);

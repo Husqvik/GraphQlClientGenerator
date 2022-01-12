@@ -841,7 +841,27 @@
               "description": "",
               "args": [
                 {
+                  "name": "inputMessage",
+                  "description": "",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "InputType",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
                   "name": "input_message",
+                  "description": "",
+                  "type": {
+                    "kind": "INPUT_OBJECT",
+                    "name": "InputType",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "input__message",
                   "description": "",
                   "type": {
                     "kind": "INPUT_OBJECT",
