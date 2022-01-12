@@ -360,7 +360,7 @@ using Newtonsoft.Json.Linq;
                 NamingHelper.ToPascalCase(inputObjectType.Name),
                 inputObjectType,
                 "IGraphQlInputObject",
-                () => GenerateInputDataClassBody(inputObjectType, inputObjectType.InputFields.Cast<IGraphQlMember>().ToArray(), context));
+                () => GenerateInputDataClassBody(inputObjectType, inputObjectType.InputFields, context));
         }
 
         context.AfterInputClassesGeneration();
@@ -419,6 +419,7 @@ using Newtonsoft.Json.Linq;
                         GenerateDataProperty(
                             complexType,
                             field,
+                            NamingHelper.ToPascalCase(field.Name),
                             isInterfaceMember,
                             field.IsDeprecated,
                             field.DeprecationReason,
@@ -462,18 +463,23 @@ using Newtonsoft.Json.Linq;
     private static string GetBackingFieldName(string graphQlFieldName) => "_" + NamingHelper.LowerFirst(NamingHelper.ToPascalCase(graphQlFieldName));
 
     private static bool IsComplexType(GraphQlTypeKind graphQlTypeKind) =>
-        graphQlTypeKind == GraphQlTypeKind.Object || graphQlTypeKind == GraphQlTypeKind.Interface || graphQlTypeKind == GraphQlTypeKind.Union;
+        graphQlTypeKind is GraphQlTypeKind.Object or GraphQlTypeKind.Interface or GraphQlTypeKind.Union;
 
     private void GenerateInputDataClassBody(GraphQlType type, IEnumerable<IGraphQlMember> members, GenerationContext context)
     {
         var writer = context.Writer;
         var indentation = GetIndentation(context.Indentation);
 
-        var fieldNameMembers = new Dictionary<string, IGraphQlMember>();
+        var fieldNameMembers = new Dictionary<string, (IGraphQlMember Member, int? NameExtension)>();
         foreach (var member in members)
         {
             var fieldName = GetBackingFieldName(member.Name);
-            fieldNameMembers.Add(fieldName, member);
+            var originalFieldName = fieldName;
+            var collidingNameExtendingIndex = 1;
+            while (fieldNameMembers.ContainsKey(fieldName))
+                fieldName = $"{originalFieldName}{++collidingNameExtendingIndex}";
+
+            fieldNameMembers.Add(fieldName, (member, collidingNameExtendingIndex == 1 ? null : collidingNameExtendingIndex));
 
             writer.Write(indentation);
             writer.Write("    private InputPropertyInfo ");
@@ -488,7 +494,8 @@ using Newtonsoft.Json.Linq;
         foreach (var kvp in fieldNameMembers)
             GenerateDataProperty(
                 type,
-                kvp.Value,
+                kvp.Value.Member,
+                NamingHelper.ToPascalCase(kvp.Value.Member.Name) + kvp.Value.NameExtension,
                 false,
                 false,
                 null,
@@ -517,7 +524,7 @@ using Newtonsoft.Json.Linq;
                     writer.Write(useCompatibleSyntax ? " { " : " => ");
                     writer.Write(kvp.Key);
                     writer.Write(" = new InputPropertyInfo { Name = \"");
-                    writer.Write(kvp.Value.Name);
+                    writer.Write(kvp.Value.Member.Name);
                     writer.Write("\", Value = value");
 
                     if (!String.IsNullOrEmpty(t.FormatMask))
@@ -678,12 +685,13 @@ using Newtonsoft.Json.Linq;
     private string GetMemberAccessibility() =>
         _configuration.MemberAccessibility == MemberAccessibility.Internal ? "internal" : "public";
 
-    internal bool FilterDeprecatedFields(GraphQlField field) =>
+    private bool FilterDeprecatedFields(GraphQlField field) =>
         !field.IsDeprecated || _configuration.IncludeDeprecatedFields;
 
     private void GenerateDataProperty(
         GraphQlType baseType,
         IGraphQlMember member,
+        string propertyName,
         bool isInterfaceMember,
         bool isDeprecated,
         string deprecationReason,
@@ -691,7 +699,6 @@ using Newtonsoft.Json.Linq;
         WriteDataClassPropertyBodyDelegate writeBody,
         GenerationContext context)
     {
-        var propertyName = NamingHelper.ToPascalCase(member.Name);
         var propertyTypeDescription = GetDataPropertyType(baseType, member);
         var propertyTypeName = propertyTypeDescription.NetTypeName;
 
@@ -717,7 +724,7 @@ using Newtonsoft.Json.Linq;
                     propertyName.TrimStart('@'),
                     _configuration.JsonPropertyGeneration == JsonPropertyGenerationOption.CaseInsensitive ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
 
-            if (_configuration.JsonPropertyGeneration == JsonPropertyGenerationOption.Never || _configuration.JsonPropertyGeneration == JsonPropertyGenerationOption.UseDefaultAlias)
+            if (_configuration.JsonPropertyGeneration is JsonPropertyGenerationOption.Never or JsonPropertyGenerationOption.UseDefaultAlias)
                 decorateWithJsonPropertyAttribute = false;
         }
 
@@ -1067,7 +1074,7 @@ using Newtonsoft.Json.Linq;
 
             var argumentDefinitions =
                 field.Args?.Where(a => IsCompatibleArgument(a.Type)).Select(a => BuildMethodParameterDefinition(type, a)).ToArray()
-                ?? new QueryBuilderParameterDefinition[0];
+                ?? Array.Empty<QueryBuilderParameterDefinition>();
 
             var argumentCollectionVariableName = "args";
             var counter = 0;

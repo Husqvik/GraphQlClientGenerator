@@ -431,6 +431,8 @@ public partial class InputType : IGraphQlInputObject
 {
     private InputPropertyInfo _textValue;
     private InputPropertyInfo _enumValue;
+    private InputPropertyInfo _textValue2;
+    private InputPropertyInfo _enumValue2;
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(QueryBuilderParameterConverter<string?>))]
@@ -450,10 +452,30 @@ public partial class InputType : IGraphQlInputObject
         set => _enumValue = new InputPropertyInfo { Name = "enum_value", Value = value };
     }
 
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string?>))]
+    #endif
+    public QueryBuilderParameter<string?>? TextValue2
+    {
+        get => (QueryBuilderParameter<string?>?)_textValue2.Value;
+        set => _textValue2 = new InputPropertyInfo { Name = "textValue", Value = value };
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(QueryBuilderParameterConverter<UnderscoreNamedEnum?>))]
+    #endif
+    public QueryBuilderParameter<UnderscoreNamedEnum?>? EnumValue2
+    {
+        get => (QueryBuilderParameter<UnderscoreNamedEnum?>?)_enumValue2.Value;
+        set => _enumValue2 = new InputPropertyInfo { Name = "enumValue", Value = value };
+    }
+
     IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
     {
         if (_textValue.Name != null) yield return _textValue;
         if (_enumValue.Name != null) yield return _enumValue;
+        if (_textValue2.Name != null) yield return _textValue2;
+        if (_enumValue2.Name != null) yield return _enumValue2;
     }
 }
 #endregion

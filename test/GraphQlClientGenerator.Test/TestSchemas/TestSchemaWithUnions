@@ -889,6 +889,30 @@
               "name": "enum_value",
               "description": "",
               "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "underscore_named_enum",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "textValue",
+              "description": "",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "enumValue",
+              "description": "",
+              "type": {
                 "kind": "ENUM",
                 "name": "underscore_named_enum",
                 "ofType": null
