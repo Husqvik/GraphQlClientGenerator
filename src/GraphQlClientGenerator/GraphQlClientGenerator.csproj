@@ -8,7 +8,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Title>GraphQL C# Client Generator</Title>
     <PackageTags>GraphQL Client Generator</PackageTags>
-    <PackageReleaseNotes>fixed incorrect quoted string parameter value generation</PackageReleaseNotes>
+    <PackageReleaseNotes>fixed naming collisions for field and directive arguments</PackageReleaseNotes>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
