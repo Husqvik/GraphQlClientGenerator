@@ -386,9 +386,7 @@ using Newtonsoft.Json.Linq;
             var hasInputReference = referencedObjectTypes.Contains(complexType.Name);
             var fieldsToGenerate = GetFieldsToGenerate(complexType, complexTypeDictionary);
             var isInterface = complexType.Kind == GraphQlTypeKind.Interface;
-            var csharpTypeName = complexType.Name;
-            if (!UseCustomClassNameIfDefined(ref csharpTypeName))
-                csharpTypeName = NamingHelper.ToPascalCase(csharpTypeName);
+            var csharpTypeName = GetCSharpMemberName(complexType.Name);
 
             void GenerateBody(bool isInterfaceMember)
             {
@@ -441,7 +439,8 @@ using Newtonsoft.Json.Linq;
 
                 foreach (var @interface in complexType.Interfaces)
                 {
-                    var interfaceName = "I" + _configuration.ClassPrefix + @interface.Name + _configuration.ClassSuffix;
+                    var csharpInterfaceName = GetCSharpMemberName(@interface.Name);
+                    var interfaceName = "I" + _configuration.ClassPrefix + csharpInterfaceName + _configuration.ClassSuffix;
                     interfacesToImplement.Add(interfaceName);
 
                     foreach (var interfaceField in complexTypeDictionary[@interface.Name].Fields.Where(FilterDeprecatedFields))
@@ -458,6 +457,15 @@ using Newtonsoft.Json.Linq;
         }
 
         context.AfterDataClassesGeneration();
+    }
+
+    private string GetCSharpMemberName(string graphQlName)
+    {
+        var csharpMemberName = graphQlName;
+        if (!UseCustomClassNameIfDefined(ref csharpMemberName))
+            csharpMemberName = NamingHelper.ToPascalCase(csharpMemberName);
+
+        return csharpMemberName;
     }
 
     private static string GetBackingFieldName(string graphQlFieldName) => "_" + NamingHelper.LowerFirst(NamingHelper.ToPascalCase(graphQlFieldName));
@@ -788,10 +796,7 @@ using Newtonsoft.Json.Linq;
             case GraphQlTypeKind.Interface:
             case GraphQlTypeKind.Union:
             case GraphQlTypeKind.InputObject:
-                var fieldTypeName = fieldType.Name;
-                if (!UseCustomClassNameIfDefined(ref fieldTypeName))
-                    fieldTypeName = NamingHelper.ToPascalCase(fieldTypeName);
-
+                var fieldTypeName = GetCSharpMemberName(fieldType.Name);
                 var propertyType = _configuration.ClassPrefix + fieldTypeName + _configuration.ClassSuffix;
                 if (fieldType.Kind == GraphQlTypeKind.Interface)
                     propertyType = "I" + propertyType;
@@ -807,9 +812,7 @@ using Newtonsoft.Json.Linq;
                 if (unwrappedItemType is null)
                     throw ListItemTypeResolutionFailedException(baseType.Name, fieldType.Name);
 
-                var itemTypeName = unwrappedItemType.Name;
-                if (!UseCustomClassNameIfDefined(ref itemTypeName))
-                    itemTypeName = NamingHelper.ToPascalCase(itemTypeName);
+                var itemTypeName = GetCSharpMemberName(unwrappedItemType.Name);
 
                 var netItemType =
                     IsUnknownObjectScalar(baseType, member.Name, itemType)
@@ -894,11 +897,9 @@ using Newtonsoft.Json.Linq;
     private void GenerateQueryBuilder(GenerationContext context, GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary)
     {
         var schema = context.Schema;
-        var typeName = type.Name;
-        if (!UseCustomClassNameIfDefined(ref typeName))
-            typeName = NamingHelper.ToPascalCase(typeName);
-
+        var typeName = GetCSharpMemberName(type.Name);
         var className = _configuration.ClassPrefix + typeName + "QueryBuilder" + _configuration.ClassSuffix;
+
         ValidateClassName(className);
 
         context.BeforeQueryBuilderGeneration(className);
@@ -980,8 +981,7 @@ using Newtonsoft.Json.Linq;
                         if (fieldTypeName is null)
                             throw FieldTypeResolutionFailedException(type.Name, field.Name, null);
 
-                        if (!UseCustomClassNameIfDefined(ref fieldTypeName))
-                            fieldTypeName = NamingHelper.ToPascalCase(fieldTypeName);
+                        fieldTypeName = GetCSharpMemberName(fieldTypeName);
                             
                         writer.Write($", QueryBuilderType = typeof({_configuration.ClassPrefix}{fieldTypeName}QueryBuilder{_configuration.ClassSuffix})");
                     }
@@ -1144,8 +1144,7 @@ using Newtonsoft.Json.Linq;
                 if (String.IsNullOrEmpty(fieldTypeName))
                     throw FieldTypeResolutionFailedException(type.Name, field.Name, null);
 
-                if (!UseCustomClassNameIfDefined(ref fieldTypeName))
-                    fieldTypeName = NamingHelper.ToPascalCase(fieldTypeName);
+                fieldTypeName = GetCSharpMemberName(fieldTypeName);
 
                 var builderParameterName = NamingHelper.LowerFirst(fieldTypeName);
                 writer.Write(indentation);
@@ -1416,11 +1415,7 @@ using Newtonsoft.Json.Linq;
         var isInputObject = unwrappedType.Kind == GraphQlTypeKind.InputObject;
         if (isInputObject)
         {
-            argumentNetType = unwrappedType.Name;
-
-            if (!UseCustomClassNameIfDefined(ref argumentNetType))
-                argumentNetType = NamingHelper.ToPascalCase(argumentNetType);
-
+            argumentNetType = GetCSharpMemberName(unwrappedType.Name);
             argumentNetType = _configuration.ClassPrefix + argumentNetType + _configuration.ClassSuffix;
                 
             if (!isTypeNotNull)
