@@ -15,8 +15,8 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
 
     public GraphQlClientSourceGeneratorTest()
     {
-        _fileGraphQlSchema = CreateAdditionalFile("GraphQlClientGenerator.Test.TestSchemas.TestSchema3", FileNameTestSchema + ".json");
-        _fileMappingRules = CreateAdditionalFile("GraphQlClientGenerator.Test.RegexCustomScalarFieldTypeMappingRules", "RegexScalarFieldTypeMappingProviderConfiguration.json");
+        _fileGraphQlSchema = CreateAdditionalFile("GraphQlClientGenerator.Test.TestSchemas.TestSchema3", FileNameTestSchema + ".GQL.Schema.Json");
+        _fileMappingRules = CreateAdditionalFile("GraphQlClientGenerator.Test.RegexCustomScalarFieldTypeMappingRules", "RegexScalarFieldTypeMappingProvider.gql.config.JSON");
     }
 
     private static AdditionalFile CreateAdditionalFile(string resourceName, string fileName)

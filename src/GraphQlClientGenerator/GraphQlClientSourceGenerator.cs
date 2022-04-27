@@ -12,7 +12,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
 {
     private const string ApplicationCode = "GRAPHQLGEN";
     private const string FileNameGraphQlClientSource = "GraphQlClient.cs";
-    private const string FileNameRegexScalarFieldTypeMappingProviderConfiguration = "RegexScalarFieldTypeMappingProviderConfiguration.json";
+    private const string FileNameRegexScalarFieldTypeMappingProviderConfiguration = "RegexScalarFieldTypeMappingProvider.gql.config.json";
     private const string BuildPropertyKeyPrefix = "build_property.GraphQlClientGenerator_";
 
     private static readonly DiagnosticDescriptor DescriptorParameterError = CreateDiagnosticDescriptor(DiagnosticSeverity.Error, 1000);
@@ -40,7 +40,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
         {
             context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKeyPrefix + "ServiceUrl", out var serviceUrl);
             var isServiceUrlMissing = String.IsNullOrWhiteSpace(serviceUrl);
-            var graphQlSchemaFiles = context.AdditionalFiles.Where(f => String.Equals(Path.GetExtension(f.Path), ".json", StringComparison.OrdinalIgnoreCase)).ToList();
+            var graphQlSchemaFiles = context.AdditionalFiles.Where(f => Path.GetFileName(f.Path).EndsWith(".gql.schema.json", StringComparison.OrdinalIgnoreCase)).ToList();
             var indexRegexScalarFieldTypeMappingProviderConfigurationFile =
                 graphQlSchemaFiles.FindIndex(f => String.Equals(Path.GetFileName(f.Path), FileNameRegexScalarFieldTypeMappingProviderConfiguration, StringComparison.OrdinalIgnoreCase));
 
@@ -255,7 +255,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
     }
 
     private static DiagnosticDescriptor CreateDiagnosticDescriptor(DiagnosticSeverity severity, int code) =>
-        new DiagnosticDescriptor(
+        new(
             ApplicationCode + code,
             severity + " " + ApplicationCode + code,
             "{0}",

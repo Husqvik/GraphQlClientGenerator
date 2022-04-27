@@ -70,7 +70,7 @@ Project file example:
   <PackageReference Include="GraphQlClientGenerator" Version="0.9.*" IncludeAssets="analyzers" />
   
   <!-- AdditionalFiles and GraphQlClientGenerator_ServiceUrl are mutually exclusive -->
-  <!-- <AdditionalFiles Include="GqlSchemaTibberApi.json" CacheObjects="true" /> -->
+  <!-- <AdditionalFiles Include="GqlSchemaTibberApi.gql.schema.json" CacheObjects="true" /> --> <!-- schema file name must end with ".gql.schema.json" -->
   
   <CompilerVisibleProperty Include="GraphQlClientGenerator_ServiceUrl" />
   <CompilerVisibleProperty Include="GraphQlClientGenerator_Namespace" />
@@ -447,10 +447,10 @@ Source generator supports `RegexScalarFieldTypeMappingProvider` rules using JSON
 ```
 All pattern values must be specified. `Null` values are not accepted.
 
-The file must be named `RegexScalarFieldTypeMappingProviderConfiguration.json` and included as additional file.
+The file must be named `RegexScalarFieldTypeMappingProvider.gql.config.json` and included as additional file.
 
 ```xml
 <ItemGroup>
-  <AdditionalFiles Include="RegexScalarFieldTypeMappingProviderConfiguration.json" CacheObjects="true" />
+  <AdditionalFiles Include="RegexScalarFieldTypeMappingProvider.gql.config.json" CacheObjects="true" />
 </ItemGroup>
 ```
