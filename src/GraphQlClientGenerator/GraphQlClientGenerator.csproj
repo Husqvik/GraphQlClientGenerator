@@ -8,7 +8,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Title>GraphQL C# Client Generator</Title>
     <PackageTags>GraphQL Client Generator</PackageTags>
-    <PackageReleaseNotes>restrict GraphQL schema file names when defined using "AdditionalFiles" property to avoid conflicts with other json files unrelated to GraphQL client generator</PackageReleaseNotes>
+    <PackageReleaseNotes>added option to generate enum value without conversion to C# naming; for better compatibility with System.Text.Json deserializer</PackageReleaseNotes>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>

@@ -53,7 +53,8 @@ internal static class GraphQlCSharpFileHelper
                 MemberAccessibility = options.MemberAccessibility,
                 IdTypeMapping = options.IdTypeMapping,
                 FloatTypeMapping = options.FloatTypeMapping,
-                JsonPropertyGeneration = options.JsonPropertyAttribute
+                JsonPropertyGeneration = options.JsonPropertyAttribute,
+                EnumValueNaming = options.EnumValueNaming
             };
 
         if (!KeyValueParameterParser.TryGetCustomClassMapping(options.ClassMapping, out var customMapping, out var customMappingParsingErrorMessage))

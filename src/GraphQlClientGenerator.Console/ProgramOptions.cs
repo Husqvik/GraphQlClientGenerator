@@ -18,4 +18,5 @@ public class ProgramOptions
     public IdTypeMapping IdTypeMapping { get; set; }
     public FloatTypeMapping FloatTypeMapping { get; set; }
     public JsonPropertyGenerationOption JsonPropertyAttribute { get; set; }
+    public EnumValueNamingOption EnumValueNaming { get; set; }
 }

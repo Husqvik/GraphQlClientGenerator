@@ -56,6 +56,8 @@ public class GraphQlGeneratorConfiguration
 
     public JsonPropertyGenerationOption JsonPropertyGeneration { get; set; } = JsonPropertyGenerationOption.CaseInsensitive;
 
+    public EnumValueNamingOption EnumValueNaming { get; set; }
+
     /// <summary>
     /// Determines builder class, data class and interfaces accessibility level.
     /// </summary>
@@ -92,6 +94,7 @@ public class GraphQlGeneratorConfiguration
         MemberAccessibility = MemberAccessibility.Public;
         JsonPropertyGeneration = JsonPropertyGenerationOption.CaseInsensitive;
         PropertyGeneration = PropertyGenerationOption.AutoProperty;
+        EnumValueNaming = EnumValueNamingOption.CSharp;
     }
 
     public string GeneratePropertyAccessors(string backingFieldName, ScalarFieldTypeDescription backingFieldType)
@@ -118,6 +121,12 @@ public class GraphQlGeneratorConfiguration
 
         return builder.ToString();
     }
+}
+
+public enum EnumValueNamingOption
+{
+    CSharp,
+    Original
 }
 
 public enum CSharpVersion

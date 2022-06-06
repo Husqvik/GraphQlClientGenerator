@@ -1521,8 +1521,14 @@ using Newtonsoft.Json.Linq;
             GenerateCodeComments(writer, enumValue.Description, context.Indentation + 4);
             writer.Write(indentation);
             writer.Write("    ");
-            var netIdentifier = NamingHelper.ToCSharpEnumName(enumValue.Name);
-            if (netIdentifier != enumValue.Name)
+
+            var useCSharpNaming = _configuration.EnumValueNaming == EnumValueNamingOption.CSharp;
+            var netIdentifier =
+                useCSharpNaming
+                    ? NamingHelper.ToCSharpEnumName(enumValue.Name)
+                    : NamingHelper.ToValidCSharpName(enumValue.Name);
+
+            if (useCSharpNaming && netIdentifier != enumValue.Name)
                 writer.Write($"[EnumMember(Value = \"{enumValue.Name}\")] ");
 
             writer.Write(netIdentifier);
