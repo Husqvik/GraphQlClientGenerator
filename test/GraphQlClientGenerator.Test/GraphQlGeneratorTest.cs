@@ -394,7 +394,6 @@ public class GraphQlGeneratorTest
 
         var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.Unions");
         var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
-        File.WriteAllText(@"D:\Unions", generatedSourceCode);
         generatedSourceCode.ShouldBe(expectedOutput);
     }
 
