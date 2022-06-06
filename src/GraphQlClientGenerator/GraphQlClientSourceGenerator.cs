@@ -159,6 +159,13 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
                     ? JsonPropertyGenerationOption.CaseInsensitive
                     : (JsonPropertyGenerationOption)Enum.Parse(typeof(JsonPropertyGenerationOption), jsonPropertyGenerationRaw, true);
 
+            currentParameterName = "EnumValueNaming";
+            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKeyPrefix + currentParameterName, out var enumValueNamingRaw);
+            configuration.EnumValueNaming =
+                String.IsNullOrWhiteSpace(enumValueNamingRaw)
+                    ? EnumValueNamingOption.CSharp
+                    : (EnumValueNamingOption)Enum.Parse(typeof(EnumValueNamingOption), enumValueNamingRaw, true);
+
             currentParameterName = "CustomClassMapping";
             context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKeyPrefix + currentParameterName, out var customClassMappingRaw);
             if (!KeyValueParameterParser.TryGetCustomClassMapping(

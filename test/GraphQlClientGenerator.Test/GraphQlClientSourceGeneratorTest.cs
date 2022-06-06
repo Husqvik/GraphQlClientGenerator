@@ -80,7 +80,8 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
                 { "build_property.GraphQlClientGenerator_JsonPropertyGeneration", "Always" },
                 { "build_property.GraphQlClientGenerator_CustomClassMapping", "Query:Tibber|RootMutation:TibberMutation Consumption:ConsumptionEntry;Production:ProductionEntry" },
                 { "build_property.GraphQlClientGenerator_Headers", "Authorization:Basic XXX|X-REQUEST-ID:123456789" },
-                { "build_property.GraphQlClientGenerator_HttpMethod", "GET" }
+                { "build_property.GraphQlClientGenerator_HttpMethod", "GET" },
+                { "build_property.GraphQlClientGenerator_EnumValueNaming", "CSharp" }
             };
 
         if (scalarFieldTypeMappingProviderTypeName is not null)

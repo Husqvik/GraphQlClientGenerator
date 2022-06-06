@@ -41,8 +41,9 @@ public static class GraphQlTypes
 #region enums
 public enum UnderscoreNamedEnum
 {
-    [EnumMember(Value = "an_enum_value_1")] AnEnumValue1,
-    [EnumMember(Value = "an_enum_value_2")] AnEnumValue2
+    an_enum_value_1,
+    an_enum_value_2,
+    @default
 }
 #endregion
 

@@ -760,6 +760,12 @@
               "description": "An enum value 2 description",
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "default",
+              "description": "",
+              "isDeprecated": false,
+              "deprecationReason": null
             }
           ],
           "possibleTypes": null
