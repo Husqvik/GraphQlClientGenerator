@@ -12,7 +12,7 @@ public enum Formatting
     Indented
 }
 
-public class GraphQlObjectTypeAttribute : Attribute
+public class GraphQlObjectTypeAttribute : global::System.Attribute
 {
     public string TypeName { get; }
 
@@ -20,7 +20,7 @@ public class GraphQlObjectTypeAttribute : Attribute
 }
 
 #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-public class QueryBuilderParameterConverter<T> : JsonConverter
+public class QueryBuilderParameterConverter<T> : global::Newtonsoft.Json.JsonConverter
 {
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
     {
@@ -45,7 +45,7 @@ public class QueryBuilderParameterConverter<T> : JsonConverter
     public override bool CanConvert(Type objectType) => objectType.IsSubclassOf(typeof(QueryBuilderParameter));
 }
 
-public class GraphQlInterfaceJsonConverter : JsonConverter
+public class GraphQlInterfaceJsonConverter : global::Newtonsoft.Json.JsonConverter
 {
     private const string FieldNameType = "__typename";
 
@@ -880,16 +880,16 @@ public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder w
 public abstract class GraphQlResponse<TDataContract>
 {
     public TDataContract Data { get; set; }
-    public ICollection<QueryError> Errors { get; set; }
+    public ICollection<GraphQlQueryError> Errors { get; set; }
 }
 
-public class QueryError
+public class GraphQlQueryError
 {
     public string Message { get; set; }
-    public ICollection<ErrorLocation> Locations { get; set; }
+    public ICollection<GraphQlErrorLocation> Locations { get; set; }
 }
 
-public class ErrorLocation
+public class GraphQlErrorLocation
 {
     public int Line { get; set; }
     public int Column { get; set; }
