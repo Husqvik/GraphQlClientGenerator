@@ -372,18 +372,16 @@ using Newtonsoft.Json.Linq;
             return;
 
         var schema = context.Schema;
-        var complexTypes = schema.Types.Where(t => IsComplexType(t.Kind) && !t.Name.StartsWith("__")).ToArray();
+        var complexTypes = schema.Types.Where(t => IsComplexType(t.Kind) && !t.Name.StartsWith("__")).ToDictionary(t => t.Name);
         if (!complexTypes.Any())
             return;
 
-        var complexTypeDictionary = complexTypes.ToDictionary(t => t.Name);
-
         context.BeforeDataClassesGeneration();
 
-        foreach (var complexType in complexTypes)
+        foreach (var complexType in complexTypes.Values)
         {
             var hasInputReference = referencedObjectTypes.Contains(complexType.Name);
-            var fieldsToGenerate = GetFieldsToGenerate(complexType, complexTypeDictionary);
+            var fieldsToGenerate = GetFieldsToGenerate(complexType, complexTypes);
             var isInterface = complexType.Kind == GraphQlTypeKind.Interface;
             var csharpTypeName = GetCSharpMemberName(complexType.Name);
 
@@ -442,7 +440,7 @@ using Newtonsoft.Json.Linq;
                     var interfaceName = "I" + _configuration.ClassPrefix + csharpInterfaceName + _configuration.ClassSuffix;
                     interfacesToImplement.Add(interfaceName);
 
-                    foreach (var interfaceField in complexTypeDictionary[@interface.Name].Fields.Where(FilterDeprecatedFields))
+                    foreach (var interfaceField in complexTypes[@interface.Name].Fields.Where(FilterDeprecatedFields))
                         if (fieldNames.Add(interfaceField.Name))
                             fieldsToGenerate.Add(interfaceField);
                 }
@@ -633,14 +631,14 @@ using Newtonsoft.Json.Linq;
         return typeName;
     }
 
-    private static IEnumerable<GraphQlField> GetFragments(GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary)
+    private static IEnumerable<GraphQlField> GetFragments(GraphQlType type, IReadOnlyDictionary<string, GraphQlType> complexTypes)
     {
         var fragments = new List<GraphQlField>();
         if (type.Kind != GraphQlTypeKind.Union && type.Kind != GraphQlTypeKind.Interface)
             return fragments;
 
         foreach (var possibleType in type.PossibleTypes)
-            if (complexTypeDictionary.TryGetValue(possibleType.Name, out var consistOfType) && consistOfType.Fields is not null)
+            if (complexTypes.TryGetValue(possibleType.Name, out var consistOfType) && consistOfType.Fields is not null)
                 fragments.Add(
                     new GraphQlField
                     {
@@ -657,7 +655,7 @@ using Newtonsoft.Json.Linq;
         return fragments;
     }
 
-    private List<GraphQlField> GetFieldsToGenerate(GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary)
+    private List<GraphQlField> GetFieldsToGenerate(GraphQlType type, IReadOnlyDictionary<string, GraphQlType> complexTypes)
     {
         var typeFields = type.Fields;
         if (type.Kind == GraphQlTypeKind.Union)
@@ -665,7 +663,7 @@ using Newtonsoft.Json.Linq;
             var unionFields = new List<GraphQlField>();
             var unionFieldNames = new HashSet<string>();
             foreach (var possibleType in type.PossibleTypes)
-                if (complexTypeDictionary.TryGetValue(possibleType.Name, out var consistOfType) && consistOfType.Fields is not null)
+                if (complexTypes.TryGetValue(possibleType.Name, out var consistOfType) && consistOfType.Fields is not null)
                     unionFields.AddRange(consistOfType.Fields.Where(f => unionFieldNames.Add(f.Name)));
 
             typeFields = unionFields;
@@ -893,7 +891,7 @@ using Newtonsoft.Json.Linq;
     private static InvalidOperationException FieldTypeResolutionFailedException(string typeName, string fieldName, string reason) =>
         new($"field type resolution failed - type: {typeName}; field: {fieldName}{(reason is null ? null : "; reason: " + reason)}");
 
-    private void GenerateQueryBuilder(GenerationContext context, GraphQlType type, IDictionary<string, GraphQlType> complexTypeDictionary)
+    private void GenerateQueryBuilder(GenerationContext context, GraphQlType type, IReadOnlyDictionary<string, GraphQlType> complexTypes)
     {
         var schema = context.Schema;
         var typeName = GetCSharpMemberName(type.Name);
@@ -920,7 +918,7 @@ using Newtonsoft.Json.Linq;
         writer.Write(indentation);
         writer.Write("    private static readonly FieldMetadata[] AllFieldMetadata =");
 
-        var fields = type.Kind == GraphQlTypeKind.Union ? null : GetFieldsToGenerate(type, complexTypeDictionary);
+        var fields = type.Kind == GraphQlTypeKind.Union ? null : GetFieldsToGenerate(type, complexTypes);
         if (fields is null)
         {
             writer.WriteLine(" new FieldMetadata[0];");
@@ -1042,7 +1040,7 @@ using Newtonsoft.Json.Linq;
             writer.WriteLine();
         }
 
-        var fragments = GetFragments(type, complexTypeDictionary);
+        var fragments = GetFragments(type, complexTypes);
         fields ??= new List<GraphQlField>();
         var firstFragmentIndex = fields.Count;
         fields.AddRange(fragments);
