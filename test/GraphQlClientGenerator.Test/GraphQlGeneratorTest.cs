@@ -41,6 +41,9 @@ public class GraphQlGeneratorTest
         var generator = new GraphQlGenerator(configuration);
 
         var tempPath = Path.GetTempPath();
+
+        _outputHelper.WriteLine($"temp path: {tempPath}");
+
         var directoryInfo = Directory.CreateDirectory(Path.Combine(tempPath, "GraphQlGeneratorTest"));
 
         try
@@ -204,7 +207,7 @@ public class GraphQlGeneratorTest
             fileSizes.ShouldBe(
                 new long[]
                 {
-                    446, 475, 1371, 1158, 978, 4207, 519, 569, 2132, 1907, 455, 1114, 1152, 1685, 1751, 756, 494, 1583, 498, 1410, 792, 491, 1441, 4082, 963, 762, 3633, 4982, 478, 1388, 566, 2195, 613, 2372, 1225, 6888, 447, 1229, 571, 676, 2782, 2552, 489, 1465, 461, 1291, 368, 6061, 594, 2208, 1957, 921, 7881, 879, 1530, 493, 1509, 4702, 17152, 807, 1626, 627, 2663, 9819, 972, 5176, 1101, 552, 3297, 7118, 434, 1415, 543, 501, 1521, 1966, 575, 2251, 531, 1809, 621, 2577, 767, 571, 1997, 581, 2161, 3592, 755, 3835, 588, 2156, 676, 537, 1825, 2913, 1072, 795, 3940, 5667, 898, 4456, 520, 1758, 423, 1359, 664, 751, 3527, 2857, 450, 1181, 480, 589, 559, 1978, 548, 1841, 2285, 559, 2219, 782, 853, 4400, 938, 530, 1832, 872, 4509, 584, 2081, 501, 1464, 489, 2666, 5025, 586, 2200, 558, 1950, 561, 1230, 3582, 1950
+                    446, 475, 1399, 1179, 978, 4291, 519, 569, 2132, 1942, 455, 1114, 1173, 1685, 1779, 756, 494, 1611, 498, 1438, 792, 491, 1469, 4152, 963, 762, 3703, 5073, 478, 1416, 566, 2230, 613, 2414, 1225, 7007, 447, 1250, 571, 676, 2838, 2587, 489, 1493, 461, 1312, 368, 6061, 594, 2250, 1957, 921, 7944, 879, 1530, 493, 1537, 4786, 17355, 807, 1626, 627, 2712, 10001, 972, 5274, 1101, 552, 3332, 7244, 434, 1436, 543, 501, 1549, 2001, 575, 2286, 531, 1844, 621, 2619, 767, 571, 2032, 581, 2203, 3655, 755, 3898, 588, 2198, 676, 537, 1860, 2969, 1072, 795, 4017, 5758, 898, 4540, 520, 1793, 423, 1380, 664, 751, 3597, 2913, 450, 1202, 480, 589, 559, 2013, 548, 1876, 2327, 559, 2254, 782, 853, 4477, 938, 530, 1867, 872, 4593, 584, 2116, 501, 1492, 489, 2694, 5109, 586, 2242, 558, 1985, 561, 1230, 3652, 1985
                 });
 
             var expectedOutput = GetTestResource("ExpectedMultipleFilesContext.Avatar");
@@ -411,16 +414,16 @@ public class GraphQlGeneratorTest
         stringBuilder.AppendLine(
             @"public class TestQueryBuilder : GraphQlQueryBuilder<TestQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         new []
         {
-            new FieldMetadata { Name = ""testField"" },
-            new FieldMetadata { Name = ""objectParameter"" }
+            new GraphQlFieldMetadata { Name = ""testField"" },
+            new GraphQlFieldMetadata { Name = ""objectParameter"" }
         };
 
     protected override string TypeName { get; } = ""Test"";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
 	public TestQueryBuilder WithTestField(
         QueryBuilderParameter<short?> valueInt16 = null,
@@ -658,15 +661,15 @@ public class GraphQlGeneratorTest
         stringBuilder.AppendLine(
             @"public class TestMutationBuilder : GraphQlQueryBuilder<TestMutationBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         new []
         {
-            new FieldMetadata { Name = ""testAction"" },
+            new GraphQlFieldMetadata { Name = ""testAction"" },
         };
 
     protected override string TypeName { get; } = ""TestMutation"";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public TestMutationBuilder(string operationName = null) : base(""mutation"", operationName)
     {

@@ -916,12 +916,12 @@ using Newtonsoft.Json.Linq;
         writer.Write(indentation);
         writer.WriteLine("{");
         writer.Write(indentation);
-        writer.Write("    private static readonly FieldMetadata[] AllFieldMetadata =");
+        writer.Write("    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =");
 
         var fields = type.Kind == GraphQlTypeKind.Union ? null : GetFieldsToGenerate(type, complexTypes);
         if (fields is null)
         {
-            writer.WriteLine(" new FieldMetadata[0];");
+            writer.WriteLine(" new GraphQlFieldMetadata[0];");
             writer.WriteLine();
         }
         else
@@ -950,7 +950,7 @@ using Newtonsoft.Json.Linq;
                 var isComplex = isList || treatUnknownObjectAsComplex || IsComplexType(fieldType.Kind);
 
                 writer.Write(fieldMetadataIndentation);
-                writer.Write("        new FieldMetadata { Name = \"");
+                writer.Write("        new GraphQlFieldMetadata { Name = \"");
                 writer.Write(field.Name);
                 writer.Write('"');
 
@@ -1006,7 +1006,7 @@ using Newtonsoft.Json.Linq;
 
         WriteOverrideProperty("protected", "string", "TypeName", $"\"{type.Name}\"", indentation, writer);
 
-        WriteOverrideProperty("public", "IReadOnlyList<FieldMetadata>", "AllFields", "AllFieldMetadata", indentation, writer);
+        WriteOverrideProperty("public", "IReadOnlyList<GraphQlFieldMetadata>", "AllFields", "AllFieldMetadata", indentation, writer);
 
         string ReturnPrefix(bool requiresFullBody) => requiresFullBody ? indentation + "        return " : String.Empty;
 

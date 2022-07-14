@@ -143,14 +143,14 @@ public class SkipDirective : GraphQlDirective
 #region builder classes
 public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "me", IsComplex = true, QueryBuilderType = typeof(MeQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "me", IsComplex = true, QueryBuilderType = typeof(MeQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "Query";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public QueryQueryBuilder(string? operationName = null) : base("query", operationName)
     {
@@ -165,29 +165,29 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
 
 public partial class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "id" },
-        new FieldMetadata { Name = "firstName" },
-        new FieldMetadata { Name = "lastName" },
-        new FieldMetadata { Name = "fullName" },
-        new FieldMetadata { Name = "ssn" },
-        new FieldMetadata { Name = "email" },
-        new FieldMetadata { Name = "language" },
-        new FieldMetadata { Name = "tone" },
-        new FieldMetadata { Name = "mobile" },
-        new FieldMetadata { Name = "welcomeGreeting", IsComplex = true, QueryBuilderType = typeof(GreetingQueryBuilder) },
-        new FieldMetadata { Name = "appState", IsComplex = true, QueryBuilderType = typeof(AppStateQueryBuilder) },
-        new FieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilder) },
-        new FieldMetadata { Name = "homes", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilder) },
-        new FieldMetadata { Name = "feed", IsComplex = true, QueryBuilderType = typeof(FeedQueryBuilder) },
-        new FieldMetadata { Name = "wallet", IsComplex = true, QueryBuilderType = typeof(WalletQueryBuilder) },
-        new FieldMetadata { Name = "about", IsComplex = true, QueryBuilderType = typeof(AboutQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "id" },
+        new GraphQlFieldMetadata { Name = "firstName" },
+        new GraphQlFieldMetadata { Name = "lastName" },
+        new GraphQlFieldMetadata { Name = "fullName" },
+        new GraphQlFieldMetadata { Name = "ssn" },
+        new GraphQlFieldMetadata { Name = "email" },
+        new GraphQlFieldMetadata { Name = "language" },
+        new GraphQlFieldMetadata { Name = "tone" },
+        new GraphQlFieldMetadata { Name = "mobile" },
+        new GraphQlFieldMetadata { Name = "welcomeGreeting", IsComplex = true, QueryBuilderType = typeof(GreetingQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "appState", IsComplex = true, QueryBuilderType = typeof(AppStateQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "homes", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "feed", IsComplex = true, QueryBuilderType = typeof(FeedQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "wallet", IsComplex = true, QueryBuilderType = typeof(WalletQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "about", IsComplex = true, QueryBuilderType = typeof(AboutQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "Me";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public MeQueryBuilder WithId(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("id", alias, new GraphQlDirective?[] { include, skip });
 
@@ -263,17 +263,17 @@ public partial class MeQueryBuilder : GraphQlQueryBuilder<MeQueryBuilder>
 
 public partial class GreetingQueryBuilder : GraphQlQueryBuilder<GreetingQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "title" },
-        new FieldMetadata { Name = "description" },
-        new FieldMetadata { Name = "descriptionWhenNoEnergyDeal" },
-        new FieldMetadata { Name = "showUntil" }
+        new GraphQlFieldMetadata { Name = "title" },
+        new GraphQlFieldMetadata { Name = "description" },
+        new GraphQlFieldMetadata { Name = "descriptionWhenNoEnergyDeal" },
+        new GraphQlFieldMetadata { Name = "showUntil" }
     };
 
     protected override string TypeName { get; } = "Greeting";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public GreetingQueryBuilder WithTitle(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("title", alias, new GraphQlDirective?[] { include, skip });
 
@@ -294,15 +294,15 @@ public partial class GreetingQueryBuilder : GraphQlQueryBuilder<GreetingQueryBui
 
 public partial class AppStateQueryBuilder : GraphQlQueryBuilder<AppStateQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "journey", IsComplex = true, QueryBuilderType = typeof(AppStateJourneyQueryBuilder) },
-        new FieldMetadata { Name = "frontScreens", IsComplex = true, QueryBuilderType = typeof(AppStateFronScreenQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "journey", IsComplex = true, QueryBuilderType = typeof(AppStateJourneyQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "frontScreens", IsComplex = true, QueryBuilderType = typeof(AppStateFronScreenQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "AppState";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public AppStateQueryBuilder WithJourney(AppStateJourneyQueryBuilder appStateJourneyQueryBuilder, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithObjectField("journey", alias, appStateJourneyQueryBuilder, new GraphQlDirective?[] { include, skip });
 
@@ -315,14 +315,14 @@ public partial class AppStateQueryBuilder : GraphQlQueryBuilder<AppStateQueryBui
 
 public partial class AppStateJourneyQueryBuilder : GraphQlQueryBuilder<AppStateJourneyQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "hasVisitedPairDevices" }
+        new GraphQlFieldMetadata { Name = "hasVisitedPairDevices" }
     };
 
     protected override string TypeName { get; } = "AppStateJourney";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public AppStateJourneyQueryBuilder WithHasVisitedPairDevices(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("hasVisitedPairDevices", alias, new GraphQlDirective?[] { include, skip });
 
@@ -331,16 +331,16 @@ public partial class AppStateJourneyQueryBuilder : GraphQlQueryBuilder<AppStateJ
 
 public partial class AppStateFronScreenQueryBuilder : GraphQlQueryBuilder<AppStateFronScreenQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "homeId" },
-        new FieldMetadata { Name = "bubbles", IsComplex = true },
-        new FieldMetadata { Name = "bubblesSortOrder", IsComplex = true }
+        new GraphQlFieldMetadata { Name = "homeId" },
+        new GraphQlFieldMetadata { Name = "bubbles", IsComplex = true },
+        new GraphQlFieldMetadata { Name = "bubblesSortOrder", IsComplex = true }
     };
 
     protected override string TypeName { get; } = "AppStateFronScreen";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public AppStateFronScreenQueryBuilder WithHomeId(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("homeId", alias, new GraphQlDirective?[] { include, skip });
 
@@ -357,40 +357,40 @@ public partial class AppStateFronScreenQueryBuilder : GraphQlQueryBuilder<AppSta
 
 public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "id" },
-        new FieldMetadata { Name = "avatar" },
-        new FieldMetadata { Name = "timeZone" },
-        new FieldMetadata { Name = "title" },
-        new FieldMetadata { Name = "type" },
-        new FieldMetadata { Name = "hasEnergyDeal" },
-        new FieldMetadata { Name = "address", IsComplex = true, QueryBuilderType = typeof(AddressQueryBuilder) },
-        new FieldMetadata { Name = "subscription", IsComplex = true, QueryBuilderType = typeof(SubscriptionQueryBuilder) },
-        new FieldMetadata { Name = "consumptionMonths", IsComplex = true, QueryBuilderType = typeof(ConsumptionMonthQueryBuilder) },
-        new FieldMetadata { Name = "consumption", IsComplex = true, QueryBuilderType = typeof(ConsumptionQueryBuilder) },
-        new FieldMetadata { Name = "preLiveComparison", IsComplex = true, QueryBuilderType = typeof(PreLiveComparisonQueryBuilder) },
-        new FieldMetadata { Name = "comparisons", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilder) },
-        new FieldMetadata { Name = "comparisonCurrentMonth", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilder) },
-        new FieldMetadata { Name = "profileQuestions", IsComplex = true, QueryBuilderType = typeof(HomeProfileQuestionQueryBuilder) },
-        new FieldMetadata { Name = "temperatures", IsComplex = true },
-        new FieldMetadata { Name = "signupStatus", IsComplex = true, QueryBuilderType = typeof(SignupStatusQueryBuilder) },
-        new FieldMetadata { Name = "disaggregation", IsComplex = true, QueryBuilderType = typeof(DisaggregationQueryBuilder) },
-        new FieldMetadata { Name = "weather", IsComplex = true, QueryBuilderType = typeof(WeatherQueryBuilder) },
-        new FieldMetadata { Name = "awayMode", IsComplex = true, QueryBuilderType = typeof(AwayModeQueryBuilder) },
-        new FieldMetadata { Name = "dayNightSchedule", IsComplex = true, QueryBuilderType = typeof(DayNightScheduleQueryBuilder) },
-        new FieldMetadata { Name = "report", IsComplex = true, QueryBuilderType = typeof(ReportRootQueryBuilder) },
-        new FieldMetadata { Name = "thermostats", IsComplex = true, QueryBuilderType = typeof(ThermostatQueryBuilder) },
-        new FieldMetadata { Name = "sensors", IsComplex = true, QueryBuilderType = typeof(SensorQueryBuilder) },
-        new FieldMetadata { Name = "sensorsHistory", IsComplex = true, QueryBuilderType = typeof(SensorHistoryQueryBuilder) },
-        new FieldMetadata { Name = "pairableDevices", IsComplex = true, QueryBuilderType = typeof(PairableDeviceQueryBuilder) },
-        new FieldMetadata { Name = "productionMonths", IsComplex = true, QueryBuilderType = typeof(ProductionMonthQueryBuilder) },
-        new FieldMetadata { Name = "production", IsComplex = true, QueryBuilderType = typeof(ProductionQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "id" },
+        new GraphQlFieldMetadata { Name = "avatar" },
+        new GraphQlFieldMetadata { Name = "timeZone" },
+        new GraphQlFieldMetadata { Name = "title" },
+        new GraphQlFieldMetadata { Name = "type" },
+        new GraphQlFieldMetadata { Name = "hasEnergyDeal" },
+        new GraphQlFieldMetadata { Name = "address", IsComplex = true, QueryBuilderType = typeof(AddressQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "subscription", IsComplex = true, QueryBuilderType = typeof(SubscriptionQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "consumptionMonths", IsComplex = true, QueryBuilderType = typeof(ConsumptionMonthQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "consumption", IsComplex = true, QueryBuilderType = typeof(ConsumptionQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "preLiveComparison", IsComplex = true, QueryBuilderType = typeof(PreLiveComparisonQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "comparisons", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "comparisonCurrentMonth", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "profileQuestions", IsComplex = true, QueryBuilderType = typeof(HomeProfileQuestionQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "temperatures", IsComplex = true },
+        new GraphQlFieldMetadata { Name = "signupStatus", IsComplex = true, QueryBuilderType = typeof(SignupStatusQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "disaggregation", IsComplex = true, QueryBuilderType = typeof(DisaggregationQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "weather", IsComplex = true, QueryBuilderType = typeof(WeatherQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "awayMode", IsComplex = true, QueryBuilderType = typeof(AwayModeQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "dayNightSchedule", IsComplex = true, QueryBuilderType = typeof(DayNightScheduleQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "report", IsComplex = true, QueryBuilderType = typeof(ReportRootQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "thermostats", IsComplex = true, QueryBuilderType = typeof(ThermostatQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "sensors", IsComplex = true, QueryBuilderType = typeof(SensorQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "sensorsHistory", IsComplex = true, QueryBuilderType = typeof(SensorHistoryQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "pairableDevices", IsComplex = true, QueryBuilderType = typeof(PairableDeviceQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "productionMonths", IsComplex = true, QueryBuilderType = typeof(ProductionMonthQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "production", IsComplex = true, QueryBuilderType = typeof(ProductionQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "Home";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public HomeQueryBuilder WithId(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("id", alias, new GraphQlDirective?[] { include, skip });
 
@@ -575,23 +575,23 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
 
 public partial class AddressQueryBuilder : GraphQlQueryBuilder<AddressQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "address1" },
-        new FieldMetadata { Name = "address2" },
-        new FieldMetadata { Name = "address3" },
-        new FieldMetadata { Name = "city" },
-        new FieldMetadata { Name = "postalCode" },
-        new FieldMetadata { Name = "country" },
-        new FieldMetadata { Name = "latitude" },
-        new FieldMetadata { Name = "longitude" },
-        new FieldMetadata { Name = "elevation" },
-        new FieldMetadata { Name = "addressText" }
+        new GraphQlFieldMetadata { Name = "address1" },
+        new GraphQlFieldMetadata { Name = "address2" },
+        new GraphQlFieldMetadata { Name = "address3" },
+        new GraphQlFieldMetadata { Name = "city" },
+        new GraphQlFieldMetadata { Name = "postalCode" },
+        new GraphQlFieldMetadata { Name = "country" },
+        new GraphQlFieldMetadata { Name = "latitude" },
+        new GraphQlFieldMetadata { Name = "longitude" },
+        new GraphQlFieldMetadata { Name = "elevation" },
+        new GraphQlFieldMetadata { Name = "addressText" }
     };
 
     protected override string TypeName { get; } = "Address";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public AddressQueryBuilder WithAddress1(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("address1", alias, new GraphQlDirective?[] { include, skip });
 
@@ -636,22 +636,22 @@ public partial class AddressQueryBuilder : GraphQlQueryBuilder<AddressQueryBuild
 
 public partial class SubscriptionQueryBuilder : GraphQlQueryBuilder<SubscriptionQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "id" },
-        new FieldMetadata { Name = "walletId" },
-        new FieldMetadata { Name = "validFrom" },
-        new FieldMetadata { Name = "validTo" },
-        new FieldMetadata { Name = "status" },
-        new FieldMetadata { Name = "billingRegionId" },
-        new FieldMetadata { Name = "priceRating", IsComplex = true, QueryBuilderType = typeof(PriceRatingRootQueryBuilder) },
-        new FieldMetadata { Name = "invoices", IsComplex = true, QueryBuilderType = typeof(InvoiceQueryBuilder) },
-        new FieldMetadata { Name = "energyDeal", IsComplex = true, QueryBuilderType = typeof(EnergyDealQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "id" },
+        new GraphQlFieldMetadata { Name = "walletId" },
+        new GraphQlFieldMetadata { Name = "validFrom" },
+        new GraphQlFieldMetadata { Name = "validTo" },
+        new GraphQlFieldMetadata { Name = "status" },
+        new GraphQlFieldMetadata { Name = "billingRegionId" },
+        new GraphQlFieldMetadata { Name = "priceRating", IsComplex = true, QueryBuilderType = typeof(PriceRatingRootQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "invoices", IsComplex = true, QueryBuilderType = typeof(InvoiceQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "energyDeal", IsComplex = true, QueryBuilderType = typeof(EnergyDealQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "Subscription";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public SubscriptionQueryBuilder WithId(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("id", alias, new GraphQlDirective?[] { include, skip });
 
@@ -692,20 +692,20 @@ public partial class SubscriptionQueryBuilder : GraphQlQueryBuilder<Subscription
 
 public partial class PriceRatingRootQueryBuilder : GraphQlQueryBuilder<PriceRatingRootQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "isAvailable" },
-        new FieldMetadata { Name = "useTotalIsConfigurable" },
-        new FieldMetadata { Name = "useTotalAsDefault" },
-        new FieldMetadata { Name = "useTotalText" },
-        new FieldMetadata { Name = "hourly", IsComplex = true, QueryBuilderType = typeof(PriceRatingQueryBuilder) },
-        new FieldMetadata { Name = "daily", IsComplex = true, QueryBuilderType = typeof(PriceRatingQueryBuilder) },
-        new FieldMetadata { Name = "monthly", IsComplex = true, QueryBuilderType = typeof(PriceRatingQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "isAvailable" },
+        new GraphQlFieldMetadata { Name = "useTotalIsConfigurable" },
+        new GraphQlFieldMetadata { Name = "useTotalAsDefault" },
+        new GraphQlFieldMetadata { Name = "useTotalText" },
+        new GraphQlFieldMetadata { Name = "hourly", IsComplex = true, QueryBuilderType = typeof(PriceRatingQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "daily", IsComplex = true, QueryBuilderType = typeof(PriceRatingQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "monthly", IsComplex = true, QueryBuilderType = typeof(PriceRatingQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "PriceRatingRoot";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public PriceRatingRootQueryBuilder WithIsAvailable(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("isAvailable", alias, new GraphQlDirective?[] { include, skip });
 
@@ -738,20 +738,20 @@ public partial class PriceRatingRootQueryBuilder : GraphQlQueryBuilder<PriceRati
 
 public partial class PriceRatingQueryBuilder : GraphQlQueryBuilder<PriceRatingQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "minEnergy" },
-        new FieldMetadata { Name = "maxEnergy" },
-        new FieldMetadata { Name = "minTotal" },
-        new FieldMetadata { Name = "maxTotal" },
-        new FieldMetadata { Name = "currency" },
-        new FieldMetadata { Name = "colorOffsets", IsComplex = true, QueryBuilderType = typeof(PriceRatingColorOffsetQueryBuilder) },
-        new FieldMetadata { Name = "entries", IsComplex = true, QueryBuilderType = typeof(PriceRatingEntryQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "minEnergy" },
+        new GraphQlFieldMetadata { Name = "maxEnergy" },
+        new GraphQlFieldMetadata { Name = "minTotal" },
+        new GraphQlFieldMetadata { Name = "maxTotal" },
+        new GraphQlFieldMetadata { Name = "currency" },
+        new GraphQlFieldMetadata { Name = "colorOffsets", IsComplex = true, QueryBuilderType = typeof(PriceRatingColorOffsetQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "entries", IsComplex = true, QueryBuilderType = typeof(PriceRatingEntryQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "PriceRating";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public PriceRatingQueryBuilder WithMinEnergy(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("minEnergy", alias, new GraphQlDirective?[] { include, skip });
 
@@ -784,16 +784,16 @@ public partial class PriceRatingQueryBuilder : GraphQlQueryBuilder<PriceRatingQu
 
 public partial class PriceRatingColorOffsetQueryBuilder : GraphQlQueryBuilder<PriceRatingColorOffsetQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "fullGreenPercent" },
-        new FieldMetadata { Name = "fullYellowPercent" },
-        new FieldMetadata { Name = "fullRedPercent" }
+        new GraphQlFieldMetadata { Name = "fullGreenPercent" },
+        new GraphQlFieldMetadata { Name = "fullYellowPercent" },
+        new GraphQlFieldMetadata { Name = "fullRedPercent" }
     };
 
     protected override string TypeName { get; } = "PriceRatingColorOffset";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public PriceRatingColorOffsetQueryBuilder WithFullGreenPercent(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("fullGreenPercent", alias, new GraphQlDirective?[] { include, skip });
 
@@ -810,17 +810,17 @@ public partial class PriceRatingColorOffsetQueryBuilder : GraphQlQueryBuilder<Pr
 
 public partial class PriceRatingEntryQueryBuilder : GraphQlQueryBuilder<PriceRatingEntryQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "time" },
-        new FieldMetadata { Name = "energy" },
-        new FieldMetadata { Name = "total" },
-        new FieldMetadata { Name = "difference" }
+        new GraphQlFieldMetadata { Name = "time" },
+        new GraphQlFieldMetadata { Name = "energy" },
+        new GraphQlFieldMetadata { Name = "total" },
+        new GraphQlFieldMetadata { Name = "difference" }
     };
 
     protected override string TypeName { get; } = "PriceRatingEntry";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public PriceRatingEntryQueryBuilder WithTime(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("time", alias, new GraphQlDirective?[] { include, skip });
 
@@ -841,37 +841,37 @@ public partial class PriceRatingEntryQueryBuilder : GraphQlQueryBuilder<PriceRat
 
 public partial class InvoiceQueryBuilder : GraphQlQueryBuilder<InvoiceQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "id" },
-        new FieldMetadata { Name = "no" },
-        new FieldMetadata { Name = "date" },
-        new FieldMetadata { Name = "dueDate" },
-        new FieldMetadata { Name = "totalCost" },
-        new FieldMetadata { Name = "totalCostLocalized" },
-        new FieldMetadata { Name = "totalEnergyConsumption" },
-        new FieldMetadata { Name = "totalEnergyConsumptionLocalized" },
-        new FieldMetadata { Name = "totalVat" },
-        new FieldMetadata { Name = "totalVatLocalized" },
-        new FieldMetadata { Name = "vatPercent" },
-        new FieldMetadata { Name = "vatPercentLocalized" },
-        new FieldMetadata { Name = "vatIsIncluded" },
-        new FieldMetadata { Name = "meteringPointId" },
-        new FieldMetadata { Name = "paymentReference" },
-        new FieldMetadata { Name = "showManualPaymentReferences" },
-        new FieldMetadata { Name = "bankAccount" },
-        new FieldMetadata { Name = "pdfUrl" },
-        new FieldMetadata { Name = "timeZone" },
-        new FieldMetadata { Name = "currency" },
-        new FieldMetadata { Name = "payment", IsComplex = true, QueryBuilderType = typeof(InvoicePaymentQueryBuilder) },
-        new FieldMetadata { Name = "sections", IsComplex = true, QueryBuilderType = typeof(InvoiceSectionQueryBuilder) },
-        new FieldMetadata { Name = "from" },
-        new FieldMetadata { Name = "to" }
+        new GraphQlFieldMetadata { Name = "id" },
+        new GraphQlFieldMetadata { Name = "no" },
+        new GraphQlFieldMetadata { Name = "date" },
+        new GraphQlFieldMetadata { Name = "dueDate" },
+        new GraphQlFieldMetadata { Name = "totalCost" },
+        new GraphQlFieldMetadata { Name = "totalCostLocalized" },
+        new GraphQlFieldMetadata { Name = "totalEnergyConsumption" },
+        new GraphQlFieldMetadata { Name = "totalEnergyConsumptionLocalized" },
+        new GraphQlFieldMetadata { Name = "totalVat" },
+        new GraphQlFieldMetadata { Name = "totalVatLocalized" },
+        new GraphQlFieldMetadata { Name = "vatPercent" },
+        new GraphQlFieldMetadata { Name = "vatPercentLocalized" },
+        new GraphQlFieldMetadata { Name = "vatIsIncluded" },
+        new GraphQlFieldMetadata { Name = "meteringPointId" },
+        new GraphQlFieldMetadata { Name = "paymentReference" },
+        new GraphQlFieldMetadata { Name = "showManualPaymentReferences" },
+        new GraphQlFieldMetadata { Name = "bankAccount" },
+        new GraphQlFieldMetadata { Name = "pdfUrl" },
+        new GraphQlFieldMetadata { Name = "timeZone" },
+        new GraphQlFieldMetadata { Name = "currency" },
+        new GraphQlFieldMetadata { Name = "payment", IsComplex = true, QueryBuilderType = typeof(InvoicePaymentQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "sections", IsComplex = true, QueryBuilderType = typeof(InvoiceSectionQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "from" },
+        new GraphQlFieldMetadata { Name = "to" }
     };
 
     protected override string TypeName { get; } = "Invoice";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public InvoiceQueryBuilder WithId(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("id", alias, new GraphQlDirective?[] { include, skip });
 
@@ -972,18 +972,18 @@ public partial class InvoiceQueryBuilder : GraphQlQueryBuilder<InvoiceQueryBuild
 
 public partial class InvoicePaymentQueryBuilder : GraphQlQueryBuilder<InvoicePaymentQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "status" },
-        new FieldMetadata { Name = "method" },
-        new FieldMetadata { Name = "date" },
-        new FieldMetadata { Name = "failureText" },
-        new FieldMetadata { Name = "creditCard", IsComplex = true, QueryBuilderType = typeof(CreditCardQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "status" },
+        new GraphQlFieldMetadata { Name = "method" },
+        new GraphQlFieldMetadata { Name = "date" },
+        new GraphQlFieldMetadata { Name = "failureText" },
+        new GraphQlFieldMetadata { Name = "creditCard", IsComplex = true, QueryBuilderType = typeof(CreditCardQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "InvoicePayment";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public InvoicePaymentQueryBuilder WithStatus(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("status", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1008,15 +1008,15 @@ public partial class InvoicePaymentQueryBuilder : GraphQlQueryBuilder<InvoicePay
 
 public partial class CreditCardQueryBuilder : GraphQlQueryBuilder<CreditCardQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "brand" },
-        new FieldMetadata { Name = "last4" }
+        new GraphQlFieldMetadata { Name = "brand" },
+        new GraphQlFieldMetadata { Name = "last4" }
     };
 
     protected override string TypeName { get; } = "CreditCard";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public CreditCardQueryBuilder WithBrand(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("brand", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1029,25 +1029,25 @@ public partial class CreditCardQueryBuilder : GraphQlQueryBuilder<CreditCardQuer
 
 public partial class InvoiceSectionQueryBuilder : GraphQlQueryBuilder<InvoiceSectionQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "type" },
-        new FieldMetadata { Name = "text" },
-        new FieldMetadata { Name = "subText" },
-        new FieldMetadata { Name = "consumption" },
-        new FieldMetadata { Name = "consumptionLocalized" },
-        new FieldMetadata { Name = "consumptionUnit" },
-        new FieldMetadata { Name = "price" },
-        new FieldMetadata { Name = "priceLocalized" },
-        new FieldMetadata { Name = "priceUnit" },
-        new FieldMetadata { Name = "cost" },
-        new FieldMetadata { Name = "costLocalized" },
-        new FieldMetadata { Name = "costUnit" }
+        new GraphQlFieldMetadata { Name = "type" },
+        new GraphQlFieldMetadata { Name = "text" },
+        new GraphQlFieldMetadata { Name = "subText" },
+        new GraphQlFieldMetadata { Name = "consumption" },
+        new GraphQlFieldMetadata { Name = "consumptionLocalized" },
+        new GraphQlFieldMetadata { Name = "consumptionUnit" },
+        new GraphQlFieldMetadata { Name = "price" },
+        new GraphQlFieldMetadata { Name = "priceLocalized" },
+        new GraphQlFieldMetadata { Name = "priceUnit" },
+        new GraphQlFieldMetadata { Name = "cost" },
+        new GraphQlFieldMetadata { Name = "costLocalized" },
+        new GraphQlFieldMetadata { Name = "costUnit" }
     };
 
     protected override string TypeName { get; } = "InvoiceSection";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public InvoiceSectionQueryBuilder WithType(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("type", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1100,14 +1100,14 @@ public partial class InvoiceSectionQueryBuilder : GraphQlQueryBuilder<InvoiceSec
 
 public partial class EnergyDealQueryBuilder : GraphQlQueryBuilder<EnergyDealQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "currentProducer", IsComplex = true, QueryBuilderType = typeof(ProducerQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "currentProducer", IsComplex = true, QueryBuilderType = typeof(ProducerQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "EnergyDeal";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public EnergyDealQueryBuilder WithCurrentProducer(ProducerQueryBuilder producerQueryBuilder, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithObjectField("currentProducer", alias, producerQueryBuilder, new GraphQlDirective?[] { include, skip });
 
@@ -1116,19 +1116,19 @@ public partial class EnergyDealQueryBuilder : GraphQlQueryBuilder<EnergyDealQuer
 
 public partial class ProducerQueryBuilder : GraphQlQueryBuilder<ProducerQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "id" },
-        new FieldMetadata { Name = "name" },
-        new FieldMetadata { Name = "title" },
-        new FieldMetadata { Name = "description" },
-        new FieldMetadata { Name = "imageSrc" },
-        new FieldMetadata { Name = "bullets", IsComplex = true, QueryBuilderType = typeof(ProducerBulletQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "id" },
+        new GraphQlFieldMetadata { Name = "name" },
+        new GraphQlFieldMetadata { Name = "title" },
+        new GraphQlFieldMetadata { Name = "description" },
+        new GraphQlFieldMetadata { Name = "imageSrc" },
+        new GraphQlFieldMetadata { Name = "bullets", IsComplex = true, QueryBuilderType = typeof(ProducerBulletQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "Producer";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ProducerQueryBuilder WithId(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("id", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1157,16 +1157,16 @@ public partial class ProducerQueryBuilder : GraphQlQueryBuilder<ProducerQueryBui
 
 public partial class ProducerBulletQueryBuilder : GraphQlQueryBuilder<ProducerBulletQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "title" },
-        new FieldMetadata { Name = "description" },
-        new FieldMetadata { Name = "readMoreUrl" }
+        new GraphQlFieldMetadata { Name = "title" },
+        new GraphQlFieldMetadata { Name = "description" },
+        new GraphQlFieldMetadata { Name = "readMoreUrl" }
     };
 
     protected override string TypeName { get; } = "ProducerBullet";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ProducerBulletQueryBuilder WithTitle(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("title", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1183,21 +1183,21 @@ public partial class ProducerBulletQueryBuilder : GraphQlQueryBuilder<ProducerBu
 
 public partial class ConsumptionMonthQueryBuilder : GraphQlQueryBuilder<ConsumptionMonthQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "year" },
-        new FieldMetadata { Name = "month" },
-        new FieldMetadata { Name = "kwh" },
-        new FieldMetadata { Name = "cost" },
-        new FieldMetadata { Name = "isComplete" },
-        new FieldMetadata { Name = "kwhEstimate" },
-        new FieldMetadata { Name = "costEstimate" },
-        new FieldMetadata { Name = "currency" }
+        new GraphQlFieldMetadata { Name = "year" },
+        new GraphQlFieldMetadata { Name = "month" },
+        new GraphQlFieldMetadata { Name = "kwh" },
+        new GraphQlFieldMetadata { Name = "cost" },
+        new GraphQlFieldMetadata { Name = "isComplete" },
+        new GraphQlFieldMetadata { Name = "kwhEstimate" },
+        new GraphQlFieldMetadata { Name = "costEstimate" },
+        new GraphQlFieldMetadata { Name = "currency" }
     };
 
     protected override string TypeName { get; } = "ConsumptionMonth";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ConsumptionMonthQueryBuilder WithYear(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("year", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1234,24 +1234,24 @@ public partial class ConsumptionMonthQueryBuilder : GraphQlQueryBuilder<Consumpt
 
 public partial class ConsumptionQueryBuilder : GraphQlQueryBuilder<ConsumptionQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "annualValues", IsComplex = true },
-        new FieldMetadata { Name = "monthlyValues", IsComplex = true },
-        new FieldMetadata { Name = "weeklyValues", IsComplex = true },
-        new FieldMetadata { Name = "dailyValues", IsComplex = true },
-        new FieldMetadata { Name = "hourlyValues", IsComplex = true },
-        new FieldMetadata { Name = "totalConsumption" },
-        new FieldMetadata { Name = "energyCost" },
-        new FieldMetadata { Name = "totalCost" },
-        new FieldMetadata { Name = "currency" },
-        new FieldMetadata { Name = "latestTransactionTimestamp" },
-        new FieldMetadata { Name = "timeZone" }
+        new GraphQlFieldMetadata { Name = "annualValues", IsComplex = true },
+        new GraphQlFieldMetadata { Name = "monthlyValues", IsComplex = true },
+        new GraphQlFieldMetadata { Name = "weeklyValues", IsComplex = true },
+        new GraphQlFieldMetadata { Name = "dailyValues", IsComplex = true },
+        new GraphQlFieldMetadata { Name = "hourlyValues", IsComplex = true },
+        new GraphQlFieldMetadata { Name = "totalConsumption" },
+        new GraphQlFieldMetadata { Name = "energyCost" },
+        new GraphQlFieldMetadata { Name = "totalCost" },
+        new GraphQlFieldMetadata { Name = "currency" },
+        new GraphQlFieldMetadata { Name = "latestTransactionTimestamp" },
+        new GraphQlFieldMetadata { Name = "timeZone" }
     };
 
     protected override string TypeName { get; } = "Consumption";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ConsumptionQueryBuilder WithAnnualValues(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("annualValues", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1300,17 +1300,17 @@ public partial class ConsumptionQueryBuilder : GraphQlQueryBuilder<ConsumptionQu
 
 public partial class PreLiveComparisonQueryBuilder : GraphQlQueryBuilder<PreLiveComparisonQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "homeId" },
-        new FieldMetadata { Name = "basedOnActuals" },
-        new FieldMetadata { Name = "previousYear", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilder) },
-        new FieldMetadata { Name = "previousYearMonths", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "homeId" },
+        new GraphQlFieldMetadata { Name = "basedOnActuals" },
+        new GraphQlFieldMetadata { Name = "previousYear", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "previousYearMonths", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "PreLiveComparison";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public PreLiveComparisonQueryBuilder WithHomeId(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("homeId", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1331,21 +1331,21 @@ public partial class PreLiveComparisonQueryBuilder : GraphQlQueryBuilder<PreLive
 
 public partial class ComparisonQueryBuilder : GraphQlQueryBuilder<ComparisonQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "year" },
-        new FieldMetadata { Name = "month" },
-        new FieldMetadata { Name = "resolution" },
-        new FieldMetadata { Name = "homeEfficency" },
-        new FieldMetadata { Name = "homeEfficencyDescription" },
-        new FieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(ComparisonDataQueryBuilder) },
-        new FieldMetadata { Name = "average", IsComplex = true, QueryBuilderType = typeof(ComparisonDataQueryBuilder) },
-        new FieldMetadata { Name = "efficient", IsComplex = true, QueryBuilderType = typeof(ComparisonDataQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "year" },
+        new GraphQlFieldMetadata { Name = "month" },
+        new GraphQlFieldMetadata { Name = "resolution" },
+        new GraphQlFieldMetadata { Name = "homeEfficency" },
+        new GraphQlFieldMetadata { Name = "homeEfficencyDescription" },
+        new GraphQlFieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(ComparisonDataQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "average", IsComplex = true, QueryBuilderType = typeof(ComparisonDataQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "efficient", IsComplex = true, QueryBuilderType = typeof(ComparisonDataQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "Comparison";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ComparisonQueryBuilder WithYear(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("year", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1382,15 +1382,15 @@ public partial class ComparisonQueryBuilder : GraphQlQueryBuilder<ComparisonQuer
 
 public partial class ComparisonDataQueryBuilder : GraphQlQueryBuilder<ComparisonDataQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "cost" },
-        new FieldMetadata { Name = "consumption" }
+        new GraphQlFieldMetadata { Name = "cost" },
+        new GraphQlFieldMetadata { Name = "consumption" }
     };
 
     protected override string TypeName { get; } = "ComparisonData";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ComparisonDataQueryBuilder WithCost(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("cost", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1403,23 +1403,23 @@ public partial class ComparisonDataQueryBuilder : GraphQlQueryBuilder<Comparison
 
 public partial class HomeProfileQuestionQueryBuilder : GraphQlQueryBuilder<HomeProfileQuestionQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "id" },
-        new FieldMetadata { Name = "title" },
-        new FieldMetadata { Name = "text" },
-        new FieldMetadata { Name = "category" },
-        new FieldMetadata { Name = "isAnswered" },
-        new FieldMetadata { Name = "propertyName" },
-        new FieldMetadata { Name = "valueType" },
-        new FieldMetadata { Name = "currentValue", IsComplex = true },
-        new FieldMetadata { Name = "currentValueText" },
-        new FieldMetadata { Name = "input", IsComplex = true, QueryBuilderType = typeof(HomeProfileQuestionInputQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "id" },
+        new GraphQlFieldMetadata { Name = "title" },
+        new GraphQlFieldMetadata { Name = "text" },
+        new GraphQlFieldMetadata { Name = "category" },
+        new GraphQlFieldMetadata { Name = "isAnswered" },
+        new GraphQlFieldMetadata { Name = "propertyName" },
+        new GraphQlFieldMetadata { Name = "valueType" },
+        new GraphQlFieldMetadata { Name = "currentValue", IsComplex = true },
+        new GraphQlFieldMetadata { Name = "currentValueText" },
+        new GraphQlFieldMetadata { Name = "input", IsComplex = true, QueryBuilderType = typeof(HomeProfileQuestionInputQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "HomeProfileQuestion";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public HomeProfileQuestionQueryBuilder WithId(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("id", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1464,15 +1464,15 @@ public partial class HomeProfileQuestionQueryBuilder : GraphQlQueryBuilder<HomeP
 
 public partial class HomeProfileQuestionInputQueryBuilder : GraphQlQueryBuilder<HomeProfileQuestionInputQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "type" },
-        new FieldMetadata { Name = "options", IsComplex = true }
+        new GraphQlFieldMetadata { Name = "type" },
+        new GraphQlFieldMetadata { Name = "options", IsComplex = true }
     };
 
     protected override string TypeName { get; } = "HomeProfileQuestionInput";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public HomeProfileQuestionInputQueryBuilder WithType(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("type", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1485,16 +1485,16 @@ public partial class HomeProfileQuestionInputQueryBuilder : GraphQlQueryBuilder<
 
 public partial class SignupStatusQueryBuilder : GraphQlQueryBuilder<SignupStatusQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "feedStep", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilder) },
-        new FieldMetadata { Name = "avatarStep", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilder) },
-        new FieldMetadata { Name = "steps", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "feedStep", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "avatarStep", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "steps", IsComplex = true, QueryBuilderType = typeof(ProcessStepQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "SignupStatus";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public SignupStatusQueryBuilder WithFeedStep(ProcessStepQueryBuilder processStepQueryBuilder, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithObjectField("feedStep", alias, processStepQueryBuilder, new GraphQlDirective?[] { include, skip });
 
@@ -1511,17 +1511,17 @@ public partial class SignupStatusQueryBuilder : GraphQlQueryBuilder<SignupStatus
 
 public partial class ProcessStepQueryBuilder : GraphQlQueryBuilder<ProcessStepQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "timestamp" },
-        new FieldMetadata { Name = "isComplete" },
-        new FieldMetadata { Name = "title" },
-        new FieldMetadata { Name = "description" }
+        new GraphQlFieldMetadata { Name = "timestamp" },
+        new GraphQlFieldMetadata { Name = "isComplete" },
+        new GraphQlFieldMetadata { Name = "title" },
+        new GraphQlFieldMetadata { Name = "description" }
     };
 
     protected override string TypeName { get; } = "ProcessStep";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ProcessStepQueryBuilder WithTimestamp(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("timestamp", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1542,28 +1542,28 @@ public partial class ProcessStepQueryBuilder : GraphQlQueryBuilder<ProcessStepQu
 
 public partial class DisaggregationQueryBuilder : GraphQlQueryBuilder<DisaggregationQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "year" },
-        new FieldMetadata { Name = "month" },
-        new FieldMetadata { Name = "fixedConsumptionKwh" },
-        new FieldMetadata { Name = "fixedConsumptionKwhPercent" },
-        new FieldMetadata { Name = "fixedConsumptionCost" },
-        new FieldMetadata { Name = "heatingConsumptionKwh" },
-        new FieldMetadata { Name = "heatingConsumptionKwhPercent" },
-        new FieldMetadata { Name = "heatingConsumptionCost" },
-        new FieldMetadata { Name = "behaviorConsumptionKwh" },
-        new FieldMetadata { Name = "behaviorConsumptionKwhPercent" },
-        new FieldMetadata { Name = "behaviorConsumptionCost" },
-        new FieldMetadata { Name = "currency" },
-        new FieldMetadata { Name = "isValid" },
-        new FieldMetadata { Name = "totalCost" },
-        new FieldMetadata { Name = "totalConsumptionKwh" }
+        new GraphQlFieldMetadata { Name = "year" },
+        new GraphQlFieldMetadata { Name = "month" },
+        new GraphQlFieldMetadata { Name = "fixedConsumptionKwh" },
+        new GraphQlFieldMetadata { Name = "fixedConsumptionKwhPercent" },
+        new GraphQlFieldMetadata { Name = "fixedConsumptionCost" },
+        new GraphQlFieldMetadata { Name = "heatingConsumptionKwh" },
+        new GraphQlFieldMetadata { Name = "heatingConsumptionKwhPercent" },
+        new GraphQlFieldMetadata { Name = "heatingConsumptionCost" },
+        new GraphQlFieldMetadata { Name = "behaviorConsumptionKwh" },
+        new GraphQlFieldMetadata { Name = "behaviorConsumptionKwhPercent" },
+        new GraphQlFieldMetadata { Name = "behaviorConsumptionCost" },
+        new GraphQlFieldMetadata { Name = "currency" },
+        new GraphQlFieldMetadata { Name = "isValid" },
+        new GraphQlFieldMetadata { Name = "totalCost" },
+        new GraphQlFieldMetadata { Name = "totalConsumptionKwh" }
     };
 
     protected override string TypeName { get; } = "Disaggregation";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public DisaggregationQueryBuilder WithYear(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("year", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1628,16 +1628,16 @@ public partial class DisaggregationQueryBuilder : GraphQlQueryBuilder<Disaggrega
 
 public partial class WeatherQueryBuilder : GraphQlQueryBuilder<WeatherQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "minTemperature" },
-        new FieldMetadata { Name = "maxTemperature" },
-        new FieldMetadata { Name = "entries", IsComplex = true, QueryBuilderType = typeof(WeatherEntryQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "minTemperature" },
+        new GraphQlFieldMetadata { Name = "maxTemperature" },
+        new GraphQlFieldMetadata { Name = "entries", IsComplex = true, QueryBuilderType = typeof(WeatherEntryQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "Weather";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public WeatherQueryBuilder WithMinTemperature(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("minTemperature", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1654,21 +1654,21 @@ public partial class WeatherQueryBuilder : GraphQlQueryBuilder<WeatherQueryBuild
 
 public partial class WeatherEntryQueryBuilder : GraphQlQueryBuilder<WeatherEntryQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "time" },
-        new FieldMetadata { Name = "temperature" },
-        new FieldMetadata { Name = "type" },
-        new FieldMetadata { Name = "fog" },
-        new FieldMetadata { Name = "precipitation" },
-        new FieldMetadata { Name = "cloudiness" },
-        new FieldMetadata { Name = "windSpeed" },
-        new FieldMetadata { Name = "windGust" }
+        new GraphQlFieldMetadata { Name = "time" },
+        new GraphQlFieldMetadata { Name = "temperature" },
+        new GraphQlFieldMetadata { Name = "type" },
+        new GraphQlFieldMetadata { Name = "fog" },
+        new GraphQlFieldMetadata { Name = "precipitation" },
+        new GraphQlFieldMetadata { Name = "cloudiness" },
+        new GraphQlFieldMetadata { Name = "windSpeed" },
+        new GraphQlFieldMetadata { Name = "windGust" }
     };
 
     protected override string TypeName { get; } = "WeatherEntry";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public WeatherEntryQueryBuilder WithTime(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("time", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1705,15 +1705,15 @@ public partial class WeatherEntryQueryBuilder : GraphQlQueryBuilder<WeatherEntry
 
 public partial class AwayModeQueryBuilder : GraphQlQueryBuilder<AwayModeQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "isSupported" },
-        new FieldMetadata { Name = "settings", IsComplex = true, QueryBuilderType = typeof(AwayModeSettingsQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "isSupported" },
+        new GraphQlFieldMetadata { Name = "settings", IsComplex = true, QueryBuilderType = typeof(AwayModeSettingsQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "AwayMode";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public AwayModeQueryBuilder WithIsSupported(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("isSupported", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1726,15 +1726,15 @@ public partial class AwayModeQueryBuilder : GraphQlQueryBuilder<AwayModeQueryBui
 
 public partial class AwayModeSettingsQueryBuilder : GraphQlQueryBuilder<AwayModeSettingsQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "from" },
-        new FieldMetadata { Name = "to" }
+        new GraphQlFieldMetadata { Name = "from" },
+        new GraphQlFieldMetadata { Name = "to" }
     };
 
     protected override string TypeName { get; } = "AwayModeSettings";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public AwayModeSettingsQueryBuilder WithFrom(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("from", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1747,16 +1747,16 @@ public partial class AwayModeSettingsQueryBuilder : GraphQlQueryBuilder<AwayMode
 
 public partial class DayNightScheduleQueryBuilder : GraphQlQueryBuilder<DayNightScheduleQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "isSupported" },
-        new FieldMetadata { Name = "day", IsComplex = true, QueryBuilderType = typeof(DayNightScheduleSettingsQueryBuilder) },
-        new FieldMetadata { Name = "night", IsComplex = true, QueryBuilderType = typeof(DayNightScheduleSettingsQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "isSupported" },
+        new GraphQlFieldMetadata { Name = "day", IsComplex = true, QueryBuilderType = typeof(DayNightScheduleSettingsQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "night", IsComplex = true, QueryBuilderType = typeof(DayNightScheduleSettingsQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "DayNightSchedule";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public DayNightScheduleQueryBuilder WithIsSupported(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("isSupported", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1773,17 +1773,17 @@ public partial class DayNightScheduleQueryBuilder : GraphQlQueryBuilder<DayNight
 
 public partial class DayNightScheduleSettingsQueryBuilder : GraphQlQueryBuilder<DayNightScheduleSettingsQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "isEnabled" },
-        new FieldMetadata { Name = "localTimeFrom" },
-        new FieldMetadata { Name = "localTimeTo" },
-        new FieldMetadata { Name = "recurringDays", IsComplex = true }
+        new GraphQlFieldMetadata { Name = "isEnabled" },
+        new GraphQlFieldMetadata { Name = "localTimeFrom" },
+        new GraphQlFieldMetadata { Name = "localTimeTo" },
+        new GraphQlFieldMetadata { Name = "recurringDays", IsComplex = true }
     };
 
     protected override string TypeName { get; } = "DayNightScheduleSettings";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public DayNightScheduleSettingsQueryBuilder WithIsEnabled(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("isEnabled", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1804,14 +1804,14 @@ public partial class DayNightScheduleSettingsQueryBuilder : GraphQlQueryBuilder<
 
 public partial class ReportRootQueryBuilder : GraphQlQueryBuilder<ReportRootQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "reports", IsComplex = true, QueryBuilderType = typeof(ReportQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "reports", IsComplex = true, QueryBuilderType = typeof(ReportQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "ReportRoot";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ReportRootQueryBuilder WithReports(ReportQueryBuilder reportQueryBuilder, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithObjectField("reports", alias, reportQueryBuilder, new GraphQlDirective?[] { include, skip });
 
@@ -1820,19 +1820,19 @@ public partial class ReportRootQueryBuilder : GraphQlQueryBuilder<ReportRootQuer
 
 public partial class ReportQueryBuilder : GraphQlQueryBuilder<ReportQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "avatar" },
-        new FieldMetadata { Name = "title" },
-        new FieldMetadata { Name = "efficiency" },
-        new FieldMetadata { Name = "year" },
-        new FieldMetadata { Name = "month" },
-        new FieldMetadata { Name = "items", IsComplex = true, QueryBuilderType = typeof(ReportCellQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "avatar" },
+        new GraphQlFieldMetadata { Name = "title" },
+        new GraphQlFieldMetadata { Name = "efficiency" },
+        new GraphQlFieldMetadata { Name = "year" },
+        new GraphQlFieldMetadata { Name = "month" },
+        new GraphQlFieldMetadata { Name = "items", IsComplex = true, QueryBuilderType = typeof(ReportCellQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "Report";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ReportQueryBuilder WithAvatar(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("avatar", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1861,21 +1861,21 @@ public partial class ReportQueryBuilder : GraphQlQueryBuilder<ReportQueryBuilder
 
 public partial class ReportCellQueryBuilder : GraphQlQueryBuilder<ReportCellQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "type" },
-        new FieldMetadata { Name = "style" },
-        new FieldMetadata { Name = "imageSrc" },
-        new FieldMetadata { Name = "title" },
-        new FieldMetadata { Name = "description" },
-        new FieldMetadata { Name = "unitText" },
-        new FieldMetadata { Name = "link" },
-        new FieldMetadata { Name = "properties", IsComplex = true }
+        new GraphQlFieldMetadata { Name = "type" },
+        new GraphQlFieldMetadata { Name = "style" },
+        new GraphQlFieldMetadata { Name = "imageSrc" },
+        new GraphQlFieldMetadata { Name = "title" },
+        new GraphQlFieldMetadata { Name = "description" },
+        new GraphQlFieldMetadata { Name = "unitText" },
+        new GraphQlFieldMetadata { Name = "link" },
+        new GraphQlFieldMetadata { Name = "properties", IsComplex = true }
     };
 
     protected override string TypeName { get; } = "ReportCell";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ReportCellQueryBuilder WithType(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("type", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1912,23 +1912,23 @@ public partial class ReportCellQueryBuilder : GraphQlQueryBuilder<ReportCellQuer
 
 public partial class ThermostatQueryBuilder : GraphQlQueryBuilder<ThermostatQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "id" },
-        new FieldMetadata { Name = "name" },
-        new FieldMetadata { Name = "connectivity" },
-        new FieldMetadata { Name = "state", IsComplex = true, QueryBuilderType = typeof(ThermostatStateQueryBuilder) },
-        new FieldMetadata { Name = "measurements", IsComplex = true, QueryBuilderType = typeof(ThermostatMeasurementsQueryBuilder) },
-        new FieldMetadata { Name = "capabilities", IsComplex = true, QueryBuilderType = typeof(ThermostatCapabilityQueryBuilder) },
-        new FieldMetadata { Name = "modes", IsComplex = true, QueryBuilderType = typeof(ThermostatModeQueryBuilder) },
-        new FieldMetadata { Name = "template" },
-        new FieldMetadata { Name = "hasSettings" },
-        new FieldMetadata { Name = "supportsDayNightSchedule" }
+        new GraphQlFieldMetadata { Name = "id" },
+        new GraphQlFieldMetadata { Name = "name" },
+        new GraphQlFieldMetadata { Name = "connectivity" },
+        new GraphQlFieldMetadata { Name = "state", IsComplex = true, QueryBuilderType = typeof(ThermostatStateQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "measurements", IsComplex = true, QueryBuilderType = typeof(ThermostatMeasurementsQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "capabilities", IsComplex = true, QueryBuilderType = typeof(ThermostatCapabilityQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "modes", IsComplex = true, QueryBuilderType = typeof(ThermostatModeQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "template" },
+        new GraphQlFieldMetadata { Name = "hasSettings" },
+        new GraphQlFieldMetadata { Name = "supportsDayNightSchedule" }
     };
 
     protected override string TypeName { get; } = "Thermostat";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ThermostatQueryBuilder WithId(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("id", alias, new GraphQlDirective?[] { include, skip });
 
@@ -1973,17 +1973,17 @@ public partial class ThermostatQueryBuilder : GraphQlQueryBuilder<ThermostatQuer
 
 public partial class ThermostatStateQueryBuilder : GraphQlQueryBuilder<ThermostatStateQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "mode" },
-        new FieldMetadata { Name = "comfortTemperature" },
-        new FieldMetadata { Name = "fanLevel" },
-        new FieldMetadata { Name = "onOff" }
+        new GraphQlFieldMetadata { Name = "mode" },
+        new GraphQlFieldMetadata { Name = "comfortTemperature" },
+        new GraphQlFieldMetadata { Name = "fanLevel" },
+        new GraphQlFieldMetadata { Name = "onOff" }
     };
 
     protected override string TypeName { get; } = "ThermostatState";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ThermostatStateQueryBuilder WithMode(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("mode", alias, new GraphQlDirective?[] { include, skip });
 
@@ -2004,16 +2004,16 @@ public partial class ThermostatStateQueryBuilder : GraphQlQueryBuilder<Thermosta
 
 public partial class ThermostatMeasurementsQueryBuilder : GraphQlQueryBuilder<ThermostatMeasurementsQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "temperature" },
-        new FieldMetadata { Name = "timestamp" },
-        new FieldMetadata { Name = "display", IsComplex = true, QueryBuilderType = typeof(ThermostatMeasurementQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "temperature" },
+        new GraphQlFieldMetadata { Name = "timestamp" },
+        new GraphQlFieldMetadata { Name = "display", IsComplex = true, QueryBuilderType = typeof(ThermostatMeasurementQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "ThermostatMeasurements";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ThermostatMeasurementsQueryBuilder WithTemperature(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("temperature", alias, new GraphQlDirective?[] { include, skip });
 
@@ -2030,23 +2030,23 @@ public partial class ThermostatMeasurementsQueryBuilder : GraphQlQueryBuilder<Th
 
 public partial class ThermostatMeasurementQueryBuilder : GraphQlQueryBuilder<ThermostatMeasurementQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "label" },
-        new FieldMetadata { Name = "description" },
-        new FieldMetadata { Name = "descriptionLong" },
-        new FieldMetadata { Name = "value" },
-        new FieldMetadata { Name = "valueText" },
-        new FieldMetadata { Name = "unit" },
-        new FieldMetadata { Name = "unitText" },
-        new FieldMetadata { Name = "timestamp" },
-        new FieldMetadata { Name = "type" },
-        new FieldMetadata { Name = "typeText" }
+        new GraphQlFieldMetadata { Name = "label" },
+        new GraphQlFieldMetadata { Name = "description" },
+        new GraphQlFieldMetadata { Name = "descriptionLong" },
+        new GraphQlFieldMetadata { Name = "value" },
+        new GraphQlFieldMetadata { Name = "valueText" },
+        new GraphQlFieldMetadata { Name = "unit" },
+        new GraphQlFieldMetadata { Name = "unitText" },
+        new GraphQlFieldMetadata { Name = "timestamp" },
+        new GraphQlFieldMetadata { Name = "type" },
+        new GraphQlFieldMetadata { Name = "typeText" }
     };
 
     protected override string TypeName { get; } = "ThermostatMeasurement";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ThermostatMeasurementQueryBuilder WithLabel(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("label", alias, new GraphQlDirective?[] { include, skip });
 
@@ -2091,16 +2091,16 @@ public partial class ThermostatMeasurementQueryBuilder : GraphQlQueryBuilder<The
 
 public partial class ThermostatCapabilityQueryBuilder : GraphQlQueryBuilder<ThermostatCapabilityQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "name" },
-        new FieldMetadata { Name = "type" },
-        new FieldMetadata { Name = "values", IsComplex = true }
+        new GraphQlFieldMetadata { Name = "name" },
+        new GraphQlFieldMetadata { Name = "type" },
+        new GraphQlFieldMetadata { Name = "values", IsComplex = true }
     };
 
     protected override string TypeName { get; } = "ThermostatCapability";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ThermostatCapabilityQueryBuilder WithName(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("name", alias, new GraphQlDirective?[] { include, skip });
 
@@ -2117,15 +2117,15 @@ public partial class ThermostatCapabilityQueryBuilder : GraphQlQueryBuilder<Ther
 
 public partial class ThermostatModeQueryBuilder : GraphQlQueryBuilder<ThermostatModeQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "name" },
-        new FieldMetadata { Name = "capabilities", IsComplex = true }
+        new GraphQlFieldMetadata { Name = "name" },
+        new GraphQlFieldMetadata { Name = "capabilities", IsComplex = true }
     };
 
     protected override string TypeName { get; } = "ThermostatMode";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ThermostatModeQueryBuilder WithName(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("name", alias, new GraphQlDirective?[] { include, skip });
 
@@ -2138,17 +2138,17 @@ public partial class ThermostatModeQueryBuilder : GraphQlQueryBuilder<Thermostat
 
 public partial class SensorQueryBuilder : GraphQlQueryBuilder<SensorQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "id" },
-        new FieldMetadata { Name = "idDeprecated" },
-        new FieldMetadata { Name = "hasHistory" },
-        new FieldMetadata { Name = "measurement", IsComplex = true, QueryBuilderType = typeof(ThermostatMeasurementQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "id" },
+        new GraphQlFieldMetadata { Name = "idDeprecated" },
+        new GraphQlFieldMetadata { Name = "hasHistory" },
+        new GraphQlFieldMetadata { Name = "measurement", IsComplex = true, QueryBuilderType = typeof(ThermostatMeasurementQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "Sensor";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public SensorQueryBuilder WithId(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("id", alias, new GraphQlDirective?[] { include, skip });
 
@@ -2169,16 +2169,16 @@ public partial class SensorQueryBuilder : GraphQlQueryBuilder<SensorQueryBuilder
 
 public partial class SensorHistoryQueryBuilder : GraphQlQueryBuilder<SensorHistoryQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "sensorId" },
-        new FieldMetadata { Name = "description" },
-        new FieldMetadata { Name = "values", IsComplex = true, QueryBuilderType = typeof(SensorHistoryValueQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "sensorId" },
+        new GraphQlFieldMetadata { Name = "description" },
+        new GraphQlFieldMetadata { Name = "values", IsComplex = true, QueryBuilderType = typeof(SensorHistoryValueQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "SensorHistory";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public SensorHistoryQueryBuilder WithSensorId(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("sensorId", alias, new GraphQlDirective?[] { include, skip });
 
@@ -2195,16 +2195,16 @@ public partial class SensorHistoryQueryBuilder : GraphQlQueryBuilder<SensorHisto
 
 public partial class SensorHistoryValueQueryBuilder : GraphQlQueryBuilder<SensorHistoryValueQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "timestamp" },
-        new FieldMetadata { Name = "value" },
-        new FieldMetadata { Name = "valueText" }
+        new GraphQlFieldMetadata { Name = "timestamp" },
+        new GraphQlFieldMetadata { Name = "value" },
+        new GraphQlFieldMetadata { Name = "valueText" }
     };
 
     protected override string TypeName { get; } = "SensorHistoryValue";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public SensorHistoryValueQueryBuilder WithTimestamp(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("timestamp", alias, new GraphQlDirective?[] { include, skip });
 
@@ -2221,16 +2221,16 @@ public partial class SensorHistoryValueQueryBuilder : GraphQlQueryBuilder<Sensor
 
 public partial class PairableDeviceQueryBuilder : GraphQlQueryBuilder<PairableDeviceQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "type" },
-        new FieldMetadata { Name = "oauth", IsComplex = true, QueryBuilderType = typeof(PairableDeviceOAuthQueryBuilder) },
-        new FieldMetadata { Name = "readMoreUrl" }
+        new GraphQlFieldMetadata { Name = "type" },
+        new GraphQlFieldMetadata { Name = "oauth", IsComplex = true, QueryBuilderType = typeof(PairableDeviceOAuthQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "readMoreUrl" }
     };
 
     protected override string TypeName { get; } = "PairableDevice";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public PairableDeviceQueryBuilder WithType(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("type", alias, new GraphQlDirective?[] { include, skip });
 
@@ -2247,15 +2247,15 @@ public partial class PairableDeviceQueryBuilder : GraphQlQueryBuilder<PairableDe
 
 public partial class PairableDeviceOAuthQueryBuilder : GraphQlQueryBuilder<PairableDeviceOAuthQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "url" },
-        new FieldMetadata { Name = "redirectUriStartsWith" }
+        new GraphQlFieldMetadata { Name = "url" },
+        new GraphQlFieldMetadata { Name = "redirectUriStartsWith" }
     };
 
     protected override string TypeName { get; } = "PairableDeviceOAuth";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public PairableDeviceOAuthQueryBuilder WithUrl(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("url", alias, new GraphQlDirective?[] { include, skip });
 
@@ -2268,22 +2268,22 @@ public partial class PairableDeviceOAuthQueryBuilder : GraphQlQueryBuilder<Paira
 
 public partial class ProductionMonthQueryBuilder : GraphQlQueryBuilder<ProductionMonthQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "year" },
-        new FieldMetadata { Name = "month" },
-        new FieldMetadata { Name = "kwh" },
-        new FieldMetadata { Name = "cost" },
-        new FieldMetadata { Name = "isComplete" },
-        new FieldMetadata { Name = "title" },
-        new FieldMetadata { Name = "costText" },
-        new FieldMetadata { Name = "kwhText" },
-        new FieldMetadata { Name = "description" }
+        new GraphQlFieldMetadata { Name = "year" },
+        new GraphQlFieldMetadata { Name = "month" },
+        new GraphQlFieldMetadata { Name = "kwh" },
+        new GraphQlFieldMetadata { Name = "cost" },
+        new GraphQlFieldMetadata { Name = "isComplete" },
+        new GraphQlFieldMetadata { Name = "title" },
+        new GraphQlFieldMetadata { Name = "costText" },
+        new GraphQlFieldMetadata { Name = "kwhText" },
+        new GraphQlFieldMetadata { Name = "description" }
     };
 
     protected override string TypeName { get; } = "ProductionMonth";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ProductionMonthQueryBuilder WithYear(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("year", alias, new GraphQlDirective?[] { include, skip });
 
@@ -2324,24 +2324,24 @@ public partial class ProductionMonthQueryBuilder : GraphQlQueryBuilder<Productio
 
 public partial class ProductionQueryBuilder : GraphQlQueryBuilder<ProductionQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "annualValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilder) },
-        new FieldMetadata { Name = "monthlyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilder) },
-        new FieldMetadata { Name = "weeklyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilder) },
-        new FieldMetadata { Name = "dailyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilder) },
-        new FieldMetadata { Name = "hourlyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilder) },
-        new FieldMetadata { Name = "totalConsumption" },
-        new FieldMetadata { Name = "energyCost" },
-        new FieldMetadata { Name = "totalCost" },
-        new FieldMetadata { Name = "currency" },
-        new FieldMetadata { Name = "latestTransactionTimestamp" },
-        new FieldMetadata { Name = "timeZone" }
+        new GraphQlFieldMetadata { Name = "annualValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "monthlyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "weeklyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "dailyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "hourlyValues", IsComplex = true, QueryBuilderType = typeof(ProductionValueQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "totalConsumption" },
+        new GraphQlFieldMetadata { Name = "energyCost" },
+        new GraphQlFieldMetadata { Name = "totalCost" },
+        new GraphQlFieldMetadata { Name = "currency" },
+        new GraphQlFieldMetadata { Name = "latestTransactionTimestamp" },
+        new GraphQlFieldMetadata { Name = "timeZone" }
     };
 
     protected override string TypeName { get; } = "Production";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ProductionQueryBuilder WithAnnualValues(ProductionValueQueryBuilder productionValueQueryBuilder, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithObjectField("annualValues", alias, productionValueQueryBuilder, new GraphQlDirective?[] { include, skip });
 
@@ -2390,23 +2390,23 @@ public partial class ProductionQueryBuilder : GraphQlQueryBuilder<ProductionQuer
 
 public partial class ProductionValueQueryBuilder : GraphQlQueryBuilder<ProductionValueQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "from" },
-        new FieldMetadata { Name = "to" },
-        new FieldMetadata { Name = "unitPrice" },
-        new FieldMetadata { Name = "unitPriceVAT" },
-        new FieldMetadata { Name = "consumption" },
-        new FieldMetadata { Name = "consumptionUnit" },
-        new FieldMetadata { Name = "totalCost" },
-        new FieldMetadata { Name = "unitCost" },
-        new FieldMetadata { Name = "quality" },
-        new FieldMetadata { Name = "consumptionEntries" }
+        new GraphQlFieldMetadata { Name = "from" },
+        new GraphQlFieldMetadata { Name = "to" },
+        new GraphQlFieldMetadata { Name = "unitPrice" },
+        new GraphQlFieldMetadata { Name = "unitPriceVAT" },
+        new GraphQlFieldMetadata { Name = "consumption" },
+        new GraphQlFieldMetadata { Name = "consumptionUnit" },
+        new GraphQlFieldMetadata { Name = "totalCost" },
+        new GraphQlFieldMetadata { Name = "unitCost" },
+        new GraphQlFieldMetadata { Name = "quality" },
+        new GraphQlFieldMetadata { Name = "consumptionEntries" }
     };
 
     protected override string TypeName { get; } = "ProductionValue";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ProductionValueQueryBuilder WithFrom(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("from", alias, new GraphQlDirective?[] { include, skip });
 
@@ -2451,16 +2451,16 @@ public partial class ProductionValueQueryBuilder : GraphQlQueryBuilder<Productio
 
 public partial class FeedQueryBuilder : GraphQlQueryBuilder<FeedQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "numberOfItems" },
-        new FieldMetadata { Name = "items", IsComplex = true, QueryBuilderType = typeof(FeedItemQueryBuilder) },
-        new FieldMetadata { Name = "pushNotifications", IsComplex = true, QueryBuilderType = typeof(PushNotificationQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "numberOfItems" },
+        new GraphQlFieldMetadata { Name = "items", IsComplex = true, QueryBuilderType = typeof(FeedItemQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "pushNotifications", IsComplex = true, QueryBuilderType = typeof(PushNotificationQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "Feed";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public FeedQueryBuilder WithNumberOfItems(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("numberOfItems", alias, new GraphQlDirective?[] { include, skip });
 
@@ -2487,19 +2487,19 @@ public partial class FeedQueryBuilder : GraphQlQueryBuilder<FeedQueryBuilder>
 
 public partial class FeedItemQueryBuilder : GraphQlQueryBuilder<FeedItemQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "id" },
-        new FieldMetadata { Name = "messageTypeId" },
-        new FieldMetadata { Name = "link" },
-        new FieldMetadata { Name = "text" },
-        new FieldMetadata { Name = "createdAt" },
-        new FieldMetadata { Name = "modifiedAt" }
+        new GraphQlFieldMetadata { Name = "id" },
+        new GraphQlFieldMetadata { Name = "messageTypeId" },
+        new GraphQlFieldMetadata { Name = "link" },
+        new GraphQlFieldMetadata { Name = "text" },
+        new GraphQlFieldMetadata { Name = "createdAt" },
+        new GraphQlFieldMetadata { Name = "modifiedAt" }
     };
 
     protected override string TypeName { get; } = "FeedItem";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public FeedItemQueryBuilder WithId(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("id", alias, new GraphQlDirective?[] { include, skip });
 
@@ -2528,16 +2528,16 @@ public partial class FeedItemQueryBuilder : GraphQlQueryBuilder<FeedItemQueryBui
 
 public partial class PushNotificationQueryBuilder : GraphQlQueryBuilder<PushNotificationQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "id" },
-        new FieldMetadata { Name = "link" },
-        new FieldMetadata { Name = "text" }
+        new GraphQlFieldMetadata { Name = "id" },
+        new GraphQlFieldMetadata { Name = "link" },
+        new GraphQlFieldMetadata { Name = "text" }
     };
 
     protected override string TypeName { get; } = "PushNotification";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public PushNotificationQueryBuilder WithId(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("id", alias, new GraphQlDirective?[] { include, skip });
 
@@ -2554,16 +2554,16 @@ public partial class PushNotificationQueryBuilder : GraphQlQueryBuilder<PushNoti
 
 public partial class WalletQueryBuilder : GraphQlQueryBuilder<WalletQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "id" },
-        new FieldMetadata { Name = "paymentMethods", IsComplex = true, QueryBuilderType = typeof(PaymentMethodQueryBuilder) },
-        new FieldMetadata { Name = "directDebitToPromote" }
+        new GraphQlFieldMetadata { Name = "id" },
+        new GraphQlFieldMetadata { Name = "paymentMethods", IsComplex = true, QueryBuilderType = typeof(PaymentMethodQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "directDebitToPromote" }
     };
 
     protected override string TypeName { get; } = "Wallet";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public WalletQueryBuilder WithId(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("id", alias, new GraphQlDirective?[] { include, skip });
 
@@ -2580,16 +2580,16 @@ public partial class WalletQueryBuilder : GraphQlQueryBuilder<WalletQueryBuilder
 
 public partial class PaymentMethodQueryBuilder : GraphQlQueryBuilder<PaymentMethodQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "method" },
-        new FieldMetadata { Name = "status" },
-        new FieldMetadata { Name = "properties", IsComplex = true }
+        new GraphQlFieldMetadata { Name = "method" },
+        new GraphQlFieldMetadata { Name = "status" },
+        new GraphQlFieldMetadata { Name = "properties", IsComplex = true }
     };
 
     protected override string TypeName { get; } = "PaymentMethod";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public PaymentMethodQueryBuilder WithMethod(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("method", alias, new GraphQlDirective?[] { include, skip });
 
@@ -2606,14 +2606,14 @@ public partial class PaymentMethodQueryBuilder : GraphQlQueryBuilder<PaymentMeth
 
 public partial class AboutQueryBuilder : GraphQlQueryBuilder<AboutQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "items", IsComplex = true, QueryBuilderType = typeof(AboutItemQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "items", IsComplex = true, QueryBuilderType = typeof(AboutItemQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "About";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public AboutQueryBuilder WithItems(AboutItemQueryBuilder aboutItemQueryBuilder, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithObjectField("items", alias, aboutItemQueryBuilder, new GraphQlDirective?[] { include, skip });
 
@@ -2622,15 +2622,15 @@ public partial class AboutQueryBuilder : GraphQlQueryBuilder<AboutQueryBuilder>
 
 public partial class AboutItemQueryBuilder : GraphQlQueryBuilder<AboutItemQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "label" },
-        new FieldMetadata { Name = "url" }
+        new GraphQlFieldMetadata { Name = "label" },
+        new GraphQlFieldMetadata { Name = "url" }
     };
 
     protected override string TypeName { get; } = "AboutItem";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public AboutItemQueryBuilder WithLabel(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("label", alias, new GraphQlDirective?[] { include, skip });
 
@@ -2643,14 +2643,14 @@ public partial class AboutItemQueryBuilder : GraphQlQueryBuilder<AboutItemQueryB
 
 public partial class MutationQueryBuilder : GraphQlQueryBuilder<MutationQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "me", IsComplex = true, QueryBuilderType = typeof(MeMutationQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "me", IsComplex = true, QueryBuilderType = typeof(MeMutationQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "Mutation";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public MutationQueryBuilder(string? operationName = null) : base("mutation", operationName)
     {
@@ -2665,16 +2665,16 @@ public partial class MutationQueryBuilder : GraphQlQueryBuilder<MutationQueryBui
 
 public partial class MeMutationQueryBuilder : GraphQlQueryBuilder<MeMutationQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "update", IsComplex = true, QueryBuilderType = typeof(MeQueryBuilder) },
-        new FieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(HomeMutationQueryBuilder) },
-        new FieldMetadata { Name = "updateAppState", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "update", IsComplex = true, QueryBuilderType = typeof(MeQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(HomeMutationQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "updateAppState", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "MeMutation";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public MeMutationQueryBuilder WithUpdate(MeQueryBuilder meQueryBuilder, QueryBuilderParameter<string?>? email = null, QueryBuilderParameter<string?>? mobile = null, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null)
     {
@@ -2715,20 +2715,20 @@ public partial class MeMutationQueryBuilder : GraphQlQueryBuilder<MeMutationQuer
 
 public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutationQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "thermostat", IsComplex = true, QueryBuilderType = typeof(ThermostatMutationQueryBuilder) },
-        new FieldMetadata { Name = "pairDeviceWithOAuth", IsComplex = true, QueryBuilderType = typeof(PairDeviceResultQueryBuilder) },
-        new FieldMetadata { Name = "pairDeviceWithCredentials", IsComplex = true, QueryBuilderType = typeof(PairDeviceResultQueryBuilder) },
-        new FieldMetadata { Name = "answerProfileQuestions", IsComplex = true, QueryBuilderType = typeof(HomeProfileQuestionQueryBuilder) },
-        new FieldMetadata { Name = "sendMeterReading", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilder) },
-        new FieldMetadata { Name = "setMeteringPointIdAndBindingTime", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilder) },
-        new FieldMetadata { Name = "restartSubscription", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "thermostat", IsComplex = true, QueryBuilderType = typeof(ThermostatMutationQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "pairDeviceWithOAuth", IsComplex = true, QueryBuilderType = typeof(PairDeviceResultQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "pairDeviceWithCredentials", IsComplex = true, QueryBuilderType = typeof(PairDeviceResultQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "answerProfileQuestions", IsComplex = true, QueryBuilderType = typeof(HomeProfileQuestionQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "sendMeterReading", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "setMeteringPointIdAndBindingTime", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "restartSubscription", IsComplex = true, QueryBuilderType = typeof(GqlMutationGeneralResponseQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "HomeMutation";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public HomeMutationQueryBuilder WithThermostat(ThermostatMutationQueryBuilder thermostatMutationQueryBuilder, QueryBuilderParameter<string?>? id = null, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null)
     {
@@ -2818,15 +2818,15 @@ public partial class HomeMutationQueryBuilder : GraphQlQueryBuilder<HomeMutation
 
 public partial class ThermostatMutationQueryBuilder : GraphQlQueryBuilder<ThermostatMutationQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "setState" },
-        new FieldMetadata { Name = "setName" }
+        new GraphQlFieldMetadata { Name = "setState" },
+        new GraphQlFieldMetadata { Name = "setName" }
     };
 
     protected override string TypeName { get; } = "ThermostatMutation";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public ThermostatMutationQueryBuilder WithSetState(QueryBuilderParameter<string?>? mode = null, QueryBuilderParameter<decimal?>? comfortTemperature = null, QueryBuilderParameter<string?>? fanLevel = null, QueryBuilderParameter<string?>? onOff = null, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null)
     {
@@ -2862,16 +2862,16 @@ public partial class ThermostatMutationQueryBuilder : GraphQlQueryBuilder<Thermo
 
 public partial class PairDeviceResultQueryBuilder : GraphQlQueryBuilder<PairDeviceResultQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "thermostats", IsComplex = true, QueryBuilderType = typeof(ThermostatQueryBuilder) },
-        new FieldMetadata { Name = "sensors", IsComplex = true, QueryBuilderType = typeof(SensorQueryBuilder) },
-        new FieldMetadata { Name = "error", IsComplex = true, QueryBuilderType = typeof(GqlMutationErrorQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "thermostats", IsComplex = true, QueryBuilderType = typeof(ThermostatQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "sensors", IsComplex = true, QueryBuilderType = typeof(SensorQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "error", IsComplex = true, QueryBuilderType = typeof(GqlMutationErrorQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "PairDeviceResult";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public PairDeviceResultQueryBuilder WithThermostats(ThermostatQueryBuilder thermostatQueryBuilder, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithObjectField("thermostats", alias, thermostatQueryBuilder, new GraphQlDirective?[] { include, skip });
 
@@ -2888,15 +2888,15 @@ public partial class PairDeviceResultQueryBuilder : GraphQlQueryBuilder<PairDevi
 
 public partial class GqlMutationErrorQueryBuilder : GraphQlQueryBuilder<GqlMutationErrorQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "statusCode" },
-        new FieldMetadata { Name = "message" }
+        new GraphQlFieldMetadata { Name = "statusCode" },
+        new GraphQlFieldMetadata { Name = "message" }
     };
 
     protected override string TypeName { get; } = "GQLMutationError";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public GqlMutationErrorQueryBuilder WithStatusCode(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("statusCode", alias, new GraphQlDirective?[] { include, skip });
 
@@ -2909,14 +2909,14 @@ public partial class GqlMutationErrorQueryBuilder : GraphQlQueryBuilder<GqlMutat
 
 public partial class GqlMutationGeneralResponseQueryBuilder : GraphQlQueryBuilder<GqlMutationGeneralResponseQueryBuilder>
 {
-    private static readonly FieldMetadata[] AllFieldMetadata =
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new FieldMetadata { Name = "error", IsComplex = true, QueryBuilderType = typeof(GqlMutationErrorQueryBuilder) }
+        new GraphQlFieldMetadata { Name = "error", IsComplex = true, QueryBuilderType = typeof(GqlMutationErrorQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "GQLMutationGeneralResponse";
 
-    public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
     public GqlMutationGeneralResponseQueryBuilder WithError(GqlMutationErrorQueryBuilder gqlMutationErrorQueryBuilder, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithObjectField("error", alias, gqlMutationErrorQueryBuilder, new GraphQlDirective?[] { include, skip });
 

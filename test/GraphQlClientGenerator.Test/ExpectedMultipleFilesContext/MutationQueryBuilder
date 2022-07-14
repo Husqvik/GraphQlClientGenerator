@@ -13,14 +13,14 @@ namespace GraphQlGeneratorTest
 {
     public partial class MutationQueryBuilder : GraphQlQueryBuilder<MutationQueryBuilder>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "me", IsComplex = true, QueryBuilderType = typeof(MeMutationQueryBuilder) }
+            new GraphQlFieldMetadata { Name = "me", IsComplex = true, QueryBuilderType = typeof(MeMutationQueryBuilder) }
         };
 
         protected override string TypeName { get; } = "Mutation";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public MutationQueryBuilder(string operationName = null) : base("mutation", operationName)
         {

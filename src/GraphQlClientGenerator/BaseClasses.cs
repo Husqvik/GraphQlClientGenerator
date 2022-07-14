@@ -1,4 +1,4 @@
-﻿public struct FieldMetadata
+﻿public struct GraphQlFieldMetadata
 {
     public string Name { get; set; }
     public string DefaultAlias { get; set; }
@@ -532,7 +532,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     protected abstract string TypeName { get; }
 
-    public abstract IReadOnlyList<FieldMetadata> AllFields { get; }
+    public abstract IReadOnlyList<GraphQlFieldMetadata> AllFields { get; }
 
     protected GraphQlQueryBuilder(string operationType, string operationName)
     {
@@ -671,12 +671,12 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
         _fieldCriteria.Remove(fieldName);
     }
 
-    protected void IncludeFields(IEnumerable<FieldMetadata> fields)
+    protected void IncludeFields(IEnumerable<GraphQlFieldMetadata> fields)
     {
         IncludeFields(fields, null);
     }
 
-    private void IncludeFields(IEnumerable<FieldMetadata> fields, List<Type> parentTypes)
+    private void IncludeFields(IEnumerable<GraphQlFieldMetadata> fields, List<Type> parentTypes)
     {
         foreach (var field in fields)
         {

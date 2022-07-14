@@ -18,7 +18,7 @@ using Newtonsoft.Json.Linq;
 namespace SourceGeneratorTestAssembly
 {
     #region base classes
-    public struct FieldMetadata
+    public struct GraphQlFieldMetadata
     {
         public string Name { get; set; }
         public string DefaultAlias { get; set; }
@@ -552,7 +552,7 @@ namespace SourceGeneratorTestAssembly
     
         protected abstract string TypeName { get; }
     
-        public abstract IReadOnlyList<FieldMetadata> AllFields { get; }
+        public abstract IReadOnlyList<GraphQlFieldMetadata> AllFields { get; }
     
         protected GraphQlQueryBuilder(string operationType, string operationName)
         {
@@ -691,12 +691,12 @@ namespace SourceGeneratorTestAssembly
             _fieldCriteria.Remove(fieldName);
         }
     
-        protected void IncludeFields(IEnumerable<FieldMetadata> fields)
+        protected void IncludeFields(IEnumerable<GraphQlFieldMetadata> fields)
         {
             IncludeFields(fields, null);
         }
     
-        private void IncludeFields(IEnumerable<FieldMetadata> fields, List<Type> parentTypes)
+        private void IncludeFields(IEnumerable<GraphQlFieldMetadata> fields, List<Type> parentTypes)
         {
             foreach (var field in fields)
             {
@@ -1097,14 +1097,14 @@ namespace SourceGeneratorTestAssembly
     #region builder classes
     public partial class SourceGeneratedTibberQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedTibberQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "viewer", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedViewerQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "viewer", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedViewerQueryBuilderV2) }
         };
 
         protected override string TypeName { get; } = "Query";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedTibberQueryBuilderV2(string operationName = null) : base("query", operationName)
         {
@@ -1119,18 +1119,18 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedViewerQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedViewerQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "login" },
-            new FieldMetadata { Name = "name" },
-            new FieldMetadata { Name = "accountType", IsComplex = true },
-            new FieldMetadata { Name = "homes", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeQueryBuilderV2) },
-            new FieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "login" },
+            new GraphQlFieldMetadata { Name = "name" },
+            new GraphQlFieldMetadata { Name = "accountType", IsComplex = true },
+            new GraphQlFieldMetadata { Name = "homes", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeQueryBuilderV2) }
         };
 
         protected override string TypeName { get; } = "Viewer";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedViewerQueryBuilderV2 WithLogin(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("login", alias, new GraphQlDirective[] { skip, include });
 
@@ -1160,31 +1160,31 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedHomeQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedHomeQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "id" },
-            new FieldMetadata { Name = "timeZone" },
-            new FieldMetadata { Name = "appNickname" },
-            new FieldMetadata { Name = "appAvatar" },
-            new FieldMetadata { Name = "size" },
-            new FieldMetadata { Name = "type" },
-            new FieldMetadata { Name = "numberOfResidents" },
-            new FieldMetadata { Name = "primaryHeatingSource" },
-            new FieldMetadata { Name = "hasVentilationSystem" },
-            new FieldMetadata { Name = "mainFuseSize" },
-            new FieldMetadata { Name = "address", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedAddressQueryBuilderV2) },
-            new FieldMetadata { Name = "owner", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedLegalEntityQueryBuilderV2) },
-            new FieldMetadata { Name = "meteringPointData", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedMeteringPointDataQueryBuilderV2) },
-            new FieldMetadata { Name = "currentSubscription", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionQueryBuilderV2) },
-            new FieldMetadata { Name = "subscriptions", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionQueryBuilderV2) },
-            new FieldMetadata { Name = "consumption", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeConsumptionConnectionQueryBuilderV2) },
-            new FieldMetadata { Name = "production", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeProductionConnectionQueryBuilderV2) },
-            new FieldMetadata { Name = "features", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeFeaturesQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "id" },
+            new GraphQlFieldMetadata { Name = "timeZone" },
+            new GraphQlFieldMetadata { Name = "appNickname" },
+            new GraphQlFieldMetadata { Name = "appAvatar" },
+            new GraphQlFieldMetadata { Name = "size" },
+            new GraphQlFieldMetadata { Name = "type" },
+            new GraphQlFieldMetadata { Name = "numberOfResidents" },
+            new GraphQlFieldMetadata { Name = "primaryHeatingSource" },
+            new GraphQlFieldMetadata { Name = "hasVentilationSystem" },
+            new GraphQlFieldMetadata { Name = "mainFuseSize" },
+            new GraphQlFieldMetadata { Name = "address", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedAddressQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "owner", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedLegalEntityQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "meteringPointData", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedMeteringPointDataQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "currentSubscription", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "subscriptions", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "consumption", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeConsumptionConnectionQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "production", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeProductionConnectionQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "features", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeFeaturesQueryBuilderV2) }
         };
 
         protected override string TypeName { get; } = "Home";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedHomeQueryBuilderV2 WithId(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("id", alias, new GraphQlDirective[] { skip, include });
 
@@ -1301,21 +1301,21 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedAddressQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedAddressQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "address1" },
-            new FieldMetadata { Name = "address2" },
-            new FieldMetadata { Name = "address3" },
-            new FieldMetadata { Name = "city" },
-            new FieldMetadata { Name = "postalCode" },
-            new FieldMetadata { Name = "country" },
-            new FieldMetadata { Name = "latitude" },
-            new FieldMetadata { Name = "longitude" }
+            new GraphQlFieldMetadata { Name = "address1" },
+            new GraphQlFieldMetadata { Name = "address2" },
+            new GraphQlFieldMetadata { Name = "address3" },
+            new GraphQlFieldMetadata { Name = "city" },
+            new GraphQlFieldMetadata { Name = "postalCode" },
+            new GraphQlFieldMetadata { Name = "country" },
+            new GraphQlFieldMetadata { Name = "latitude" },
+            new GraphQlFieldMetadata { Name = "longitude" }
         };
 
         protected override string TypeName { get; } = "Address";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedAddressQueryBuilderV2 WithAddress1(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("address1", alias, new GraphQlDirective[] { skip, include });
 
@@ -1352,23 +1352,23 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedLegalEntityQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedLegalEntityQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "id" },
-            new FieldMetadata { Name = "firstName" },
-            new FieldMetadata { Name = "isCompany" },
-            new FieldMetadata { Name = "name" },
-            new FieldMetadata { Name = "middleName" },
-            new FieldMetadata { Name = "lastName" },
-            new FieldMetadata { Name = "organizationNo" },
-            new FieldMetadata { Name = "language" },
-            new FieldMetadata { Name = "contactInfo", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedContactInfoQueryBuilderV2) },
-            new FieldMetadata { Name = "address", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedAddressQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "id" },
+            new GraphQlFieldMetadata { Name = "firstName" },
+            new GraphQlFieldMetadata { Name = "isCompany" },
+            new GraphQlFieldMetadata { Name = "name" },
+            new GraphQlFieldMetadata { Name = "middleName" },
+            new GraphQlFieldMetadata { Name = "lastName" },
+            new GraphQlFieldMetadata { Name = "organizationNo" },
+            new GraphQlFieldMetadata { Name = "language" },
+            new GraphQlFieldMetadata { Name = "contactInfo", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedContactInfoQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "address", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedAddressQueryBuilderV2) }
         };
 
         protected override string TypeName { get; } = "LegalEntity";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedLegalEntityQueryBuilderV2 WithId(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("id", alias, new GraphQlDirective[] { skip, include });
 
@@ -1413,15 +1413,15 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedContactInfoQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedContactInfoQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "email" },
-            new FieldMetadata { Name = "mobile" }
+            new GraphQlFieldMetadata { Name = "email" },
+            new GraphQlFieldMetadata { Name = "mobile" }
         };
 
         protected override string TypeName { get; } = "ContactInfo";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedContactInfoQueryBuilderV2 WithEmail(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("email", alias, new GraphQlDirective[] { skip, include });
 
@@ -1434,21 +1434,21 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedMeteringPointDataQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedMeteringPointDataQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "consumptionEan" },
-            new FieldMetadata { Name = "gridCompany" },
-            new FieldMetadata { Name = "gridAreaCode" },
-            new FieldMetadata { Name = "priceAreaCode" },
-            new FieldMetadata { Name = "productionEan" },
-            new FieldMetadata { Name = "energyTaxType" },
-            new FieldMetadata { Name = "vatType" },
-            new FieldMetadata { Name = "estimatedAnnualConsumption" }
+            new GraphQlFieldMetadata { Name = "consumptionEan" },
+            new GraphQlFieldMetadata { Name = "gridCompany" },
+            new GraphQlFieldMetadata { Name = "gridAreaCode" },
+            new GraphQlFieldMetadata { Name = "priceAreaCode" },
+            new GraphQlFieldMetadata { Name = "productionEan" },
+            new GraphQlFieldMetadata { Name = "energyTaxType" },
+            new GraphQlFieldMetadata { Name = "vatType" },
+            new GraphQlFieldMetadata { Name = "estimatedAnnualConsumption" }
         };
 
         protected override string TypeName { get; } = "MeteringPointData";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedMeteringPointDataQueryBuilderV2 WithConsumptionEan(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("consumptionEan", alias, new GraphQlDirective[] { skip, include });
 
@@ -1485,20 +1485,20 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedSubscriptionQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedSubscriptionQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "id" },
-            new FieldMetadata { Name = "subscriber", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedLegalEntityQueryBuilderV2) },
-            new FieldMetadata { Name = "validFrom" },
-            new FieldMetadata { Name = "validTo" },
-            new FieldMetadata { Name = "status" },
-            new FieldMetadata { Name = "statusReason" },
-            new FieldMetadata { Name = "priceInfo", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceInfoQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "id" },
+            new GraphQlFieldMetadata { Name = "subscriber", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedLegalEntityQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "validFrom" },
+            new GraphQlFieldMetadata { Name = "validTo" },
+            new GraphQlFieldMetadata { Name = "status" },
+            new GraphQlFieldMetadata { Name = "statusReason" },
+            new GraphQlFieldMetadata { Name = "priceInfo", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceInfoQueryBuilderV2) }
         };
 
         protected override string TypeName { get; } = "Subscription";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedSubscriptionQueryBuilderV2 WithId(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("id", alias, new GraphQlDirective[] { skip, include });
 
@@ -1531,17 +1531,17 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedPriceInfoQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedPriceInfoQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "current", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) },
-            new FieldMetadata { Name = "today", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) },
-            new FieldMetadata { Name = "tomorrow", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) },
-            new FieldMetadata { Name = "range", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "current", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "today", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "tomorrow", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "range", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2) }
         };
 
         protected override string TypeName { get; } = "PriceInfo";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedPriceInfoQueryBuilderV2 WithCurrent(SourceGeneratedPriceQueryBuilderV2 priceQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("current", alias, priceQueryBuilder, new GraphQlDirective[] { skip, include });
 
@@ -1579,19 +1579,19 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedPriceQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedPriceQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "total" },
-            new FieldMetadata { Name = "energy" },
-            new FieldMetadata { Name = "tax" },
-            new FieldMetadata { Name = "startsAt" },
-            new FieldMetadata { Name = "currency" },
-            new FieldMetadata { Name = "level" }
+            new GraphQlFieldMetadata { Name = "total" },
+            new GraphQlFieldMetadata { Name = "energy" },
+            new GraphQlFieldMetadata { Name = "tax" },
+            new GraphQlFieldMetadata { Name = "startsAt" },
+            new GraphQlFieldMetadata { Name = "currency" },
+            new GraphQlFieldMetadata { Name = "level" }
         };
 
         protected override string TypeName { get; } = "Price";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedPriceQueryBuilderV2 WithTotal(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("total", alias, new GraphQlDirective[] { skip, include });
 
@@ -1620,16 +1620,16 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "pageInfo", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2) },
-            new FieldMetadata { Name = "edges", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2) },
-            new FieldMetadata { Name = "nodes", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "pageInfo", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "edges", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "nodes", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) }
         };
 
         protected override string TypeName { get; } = "SubscriptionPriceConnection";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 WithPageInfo(SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 subscriptionPriceConnectionPageInfoQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("pageInfo", alias, subscriptionPriceConnectionPageInfoQueryBuilder, new GraphQlDirective[] { skip, include });
 
@@ -1646,25 +1646,25 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "endCursor" },
-            new FieldMetadata { Name = "hasNextPage" },
-            new FieldMetadata { Name = "hasPreviousPage" },
-            new FieldMetadata { Name = "startCursor" },
-            new FieldMetadata { Name = "resolution" },
-            new FieldMetadata { Name = "currency" },
-            new FieldMetadata { Name = "count" },
-            new FieldMetadata { Name = "precision" },
-            new FieldMetadata { Name = "minEnergy" },
-            new FieldMetadata { Name = "minTotal" },
-            new FieldMetadata { Name = "maxEnergy" },
-            new FieldMetadata { Name = "maxTotal" }
+            new GraphQlFieldMetadata { Name = "endCursor" },
+            new GraphQlFieldMetadata { Name = "hasNextPage" },
+            new GraphQlFieldMetadata { Name = "hasPreviousPage" },
+            new GraphQlFieldMetadata { Name = "startCursor" },
+            new GraphQlFieldMetadata { Name = "resolution" },
+            new GraphQlFieldMetadata { Name = "currency" },
+            new GraphQlFieldMetadata { Name = "count" },
+            new GraphQlFieldMetadata { Name = "precision" },
+            new GraphQlFieldMetadata { Name = "minEnergy" },
+            new GraphQlFieldMetadata { Name = "minTotal" },
+            new GraphQlFieldMetadata { Name = "maxEnergy" },
+            new GraphQlFieldMetadata { Name = "maxTotal" }
         };
 
         protected override string TypeName { get; } = "SubscriptionPriceConnectionPageInfo";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithEndCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("endCursor", alias, new GraphQlDirective[] { skip, include });
 
@@ -1717,19 +1717,19 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedPageInfoQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedPageInfoQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "unimplementedField" },
-            new FieldMetadata { Name = "unimplementedDeprecatedField" },
-            new FieldMetadata { Name = "endCursor" },
-            new FieldMetadata { Name = "hasNextPage" },
-            new FieldMetadata { Name = "hasPreviousPage" },
-            new FieldMetadata { Name = "startCursor" }
+            new GraphQlFieldMetadata { Name = "unimplementedField" },
+            new GraphQlFieldMetadata { Name = "unimplementedDeprecatedField" },
+            new GraphQlFieldMetadata { Name = "endCursor" },
+            new GraphQlFieldMetadata { Name = "hasNextPage" },
+            new GraphQlFieldMetadata { Name = "hasPreviousPage" },
+            new GraphQlFieldMetadata { Name = "startCursor" }
         };
 
         protected override string TypeName { get; } = "PageInfo";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedPageInfoQueryBuilderV2 WithUnimplementedField(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("unimplementedField", alias, new GraphQlDirective[] { skip, include });
 
@@ -1764,15 +1764,15 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "cursor" },
-            new FieldMetadata { Name = "node", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "cursor" },
+            new GraphQlFieldMetadata { Name = "node", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) }
         };
 
         protected override string TypeName { get; } = "SubscriptionPriceEdge";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2 WithCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("cursor", alias, new GraphQlDirective[] { skip, include });
 
@@ -1785,16 +1785,16 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedHomeConsumptionConnectionQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedHomeConsumptionConnectionQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "pageInfo", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeConsumptionPageInfoQueryBuilderV2) },
-            new FieldMetadata { Name = "nodes", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedConsumptionEntryQueryBuilderV2) },
-            new FieldMetadata { Name = "edges", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeConsumptionEdgeQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "pageInfo", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeConsumptionPageInfoQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "nodes", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedConsumptionEntryQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "edges", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeConsumptionEdgeQueryBuilderV2) }
         };
 
         protected override string TypeName { get; } = "HomeConsumptionConnection";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedHomeConsumptionConnectionQueryBuilderV2 WithPageInfo(SourceGeneratedHomeConsumptionPageInfoQueryBuilderV2 homeConsumptionPageInfoQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("pageInfo", alias, homeConsumptionPageInfoQueryBuilder, new GraphQlDirective[] { skip, include });
 
@@ -1811,23 +1811,23 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedHomeConsumptionPageInfoQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedHomeConsumptionPageInfoQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "endCursor" },
-            new FieldMetadata { Name = "hasNextPage" },
-            new FieldMetadata { Name = "hasPreviousPage" },
-            new FieldMetadata { Name = "startCursor" },
-            new FieldMetadata { Name = "count" },
-            new FieldMetadata { Name = "currency" },
-            new FieldMetadata { Name = "totalCost" },
-            new FieldMetadata { Name = "energyCost" },
-            new FieldMetadata { Name = "totalConsumption" },
-            new FieldMetadata { Name = "filtered" }
+            new GraphQlFieldMetadata { Name = "endCursor" },
+            new GraphQlFieldMetadata { Name = "hasNextPage" },
+            new GraphQlFieldMetadata { Name = "hasPreviousPage" },
+            new GraphQlFieldMetadata { Name = "startCursor" },
+            new GraphQlFieldMetadata { Name = "count" },
+            new GraphQlFieldMetadata { Name = "currency" },
+            new GraphQlFieldMetadata { Name = "totalCost" },
+            new GraphQlFieldMetadata { Name = "energyCost" },
+            new GraphQlFieldMetadata { Name = "totalConsumption" },
+            new GraphQlFieldMetadata { Name = "filtered" }
         };
 
         protected override string TypeName { get; } = "HomeConsumptionPageInfo";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedHomeConsumptionPageInfoQueryBuilderV2 WithEndCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("endCursor", alias, new GraphQlDirective[] { skip, include });
 
@@ -1872,23 +1872,23 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedConsumptionEntryQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedConsumptionEntryQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "from" },
-            new FieldMetadata { Name = "to" },
-            new FieldMetadata { Name = "unitPrice" },
-            new FieldMetadata { Name = "unitPriceVAT" },
-            new FieldMetadata { Name = "consumption" },
-            new FieldMetadata { Name = "consumptionUnit" },
-            new FieldMetadata { Name = "totalCost" },
-            new FieldMetadata { Name = "unitCost" },
-            new FieldMetadata { Name = "cost" },
-            new FieldMetadata { Name = "currency" }
+            new GraphQlFieldMetadata { Name = "from" },
+            new GraphQlFieldMetadata { Name = "to" },
+            new GraphQlFieldMetadata { Name = "unitPrice" },
+            new GraphQlFieldMetadata { Name = "unitPriceVAT" },
+            new GraphQlFieldMetadata { Name = "consumption" },
+            new GraphQlFieldMetadata { Name = "consumptionUnit" },
+            new GraphQlFieldMetadata { Name = "totalCost" },
+            new GraphQlFieldMetadata { Name = "unitCost" },
+            new GraphQlFieldMetadata { Name = "cost" },
+            new GraphQlFieldMetadata { Name = "currency" }
         };
 
         protected override string TypeName { get; } = "Consumption";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedConsumptionEntryQueryBuilderV2 WithFrom(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("from", alias, new GraphQlDirective[] { skip, include });
 
@@ -1933,15 +1933,15 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedHomeConsumptionEdgeQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedHomeConsumptionEdgeQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "cursor" },
-            new FieldMetadata { Name = "node", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedConsumptionEntryQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "cursor" },
+            new GraphQlFieldMetadata { Name = "node", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedConsumptionEntryQueryBuilderV2) }
         };
 
         protected override string TypeName { get; } = "HomeConsumptionEdge";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedHomeConsumptionEdgeQueryBuilderV2 WithCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("cursor", alias, new GraphQlDirective[] { skip, include });
 
@@ -1954,16 +1954,16 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedHomeProductionConnectionQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedHomeProductionConnectionQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "pageInfo", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeProductionPageInfoQueryBuilderV2) },
-            new FieldMetadata { Name = "nodes", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedProductionEntryQueryBuilderV2) },
-            new FieldMetadata { Name = "edges", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeProductionEdgeQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "pageInfo", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeProductionPageInfoQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "nodes", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedProductionEntryQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "edges", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeProductionEdgeQueryBuilderV2) }
         };
 
         protected override string TypeName { get; } = "HomeProductionConnection";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedHomeProductionConnectionQueryBuilderV2 WithPageInfo(SourceGeneratedHomeProductionPageInfoQueryBuilderV2 homeProductionPageInfoQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("pageInfo", alias, homeProductionPageInfoQueryBuilder, new GraphQlDirective[] { skip, include });
 
@@ -1980,22 +1980,22 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedHomeProductionPageInfoQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedHomeProductionPageInfoQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "endCursor" },
-            new FieldMetadata { Name = "hasNextPage" },
-            new FieldMetadata { Name = "hasPreviousPage" },
-            new FieldMetadata { Name = "startCursor" },
-            new FieldMetadata { Name = "count" },
-            new FieldMetadata { Name = "currency" },
-            new FieldMetadata { Name = "totalProfit" },
-            new FieldMetadata { Name = "totalProduction" },
-            new FieldMetadata { Name = "filtered" }
+            new GraphQlFieldMetadata { Name = "endCursor" },
+            new GraphQlFieldMetadata { Name = "hasNextPage" },
+            new GraphQlFieldMetadata { Name = "hasPreviousPage" },
+            new GraphQlFieldMetadata { Name = "startCursor" },
+            new GraphQlFieldMetadata { Name = "count" },
+            new GraphQlFieldMetadata { Name = "currency" },
+            new GraphQlFieldMetadata { Name = "totalProfit" },
+            new GraphQlFieldMetadata { Name = "totalProduction" },
+            new GraphQlFieldMetadata { Name = "filtered" }
         };
 
         protected override string TypeName { get; } = "HomeProductionPageInfo";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedHomeProductionPageInfoQueryBuilderV2 WithEndCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("endCursor", alias, new GraphQlDirective[] { skip, include });
 
@@ -2036,21 +2036,21 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedProductionEntryQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedProductionEntryQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "from" },
-            new FieldMetadata { Name = "to" },
-            new FieldMetadata { Name = "unitPrice" },
-            new FieldMetadata { Name = "unitPriceVAT" },
-            new FieldMetadata { Name = "production" },
-            new FieldMetadata { Name = "productionUnit" },
-            new FieldMetadata { Name = "profit" },
-            new FieldMetadata { Name = "currency" }
+            new GraphQlFieldMetadata { Name = "from" },
+            new GraphQlFieldMetadata { Name = "to" },
+            new GraphQlFieldMetadata { Name = "unitPrice" },
+            new GraphQlFieldMetadata { Name = "unitPriceVAT" },
+            new GraphQlFieldMetadata { Name = "production" },
+            new GraphQlFieldMetadata { Name = "productionUnit" },
+            new GraphQlFieldMetadata { Name = "profit" },
+            new GraphQlFieldMetadata { Name = "currency" }
         };
 
         protected override string TypeName { get; } = "Production";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedProductionEntryQueryBuilderV2 WithFrom(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("from", alias, new GraphQlDirective[] { skip, include });
 
@@ -2087,15 +2087,15 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedHomeProductionEdgeQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedHomeProductionEdgeQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "cursor" },
-            new FieldMetadata { Name = "node", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedProductionEntryQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "cursor" },
+            new GraphQlFieldMetadata { Name = "node", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedProductionEntryQueryBuilderV2) }
         };
 
         protected override string TypeName { get; } = "HomeProductionEdge";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedHomeProductionEdgeQueryBuilderV2 WithCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("cursor", alias, new GraphQlDirective[] { skip, include });
 
@@ -2108,14 +2108,14 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedHomeFeaturesQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedHomeFeaturesQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "realTimeConsumptionEnabled" }
+            new GraphQlFieldMetadata { Name = "realTimeConsumptionEnabled" }
         };
 
         protected override string TypeName { get; } = "HomeFeatures";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedHomeFeaturesQueryBuilderV2 WithRealTimeConsumptionEnabled(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("realTimeConsumptionEnabled", alias, new GraphQlDirective[] { skip, include });
 
@@ -2124,16 +2124,16 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedTibberMutationQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedTibberMutationQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "sendMeterReading", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedMeterReadingResponseQueryBuilderV2) },
-            new FieldMetadata { Name = "updateHome", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeQueryBuilderV2) },
-            new FieldMetadata { Name = "sendPushNotification", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPushNotificationResponseQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "sendMeterReading", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedMeterReadingResponseQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "updateHome", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "sendPushNotification", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPushNotificationResponseQueryBuilderV2) }
         };
 
         protected override string TypeName { get; } = "RootMutation";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedTibberMutationQueryBuilderV2(string operationName = null) : base("mutation", operationName)
         {
@@ -2178,16 +2178,16 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedMeterReadingResponseQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedMeterReadingResponseQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "homeId" },
-            new FieldMetadata { Name = "time" },
-            new FieldMetadata { Name = "reading" }
+            new GraphQlFieldMetadata { Name = "homeId" },
+            new GraphQlFieldMetadata { Name = "time" },
+            new GraphQlFieldMetadata { Name = "reading" }
         };
 
         protected override string TypeName { get; } = "MeterReadingResponse";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedMeterReadingResponseQueryBuilderV2 WithHomeId(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("homeId", alias, new GraphQlDirective[] { skip, include });
 
@@ -2204,15 +2204,15 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedPushNotificationResponseQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedPushNotificationResponseQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "successful" },
-            new FieldMetadata { Name = "pushedToNumberOfDevices" }
+            new GraphQlFieldMetadata { Name = "successful" },
+            new GraphQlFieldMetadata { Name = "pushedToNumberOfDevices" }
         };
 
         protected override string TypeName { get; } = "PushNotificationResponse";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedPushNotificationResponseQueryBuilderV2 WithSuccessful(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("successful", alias, new GraphQlDirective[] { skip, include });
 
@@ -2225,14 +2225,14 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedRootSubscriptionQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedRootSubscriptionQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "liveMeasurement", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedLiveMeasurementQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "liveMeasurement", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedLiveMeasurementQueryBuilderV2) }
         };
 
         protected override string TypeName { get; } = "RootSubscription";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedRootSubscriptionQueryBuilderV2(string operationName = null) : base("subscription", operationName)
         {
@@ -2252,34 +2252,34 @@ namespace SourceGeneratorTestAssembly
 
     public partial class SourceGeneratedLiveMeasurementQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedLiveMeasurementQueryBuilderV2>
     {
-        private static readonly FieldMetadata[] AllFieldMetadata =
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new FieldMetadata { Name = "timestamp" },
-            new FieldMetadata { Name = "power" },
-            new FieldMetadata { Name = "lastMeterConsumption" },
-            new FieldMetadata { Name = "accumulatedConsumption" },
-            new FieldMetadata { Name = "accumulatedProduction" },
-            new FieldMetadata { Name = "accumulatedCost" },
-            new FieldMetadata { Name = "accumulatedReward" },
-            new FieldMetadata { Name = "currency" },
-            new FieldMetadata { Name = "minPower" },
-            new FieldMetadata { Name = "averagePower" },
-            new FieldMetadata { Name = "maxPower" },
-            new FieldMetadata { Name = "powerProduction" },
-            new FieldMetadata { Name = "minPowerProduction" },
-            new FieldMetadata { Name = "maxPowerProduction" },
-            new FieldMetadata { Name = "lastMeterProduction" },
-            new FieldMetadata { Name = "voltagePhase1" },
-            new FieldMetadata { Name = "voltagePhase2" },
-            new FieldMetadata { Name = "voltagePhase3" },
-            new FieldMetadata { Name = "currentPhase1" },
-            new FieldMetadata { Name = "currentPhase2" },
-            new FieldMetadata { Name = "currentPhase3" }
+            new GraphQlFieldMetadata { Name = "timestamp" },
+            new GraphQlFieldMetadata { Name = "power" },
+            new GraphQlFieldMetadata { Name = "lastMeterConsumption" },
+            new GraphQlFieldMetadata { Name = "accumulatedConsumption" },
+            new GraphQlFieldMetadata { Name = "accumulatedProduction" },
+            new GraphQlFieldMetadata { Name = "accumulatedCost" },
+            new GraphQlFieldMetadata { Name = "accumulatedReward" },
+            new GraphQlFieldMetadata { Name = "currency" },
+            new GraphQlFieldMetadata { Name = "minPower" },
+            new GraphQlFieldMetadata { Name = "averagePower" },
+            new GraphQlFieldMetadata { Name = "maxPower" },
+            new GraphQlFieldMetadata { Name = "powerProduction" },
+            new GraphQlFieldMetadata { Name = "minPowerProduction" },
+            new GraphQlFieldMetadata { Name = "maxPowerProduction" },
+            new GraphQlFieldMetadata { Name = "lastMeterProduction" },
+            new GraphQlFieldMetadata { Name = "voltagePhase1" },
+            new GraphQlFieldMetadata { Name = "voltagePhase2" },
+            new GraphQlFieldMetadata { Name = "voltagePhase3" },
+            new GraphQlFieldMetadata { Name = "currentPhase1" },
+            new GraphQlFieldMetadata { Name = "currentPhase2" },
+            new GraphQlFieldMetadata { Name = "currentPhase3" }
         };
 
         protected override string TypeName { get; } = "LiveMeasurement";
 
-        public override IReadOnlyList<FieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
         public SourceGeneratedLiveMeasurementQueryBuilderV2 WithTimestamp(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("timestamp", alias, new GraphQlDirective[] { skip, include });
 
