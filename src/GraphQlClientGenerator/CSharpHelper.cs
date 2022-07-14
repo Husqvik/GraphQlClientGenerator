@@ -2,7 +2,7 @@
 
 namespace GraphQlClientGenerator;
 
-public class CSharpHelper
+public static class CSharpHelper
 {
     public static bool IsValidIdentifier(string value)
     {
@@ -40,5 +40,14 @@ public class CSharpHelper
         }
 
         return true;
+    }
+
+    public static bool IsValidNamespace(string @namespace)
+    {
+        if (String.IsNullOrWhiteSpace(@namespace))
+            return false;
+
+        var namespaceElements = @namespace.Split('.');
+        return namespaceElements.All(e => IsValidIdentifier(e.Trim()));
     }
 }
