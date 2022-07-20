@@ -150,7 +150,7 @@ using Newtonsoft.Json.Linq;
 
         GenerateQueryBuilders(context);
 
-        var referencedObjectTypes = GenerateInputObjects(context);
+        GenerateInputObjects(context, out var referencedObjectTypes);
 
         GenerateDataClasses(context, referencedObjectTypes);
 
@@ -338,22 +338,24 @@ using Newtonsoft.Json.Linq;
         }
     }
 
-    private ICollection<string> GenerateInputObjects(GenerationContext context)
+    private void GenerateInputObjects(GenerationContext context, out IReadOnlyCollection<string> referencedObjectTypes)
     {
-        var referencedObjectTypes = new HashSet<string>();
+        var objectTypes = new HashSet<string>();
+        referencedObjectTypes = objectTypes;
+
         if (IsDataClassGenerationDisabled(context.ObjectTypes))
-            return referencedObjectTypes;
+            return;
 
         var schema = context.Schema;
         var inputObjectTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKind.InputObject && !t.Name.StartsWith("__")).ToArray();
         if (!inputObjectTypes.Any())
-            return referencedObjectTypes;
+            return;
 
         context.BeforeInputClassesGeneration();
 
         foreach (var inputObjectType in inputObjectTypes)
         {
-            FindAllReferencedObjectTypes(schema, inputObjectType, referencedObjectTypes);
+            FindAllReferencedObjectTypes(schema, inputObjectType, objectTypes);
             GenerateDataClass(
                 context,
                 NamingHelper.ToPascalCase(inputObjectType.Name),
@@ -363,10 +365,9 @@ using Newtonsoft.Json.Linq;
         }
 
         context.AfterInputClassesGeneration();
-        return referencedObjectTypes;
     }
 
-    private void GenerateDataClasses(GenerationContext context, ICollection<string> referencedObjectTypes)
+    private void GenerateDataClasses(GenerationContext context, IReadOnlyCollection<string> referencedObjectTypes)
     {
         if (IsDataClassGenerationDisabled(context.ObjectTypes))
             return;
@@ -437,7 +438,7 @@ using Newtonsoft.Json.Linq;
                 foreach (var @interface in complexType.Interfaces)
                 {
                     var csharpInterfaceName = GetCSharpMemberName(@interface.Name);
-                    var interfaceName = "I" + _configuration.ClassPrefix + csharpInterfaceName + _configuration.ClassSuffix;
+                    var interfaceName = $"I{_configuration.ClassPrefix}{csharpInterfaceName}{_configuration.ClassSuffix}";
                     interfacesToImplement.Add(interfaceName);
 
                     foreach (var interfaceField in complexTypes[@interface.Name].Fields.Where(FilterDeprecatedFields))
