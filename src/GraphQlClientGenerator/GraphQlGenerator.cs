@@ -140,6 +140,8 @@ using Newtonsoft.Json.Linq;
     {
         context.BeforeGeneration(_configuration);
 
+        ResolveNameCollisions(context, out var referencedObjectTypes, out var nameCollisionMapping);
+
         GenerateBaseClasses(context);
 
         GenerateGraphQlTypeNames(context);
@@ -150,11 +152,58 @@ using Newtonsoft.Json.Linq;
 
         GenerateQueryBuilders(context);
 
-        GenerateInputObjects(context, out var referencedObjectTypes);
+        GenerateInputObjects(context);
 
         GenerateDataClasses(context, referencedObjectTypes);
 
         context.AfterGeneration();
+    }
+
+    private void ResolveNameCollisions(GenerationContext context, out IReadOnlyCollection<string> referencedObjectTypes, out IReadOnlyDictionary<string, string> nameCollisionMapping)
+    {
+        var complexTypes = GetComplexTypes(context.Schema);
+        var inputObjectTypes = new HashSet<string>(GetInputObjectTypes(context.Schema).Select(t => NamingHelper.ToPascalCase(t.Name)));
+        var objectTypes = new HashSet<string>();
+        var collisionMapping = new Dictionary<string, string>();
+
+        foreach (var graphQlType in context.Schema.Types.Where(t => !t.Name.StartsWith("__")))
+        {
+            if (graphQlType.Kind == GraphQlTypeKind.InputObject)
+                FindAllReferencedObjectTypes(context.Schema, graphQlType, objectTypes);
+            else if (!IsComplexType(graphQlType.Kind))
+                continue;
+
+            var candidateClassName = NamingHelper.ToPascalCase(graphQlType.Name);
+            var fieldsToGenerate = GetFieldsToGenerate(graphQlType, complexTypes);
+            if (fieldsToGenerate is null)
+                continue;
+
+            var finalClassName = candidateClassName;
+            var collisionIteration = 2;
+
+            do
+            {
+                var hasNameCollision = fieldsToGenerate.Any(f => NamingHelper.ToPascalCase(f.Name) == finalClassName);
+                if (candidateClassName != finalClassName)
+                    hasNameCollision |= complexTypes.ContainsKey(finalClassName) || inputObjectTypes.Contains(finalClassName);
+
+                if (!hasNameCollision)
+                    break;
+
+                if (!candidateClassName.EndsWith("Data"))
+                    finalClassName = $"{candidateClassName}Data";
+                else if (!candidateClassName.EndsWith("Record"))
+                    finalClassName = $"{candidateClassName}Record";
+                else
+                    finalClassName = $"{candidateClassName}{collisionIteration++}";
+            } while (true);
+
+            if (finalClassName != candidateClassName)
+                collisionMapping.Add(graphQlType.Name, finalClassName);
+        }
+
+        referencedObjectTypes = objectTypes;
+        nameCollisionMapping = collisionMapping;
     }
 
     private void GenerateGraphQlTypeNames(GenerationContext context)
@@ -311,6 +360,12 @@ using Newtonsoft.Json.Linq;
 
     private static string GetIndentation(int size) => new(' ', size);
 
+    private static IReadOnlyDictionary<string, GraphQlType> GetComplexTypes(GraphQlSchema schema) =>
+        schema.Types.Where(t => IsComplexType(t.Kind) && !t.Name.StartsWith("__")).ToDictionary(t => t.Name);
+
+    private static IEnumerable<GraphQlType> GetInputObjectTypes(GraphQlSchema schema) =>
+        schema.Types.Where(t => t.Kind == GraphQlTypeKind.InputObject && !t.Name.StartsWith("__"));
+
     private static void FindAllReferencedObjectTypes(GraphQlSchema schema, GraphQlType type, ISet<string> objectTypes)
     {
         foreach (var member in (IEnumerable<IGraphQlMember>)type.InputFields ?? type.Fields)
@@ -338,16 +393,12 @@ using Newtonsoft.Json.Linq;
         }
     }
 
-    private void GenerateInputObjects(GenerationContext context, out IReadOnlyCollection<string> referencedObjectTypes)
+    private void GenerateInputObjects(GenerationContext context)
     {
-        var objectTypes = new HashSet<string>();
-        referencedObjectTypes = objectTypes;
-
         if (IsDataClassGenerationDisabled(context.ObjectTypes))
             return;
 
-        var schema = context.Schema;
-        var inputObjectTypes = schema.Types.Where(t => t.Kind == GraphQlTypeKind.InputObject && !t.Name.StartsWith("__")).ToArray();
+        var inputObjectTypes = GetInputObjectTypes(context.Schema).ToArray();
         if (!inputObjectTypes.Any())
             return;
 
@@ -355,7 +406,6 @@ using Newtonsoft.Json.Linq;
 
         foreach (var inputObjectType in inputObjectTypes)
         {
-            FindAllReferencedObjectTypes(schema, inputObjectType, objectTypes);
             GenerateDataClass(
                 context,
                 NamingHelper.ToPascalCase(inputObjectType.Name),
@@ -372,8 +422,7 @@ using Newtonsoft.Json.Linq;
         if (IsDataClassGenerationDisabled(context.ObjectTypes))
             return;
 
-        var schema = context.Schema;
-        var complexTypes = schema.Types.Where(t => IsComplexType(t.Kind) && !t.Name.StartsWith("__")).ToDictionary(t => t.Name);
+        var complexTypes = GetComplexTypes(context.Schema);
         if (!complexTypes.Any())
             return;
 
