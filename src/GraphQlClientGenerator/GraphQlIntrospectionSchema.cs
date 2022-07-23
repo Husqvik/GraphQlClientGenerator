@@ -47,6 +47,8 @@ public class GraphQlType : GraphQlTypeBase
     public IList<GraphQlFieldType> Interfaces { get; set; }
     public IList<GraphQlEnumValue> EnumValues { get; set; }
     public IList<GraphQlFieldType> PossibleTypes { get; set; }
+
+    internal bool IsBuiltIn => Name is not null && Name.StartsWith("__");
 }
 
 public abstract class GraphQlValueBase
