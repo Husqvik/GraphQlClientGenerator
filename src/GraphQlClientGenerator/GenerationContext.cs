@@ -11,6 +11,12 @@ public enum GeneratedObjectType
 
 public abstract class GenerationContext
 {
+    protected GraphQlGeneratorConfiguration Configuration { get; private set; }
+
+    internal IReadOnlyCollection<string> ReferencedObjectTypes { get; set; }
+
+    internal IReadOnlyDictionary<string, string> NameCollisionMapping { get; set; }
+
     public GraphQlSchema Schema { get; }
 
     public GeneratedObjectType ObjectTypes { get; }
@@ -19,7 +25,6 @@ public abstract class GenerationContext
 
     public abstract TextWriter Writer { get; }
 
-    protected GraphQlGeneratorConfiguration Configuration { get; private set; }
 
     protected GenerationContext(GraphQlSchema schema, GeneratedObjectType objectTypes, byte indentationSize)
     {
