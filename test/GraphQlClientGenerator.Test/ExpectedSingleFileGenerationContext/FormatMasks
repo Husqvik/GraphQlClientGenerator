@@ -2756,7 +2756,7 @@ public partial class SubscriptionPriceEdge
 public partial class HomeConsumptionConnection
 {
     public HomeConsumptionPageInfo PageInfo { get; set; }
-    public ICollection<Consumption> Nodes { get; set; }
+    public ICollection<ConsumptionData> Nodes { get; set; }
     public ICollection<HomeConsumptionEdge> Edges { get; set; }
 }
 
@@ -2775,7 +2775,7 @@ public partial class HomeConsumptionPageInfo : IPageInfo
     public string UnimplementedField { get; set; }
 }
 
-public partial class Consumption
+public partial class ConsumptionData
 {
     public DateTimeOffset? From { get; set; }
     public DateTimeOffset? To { get; set; }
@@ -2790,13 +2790,13 @@ public partial class Consumption
 public partial class HomeConsumptionEdge
 {
     public string Cursor { get; set; }
-    public Consumption Node { get; set; }
+    public ConsumptionData Node { get; set; }
 }
 
 public partial class HomeProductionConnection
 {
     public HomeProductionPageInfo PageInfo { get; set; }
-    public ICollection<Production> Nodes { get; set; }
+    public ICollection<ProductionData> Nodes { get; set; }
     public ICollection<HomeProductionEdge> Edges { get; set; }
 }
 
@@ -2815,7 +2815,7 @@ public partial class HomeProductionPageInfo : IPageInfo
     public string UnimplementedField { get; set; }
 }
 
-public partial class Production
+public partial class ProductionData
 {
     public DateTimeOffset? From { get; set; }
     public DateTimeOffset? To { get; set; }
@@ -2830,7 +2830,7 @@ public partial class Production
 public partial class HomeProductionEdge
 {
     public string Cursor { get; set; }
-    public Production Node { get; set; }
+    public ProductionData Node { get; set; }
 }
 
 public partial class HomeFeatures
