@@ -8,7 +8,7 @@
     <Title>GraphQL C# Client Generator Console App</Title>
     <PackageId>GraphQlClientGenerator.Tool</PackageId>
     <PackageTags>GraphQL Client Generator Tool Console</PackageTags>
-    <PackageReleaseNotes>added option to generate enum value without conversion to C# naming; for better compatibility with System.Text.Json deserializer</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed almost any case of potential member vs. enclosing type conflict</PackageReleaseNotes>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>graphql-client-generator</ToolCommandName>
     <LangVersion>latest</LangVersion>
