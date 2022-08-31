@@ -3,7 +3,7 @@
     "patternBaseType": ".+",
     "patternValueType": ".+",
     "patternValueName": "^((timestamp)|(.*(f|F)rom)|(.*(t|T)o))$",
-    "netTypeName": "DateTimeOffset?",
+    "netTypeName": "DateTime?",
     "formatMask": "O"
   }
 ]

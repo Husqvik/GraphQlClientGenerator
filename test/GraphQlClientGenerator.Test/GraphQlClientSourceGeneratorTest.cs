@@ -15,7 +15,7 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
 
     public GraphQlClientSourceGeneratorTest()
     {
-        _fileGraphQlSchema = CreateAdditionalFile("GraphQlClientGenerator.Test.TestSchemas.TestSchema3", FileNameTestSchema + ".GQL.Schema.Json");
+        _fileGraphQlSchema = CreateAdditionalFile("GraphQlClientGenerator.Test.TestSchemas.TestSchema3", $"{FileNameTestSchema}.GQL.Schema.Json");
         _fileMappingRules = CreateAdditionalFile("GraphQlClientGenerator.Test.RegexCustomScalarFieldTypeMappingRules", "RegexScalarFieldTypeMappingProvider.gql.config.JSON");
     }
 
@@ -55,7 +55,7 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
         var generatedSource = GenerateSource(_fileMappingRules, null);
         var sourceCode = generatedSource.ToString();
 
-        var expectedSourceCode = GetExpectedSourceText();
+        var expectedSourceCode = GetExpectedSourceText().Replace("typeof(DateTimeOffset)", "typeof(DateTime)").Replace("DateTimeOffset?", "DateTime?");
         sourceCode.ShouldBe(expectedSourceCode);
     }
 

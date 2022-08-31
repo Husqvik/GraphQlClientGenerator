@@ -38,21 +38,18 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
 
         try
         {
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKeyPrefix + "ServiceUrl", out var serviceUrl);
+            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue($"{BuildPropertyKeyPrefix}ServiceUrl", out var serviceUrl);
             var isServiceUrlMissing = String.IsNullOrWhiteSpace(serviceUrl);
             var graphQlSchemaFiles = context.AdditionalFiles.Where(f => Path.GetFileName(f.Path).EndsWith(".gql.schema.json", StringComparison.OrdinalIgnoreCase)).ToList();
-            var indexRegexScalarFieldTypeMappingProviderConfigurationFile =
-                graphQlSchemaFiles.FindIndex(f => String.Equals(Path.GetFileName(f.Path), FileNameRegexScalarFieldTypeMappingProviderConfiguration, StringComparison.OrdinalIgnoreCase));
+            var regexScalarFieldTypeMappingProviderConfigurationFile =
+                context.AdditionalFiles.SingleOrDefault(f => String.Equals(Path.GetFileName(f.Path), FileNameRegexScalarFieldTypeMappingProviderConfiguration, StringComparison.OrdinalIgnoreCase));
 
             ICollection<RegexScalarFieldTypeMappingRule> regexScalarFieldTypeMappingProviderRules = null;
-            if (indexRegexScalarFieldTypeMappingProviderConfigurationFile != -1)
-            {
+
+            if (regexScalarFieldTypeMappingProviderConfigurationFile is not null)
                 regexScalarFieldTypeMappingProviderRules =
                     JsonConvert.DeserializeObject<ICollection<RegexScalarFieldTypeMappingRule>>(
-                        graphQlSchemaFiles[indexRegexScalarFieldTypeMappingProviderConfigurationFile].GetText().ToString());
-
-                graphQlSchemaFiles.RemoveAt(indexRegexScalarFieldTypeMappingProviderConfigurationFile);
-            }
+                        regexScalarFieldTypeMappingProviderConfigurationFile.GetText().ToString());
 
             var isSchemaFileSpecified = graphQlSchemaFiles.Any();
             if (isServiceUrlMissing && !isSchemaFileSpecified)
@@ -77,7 +74,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
                 return;
             }
 
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKeyPrefix + "Namespace", out var @namespace);
+            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue($"{BuildPropertyKeyPrefix}Namespace", out var @namespace);
             if (String.IsNullOrWhiteSpace(@namespace))
             {
                 var root = (CompilationUnitSyntax)compilation.SyntaxTrees.FirstOrDefault()?.GetRoot();
@@ -104,10 +101,10 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
 
             var configuration = new GraphQlGeneratorConfiguration { TreatUnknownObjectAsScalar = true };
 
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKeyPrefix + "ClassPrefix", out var classPrefix);
+            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue($"{BuildPropertyKeyPrefix}ClassPrefix", out var classPrefix);
             configuration.ClassPrefix = classPrefix;
 
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKeyPrefix + "ClassSuffix", out var classSuffix);
+            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue($"{BuildPropertyKeyPrefix}ClassSuffix", out var classSuffix);
             configuration.ClassSuffix = classSuffix;
 
             if (compilation.LanguageVersion >= LanguageVersion.CSharp6)
