@@ -8,7 +8,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Title>GraphQL C# Client Generator</Title>
     <PackageTags>GraphQL Client Generator</PackageTags>
-    <PackageReleaseNotes>Fixed almost any case of potential member vs. enclosing type conflict</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed RegexScalarFieldTypeMappingProviderConfigurationFile not applied when using source generator</PackageReleaseNotes>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
