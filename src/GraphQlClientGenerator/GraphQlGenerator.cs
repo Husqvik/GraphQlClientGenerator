@@ -1215,6 +1215,8 @@ using Newtonsoft.Json.Linq;
             else
             {
                 var fieldTypeName = fieldType.Name;
+                var builderName = $"{_configuration.ClassPrefix}{fieldTypeName}QueryBuilder{_configuration.ClassSuffix}";
+
                 if (String.IsNullOrEmpty(fieldTypeName))
                     throw FieldTypeResolutionFailedException(type.Name, field.Name, null);
 
@@ -1222,7 +1224,7 @@ using Newtonsoft.Json.Linq;
 
                 var builderParameterName = NamingHelper.LowerFirst(fieldTypeName);
                 writer.Write(indentation);
-                writer.Write($"    public {className} With{csharpPropertyName}{(isFragment ? "Fragment" : null)}({_configuration.ClassPrefix}{fieldTypeName}QueryBuilder{_configuration.ClassSuffix} {builderParameterName}QueryBuilder");
+                writer.Write($"    public {className} With{csharpPropertyName}{(isFragment ? "Fragment" : null)}({builderName} {builderParameterName}QueryBuilder");
 
                 if (argumentDefinitions.Count > 0)
                 {
@@ -1262,6 +1264,60 @@ using Newtonsoft.Json.Linq;
 
                         writer.Write(builderParameterName);
                         writer.Write("QueryBuilder");
+
+                        writer.Write(", ");
+                        writer.Write(fieldDirectiveParameterNameList);
+
+                        if (argumentDefinitions.Count > 0)
+                        {
+                            writer.Write(", ");
+                            writer.Write(argumentCollectionVariableName);
+                        }
+
+                        writer.WriteLine(");");
+                    });
+
+                writer.WriteLine();
+
+                writer.Write(indentation);
+                writer.Write($"    public {className} With{csharpPropertyName}{(isFragment ? "Fragment" : null)}(Func<{builderName}, {builderName}> {builderParameterName}QueryBuilderTransformation");
+
+                if (argumentDefinitions.Count > 0)
+                {
+                    writer.Write(", ");
+                    writer.Write(methodParameters);
+                }
+
+                if (!isFragment)
+                {
+                    writer.Write(", ");
+                    WriteAliasParameter();
+                }
+
+                writer.Write(")");
+
+                WriteQueryBuilderMethodBody(
+                    requiresFullBody,
+                    indentation,
+                    writer,
+                    () =>
+                    {
+                        AppendArgumentDictionary(indentation, writer, argumentDefinitions, argumentCollectionVariableName);
+
+                        writer.Write(returnPrefix);
+                        writer.Write("With");
+
+                        if (isFragment)
+                            writer.Write("Fragment(");
+                        else
+                        {
+                            writer.Write("ObjectField(\"");
+                            writer.Write(field.Name);
+                            writer.Write("\", alias, ");
+                        }
+
+                        writer.Write(builderParameterName);
+                        writer.Write($"QueryBuilderTransformation(new {builderName}())");
 
                         writer.Write(", ");
                         writer.Write(fieldDirectiveParameterNameList);
