@@ -14,7 +14,7 @@ public class GraphQlGenerator
     public const string PreprocessorDirectiveDisableNewtonsoftJson = "GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON";
 
     public const string RequiredNamespaces =
-        @"using System;
+        $@"using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,7 +24,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
-#if !" + PreprocessorDirectiveDisableNewtonsoftJson + @"
+#if !{PreprocessorDirectiveDisableNewtonsoftJson}
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 #endif
@@ -1682,7 +1682,7 @@ using Newtonsoft.Json.Linq;
             writer.Write("        AddArgument(\"");
             writer.Write(definition.Argument.Name);
             writer.Write("\", ");
-            writer.Write(NamingHelper.ToValidCSharpName(definition.Argument.Name));
+            writer.Write(definition.NetParameterName);
             writer.WriteLine(");");
         }
 

@@ -2139,6 +2139,25 @@
               "defaultValue": null
             }
           ]
+        },
+        {
+          "name": "custom_directive",
+          "locations": [
+            "FIELD",
+            "FRAGMENT_SPREAD",
+            "INLINE_FRAGMENT"
+          ],
+          "args": [
+            {
+              "name": "directive_parameter",
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ]
         }
       ]
     }

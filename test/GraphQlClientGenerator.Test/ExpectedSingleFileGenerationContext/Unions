@@ -68,6 +68,14 @@ public class SkipDirective : GraphQlDirective
         AddArgument("if", @if);
     }
 }
+
+public class CustomDirectiveDirective : GraphQlDirective
+{
+    public CustomDirectiveDirective(QueryBuilderParameter<bool?>? directiveParameter = null) : base("custom_directive")
+    {
+        AddArgument("directive_parameter", directiveParameter);
+    }
+}
 #endregion
 
 #region builder classes
@@ -85,19 +93,19 @@ public partial class SimpleObjectTypeQueryBuilder : GraphQlQueryBuilder<SimpleOb
 
     public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public SimpleObjectTypeQueryBuilder WithId(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("id", alias, new GraphQlDirective?[] { include, skip });
+    public SimpleObjectTypeQueryBuilder WithId(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("id", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public SimpleObjectTypeQueryBuilder ExceptId() => ExceptField("id");
 
-    public SimpleObjectTypeQueryBuilder WithStringValueNullable(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("stringValueNullable", alias, new GraphQlDirective?[] { include, skip });
+    public SimpleObjectTypeQueryBuilder WithStringValueNullable(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("stringValueNullable", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public SimpleObjectTypeQueryBuilder ExceptStringValueNullable() => ExceptField("stringValueNullable");
 
-    public SimpleObjectTypeQueryBuilder WithStringValue(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("stringValue", alias, new GraphQlDirective?[] { include, skip });
+    public SimpleObjectTypeQueryBuilder WithStringValue(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("stringValue", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public SimpleObjectTypeQueryBuilder ExceptStringValue() => ExceptField("stringValue");
 
-    public SimpleObjectTypeQueryBuilder WithStringArrayValue(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("stringArrayValue", alias, new GraphQlDirective?[] { include, skip });
+    public SimpleObjectTypeQueryBuilder WithStringArrayValue(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("stringArrayValue", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public SimpleObjectTypeQueryBuilder ExceptStringArrayValue() => ExceptField("stringArrayValue");
 }
@@ -110,11 +118,11 @@ public partial class UnionTypeQueryBuilder : GraphQlQueryBuilder<UnionTypeQueryB
 
     public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public UnionTypeQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder, IncludeDirective? include = null, SkipDirective? skip = null) => WithFragment(concreteType1QueryBuilder, new GraphQlDirective?[] { include, skip });
+    public UnionTypeQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithFragment(concreteType1QueryBuilder, new GraphQlDirective?[] { include, skip, customDirective });
 
-    public UnionTypeQueryBuilder WithConcreteType2Fragment(ConcreteType2QueryBuilder concreteType2QueryBuilder, IncludeDirective? include = null, SkipDirective? skip = null) => WithFragment(concreteType2QueryBuilder, new GraphQlDirective?[] { include, skip });
+    public UnionTypeQueryBuilder WithConcreteType2Fragment(ConcreteType2QueryBuilder concreteType2QueryBuilder, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithFragment(concreteType2QueryBuilder, new GraphQlDirective?[] { include, skip, customDirective });
 
-    public UnionTypeQueryBuilder WithConcreteType3Fragment(ConcreteType3QueryBuilder concreteType3QueryBuilder, IncludeDirective? include = null, SkipDirective? skip = null) => WithFragment(concreteType3QueryBuilder, new GraphQlDirective?[] { include, skip });
+    public UnionTypeQueryBuilder WithConcreteType3Fragment(ConcreteType3QueryBuilder concreteType3QueryBuilder, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithFragment(concreteType3QueryBuilder, new GraphQlDirective?[] { include, skip, customDirective });
 }
 
 public partial class NamedTypeQueryBuilder : GraphQlQueryBuilder<NamedTypeQueryBuilder>
@@ -128,15 +136,15 @@ public partial class NamedTypeQueryBuilder : GraphQlQueryBuilder<NamedTypeQueryB
 
     public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public NamedTypeQueryBuilder WithName(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("name", alias, new GraphQlDirective?[] { include, skip });
+    public NamedTypeQueryBuilder WithName(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("name", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public NamedTypeQueryBuilder ExceptName() => ExceptField("name");
 
-    public NamedTypeQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder, IncludeDirective? include = null, SkipDirective? skip = null) => WithFragment(concreteType1QueryBuilder, new GraphQlDirective?[] { include, skip });
+    public NamedTypeQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithFragment(concreteType1QueryBuilder, new GraphQlDirective?[] { include, skip, customDirective });
 
-    public NamedTypeQueryBuilder WithConcreteType2Fragment(ConcreteType2QueryBuilder concreteType2QueryBuilder, IncludeDirective? include = null, SkipDirective? skip = null) => WithFragment(concreteType2QueryBuilder, new GraphQlDirective?[] { include, skip });
+    public NamedTypeQueryBuilder WithConcreteType2Fragment(ConcreteType2QueryBuilder concreteType2QueryBuilder, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithFragment(concreteType2QueryBuilder, new GraphQlDirective?[] { include, skip, customDirective });
 
-    public NamedTypeQueryBuilder WithConcreteType3Fragment(ConcreteType3QueryBuilder concreteType3QueryBuilder, IncludeDirective? include = null, SkipDirective? skip = null) => WithFragment(concreteType3QueryBuilder, new GraphQlDirective?[] { include, skip });
+    public NamedTypeQueryBuilder WithConcreteType3Fragment(ConcreteType3QueryBuilder concreteType3QueryBuilder, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithFragment(concreteType3QueryBuilder, new GraphQlDirective?[] { include, skip, customDirective });
 }
 
 public partial class ConcreteType1QueryBuilder : GraphQlQueryBuilder<ConcreteType1QueryBuilder>
@@ -151,11 +159,11 @@ public partial class ConcreteType1QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
 
     public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ConcreteType1QueryBuilder WithName(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("name", alias, new GraphQlDirective?[] { include, skip });
+    public ConcreteType1QueryBuilder WithName(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("name", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public ConcreteType1QueryBuilder ExceptName() => ExceptField("name");
 
-    public ConcreteType1QueryBuilder WithConcreteType1Field(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("concreteType1Field", alias, new GraphQlDirective?[] { include, skip });
+    public ConcreteType1QueryBuilder WithConcreteType1Field(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("concreteType1Field", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public ConcreteType1QueryBuilder ExceptConcreteType1Field() => ExceptField("concreteType1Field");
 }
@@ -172,11 +180,11 @@ public partial class ConcreteType2QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
 
     public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ConcreteType2QueryBuilder WithName(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("name", alias, new GraphQlDirective?[] { include, skip });
+    public ConcreteType2QueryBuilder WithName(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("name", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public ConcreteType2QueryBuilder ExceptName() => ExceptField("name");
 
-    public ConcreteType2QueryBuilder WithConcreteType2Field(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("concreteType2Field", alias, new GraphQlDirective?[] { include, skip });
+    public ConcreteType2QueryBuilder WithConcreteType2Field(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("concreteType2Field", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public ConcreteType2QueryBuilder ExceptConcreteType2Field() => ExceptField("concreteType2Field");
 }
@@ -194,19 +202,19 @@ public partial class ConcreteType3QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
 
     public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public ConcreteType3QueryBuilder WithName(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("name", alias, new GraphQlDirective?[] { include, skip });
+    public ConcreteType3QueryBuilder WithName(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("name", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public ConcreteType3QueryBuilder ExceptName() => ExceptField("name");
 
-    public ConcreteType3QueryBuilder WithConcreteType3Field(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("concreteType3Field", alias, new GraphQlDirective?[] { include, skip });
+    public ConcreteType3QueryBuilder WithConcreteType3Field(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("concreteType3Field", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public ConcreteType3QueryBuilder ExceptConcreteType3Field() => ExceptField("concreteType3Field");
 
-    public ConcreteType3QueryBuilder WithFunction(QueryBuilderParameter<string> value, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null)
+    public ConcreteType3QueryBuilder WithFunction(QueryBuilderParameter<string> value, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "value", ArgumentValue = value} );
-        return WithScalarField("function", alias, new GraphQlDirective?[] { include, skip }, args);
+        return WithScalarField("function", alias, new GraphQlDirective?[] { include, skip, customDirective }, args);
     }
 
     public ConcreteType3QueryBuilder ExceptFunction() => ExceptField("function");
@@ -237,63 +245,63 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
 
     public QueryQueryBuilder WithParameter<T>(GraphQlQueryParameter<T> parameter) => WithParameterInternal(parameter);
 
-    public QueryQueryBuilder WithScalarValue(QueryBuilderParameter<DateTimeOffset?>? timestamp = null, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null)
+    public QueryQueryBuilder WithScalarValue(QueryBuilderParameter<DateTimeOffset?>? timestamp = null, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (timestamp != null)
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "timestamp", ArgumentValue = timestamp, FormatMask = "yyyy-MM-dd\"T\"HH:mm"} );
 
-        return WithScalarField("scalarValue", alias, new GraphQlDirective?[] { include, skip }, args);
+        return WithScalarField("scalarValue", alias, new GraphQlDirective?[] { include, skip, customDirective }, args);
     }
 
     public QueryQueryBuilder ExceptScalarValue() => ExceptField("scalarValue");
 
-    public QueryQueryBuilder WithSimpleObject(SimpleObjectTypeQueryBuilder simpleObjectTypeQueryBuilder, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithObjectField("simpleObject", alias, simpleObjectTypeQueryBuilder, new GraphQlDirective?[] { include, skip });
+    public QueryQueryBuilder WithSimpleObject(SimpleObjectTypeQueryBuilder simpleObjectTypeQueryBuilder, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithObjectField("simpleObject", alias, simpleObjectTypeQueryBuilder, new GraphQlDirective?[] { include, skip, customDirective });
 
     public QueryQueryBuilder ExceptSimpleObject() => ExceptField("simpleObject");
 
-    public QueryQueryBuilder WithUnion(UnionTypeQueryBuilder unionTypeQueryBuilder, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithObjectField("union", alias, unionTypeQueryBuilder, new GraphQlDirective?[] { include, skip });
+    public QueryQueryBuilder WithUnion(UnionTypeQueryBuilder unionTypeQueryBuilder, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithObjectField("union", alias, unionTypeQueryBuilder, new GraphQlDirective?[] { include, skip, customDirective });
 
     public QueryQueryBuilder ExceptUnion() => ExceptField("union");
 
-    public QueryQueryBuilder WithInterface(NamedTypeQueryBuilder namedTypeQueryBuilder, QueryBuilderParameter<Guid> parameter, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null)
+    public QueryQueryBuilder WithInterface(NamedTypeQueryBuilder namedTypeQueryBuilder, QueryBuilderParameter<Guid> parameter, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "parameter", ArgumentValue = parameter} );
-        return WithObjectField("interface", alias, namedTypeQueryBuilder, new GraphQlDirective?[] { include, skip }, args);
+        return WithObjectField("interface", alias, namedTypeQueryBuilder, new GraphQlDirective?[] { include, skip, customDirective }, args);
     }
 
     public QueryQueryBuilder ExceptInterface() => ExceptField("interface");
 
-    public QueryQueryBuilder WithInterfaces(NamedTypeQueryBuilder namedTypeQueryBuilder, QueryBuilderParameter<Guid> parameter, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null)
+    public QueryQueryBuilder WithInterfaces(NamedTypeQueryBuilder namedTypeQueryBuilder, QueryBuilderParameter<Guid> parameter, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "parameter", ArgumentValue = parameter} );
-        return WithObjectField("interfaces", alias, namedTypeQueryBuilder, new GraphQlDirective?[] { include, skip }, args);
+        return WithObjectField("interfaces", alias, namedTypeQueryBuilder, new GraphQlDirective?[] { include, skip, customDirective }, args);
     }
 
     public QueryQueryBuilder ExceptInterfaces() => ExceptField("interfaces");
 
-    public QueryQueryBuilder WithUnderscoreNamedField(UnderscoreNamedClassQueryBuilder underscoreNamedClassQueryBuilder, QueryBuilderParameter<UnderscoreNamedInput?>? underscoreNamedParameter = null, string? alias = "underscoreNamedField", IncludeDirective? include = null, SkipDirective? skip = null)
+    public QueryQueryBuilder WithUnderscoreNamedField(UnderscoreNamedClassQueryBuilder underscoreNamedClassQueryBuilder, QueryBuilderParameter<UnderscoreNamedInput?>? underscoreNamedParameter = null, string? alias = "underscoreNamedField", IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (underscoreNamedParameter != null)
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "underscore_named_parameter", ArgumentValue = underscoreNamedParameter} );
 
-        return WithObjectField("underscore_named_field", alias, underscoreNamedClassQueryBuilder, new GraphQlDirective?[] { include, skip }, args);
+        return WithObjectField("underscore_named_field", alias, underscoreNamedClassQueryBuilder, new GraphQlDirective?[] { include, skip, customDirective }, args);
     }
 
     public QueryQueryBuilder ExceptUnderscoreNamedField() => ExceptField("underscore_named_field");
 
-    public QueryQueryBuilder WithNestedLists(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("nestedLists", alias, new GraphQlDirective?[] { include, skip });
+    public QueryQueryBuilder WithNestedLists(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("nestedLists", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public QueryQueryBuilder ExceptNestedLists() => ExceptField("nestedLists");
 
-    public QueryQueryBuilder With_(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("_", alias, new GraphQlDirective?[] { include, skip });
+    public QueryQueryBuilder With_(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("_", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public QueryQueryBuilder Except_() => ExceptField("_");
 
-    public QueryQueryBuilder WithCollisions(QueryBuilderParameter<IEnumerable<string?>>? args = null, QueryBuilderParameter<IEnumerable<string?>>? inputArgs = null, QueryBuilderParameter<IEnumerable<string?>>? inputArgs1 = null, QueryBuilderParameter<bool?>? skip = null, QueryBuilderParameter<bool?>? skipDirective = null, QueryBuilderParameter<bool?>? skipDirectiveValue = null, QueryBuilderParameter<bool?>? include = null, QueryBuilderParameter<bool?>? includeDirective = null, QueryBuilderParameter<bool?>? includeDirectiveValue = null, string? alias = null, IncludeDirective? includeDirectiveValue1 = null, SkipDirective? skipDirectiveValue1 = null)
+    public QueryQueryBuilder WithCollisions(QueryBuilderParameter<IEnumerable<string?>>? args = null, QueryBuilderParameter<IEnumerable<string?>>? inputArgs = null, QueryBuilderParameter<IEnumerable<string?>>? inputArgs1 = null, QueryBuilderParameter<bool?>? skip = null, QueryBuilderParameter<bool?>? skipDirective = null, QueryBuilderParameter<bool?>? skipDirectiveValue = null, QueryBuilderParameter<bool?>? include = null, QueryBuilderParameter<bool?>? includeDirective = null, QueryBuilderParameter<bool?>? includeDirectiveValue = null, string? alias = null, IncludeDirective? includeDirectiveValue1 = null, SkipDirective? skipDirectiveValue1 = null, CustomDirectiveDirective? customDirective = null)
     {
         var inputArgs2 = new List<QueryBuilderArgumentInfo>();
         if (args != null)
@@ -323,7 +331,7 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
         if (includeDirectiveValue != null)
             inputArgs2.Add(new QueryBuilderArgumentInfo { ArgumentName = "includeDirectiveValue", ArgumentValue = includeDirectiveValue} );
 
-        return WithScalarField("collisions", alias, new GraphQlDirective?[] { includeDirectiveValue1, skipDirectiveValue1 }, inputArgs2);
+        return WithScalarField("collisions", alias, new GraphQlDirective?[] { includeDirectiveValue1, skipDirectiveValue1, customDirective }, inputArgs2);
     }
 
     public QueryQueryBuilder ExceptCollisions() => ExceptField("collisions");
@@ -341,11 +349,11 @@ public partial class UnderscoreNamedClassQueryBuilder : GraphQlQueryBuilder<Unde
 
     public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public UnderscoreNamedClassQueryBuilder WithUnderscoreNamedFieldEnum(string? alias = "underscoreNamedFieldEnum", IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("underscore_named_field_enum", alias, new GraphQlDirective?[] { include, skip });
+    public UnderscoreNamedClassQueryBuilder WithUnderscoreNamedFieldEnum(string? alias = "underscoreNamedFieldEnum", IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("underscore_named_field_enum", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public UnderscoreNamedClassQueryBuilder ExceptUnderscoreNamedFieldEnum() => ExceptField("underscore_named_field_enum");
 
-    public UnderscoreNamedClassQueryBuilder WithUnderscoreNamedFieldEnumCollection(string? alias = "underscoreNamedFieldEnumCollection", IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("underscore_named_field_enum_collection", alias, new GraphQlDirective?[] { include, skip });
+    public UnderscoreNamedClassQueryBuilder WithUnderscoreNamedFieldEnumCollection(string? alias = "underscoreNamedFieldEnumCollection", IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("underscore_named_field_enum_collection", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public UnderscoreNamedClassQueryBuilder ExceptUnderscoreNamedFieldEnumCollection() => ExceptField("underscore_named_field_enum_collection");
 }
@@ -361,7 +369,7 @@ public partial class CollisionDataQueryBuilder : GraphQlQueryBuilder<CollisionDa
 
     public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public CollisionDataQueryBuilder WithCollisionData(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("collisionData", alias, new GraphQlDirective?[] { include, skip });
+    public CollisionDataQueryBuilder WithCollisionData(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("collisionData", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public CollisionDataQueryBuilder ExceptCollisionData() => ExceptField("collisionData");
 }
@@ -378,11 +386,11 @@ public partial class MessageQueryBuilder : GraphQlQueryBuilder<MessageQueryBuild
 
     public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public MessageQueryBuilder WithId(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("id", alias, new GraphQlDirective?[] { include, skip });
+    public MessageQueryBuilder WithId(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("id", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public MessageQueryBuilder ExceptId() => ExceptField("id");
 
-    public MessageQueryBuilder WithTextValue(string? alias = "textValue", IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("text_value", alias, new GraphQlDirective?[] { include, skip });
+    public MessageQueryBuilder WithTextValue(string? alias = "textValue", IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("text_value", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public MessageQueryBuilder ExceptTextValue() => ExceptField("text_value");
 }
@@ -406,7 +414,7 @@ public partial class MutationQueryBuilder : GraphQlQueryBuilder<MutationQueryBui
 
     public MutationQueryBuilder WithParameter<T>(GraphQlQueryParameter<T> parameter) => WithParameterInternal(parameter);
 
-    public MutationQueryBuilder WithCreateMessage(MessageQueryBuilder messageQueryBuilder, QueryBuilderParameter<InputType?>? inputMessage = null, QueryBuilderParameter<InputType?>? inputMessage2 = null, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null)
+    public MutationQueryBuilder WithCreateMessage(MessageQueryBuilder messageQueryBuilder, QueryBuilderParameter<InputType?>? inputMessage = null, QueryBuilderParameter<InputType?>? inputMessage2 = null, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (inputMessage != null)
@@ -415,29 +423,29 @@ public partial class MutationQueryBuilder : GraphQlQueryBuilder<MutationQueryBui
         if (inputMessage2 != null)
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "inputMessage", ArgumentValue = inputMessage2} );
 
-        return WithObjectField("createMessage", alias, messageQueryBuilder, new GraphQlDirective?[] { include, skip }, args);
+        return WithObjectField("createMessage", alias, messageQueryBuilder, new GraphQlDirective?[] { include, skip, customDirective }, args);
     }
 
     public MutationQueryBuilder ExceptCreateMessage() => ExceptField("createMessage");
 
-    public MutationQueryBuilder WithPassDynamic(QueryBuilderParameter<object?>? @object = null, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null)
+    public MutationQueryBuilder WithPassDynamic(QueryBuilderParameter<object?>? @object = null, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (@object != null)
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "object", ArgumentValue = @object} );
 
-        return WithScalarField("passDynamic", alias, new GraphQlDirective?[] { include, skip }, args);
+        return WithScalarField("passDynamic", alias, new GraphQlDirective?[] { include, skip, customDirective }, args);
     }
 
     public MutationQueryBuilder ExceptPassDynamic() => ExceptField("passDynamic");
 
-    public MutationQueryBuilder WithCollide(CollisionDataQueryBuilder collisionDataQueryBuilder, QueryBuilderParameter<Collision3?>? collision = null, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null)
+    public MutationQueryBuilder WithCollide(CollisionDataQueryBuilder collisionDataQueryBuilder, QueryBuilderParameter<Collision3?>? collision = null, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (collision != null)
             args.Add(new QueryBuilderArgumentInfo { ArgumentName = "collision", ArgumentValue = collision} );
 
-        return WithObjectField("collide", alias, collisionDataQueryBuilder, new GraphQlDirective?[] { include, skip }, args);
+        return WithObjectField("collide", alias, collisionDataQueryBuilder, new GraphQlDirective?[] { include, skip, customDirective }, args);
     }
 
     public MutationQueryBuilder ExceptCollide() => ExceptField("collide");
@@ -454,7 +462,7 @@ public partial class AttributeQueryBuilder : GraphQlQueryBuilder<AttributeQueryB
 
     public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-    public AttributeQueryBuilder WithValue(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null) => WithScalarField("Value", alias, new GraphQlDirective?[] { include, skip });
+    public AttributeQueryBuilder WithValue(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("Value", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public AttributeQueryBuilder ExceptValue() => ExceptField("Value");
 }
