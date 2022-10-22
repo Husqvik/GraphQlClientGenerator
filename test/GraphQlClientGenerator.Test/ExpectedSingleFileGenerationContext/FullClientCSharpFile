@@ -426,17 +426,29 @@ namespace GraphQlGenerator.Test
     
         protected QueryBuilderParameter(string name, string graphQlTypeName, T value) : base(name, graphQlTypeName, value)
         {
-            if (String.IsNullOrWhiteSpace(graphQlTypeName))
-                throw new ArgumentException("value required", nameof(graphQlTypeName));
+            EnsureGraphQlTypeName(graphQlTypeName);
+        }
+    
+        protected QueryBuilderParameter(string name, string graphQlTypeName) : base(name, graphQlTypeName, null)
+        {
+            EnsureGraphQlTypeName(graphQlTypeName);
         }
     
         private QueryBuilderParameter(T value) : base(value)
         {
         }
     
+        public void ResetValue() => base.Value = null;
+    
         public static implicit operator QueryBuilderParameter<T>(T value) => new QueryBuilderParameter<T>(value);
     
         public static implicit operator T(QueryBuilderParameter<T> parameter) => parameter.Value;
+    
+        private static void EnsureGraphQlTypeName(string graphQlTypeName)
+        {
+            if (String.IsNullOrWhiteSpace(graphQlTypeName))
+                throw new ArgumentException("value required", nameof(graphQlTypeName));
+        }
     }
     
     public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
@@ -452,17 +464,24 @@ namespace GraphQlGenerator.Test
                     : throw new InvalidOperationException($"Value must be of {nameof(IFormattable)} type. ");
         }
     
-        public GraphQlQueryParameter(string name, string graphQlTypeName, T value) : base(name, graphQlTypeName, value)
+        public GraphQlQueryParameter(string name, string graphQlTypeName = null)
+            : base(name, graphQlTypeName ?? GetGraphQlTypeName(typeof(T)))
         {
         }
     
-        public GraphQlQueryParameter(string name, T value, bool isNullable = true) : base(name, GetGraphQlTypeName(value, isNullable), value)
+        public GraphQlQueryParameter(string name, string graphQlTypeName, T defaultValue)
+            : base(name, graphQlTypeName, defaultValue)
         {
         }
     
-        private static string GetGraphQlTypeName(T value, bool isNullable)
+        public GraphQlQueryParameter(string name, T defaultValue, bool isNullable = true)
+            : base(name, GetGraphQlTypeName(typeof(T), isNullable), defaultValue)
         {
-            var graphQlTypeName = GetGraphQlTypeName(typeof(T));
+        }
+    
+        private static string GetGraphQlTypeName(Type valueType, bool isNullable)
+        {
+            var graphQlTypeName = GetGraphQlTypeName(valueType);
             if (!isNullable)
                 graphQlTypeName += "!";
     
@@ -622,7 +641,7 @@ namespace GraphQlGenerator.Test
     
                         builder.Append(queryParameterInfo.ArgumentValue.GraphQlTypeName);
     
-                        if (!queryParameterInfo.ArgumentValue.GraphQlTypeName.EndsWith("!"))
+                        if (!queryParameterInfo.ArgumentValue.GraphQlTypeName.EndsWith("!") && queryParameterInfo.ArgumentValue.Value is not null)
                         {
                             builder.Append(indentationSpace);
                             builder.Append("=");
