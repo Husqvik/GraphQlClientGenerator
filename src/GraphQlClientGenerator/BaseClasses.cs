@@ -400,7 +400,7 @@ public class QueryBuilderParameter<T> : QueryBuilderParameter
 {
     public new T Value
     {
-        get => (T)base.Value;
+        get => base.Value == null ? default : (T)base.Value;
         set => base.Value = value;
     }
 

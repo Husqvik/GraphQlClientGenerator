@@ -8,7 +8,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Title>GraphQL C# Client Generator</Title>
     <PackageTags>GraphQL Client Generator</PackageTags>
-    <PackageReleaseNotes>Fixed invalid C# parameter name in generated directive</PackageReleaseNotes>
+    <PackageReleaseNotes>Allow nullable query parameters without specifying default value</PackageReleaseNotes>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
