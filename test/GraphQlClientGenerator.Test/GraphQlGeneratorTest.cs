@@ -790,7 +790,7 @@ public class GraphQlGeneratorTest
         mutation.ShouldBe("mutation($stringParameter:String=\"Test Value\",$objectParameter:[TestInput!]={testProperty:\"Input Object Parameter Value\",timestamp:\"19-06-30 02:27+02:00\"}){testAction(objectParameter:{inputObject1:{testProperty:\"Nested Value\"},inputObject2:$objectParameter,testProperty:$stringParameter,testNullValueProperty:null})}");
 
         var inputObjectJson = JsonConvert.SerializeObject(inputObject);
-        inputObjectJson.ShouldBe("{\"TestProperty\":\"Test Value\",\"Timestamp\":null,\"InputObject1\":{\"TestProperty\":\"Nested Value\",\"Timestamp\":null,\"InputObject1\":null,\"InputObject2\":null,\"TestNullValueProperty\":null},\"InputObject2\":{\"TestProperty\":\"Input Object Parameter Value\",\"Timestamp\":\"2019-06-30T02:27:47.1234567+02:00\",\"InputObject1\":null,\"InputObject2\":null,\"TestNullValueProperty\":null},\"TestNullValueProperty\":null}");
+        inputObjectJson.ShouldBe("{\"InputObject1\":{\"InputObject1\":null,\"InputObject2\":null,\"TestProperty\":\"Nested Value\",\"TestNullValueProperty\":null,\"Timestamp\":null},\"InputObject2\":{\"InputObject1\":null,\"InputObject2\":null,\"TestProperty\":\"Input Object Parameter Value\",\"TestNullValueProperty\":null,\"Timestamp\":\"2019-06-30T02:27:47.1234567+02:00\"},\"TestProperty\":\"Test Value\",\"TestNullValueProperty\":null,\"Timestamp\":null}");
 
         var deserializedInputObject = JsonConvert.DeserializeObject(inputObjectJson, inputObjectType);
         var testPropertyValue = testPropertyInfo.GetValue(deserializedInputObject);
