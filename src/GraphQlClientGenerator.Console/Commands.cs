@@ -22,6 +22,8 @@ internal static class Commands
         var headerOption = new Option<string[]>("--header", "Format: {Header}:{Value}; allows to enter custom headers required to fetch GraphQL metadata");
         headerOption.AddValidator(option => option.ErrorMessage = KeyValueParameterParser.TryGetCustomHeaders(option.Tokens.Select(t => t.Value), out _, out var errorMessage) ? null : errorMessage);
 
+        var regexScalarFieldTypeMappingConfigurationOption = new Option<string>("--regexScalarFieldTypeMappingConfigurationFile", $"File name specifying rules for \"{nameof(RegexScalarFieldTypeMappingProvider)}\"");
+
         var command =
             new RootCommand
             {
@@ -41,7 +43,8 @@ internal static class Commands
                 new Option<IdTypeMapping>("--idTypeMapping", () => IdTypeMapping.Guid, "Specifies the .NET type generated for GraphQL ID data type"),
                 new Option<FloatTypeMapping>("--floatTypeMapping", () => FloatTypeMapping.Decimal, "Specifies the .NET type generated for GraphQL Float data type"),
                 new Option<JsonPropertyGenerationOption>("--jsonPropertyAttribute", () => JsonPropertyGenerationOption.CaseInsensitive, "Specifies the condition for using \"JsonPropertyAttribute\""),
-                new Option<EnumValueNamingOption>("--enumValueNaming", "Use \"Original\" to avoid pretty C# name conversion for maximum deserialization compatibility")
+                new Option<EnumValueNamingOption>("--enumValueNaming", "Use \"Original\" to avoid pretty C# name conversion for maximum deserialization compatibility"),
+                regexScalarFieldTypeMappingConfigurationOption
             };
 
         command.TreatUnmatchedTokensAsErrors = true;
@@ -50,6 +53,22 @@ internal static class Commands
         command.Handler = CommandHandler.Create<IConsole, ProgramOptions>(GraphQlCSharpFileHelper.GenerateGraphQlClientSourceCode);
         command.AddValidator(option => option.ErrorMessage = option.FindResultFor(serviceUrlOption) is not null && option.FindResultFor(schemaFileOption) is not null ? "\"serviceUrl\" and \"schemaFileName\" parameters are mutually exclusive. " : null);
         command.AddValidator(option => option.ErrorMessage = option.FindResultFor(serviceUrlOption) is null && option.FindResultFor(schemaFileOption) is null ? "Either \"serviceUrl\" or \"schemaFileName\" parameter must be specified. " : null);
+        command.AddValidator(
+            option =>
+            {
+                var result = option.FindResultFor(regexScalarFieldTypeMappingConfigurationOption);
+                if (result is null)
+                    return;
+
+                try
+                {
+                    RegexScalarFieldTypeMappingProvider.ParseRulesFromJson(File.ReadAllText(result.GetValueOrDefault<string>()));
+                }
+                catch (Exception exception)
+                {
+                    option.ErrorMessage = exception.Message;
+                }
+            });
 
         return command;
     }

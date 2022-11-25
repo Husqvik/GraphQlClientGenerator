@@ -1,10 +1,17 @@
-﻿using System.Text.RegularExpressions;
+﻿using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 
 namespace GraphQlClientGenerator;
 
-internal class RegexScalarFieldTypeMappingProvider : IScalarFieldTypeMappingProvider
+public class RegexScalarFieldTypeMappingProvider : IScalarFieldTypeMappingProvider
 {
     private readonly ICollection<RegexScalarFieldTypeMappingRule> _rules;
+
+    public static ICollection<RegexScalarFieldTypeMappingRule> ParseRulesFromJson(string json)
+    {
+        var rules = JsonConvert.DeserializeObject<ICollection<RegexScalarFieldTypeMappingRule>>(json);
+        return rules ?? Array.Empty<RegexScalarFieldTypeMappingRule>();
+    }
 
     public RegexScalarFieldTypeMappingProvider(ICollection<RegexScalarFieldTypeMappingRule> rules) =>
         _rules = rules ?? throw new ArgumentNullException(nameof(rules));

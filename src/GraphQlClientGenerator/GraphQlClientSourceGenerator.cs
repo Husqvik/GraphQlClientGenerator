@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using Newtonsoft.Json;
 
 namespace GraphQlClientGenerator;
 
@@ -48,8 +47,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
 
             if (regexScalarFieldTypeMappingProviderConfigurationFile is not null)
                 regexScalarFieldTypeMappingProviderRules =
-                    JsonConvert.DeserializeObject<ICollection<RegexScalarFieldTypeMappingRule>>(
-                        regexScalarFieldTypeMappingProviderConfigurationFile.GetText().ToString());
+                    RegexScalarFieldTypeMappingProvider.ParseRulesFromJson(regexScalarFieldTypeMappingProviderConfigurationFile.GetText().ToString());
 
             var isSchemaFileSpecified = graphQlSchemaFiles.Any();
             if (isServiceUrlMissing && !isSchemaFileSpecified)
@@ -191,7 +189,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
             currentParameterName = "ScalarFieldTypeMappingProvider";
             if (context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKeyPrefix + currentParameterName, out var scalarFieldTypeMappingProviderName))
             {
-                if (regexScalarFieldTypeMappingProviderRules != null)
+                if (regexScalarFieldTypeMappingProviderRules is not null)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, "\"GraphQlClientGenerator_ScalarFieldTypeMappingProvider\" and RegexScalarFieldTypeMappingProviderConfiguration are mutually exclusive"));
                     return;
@@ -204,7 +202,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
                 }
 
                 var scalarFieldTypeMappingProviderType = Type.GetType(scalarFieldTypeMappingProviderName);
-                if (scalarFieldTypeMappingProviderType == null)
+                if (scalarFieldTypeMappingProviderType is null)
                 {
                     context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, $"ScalarFieldTypeMappingProvider \"{scalarFieldTypeMappingProviderName}\" not found"));
                     return;

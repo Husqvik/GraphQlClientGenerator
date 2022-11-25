@@ -5,7 +5,7 @@
     <Copyright>Copyright 2017-2022</Copyright>
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
-    <VersionPrefix>0.9.13</VersionPrefix>
+    <VersionPrefix>0.9.14</VersionPrefix>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Husqvik/GraphQlClientGenerator</PackageProjectUrl>
     <PackageIcon>GraphQlLogo.png</PackageIcon>

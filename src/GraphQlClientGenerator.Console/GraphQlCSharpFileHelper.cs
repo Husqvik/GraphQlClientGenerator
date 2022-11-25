@@ -62,7 +62,12 @@ internal static class GraphQlCSharpFileHelper
 
         foreach (var kvp in customMapping)
             generatorConfiguration.CustomClassNameMapping.Add(kvp);
-            
+
+        if (!String.IsNullOrEmpty(options.RegexScalarFieldTypeMappingConfigurationFile))
+            generatorConfiguration.ScalarFieldTypeMappingProvider =
+                new RegexScalarFieldTypeMappingProvider(
+                    RegexScalarFieldTypeMappingProvider.ParseRulesFromJson(await File.ReadAllTextAsync(options.RegexScalarFieldTypeMappingConfigurationFile)));
+
         var generator = new GraphQlGenerator(generatorConfiguration);
 
         if (options.OutputType == OutputType.SingleFile)

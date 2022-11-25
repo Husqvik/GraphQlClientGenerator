@@ -15,6 +15,7 @@ public class ProgramOptions
     public OutputType OutputType { get; set; }
     public bool PartialClasses { get; set; }
     public ICollection<string> ClassMapping { get; set; }
+    public string RegexScalarFieldTypeMappingConfigurationFile { get; set; }
     public IdTypeMapping IdTypeMapping { get; set; }
     public FloatTypeMapping FloatTypeMapping { get; set; }
     public JsonPropertyGenerationOption JsonPropertyAttribute { get; set; }
