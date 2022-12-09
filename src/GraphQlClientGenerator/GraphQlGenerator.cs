@@ -37,7 +37,7 @@ using Newtonsoft.Json.Linq;
         {
             DefaultRequestHeaders =
             {
-                UserAgent = { ProductInfoHeaderValue.Parse("GraphQlClientGenerator/" + typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetName().Version) }
+                UserAgent = { ProductInfoHeaderValue.Parse($"GraphQlClientGenerator/{typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetName().Version}") }
             }
         };
 
@@ -57,7 +57,7 @@ using Newtonsoft.Json.Linq;
     {
         StringContent requestContent = null;
         if (method == HttpMethod.Get)
-            url += "?&query=" + IntrospectionQuery.Text;
+            url += $"?&query={IntrospectionQuery.Text}";
         else
             requestContent = new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json");
 
@@ -1411,7 +1411,7 @@ using Newtonsoft.Json.Linq;
 
         return
             directiveParameterNames.Any()
-                ? "new " + AddQuestionMarkIfNullableReferencesEnabled("GraphQlDirective") + "[] { " + String.Join(", ", directiveParameterNames) + " }"
+                ? $"new {AddQuestionMarkIfNullableReferencesEnabled("GraphQlDirective")}[] {{ {String.Join(", ", directiveParameterNames)} }}"
                 : "null";
     }
 
@@ -1518,7 +1518,7 @@ using Newtonsoft.Json.Linq;
     private static void ValidateClassName(string className)
     {
         if (!CSharpHelper.IsValidIdentifier(className))
-            throw new InvalidOperationException($"Resulting class name '{className}' is not valid. ");
+            throw new InvalidOperationException($"Resulting class name \"{className}\" is not valid. ");
     }
 
     private static void AppendArgumentDictionary(string indentation, TextWriter writer, ICollection<QueryBuilderParameterDefinition> argumentDefinitions, string argumentCollectionVariableName)
