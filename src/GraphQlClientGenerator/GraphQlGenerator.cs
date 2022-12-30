@@ -971,6 +971,10 @@ using Newtonsoft.Json.Linq;
         var typeName = GetCSharpMemberName(type.Name);
         var className = $"{_configuration.ClassPrefix}{typeName}QueryBuilder{_configuration.ClassSuffix}";
 
+        var fields = type.Kind == GraphQlTypeKind.Union ? null : GetFieldsToGenerate(type, complexTypes);
+        if (fields?.Count == 0)
+            return;
+
         ValidateClassName(className);
 
         context.BeforeQueryBuilderGeneration(className);
@@ -992,7 +996,6 @@ using Newtonsoft.Json.Linq;
         writer.Write(indentation);
         writer.Write("    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =");
 
-        var fields = type.Kind == GraphQlTypeKind.Union ? null : GetFieldsToGenerate(type, complexTypes);
         if (fields is null)
         {
             writer.WriteLine(" new GraphQlFieldMetadata[0];");
@@ -1008,7 +1011,7 @@ using Newtonsoft.Json.Linq;
             {
                 writer.Write(indentation);
                 writer.WriteLine("        new []");
-                fieldMetadataIndentation = indentation + "    ";
+                fieldMetadataIndentation = $"{indentation}    ";
             }
 
             writer.Write(fieldMetadataIndentation);
