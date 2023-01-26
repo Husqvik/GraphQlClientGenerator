@@ -540,7 +540,7 @@ public abstract class GraphQlDirective
     }
 }
 
-public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
+public abstract partial class GraphQlQueryBuilder : IGraphQlQueryBuilder
 {
     private readonly Dictionary<string, GraphQlFieldCriteria> _fieldCriteria = new Dictionary<string, GraphQlFieldCriteria>();
 
@@ -841,7 +841,7 @@ public abstract class GraphQlQueryBuilder : IGraphQlQueryBuilder
     }
 }
 
-public abstract class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder where TQueryBuilder : GraphQlQueryBuilder<TQueryBuilder>
+public abstract partial class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryBuilder where TQueryBuilder : GraphQlQueryBuilder<TQueryBuilder>
 {
     protected GraphQlQueryBuilder(string operationType = null, string operationName = null) : base(operationType, operationName)
     {
