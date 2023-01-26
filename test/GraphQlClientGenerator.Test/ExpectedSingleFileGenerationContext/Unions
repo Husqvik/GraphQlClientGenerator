@@ -114,6 +114,11 @@ public partial class UnionTypeQueryBuilder : GraphQlQueryBuilder<UnionTypeQueryB
 {
     private static readonly GraphQlFieldMetadata[] AllFieldMetadata = new GraphQlFieldMetadata[0];
 
+    public UnionTypeQueryBuilder()
+    {
+        WithTypeName();
+    }
+
     protected override string TypeName { get; } = "UnionType";
 
     public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
@@ -131,6 +136,11 @@ public partial class NamedTypeQueryBuilder : GraphQlQueryBuilder<NamedTypeQueryB
     {
         new GraphQlFieldMetadata { Name = "name" }
     };
+
+    public NamedTypeQueryBuilder()
+    {
+        WithTypeName();
+    }
 
     protected override string TypeName { get; } = "NamedType";
 
