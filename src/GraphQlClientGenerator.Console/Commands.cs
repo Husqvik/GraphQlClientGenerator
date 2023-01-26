@@ -55,6 +55,7 @@ internal static class Commands
                 new Option<FloatTypeMapping>("--floatTypeMapping", () => FloatTypeMapping.Decimal, "Specifies the .NET type generated for GraphQL Float data type"),
                 new Option<JsonPropertyGenerationOption>("--jsonPropertyAttribute", () => JsonPropertyGenerationOption.CaseInsensitive, "Specifies the condition for using \"JsonPropertyAttribute\""),
                 new Option<EnumValueNamingOption>("--enumValueNaming", "Use \"Original\" to avoid pretty C# name conversion for maximum deserialization compatibility"),
+                new Option<bool>("--fileScopedNamespaces", () => false, "Specifies if file-scoped namespaces should be used in generated files (C# 10+)"),
                 regexScalarFieldTypeMappingConfigurationOption
             };
 

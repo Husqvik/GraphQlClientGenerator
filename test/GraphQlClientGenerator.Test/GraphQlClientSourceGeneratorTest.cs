@@ -40,32 +40,44 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
     [Fact]
     public void SourceGeneration()
     {
-        var generatedSource = GenerateSource(null, "GraphQlClientGenerator.DefaultScalarFieldTypeMappingProvider, GraphQlClientGenerator");
+        var generatedSource = GenerateSource(null, "GraphQlClientGenerator.DefaultScalarFieldTypeMappingProvider, GraphQlClientGenerator", false);
 
         generatedSource.Encoding.ShouldBe(Encoding.UTF8);
         var sourceCode = generatedSource.ToString();
 
-        var expectedSourceCode = GetExpectedSourceText();
+        var expectedSourceCode = GetExpectedSourceText("SourceGeneratorResult");
+        sourceCode.ShouldBe(expectedSourceCode);
+    }
+
+    [Fact]
+    public void SourceGeneration_UseFileScopedNamespaces()
+    {
+        var generatedSource = GenerateSource(null, null, true);
+
+        generatedSource.Encoding.ShouldBe(Encoding.UTF8);
+        var sourceCode = generatedSource.ToString();
+
+        var expectedSourceCode = GetExpectedSourceText("SourceGeneratorResultWithFileScopedNamespaces");
         sourceCode.ShouldBe(expectedSourceCode);
     }
 
     [Fact]
     public void SourceGenerationWithRegexCustomScalarFieldTypeMappingProvider()
     {
-        var generatedSource = GenerateSource(_fileMappingRules, null);
+        var generatedSource = GenerateSource(_fileMappingRules, null, false);
         var sourceCode = generatedSource.ToString();
 
-        var expectedSourceCode = GetExpectedSourceText().Replace("typeof(DateTimeOffset)", "typeof(DateTime)").Replace("DateTimeOffset?", "DateTime?");
+        var expectedSourceCode = GetExpectedSourceText("SourceGeneratorResult").Replace("typeof(DateTimeOffset)", "typeof(DateTime)").Replace("DateTimeOffset?", "DateTime?");
         sourceCode.ShouldBe(expectedSourceCode);
     }
 
-    private static string GetExpectedSourceText()
+    private static string GetExpectedSourceText(string expectedResultsFile)
     {
-        using var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream("GraphQlClientGenerator.Test.ExpectedSingleFileGenerationContext.SourceGeneratorResult"));
+        using var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream($"GraphQlClientGenerator.Test.ExpectedSingleFileGenerationContext.{expectedResultsFile}"));
         return reader.ReadToEnd();
     }
 
-    private SourceText GenerateSource(AdditionalText additionalFile, string scalarFieldTypeMappingProviderTypeName)
+    private SourceText GenerateSource(AdditionalText additionalFile, string scalarFieldTypeMappingProviderTypeName, bool useFileScopedNamespaces)
     {
         var configurationOptions =
             new Dictionary<string, string>
@@ -86,6 +98,10 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
 
         if (scalarFieldTypeMappingProviderTypeName is not null)
             configurationOptions.Add("build_property.GraphQlClientGenerator_ScalarFieldTypeMappingProvider", scalarFieldTypeMappingProviderTypeName);
+
+
+        if (useFileScopedNamespaces)
+            configurationOptions.Add("build_property.GraphQlClientGenerator_FileScopedNamespaces", "true");
 
         var compilerAnalyzerConfigOptionsProvider = new CompilerAnalyzerConfigOptionsProvider(new CompilerAnalyzerConfigOptions(configurationOptions));
 

@@ -119,12 +119,22 @@ using Newtonsoft.Json.Linq;
         writer.WriteLine();
         writer.WriteLine(RequiredNamespaces);
         writer.Write("namespace ");
-        writer.WriteLine(@namespace);
-        writer.WriteLine("{");
 
-        Generate(new SingleFileGenerationContext(schema, writer, indentationSize: 4));
+        if (_configuration.FileScopedNamespaces)
+        {
+            writer.Write(@namespace);
+            writer.WriteLine(";");
+            writer.WriteLine();
+            Generate(new SingleFileGenerationContext(schema, writer, indentationSize: 0));
+        }
+        else
+        {
+            writer.WriteLine(@namespace);
+            writer.WriteLine("{");
+            Generate(new SingleFileGenerationContext(schema, writer, indentationSize: 4));
+            writer.WriteLine("}");
+        }
 
-        writer.WriteLine("}");
         writer.Flush();
     }
 
