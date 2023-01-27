@@ -1079,6 +1079,20 @@ using Newtonsoft.Json.Linq;
         else
             directiveLocation = GraphQlDirectiveLocation.Field;
 
+        if (type.Kind is GraphQlTypeKind.Interface or GraphQlTypeKind.Union)
+        {
+            var constructorIndentation = indentation + "    ";
+            writer.Write(constructorIndentation);
+            writer.WriteLine($"public {className}()");
+            writer.Write(constructorIndentation);
+            writer.WriteLine("{");
+            writer.Write(constructorIndentation);
+            writer.WriteLine("    WithTypeName();");
+            writer.Write(constructorIndentation);
+            writer.WriteLine("}");
+            writer.WriteLine();
+        }
+
         var hasQueryPrefix = directiveLocation != GraphQlDirectiveLocation.Field;
 
         WriteOverrideProperty("protected", "string", "TypeName", $"\"{type.Name}\"", indentation, writer);

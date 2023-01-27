@@ -1282,6 +1282,11 @@ public partial class PageInfoQueryBuilder : GraphQlQueryBuilder<PageInfoQueryBui
             new GraphQlFieldMetadata { Name = "startCursor" }
         };
 
+    public PageInfoQueryBuilder()
+    {
+        WithTypeName();
+    }
+
     protected override string TypeName { get { return "PageInfo"; } } 
 
     public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
