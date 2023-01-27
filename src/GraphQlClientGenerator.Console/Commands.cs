@@ -53,8 +53,11 @@ internal static class Commands
                 classMappingOption,
                 new Option<IdTypeMapping>("--idTypeMapping", () => IdTypeMapping.Guid, "Specifies the .NET type generated for GraphQL ID data type"),
                 new Option<FloatTypeMapping>("--floatTypeMapping", () => FloatTypeMapping.Decimal, "Specifies the .NET type generated for GraphQL Float data type"),
+                new Option<IntegerTypeMapping>("--integerTypeMapping", () => IntegerTypeMapping.Int32, "Specifies the .NET type generated for GraphQL Integer data type"),
+                new Option<BooleanTypeMapping>("--booleanTypeMapping", () => BooleanTypeMapping.Boolean, "Specifies the .NET type generated for GraphQL Boolean data type"),
                 new Option<JsonPropertyGenerationOption>("--jsonPropertyAttribute", () => JsonPropertyGenerationOption.CaseInsensitive, "Specifies the condition for using \"JsonPropertyAttribute\""),
                 new Option<EnumValueNamingOption>("--enumValueNaming", "Use \"Original\" to avoid pretty C# name conversion for maximum deserialization compatibility"),
+                new Option<bool>("--includeDeprecatedFields", () => false, "Generate deprecated fields"),
                 new Option<bool>("--fileScopedNamespaces", () => false, "Specifies if file-scoped namespaces should be used in generated files (C# 10+)"),
                 regexScalarFieldTypeMappingConfigurationOption
             };

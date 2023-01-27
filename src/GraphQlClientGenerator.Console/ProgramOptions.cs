@@ -19,6 +19,9 @@ public class ProgramOptions
     public string RegexScalarFieldTypeMappingConfigurationFile { get; set; }
     public IdTypeMapping IdTypeMapping { get; set; }
     public FloatTypeMapping FloatTypeMapping { get; set; }
+    public IntegerTypeMapping IntegerTypeMapping { get; set; }
+    public BooleanTypeMapping BooleanTypeMapping { get; set; }
     public JsonPropertyGenerationOption JsonPropertyAttribute { get; set; }
     public EnumValueNamingOption EnumValueNaming { get; set; }
+    public bool IncludeDeprecatedFields { get; set; }
 }
