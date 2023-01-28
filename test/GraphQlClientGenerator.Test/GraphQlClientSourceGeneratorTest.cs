@@ -37,27 +37,17 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
             File.Delete(_fileMappingRules.Path);
     }
 
-    [Fact]
-    public void SourceGeneration()
+    [Theory]
+    [InlineData("GraphQlClientGenerator.DefaultScalarFieldTypeMappingProvider, GraphQlClientGenerator", false, "SourceGeneratorResult")]
+    [InlineData(null, true, "SourceGeneratorResultWithFileScopedNamespaces")]
+    public void SourceGeneration(string scalarFieldTypeMappingProviderTypeName, bool useFileScopedNamespace, string expectedResultResourceName)
     {
-        var generatedSource = GenerateSource(null, "GraphQlClientGenerator.DefaultScalarFieldTypeMappingProvider, GraphQlClientGenerator", false);
+        var generatedSource = GenerateSource(null, scalarFieldTypeMappingProviderTypeName, useFileScopedNamespace);
 
         generatedSource.Encoding.ShouldBe(Encoding.UTF8);
         var sourceCode = generatedSource.ToString();
 
-        var expectedSourceCode = GetExpectedSourceText("SourceGeneratorResult");
-        sourceCode.ShouldBe(expectedSourceCode);
-    }
-
-    [Fact]
-    public void SourceGeneration_UseFileScopedNamespaces()
-    {
-        var generatedSource = GenerateSource(null, null, true);
-
-        generatedSource.Encoding.ShouldBe(Encoding.UTF8);
-        var sourceCode = generatedSource.ToString();
-
-        var expectedSourceCode = GetExpectedSourceText("SourceGeneratorResultWithFileScopedNamespaces");
+        var expectedSourceCode = GetExpectedSourceText(expectedResultResourceName);
         sourceCode.ShouldBe(expectedSourceCode);
     }
 
@@ -73,7 +63,8 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
 
     private static string GetExpectedSourceText(string expectedResultsFile)
     {
-        using var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream($"GraphQlClientGenerator.Test.ExpectedSingleFileGenerationContext.{expectedResultsFile}"));return reader.ReadToEnd();
+        using var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream($"GraphQlClientGenerator.Test.ExpectedSingleFileGenerationContext.{expectedResultsFile}"));
+        return reader.ReadToEnd();
     }
 
     private SourceText GenerateSource(AdditionalText additionalFile, string scalarFieldTypeMappingProviderTypeName, bool useFileScopedNamespaces)
