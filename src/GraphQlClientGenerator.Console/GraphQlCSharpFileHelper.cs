@@ -57,7 +57,8 @@ internal static class GraphQlCSharpFileHelper
                 BooleanTypeMapping = options.BooleanTypeMapping,
                 JsonPropertyGeneration = options.JsonPropertyAttribute,
                 EnumValueNaming = options.EnumValueNaming,
-                IncludeDeprecatedFields = options.IncludeDeprecatedFields
+                IncludeDeprecatedFields = options.IncludeDeprecatedFields,
+                FileScopedNamespaces = options.FileScopedNamespaces
             };
 
         if (!KeyValueParameterParser.TryGetCustomClassMapping(options.ClassMapping, out var customMapping, out var customMappingParsingErrorMessage))
