@@ -545,23 +545,23 @@ public class GraphQlGeneratorTest
 
         var query =
             builderType
-                .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
-                .Invoke(builderInstance, new [] { Enum.Parse(formattingType, "None"), (byte)2 });
+                .GetMethod("Build", new[] { formattingType, typeof(byte) })
+                .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
 
         query.ShouldBe("{testField(valueInt16:1,valueUInt16:2,valueByte:3,valueInt32:4,valueUInt32:5,valueInt64:6,valueUInt64:7,valueSingle:8.123,valueDouble:9.456,valueDecimal:10.789,valueDateTime:\"19-06-30 00:27Z\",valueDateTimeOffset:\"2019-06-30T02:27:47.1234567+02:00\",valueGuid:\"00000000-0000-0000-0000-000000000000\",valueString:\"\\\"string\\\" value\"),fieldAlias:objectParameter(objectParameter:[{rootProperty1:\"root value 1\",rootProperty2:123.456,rootProperty3:true,rootProperty4:null,rootProperty5:{nestedProperty1:987,nestedProperty2:\"a \\\"quoted\\\" value\"}},[{rootProperty1:\"root value 2\"},{rootProperty1:false}]])@include(if:$direct)@skip(if:false)}");
         query =
             builderType
-                .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
+                .GetMethod("Build", new[] { formattingType, typeof(byte) })
                 .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "Indented"), (byte)2 });
 
-        query.ShouldBe($" {{{Environment.NewLine}  testField(valueInt16: 1, valueUInt16: 2, valueByte: 3, valueInt32: 4, valueUInt32: 5, valueInt64: 6, valueUInt64: 7, valueSingle: 8.123, valueDouble: 9.456, valueDecimal: 10.789, valueDateTime: \"19-06-30 00:27Z\", valueDateTimeOffset: \"2019-06-30T02:27:47.1234567+02:00\", valueGuid: \"00000000-0000-0000-0000-000000000000\", valueString: \"\\\"string\\\" value\"){Environment.NewLine}  fieldAlias: objectParameter(objectParameter: [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 1\",{Environment.NewLine}      rootProperty2: 123.456,{Environment.NewLine}      rootProperty3: true,{Environment.NewLine}      rootProperty4: null,{Environment.NewLine}      rootProperty5: {{{Environment.NewLine}        nestedProperty1: 987,{Environment.NewLine}        nestedProperty2: \"a \\\"quoted\\\" value\"}}}},{Environment.NewLine}    [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 2\"}},{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: false}}]]) @include(if: $direct) @skip(if: false){Environment.NewLine}}}");
+        query.ShouldBe($"{{{Environment.NewLine}  testField(valueInt16: 1, valueUInt16: 2, valueByte: 3, valueInt32: 4, valueUInt32: 5, valueInt64: 6, valueUInt64: 7, valueSingle: 8.123, valueDouble: 9.456, valueDecimal: 10.789, valueDateTime: \"19-06-30 00:27Z\", valueDateTimeOffset: \"2019-06-30T02:27:47.1234567+02:00\", valueGuid: \"00000000-0000-0000-0000-000000000000\", valueString: \"\\\"string\\\" value\"){Environment.NewLine}  fieldAlias: objectParameter(objectParameter: [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 1\",{Environment.NewLine}      rootProperty2: 123.456,{Environment.NewLine}      rootProperty3: true,{Environment.NewLine}      rootProperty4: null,{Environment.NewLine}      rootProperty5: {{{Environment.NewLine}        nestedProperty1: 987,{Environment.NewLine}        nestedProperty2: \"a \\\"quoted\\\" value\"}}}},{Environment.NewLine}    [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 2\"}},{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: false}}]]) @include(if: $direct) @skip(if: false){Environment.NewLine}}}");
 
         var rootQueryBuilderType = Type.GetType($"{assemblyName}.QueryQueryBuilder, {assemblyName}");
         rootQueryBuilderType.ShouldNotBeNull();
         var rootQueryBuilderInstance = rootQueryBuilderType.GetConstructor(new [] { typeof(string) }).Invoke(new object[1]);
         rootQueryBuilderType.GetMethod("WithAllFields", BindingFlags.Instance | BindingFlags.Public).Invoke(rootQueryBuilderInstance, null);
         rootQueryBuilderType
-            .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
+            .GetMethod("Build", new[] { formattingType, typeof(byte) })
             .Invoke(rootQueryBuilderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
 
         builderType
@@ -578,7 +578,7 @@ public class GraphQlGeneratorTest
 
         query =
             builderType
-                .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
+                .GetMethod("Build", new[] { formattingType, typeof(byte) })
                 .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
 
         query.ShouldBe("{...on Me{id,firstName,lastName,fullName,ssn,email,language,tone,mobile}}");
@@ -784,7 +784,7 @@ public class GraphQlGeneratorTest
 
         var mutation =
             builderType
-                .GetMethod("Build", BindingFlags.Instance | BindingFlags.Public)
+                .GetMethod("Build", new[] { formattingType, typeof(byte) })
                 .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
 
         mutation.ShouldBe("mutation($stringParameter:String=\"Test Value\",$objectParameter:[TestInput!]={testProperty:\"Input Object Parameter Value\",timestamp:\"19-06-30 02:27+02:00\"}){testAction(objectParameter:{inputObject1:{testProperty:\"Nested Value\"},inputObject2:$objectParameter,testProperty:$stringParameter,testNullValueProperty:null})}");
