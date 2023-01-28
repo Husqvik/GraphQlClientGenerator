@@ -1127,7 +1127,7 @@ using Newtonsoft.Json.Linq;
             var field = fields[i];
             var fieldType = field.Type.UnwrapIfNonNull();
             if (fieldType.Kind == GraphQlTypeKind.List)
-                fieldType = fieldType.OfType;
+                fieldType = UnwrapListItemType(fieldType, out _);
                 
             fieldType = fieldType.UnwrapIfNonNull();
             var isFragment = i >= firstFragmentIndex;
