@@ -51,19 +51,19 @@ internal static class Commands
                 new Option<OutputType>("--outputType", () => OutputType.SingleFile, "Specifies generated classes organization"),
                 new Option<bool>("--partialClasses", () => false, "Mark classes as \"partial\""),
                 classMappingOption,
-                new Option<IdTypeMapping>("--idTypeMapping", () => IdTypeMapping.Guid, "Specifies the .NET type generated for GraphQL ID data type"),
-                new Option<FloatTypeMapping>("--floatTypeMapping", () => FloatTypeMapping.Decimal, "Specifies the .NET type generated for GraphQL Float data type"),
-                new Option<IntegerTypeMapping>("--integerTypeMapping", () => IntegerTypeMapping.Int32, "Specifies the .NET type generated for GraphQL Integer data type"),
                 new Option<BooleanTypeMapping>("--booleanTypeMapping", () => BooleanTypeMapping.Boolean, "Specifies the .NET type generated for GraphQL Boolean data type"),
+                new Option<FloatTypeMapping>("--floatTypeMapping", () => FloatTypeMapping.Decimal, "Specifies the .NET type generated for GraphQL Float data type"),
+                new Option<IdTypeMapping>("--idTypeMapping", () => IdTypeMapping.Guid, "Specifies the .NET type generated for GraphQL ID data type"),
+                new Option<IntegerTypeMapping>("--integerTypeMapping", () => IntegerTypeMapping.Int32, "Specifies the .NET type generated for GraphQL Integer data type"),
                 new Option<JsonPropertyGenerationOption>("--jsonPropertyAttribute", () => JsonPropertyGenerationOption.CaseInsensitive, "Specifies the condition for using \"JsonPropertyAttribute\""),
-                new Option<EnumValueNamingOption>("--enumValueNaming", "Use \"Original\" to avoid pretty C# name conversion for maximum deserialization compatibility"),
-                new Option<bool>("--includeDeprecatedFields", () => false, "Generate deprecated fields"),
+                new Option<EnumValueNamingOption>("--enumValueNaming", () => EnumValueNamingOption.CSharp, "Use \"Original\" to avoid pretty C# name conversion for maximum deserialization compatibility"),
+                new Option<bool>("--includeDeprecatedFields", () => false, "Includes deprecated fields in generated query builders and data classes"),
                 regexScalarFieldTypeMappingConfigurationOption
             };
 
         command.TreatUnmatchedTokensAsErrors = true;
         command.Name = "GraphQlClientGenerator.Console";
-        command.Description = "A tool for generating strongly typed GraphQL query builders and data classes";
+        command.Description = "A tool for generating C# GraphQL query builders and data classes";
         command.Handler = CommandHandler.Create<IConsole, ProgramOptions>(GraphQlCSharpFileHelper.GenerateGraphQlClientSourceCode);
         command.AddValidator(
             option =>
