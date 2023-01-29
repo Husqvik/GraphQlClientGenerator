@@ -973,7 +973,7 @@ using Newtonsoft.Json.Linq;
             IdTypeMapping.String => ConvertToTypeDescription(AddQuestionMarkIfNullableReferencesEnabled("string")),
             IdTypeMapping.Guid => ConvertToTypeDescription("Guid?"),
             IdTypeMapping.Object => ConvertToTypeDescription(AddQuestionMarkIfNullableReferencesEnabled("object")),
-            IdTypeMapping.Custom => GetIdNetTypeDescription(baseType, valueType, valueName,appliedDirectives),
+            IdTypeMapping.Custom => GetIdNetTypeDescription(baseType, valueType, valueName, appliedDirectives),
             _ => throw new InvalidOperationException($"'{_configuration.IdTypeMapping}' not supported")
         };
 
