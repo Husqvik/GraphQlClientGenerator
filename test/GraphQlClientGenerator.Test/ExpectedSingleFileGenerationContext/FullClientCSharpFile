@@ -158,7 +158,6 @@ namespace GraphQlGenerator.Test
     
     internal static class GraphQlQueryHelper
     {
-        private static readonly Regex RegexWhiteSpace = new Regex(@"\s", RegexOptions.Compiled);
         private static readonly Regex RegexGraphQlIdentifier = new Regex(@"^[_A-Za-z][_0-9A-Za-z]*$", RegexOptions.Compiled);
     
         public static string GetIndentation(int level, byte indentationSize)
@@ -166,45 +165,25 @@ namespace GraphQlGenerator.Test
             return new String(' ', level * indentationSize);
         }
     
+        public static string EscapeGraphQlStringValue(string value)
+        {
+            return value.Replace("\\", "\\\\").Replace("\"", "\\\"");
+        }
+    
         public static string BuildArgumentValue(object value, string formatMask, GraphQlBuilderOptions options, int level)
         {
+            var serializer = options.ArgumentBuilder ?? DefaultGraphQlArgumentBuilder.Instance;
+            if (serializer.TryBuild(new GraphQlArgumentBuilderContext { Value = value, FormatMask = formatMask, Options = options, Level = level }, out var serializedValue))
+                return serializedValue;
+    
             if (value is null)
                 return "null";
-    
-    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-            if (value is JValue jValue)
-            {
-                switch (jValue.Type)
-                {
-                    case JTokenType.Null: return "null";
-                    case JTokenType.Integer:
-                    case JTokenType.Float:
-                    case JTokenType.Boolean:
-                        return BuildArgumentValue(jValue.Value, null, options, level);
-                    case JTokenType.String:
-                        return "\"" + ((string)jValue.Value).Replace("\"", "\\\"") + "\"";
-                    default:
-                        return "\"" + jValue.Value + "\"";
-                }
-            }
-    
-            if (value is JProperty jProperty)
-            {
-                if (RegexWhiteSpace.IsMatch(jProperty.Name))
-                    throw new ArgumentException($"JSON object keys used as GraphQL arguments must not contain whitespace; key: {jProperty.Name}");
-    
-                return $"{jProperty.Name}:{(options.Formatting == Formatting.Indented ? " " : null)}{BuildArgumentValue(jProperty.Value, null, options, level)}";
-            }
-    
-            if (value is JObject jObject)
-                return BuildEnumerableArgument(jObject, null, options, level + 1, '{', '}');
-    #endif
     
             var enumerable = value as IEnumerable;
             if (!String.IsNullOrEmpty(formatMask) && enumerable == null)
                 return
                     value is IFormattable formattable
-                        ? "\"" + formattable.ToString(formatMask, CultureInfo.InvariantCulture) + "\""
+                        ? $"\"{EscapeGraphQlStringValue(formattable.ToString(formatMask, CultureInfo.InvariantCulture))}\""
                         : throw new ArgumentException($"Value must implement {nameof(IFormattable)} interface to use a format mask. ", nameof(value));
     
             if (value is Enum @enum)
@@ -214,19 +193,19 @@ namespace GraphQlGenerator.Test
                 return @bool ? "true" : "false";
     
             if (value is DateTime dateTime)
-                return "\"" + dateTime.ToString("O") + "\"";
+                return $"\"{dateTime.ToString("O")}\"";
     
             if (value is DateTimeOffset dateTimeOffset)
-                return "\"" + dateTimeOffset.ToString("O") + "\"";
+                return $"\"{dateTimeOffset.ToString("O")}\"";
     
             if (value is IGraphQlInputObject inputObject)
                 return BuildInputObject(inputObject, options, level + 2);
     
             if (value is Guid)
-                return "\"" + value + "\"";
+                return $"\"{value}\"";
     
             if (value is String @string)
-                return "\"" + @string.Replace("\"", "\\\"") + "\"";
+                return $"\"{EscapeGraphQlStringValue(@string)}\"";
     
             if (enumerable != null)
                 return BuildEnumerableArgument(enumerable, formatMask, options, level, '[', ']');
@@ -235,10 +214,10 @@ namespace GraphQlGenerator.Test
                 return Convert.ToString(value, CultureInfo.InvariantCulture);
     
             var argumentValue = Convert.ToString(value, CultureInfo.InvariantCulture);
-            return "\"" + argumentValue + "\"";
+            return $"\"{argumentValue}\"";
         }
     
-        private static string BuildEnumerableArgument(IEnumerable enumerable, string formatMask, GraphQlBuilderOptions options, int level, char openingSymbol, char closingSymbol)
+        public static string BuildEnumerableArgument(IEnumerable enumerable, string formatMask, GraphQlBuilderOptions options, int level, char openingSymbol, char closingSymbol)
         {
             var builder = new StringBuilder();
             builder.Append(openingSymbol);
@@ -282,7 +261,7 @@ namespace GraphQlGenerator.Test
                 var queryBuilderParameter = propertyValue.Value as QueryBuilderParameter;
                 var value =
                     queryBuilderParameter?.Name != null
-                        ? "$" + queryBuilderParameter.Name
+                        ? $"${queryBuilderParameter.Name}"
                         : BuildArgumentValue(queryBuilderParameter == null ? propertyValue.Value : queryBuilderParameter.Value, propertyValue.FormatMask, options, level);
     
                 builder.Append(isIndentedFormatting ? GetIndentation(level, options.IndentationSize) : separator);
@@ -360,6 +339,73 @@ namespace GraphQlGenerator.Test
             return enumMemberAttribute == null
                 ? @enum.ToString()
                 : enumMemberAttribute.Value;
+        }
+    }
+    
+    public interface IGraphQlArgumentBuilder
+    {
+        bool TryBuild(GraphQlArgumentBuilderContext context, out string graphQlString);
+    }
+    
+    public class GraphQlArgumentBuilderContext
+    {
+        public object Value { get; set; }
+        public string FormatMask { get; set; }
+        public GraphQlBuilderOptions Options { get; set; }
+        public int Level { get; set; }
+    }
+    
+    public class DefaultGraphQlArgumentBuilder : IGraphQlArgumentBuilder
+    {
+        private static readonly Regex RegexWhiteSpace = new Regex(@"\s", RegexOptions.Compiled);
+    
+        public static readonly DefaultGraphQlArgumentBuilder Instance = new();
+    
+        public bool TryBuild(GraphQlArgumentBuilderContext context, out string graphQlString)
+        {
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+            if (context.Value is JValue jValue)
+            {
+                switch (jValue.Type)
+                {
+                    case JTokenType.Null:
+                        graphQlString = "null";
+                        return true;
+    
+                    case JTokenType.Integer:
+                    case JTokenType.Float:
+                    case JTokenType.Boolean:
+                        graphQlString = GraphQlQueryHelper.BuildArgumentValue(jValue.Value, null, context.Options, context.Level);
+                        return true;
+    
+                    case JTokenType.String:
+                        graphQlString = $"\"{GraphQlQueryHelper.EscapeGraphQlStringValue((string)jValue.Value)}\"";
+                        return true;
+    
+                    default:
+                        graphQlString = $"\"{jValue.Value}\"";
+                        return true;
+                }
+            }
+    
+            if (context.Value is JProperty jProperty)
+            {
+                if (RegexWhiteSpace.IsMatch(jProperty.Name))
+                    throw new ArgumentException($"JSON object keys used as GraphQL arguments must not contain whitespace; key: {jProperty.Name}");
+    
+                graphQlString = $"{jProperty.Name}:{(context.Options.Formatting == Formatting.Indented ? " " : null)}{GraphQlQueryHelper.BuildArgumentValue(jProperty.Value, null, context.Options, context.Level)}";
+                return true;
+            }
+    
+            if (context.Value is JObject jObject)
+            {
+                graphQlString = GraphQlQueryHelper.BuildEnumerableArgument(jObject, null, context.Options, context.Level + 1, '{', '}');
+                return true;
+            }
+    #endif
+    
+            graphQlString = null;
+            return false;
         }
     }
     
@@ -564,6 +610,7 @@ namespace GraphQlGenerator.Test
     {
         public Formatting Formatting { get; set; }
         public byte IndentationSize { get; set; } = 2;
+        public IGraphQlArgumentBuilder ArgumentBuilder { get; set; }
     }
     
     public abstract partial class GraphQlQueryBuilder : IGraphQlQueryBuilder
