@@ -233,6 +233,10 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
                         "GraphQl schema fetched successfully from " + serviceUrl));
             }
 
+            currentParameterName = "FileScopedNamespaces";
+            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKeyPrefix + currentParameterName, out var fileScopedNamespacesRaw);
+            configuration.FileScopedNamespaces = !String.IsNullOrWhiteSpace(fileScopedNamespacesRaw) && Convert.ToBoolean(fileScopedNamespacesRaw);
+
             var generator = new GraphQlGenerator(configuration);
 
             foreach (var (targetFileName, schema) in graphQlSchemas)

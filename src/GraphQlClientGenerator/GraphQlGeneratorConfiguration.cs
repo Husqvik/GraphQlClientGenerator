@@ -73,6 +73,8 @@ public class GraphQlGeneratorConfiguration
     /// </summary>
     public GetDataPropertyAccessorBodiesDelegate PropertyAccessorBodyWriter { get; set; }
 
+    public bool FileScopedNamespaces { get; set; }
+
     public GraphQlGeneratorConfiguration() => Reset();
 
     public void Reset()
@@ -95,6 +97,7 @@ public class GraphQlGeneratorConfiguration
         JsonPropertyGeneration = JsonPropertyGenerationOption.CaseInsensitive;
         PropertyGeneration = PropertyGenerationOption.AutoProperty;
         EnumValueNaming = EnumValueNamingOption.CSharp;
+        FileScopedNamespaces = false;
     }
 
     public string GeneratePropertyAccessors(string backingFieldName, ScalarFieldTypeDescription backingFieldType)
