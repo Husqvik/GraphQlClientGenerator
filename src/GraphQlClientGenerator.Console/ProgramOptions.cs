@@ -24,4 +24,5 @@ public class ProgramOptions
     public JsonPropertyGenerationOption JsonPropertyAttribute { get; set; }
     public EnumValueNamingOption EnumValueNaming { get; set; }
     public bool IncludeDeprecatedFields { get; set; }
+    public bool IncludeAppliedDirectives { get; set; }
 }

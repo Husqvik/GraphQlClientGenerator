@@ -59,7 +59,8 @@ internal static class Commands
                 new Option<EnumValueNamingOption>("--enumValueNaming", () => EnumValueNamingOption.CSharp, "Use \"Original\" to avoid pretty C# name conversion for maximum deserialization compatibility"),
                 new Option<bool>("--includeDeprecatedFields", () => false, "Includes deprecated fields in generated query builders and data classes"),
                 new Option<bool>("--fileScopedNamespaces", () => false, "Specifies if file-scoped namespaces should be used in generated files (C# 10+)"),
-                regexScalarFieldTypeMappingConfigurationOption
+                regexScalarFieldTypeMappingConfigurationOption,
+                new Option<bool>("--includeAppliedDirectives", () => false, "Include applied directives in Introspection Query")
             };
 
         command.TreatUnmatchedTokensAsErrors = true;
