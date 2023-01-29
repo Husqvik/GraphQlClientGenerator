@@ -87,14 +87,14 @@ using Newtonsoft.Json.Linq;
         {
             var graphQlResult = JsonConvert.DeserializeObject<GraphQlResult>(content, SerializerSettings);
 
-            var schema =
-                graphQlResult?.Data?.Schema
-                ?? JsonConvert.DeserializeObject<GraphQlData>(content, SerializerSettings)?.Schema;
-
-            if (graphQlResult != null && graphQlResult.Errors?.Any() == true)
+            if (graphQlResult?.Errors?.Any() == true)
             {
                 throw new InvalidOperationException($"Errors from introspection query:{Environment.NewLine}{string.Join(Environment.NewLine, graphQlResult.Errors.Select(e => e.Message))}");
             }
+
+            var schema =
+                graphQlResult?.Data?.Schema
+                ?? JsonConvert.DeserializeObject<GraphQlData>(content, SerializerSettings)?.Schema;
 
             if (schema is null)
                 throw new ArgumentException("not a GraphQL schema", nameof(content));
