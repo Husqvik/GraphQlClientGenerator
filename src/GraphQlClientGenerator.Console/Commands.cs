@@ -58,6 +58,7 @@ internal static class Commands
                 new Option<JsonPropertyGenerationOption>("--jsonPropertyAttribute", () => JsonPropertyGenerationOption.CaseInsensitive, "Specifies the condition for using \"JsonPropertyAttribute\""),
                 new Option<EnumValueNamingOption>("--enumValueNaming", () => EnumValueNamingOption.CSharp, "Use \"Original\" to avoid pretty C# name conversion for maximum deserialization compatibility"),
                 new Option<bool>("--includeDeprecatedFields", () => false, "Includes deprecated fields in generated query builders and data classes"),
+                new Option<bool>("--fileScopedNamespaces", () => false, "Specifies if file-scoped namespaces should be used in generated files (C# 10+)"),
                 regexScalarFieldTypeMappingConfigurationOption
             };
 
