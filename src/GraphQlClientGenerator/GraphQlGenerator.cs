@@ -796,7 +796,7 @@ using Newtonsoft.Json.Linq;
         GenerateCodeComments(writer, member.Description, context.Indentation + 4);
 
         var indentation = GetIndentation(context.Indentation);
-        
+
         if (isDeprecated)
         {
             WriteObsoleteAttribute(writer, deprecationReason, indentation);
