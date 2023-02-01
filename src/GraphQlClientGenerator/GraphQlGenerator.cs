@@ -799,9 +799,7 @@ using Newtonsoft.Json.Linq;
 
         if (isDeprecated)
         {
-            deprecationReason = String.IsNullOrWhiteSpace(deprecationReason) ? null : $"(@\"{deprecationReason.Replace("\"", "\"\"")}\")";
-            writer.Write(indentation);
-            writer.WriteLine($"    [Obsolete{deprecationReason}]");
+            WriteObsoleteAttribute(writer, deprecationReason, indentation);
         }
 
         if (decorateWithJsonPropertyAttribute)
@@ -1183,6 +1181,11 @@ using Newtonsoft.Json.Linq;
                     writer.Write("null");
             }
 
+            if (field.IsDeprecated)
+            {
+                WriteObsoleteAttribute(writer, field.DeprecationReason, indentation);
+            }
+
             if (fieldType.Kind is GraphQlTypeKind.Scalar or GraphQlTypeKind.Enum or GraphQlTypeKind.List)
             {
                 writer.Write(indentation);
@@ -1311,6 +1314,13 @@ using Newtonsoft.Json.Linq;
         writer.WriteLine("}");
 
         context.AfterQueryBuilderGeneration(className);
+    }
+
+    private void WriteObsoleteAttribute(TextWriter writer, string deprecationReason, string indentation)
+    {
+        deprecationReason = String.IsNullOrWhiteSpace(deprecationReason) ? null : $"(@\"{deprecationReason.Replace("\"", "\"\"")}\")";
+        writer.Write(indentation);
+        writer.WriteLine($"    [Obsolete{deprecationReason}]");
     }
 
     private IList<QueryBuilderParameterDefinition> ResolveParameterDefinitions(GenerationContext context, GraphQlType type, IEnumerable<GraphQlArgument> graphQlArguments)
