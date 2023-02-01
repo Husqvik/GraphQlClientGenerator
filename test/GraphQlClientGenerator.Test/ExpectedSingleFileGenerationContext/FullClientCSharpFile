@@ -1034,6 +1034,9 @@ namespace GraphQlGenerator.Test
         public static readonly IReadOnlyDictionary<Type, string> ReverseMapping =
             new Dictionary<Type, string>
             {
+                { typeof(Avatar), "Avatar" },
+                { typeof(PriceLevel), "PriceLevel" },
+                { typeof(Resolution), "Resolution" },
                 { typeof(bool), "Boolean" },
                 { typeof(DateTimeOffset), "String" },
                 { typeof(int), "Int" },

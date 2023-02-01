@@ -289,9 +289,9 @@ using Newtonsoft.Json.Linq;
             typeMappingSeparator = ",";
         }
 
-        foreach (var type in graphQlTypes.Where(t => t.Kind is GraphQlTypeKind.Object or GraphQlTypeKind.InputObject))
+        foreach (var type in graphQlTypes.Where(t => t.Kind is GraphQlTypeKind.Object or GraphQlTypeKind.InputObject or GraphQlTypeKind.Enum))
         {
-            if (type.Kind == GraphQlTypeKind.InputObject)
+            if (type.Kind is GraphQlTypeKind.InputObject or GraphQlTypeKind.Enum)
             {
                 var netType = $"{_configuration.ClassPrefix}{GetCSharpClassName(context, type.Name)}{_configuration.ClassSuffix}";
                 WriteMappingEntry(netType, type.Name);

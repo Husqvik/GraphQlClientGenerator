@@ -1049,6 +1049,13 @@ public static class GraphQlTypes
     public static readonly IReadOnlyDictionary<Type, string> ReverseMapping =
         new Dictionary<Type, string>
         {
+            { typeof(SourceGeneratedAppScreenV2), "AppScreen" },
+            { typeof(SourceGeneratedEnergyResolutionV2), "EnergyResolution" },
+            { typeof(SourceGeneratedHeatingSourceV2), "HeatingSource" },
+            { typeof(SourceGeneratedHomeAvatarV2), "HomeAvatar" },
+            { typeof(SourceGeneratedHomeTypeV2), "HomeType" },
+            { typeof(SourceGeneratedPriceLevelV2), "PriceLevel" },
+            { typeof(SourceGeneratedPriceResolutionV2), "PriceResolution" },
             { typeof(string), "String" },
             { typeof(DateTimeOffset), "String" },
             { typeof(double), "Float" },
