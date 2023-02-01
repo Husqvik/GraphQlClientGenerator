@@ -1599,6 +1599,7 @@ public partial class SourceGeneratedSubscriptionQueryBuilderV2 : GraphQlQueryBui
 
     public SourceGeneratedSubscriptionQueryBuilderV2 ExceptStatus() => ExceptField("status");
 
+    [Obsolete(@"no longer available.")]
     public SourceGeneratedSubscriptionQueryBuilderV2 WithStatusReason(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("statusReason", alias, new GraphQlDirective[] { skip, include });
 
     public SourceGeneratedSubscriptionQueryBuilderV2 ExceptStatusReason() => ExceptField("statusReason");
@@ -1814,6 +1815,7 @@ public partial class SourceGeneratedPageInfoQueryBuilderV2 : GraphQlQueryBuilder
 
     public SourceGeneratedPageInfoQueryBuilderV2 ExceptUnimplementedField() => ExceptField("unimplementedField");
 
+    [Obsolete(@"should not be generated")]
     public SourceGeneratedPageInfoQueryBuilderV2 WithUnimplementedDeprecatedField(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("unimplementedDeprecatedField", alias, new GraphQlDirective[] { skip, include });
 
     public SourceGeneratedPageInfoQueryBuilderV2 ExceptUnimplementedDeprecatedField() => ExceptField("unimplementedDeprecatedField");
@@ -1936,6 +1938,7 @@ public partial class SourceGeneratedHomeConsumptionPageInfoQueryBuilderV2 : Grap
 
     public SourceGeneratedHomeConsumptionPageInfoQueryBuilderV2 ExceptTotalCost() => ExceptField("totalCost");
 
+    [Obsolete(@"redundant")]
     public SourceGeneratedHomeConsumptionPageInfoQueryBuilderV2 WithEnergyCost(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("energyCost", alias, new GraphQlDirective[] { skip, include });
 
     public SourceGeneratedHomeConsumptionPageInfoQueryBuilderV2 ExceptEnergyCost() => ExceptField("energyCost");
@@ -1993,10 +1996,12 @@ public partial class SourceGeneratedConsumptionEntryQueryBuilderV2 : GraphQlQuer
 
     public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptConsumptionUnit() => ExceptField("consumptionUnit");
 
+    [Obsolete(@"use cost instead.")]
     public SourceGeneratedConsumptionEntryQueryBuilderV2 WithTotalCost(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("totalCost", alias, new GraphQlDirective[] { skip, include });
 
     public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptTotalCost() => ExceptField("totalCost");
 
+    [Obsolete(@"use cost instead")]
     public SourceGeneratedConsumptionEntryQueryBuilderV2 WithUnitCost(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("unitCost", alias, new GraphQlDirective[] { skip, include });
 
     public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptUnitCost() => ExceptField("unitCost");
