@@ -225,7 +225,10 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
             }
             else
             {
-                graphQlSchemas.Add((FileNameGraphQlClientSource, GraphQlGenerator.RetrieveSchema(new HttpMethod(httpMethod), serviceUrl, headers).GetAwaiter().GetResult()));
+                currentParameterName = "IncludeAppliedDirectives";
+                context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKeyPrefix + currentParameterName, out var includeAppliedDirectivesRaw);
+                var includeAppliedDirectives = !string.IsNullOrWhiteSpace(includeAppliedDirectivesRaw) && Convert.ToBoolean(includeAppliedDirectivesRaw);
+                graphQlSchemas.Add((FileNameGraphQlClientSource, GraphQlGenerator.RetrieveSchema(new HttpMethod(httpMethod), serviceUrl, includeAppliedDirectives, headers).GetAwaiter().GetResult()));
                 context.ReportDiagnostic(
                     Diagnostic.Create(
                         DescriptorInfo,
