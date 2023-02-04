@@ -104,6 +104,9 @@ public abstract class GraphQlTypeBase
 
     public GraphQlTypeKind Kind { get; set; }
     public string Name { get; set; }
+
+    [JsonExtensionData]
+    public IDictionary<string, object> Extensions { get; } = new Dictionary<string, object>(StringComparer.Ordinal);
 }
 
 public interface IGraphQlMember
