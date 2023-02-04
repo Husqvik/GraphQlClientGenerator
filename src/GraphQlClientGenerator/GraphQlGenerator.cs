@@ -67,7 +67,8 @@ using Newtonsoft.Json.Linq;
             foreach (var kvp in headers)
                 request.Headers.TryAddWithoutValidation(kvp.Key, kvp.Value);
 
-        using var response = await CreateHttpClient(messageHandler).SendAsync(request);
+        using var httpClient = CreateHttpClient(messageHandler);
+        using var response = await httpClient.SendAsync(request);
 
         var content =
             response.Content is null
