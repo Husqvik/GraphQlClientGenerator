@@ -193,7 +193,7 @@ internal static class GraphQlQueryHelper
         if (value is short || value is ushort || value is byte || value is int || value is uint || value is long || value is ulong || value is float || value is double || value is decimal)
             return Convert.ToString(value, CultureInfo.InvariantCulture);
 
-        var argumentValue = Convert.ToString(value, CultureInfo.InvariantCulture);
+        var argumentValue = EscapeGraphQlStringValue(Convert.ToString(value, CultureInfo.InvariantCulture));
         return $"\"{argumentValue}\"";
     }
 
