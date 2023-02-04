@@ -32,8 +32,8 @@ using Newtonsoft.Json.Linq;
 
     private delegate void WriteDataClassPropertyBodyDelegate(ScalarFieldTypeDescription netType, string backingFieldName);
 
-    private static readonly HttpClient HttpClient =
-        new()
+    private static HttpClient CreateHttpClient(HttpMessageHandler messageHandler = null) =>
+        new(messageHandler ?? new HttpClientHandler())
         {
             DefaultRequestHeaders =
             {
@@ -53,7 +53,7 @@ using Newtonsoft.Json.Linq;
     public GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null) =>
         _configuration = configuration ?? new GraphQlGeneratorConfiguration();
 
-    public static async Task<GraphQlSchema> RetrieveSchema(HttpMethod method, string url, IEnumerable<KeyValuePair<string, string>> headers = null)
+    public static async Task<GraphQlSchema> RetrieveSchema(HttpMethod method, string url, IEnumerable<KeyValuePair<string, string>> headers = null, HttpMessageHandler messageHandler = null)
     {
         StringContent requestContent = null;
         if (method == HttpMethod.Get)
@@ -67,7 +67,7 @@ using Newtonsoft.Json.Linq;
             foreach (var kvp in headers)
                 request.Headers.TryAddWithoutValidation(kvp.Key, kvp.Value);
 
-        using var response = await HttpClient.SendAsync(request);
+        using var response = await CreateHttpClient(messageHandler).SendAsync(request);
 
         var content =
             response.Content is null
