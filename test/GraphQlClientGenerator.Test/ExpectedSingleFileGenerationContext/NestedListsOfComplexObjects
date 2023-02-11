@@ -1,0 +1,132 @@
+#region GraphQL type helpers
+public static class GraphQlTypes
+{
+    public const string Boolean = "Boolean";
+    public const string String = "String";
+
+    public const string AnotherComplex = "AnotherComplex";
+    public const string ObjectWithNestedListsField = "ObjectWithNestedListsField";
+    public const string Query = "Query";
+
+    public static readonly IReadOnlyDictionary<Type, string> ReverseMapping =
+        new Dictionary<Type, string>
+        {
+            { typeof(string), "String" }
+        };
+}
+#endregion
+
+#region directives
+public class IncludeDirective : GraphQlDirective
+{
+    public IncludeDirective(QueryBuilderParameter<bool> @if) : base("include")
+    {
+        AddArgument("if", @if);
+    }
+}
+
+public class SkipDirective : GraphQlDirective
+{
+    public SkipDirective(QueryBuilderParameter<bool> @if) : base("skip")
+    {
+        AddArgument("if", @if);
+    }
+}
+#endregion
+
+#region builder classes
+public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "objectWithNestedListsField", IsComplex = true, QueryBuilderType = typeof(ObjectWithNestedListsFieldQueryBuilder) }
+        };
+
+    protected override string TypeName { get { return "Query"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public QueryQueryBuilder(string operationName = null) : base("query", operationName)
+    {
+    }
+
+    public QueryQueryBuilder WithParameter<T>(GraphQlQueryParameter<T> parameter)
+    {
+        return WithParameterInternal(parameter);
+    }
+
+    public QueryQueryBuilder WithObjectWithNestedListsField(ObjectWithNestedListsFieldQueryBuilder objectWithNestedListsFieldQueryBuilder, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
+    {
+        return WithObjectField("objectWithNestedListsField", alias, objectWithNestedListsFieldQueryBuilder, new GraphQlDirective[] { include, skip });
+    }
+
+    public QueryQueryBuilder ExceptObjectWithNestedListsField()
+    {
+        return ExceptField("objectWithNestedListsField");
+    }
+}
+
+public partial class ObjectWithNestedListsFieldQueryBuilder : GraphQlQueryBuilder<ObjectWithNestedListsFieldQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "nestedListOfComplexObjects", IsComplex = true, QueryBuilderType = typeof(AnotherComplexQueryBuilder) }
+        };
+
+    protected override string TypeName { get { return "ObjectWithNestedListsField"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public ObjectWithNestedListsFieldQueryBuilder WithNestedListOfComplexObjects(AnotherComplexQueryBuilder anotherComplexQueryBuilder, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
+    {
+        return WithObjectField("nestedListOfComplexObjects", alias, anotherComplexQueryBuilder, new GraphQlDirective[] { include, skip });
+    }
+
+    public ObjectWithNestedListsFieldQueryBuilder ExceptNestedListOfComplexObjects()
+    {
+        return ExceptField("nestedListOfComplexObjects");
+    }
+}
+
+public partial class AnotherComplexQueryBuilder : GraphQlQueryBuilder<AnotherComplexQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "justAString" }
+        };
+
+    protected override string TypeName { get { return "AnotherComplex"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public AnotherComplexQueryBuilder WithJustAString(string alias = null, IncludeDirective include = null, SkipDirective skip = null)
+    {
+        return WithScalarField("justAString", alias, new GraphQlDirective[] { include, skip });
+    }
+
+    public AnotherComplexQueryBuilder ExceptJustAString()
+    {
+        return ExceptField("justAString");
+    }
+}
+#endregion
+
+#region data classes
+public partial class Query
+{
+    public ObjectWithNestedListsField ObjectWithNestedListsField { get; set; }
+}
+
+public partial class ObjectWithNestedListsField
+{
+    public IList<IList<AnotherComplex>> NestedListOfComplexObjects { get; set; }
+}
+
+public partial class AnotherComplex
+{
+    public string JustAString { get; set; }
+}
+#endregion

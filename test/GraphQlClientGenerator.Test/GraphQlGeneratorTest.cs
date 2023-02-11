@@ -831,6 +831,22 @@ public class GraphQlGeneratorTest
         }
     }
 
+    [Fact]
+    public void WithNestedListsOfComplexObjects()
+    {
+        var configuration = new GraphQlGeneratorConfiguration();
+            
+        var schema = DeserializeTestSchema("TestSchemaWithNestedListsOfComplexObjects");
+
+        var stringBuilder = new StringBuilder();
+        var generator = new GraphQlGenerator(configuration);
+        generator.Generate(CreateGenerationContext(stringBuilder, schema));
+
+        var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.NestedListsOfComplexObjects");
+        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+        generatedSourceCode.ShouldBe(expectedOutput);
+    }
+
     private static string StripBaseClasses(string sourceCode)
     {
         using var reader = new StreamReader(typeof(GraphQlGenerator).Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses.cs"));
