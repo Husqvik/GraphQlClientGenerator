@@ -8,7 +8,7 @@
     <Title>GraphQL C# Client Generator Console App</Title>
     <PackageId>GraphQlClientGenerator.Tool</PackageId>
     <PackageTags>GraphQL Client Generator Tool Console</PackageTags>
-    <PackageReleaseNotes>support for --regexScalarFieldTypeMappingConfigurationFile parameter</PackageReleaseNotes>
+    <PackageReleaseNotes>support for --integerTypeMapping, --booleanTypeMapping, --includeDeprecatedFields, --fileScopedNamespaces</PackageReleaseNotes>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>graphql-client-generator</ToolCommandName>
     <LangVersion>latest</LangVersion>
