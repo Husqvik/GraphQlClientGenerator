@@ -432,7 +432,7 @@ using Newtonsoft.Json.Linq;
 
         foreach (var inputObjectType in inputObjectTypes)
         {
-            GenerateDataClass(
+            GenerateFileMember(
                 context,
                 GetCSharpClassName(context, inputObjectType.Name),
                 inputObjectType,
@@ -504,7 +504,7 @@ using Newtonsoft.Json.Linq;
             var interfacesToImplement = new List<string>();
             if (isInterface)
             {
-                interfacesToImplement.Add(GenerateInterface(context, csharpTypeName, complexType, () => GenerateBody(true)));
+                interfacesToImplement.Add(GenerateFileMember(context, csharpTypeName, complexType, null, () => GenerateBody(true)));
             }
             else if (complexType.Interfaces?.Count > 0)
             {
@@ -526,7 +526,7 @@ using Newtonsoft.Json.Linq;
                 interfacesToImplement.Add("IGraphQlInputObject");
 
             if (!isInterface)
-                GenerateDataClass(context, csharpTypeName, complexType, String.Join(", ", interfacesToImplement), () => GenerateBody(false));
+                GenerateFileMember(context, csharpTypeName, complexType, String.Join(", ", interfacesToImplement), () => GenerateBody(false));
         }
 
         context.AfterDataClassesGeneration();
@@ -654,17 +654,11 @@ using Newtonsoft.Json.Linq;
         writer.WriteLine("    }");
     }
 
-    private string GenerateInterface(GenerationContext context, string interfaceName, GraphQlType graphQlType, Action generateInterfaceBody) =>
-        GenerateFileMember(context, "interface", interfaceName, graphQlType, null, generateInterfaceBody);
-
-    private string GenerateDataClass(GenerationContext context, string typeName, GraphQlType graphQlType, string baseTypeName, Action generateClassBody) =>
-        GenerateFileMember(context, "class", typeName, graphQlType, baseTypeName, generateClassBody);
-
-    private string GenerateFileMember(GenerationContext context, string memberType, string typeName, GraphQlType graphQlType, string baseTypeName, Action generateFileMemberBody)
+    private string GenerateFileMember(GenerationContext context, string typeName, GraphQlType graphQlType, string baseTypeName, Action generateFileMemberBody)
     {
         typeName = $"{_configuration.ClassPrefix}{typeName}{_configuration.ClassSuffix}";
 
-        if (memberType == "interface")
+        if (graphQlType.Kind == GraphQlTypeKind.Interface)
             typeName = $"I{typeName}";
 
         ValidateClassName(typeName);
@@ -692,7 +686,7 @@ using Newtonsoft.Json.Linq;
         if (_configuration.GeneratePartialClasses)
             writer.Write("partial ");
 
-        writer.Write(memberType);
+        writer.Write(graphQlType.Kind == GraphQlTypeKind.Interface ? "interface" : "class");
         writer.Write(" ");
         writer.Write(typeName);
 
