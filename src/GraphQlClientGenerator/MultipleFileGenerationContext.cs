@@ -82,9 +82,9 @@ using Newtonsoft.Json;
     {
     }
 
-    public override void BeforeEnumGeneration(string enumName) => InitializeNewSourceCodeFile(enumName);
+    public override void BeforeEnumGeneration(ObjectGenerationContext context) => InitializeNewSourceCodeFile(context.CSharpTypeName);
 
-    public override void AfterEnumGeneration(string enumName) => WriteNamespaceEnd();
+    public override void AfterEnumGeneration(ObjectGenerationContext context) => WriteNamespaceEnd();
 
     public override void AfterEnumsGeneration()
     {
@@ -106,9 +106,9 @@ using Newtonsoft.Json;
     {
     }
 
-    public override void BeforeQueryBuilderGeneration(string className) => InitializeNewSourceCodeFile(className);
+    public override void BeforeQueryBuilderGeneration(ObjectGenerationContext context) => InitializeNewSourceCodeFile(context.CSharpTypeName);
 
-    public override void AfterQueryBuilderGeneration(string className) => WriteNamespaceEnd();
+    public override void AfterQueryBuilderGeneration(ObjectGenerationContext context) => WriteNamespaceEnd();
 
     public override void AfterQueryBuildersGeneration()
     {
@@ -126,9 +126,9 @@ using Newtonsoft.Json;
     {
     }
 
-    public override void BeforeDataClassGeneration(string className) => InitializeNewSourceCodeFile(className);
+    public override void BeforeDataClassGeneration(ObjectGenerationContext context) => InitializeNewSourceCodeFile(context.CSharpTypeName);
 
-    public override void AfterDataClassGeneration(string className) => WriteNamespaceEnd();
+    public override void AfterDataClassGeneration(ObjectGenerationContext context) => WriteNamespaceEnd();
 
     public override void AfterDataClassesGeneration()
     {

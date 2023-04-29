@@ -92,7 +92,7 @@ public abstract class GraphQlTypeBase
     public const string GraphQlTypeScalarInteger = "Int";
     public const string GraphQlTypeScalarString = "String";
 
-    internal static readonly ICollection<string> AllBuiltInScalarTypeNames =
+    internal static readonly IReadOnlyCollection<string> AllBuiltInScalarTypeNames =
         new HashSet<string>
         {
             GraphQlTypeScalarBoolean,

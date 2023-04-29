@@ -43,13 +43,13 @@ public class SingleFileGenerationContext : GenerationContext
 
     public override void BeforeEnumsGeneration() => WriteLine("#region enums");
 
-    public override void BeforeEnumGeneration(string enumName)
+    public override void BeforeEnumGeneration(ObjectGenerationContext context)
     {
         if (_enums > 0)
             Writer.WriteLine();
     }
 
-    public override void AfterEnumGeneration(string enumName) => _enums++;
+    public override void AfterEnumGeneration(ObjectGenerationContext context) => _enums++;
 
     public override void AfterEnumsGeneration()
     {
@@ -83,13 +83,13 @@ public class SingleFileGenerationContext : GenerationContext
         WriteLine("#region builder classes");
     }
 
-    public override void BeforeQueryBuilderGeneration(string className)
+    public override void BeforeQueryBuilderGeneration(ObjectGenerationContext context)
     {
         if (_queryBuilders > 0)
             Writer.WriteLine();
     }
 
-    public override void AfterQueryBuilderGeneration(string className) => _queryBuilders++;
+    public override void AfterQueryBuilderGeneration(ObjectGenerationContext context) => _queryBuilders++;
 
     public override void AfterQueryBuildersGeneration()
     {
@@ -116,13 +116,13 @@ public class SingleFileGenerationContext : GenerationContext
         WriteLine("#region data classes");
     }
 
-    public override void BeforeDataClassGeneration(string className)
+    public override void BeforeDataClassGeneration(ObjectGenerationContext context)
     {
         if (_dataClasses > 0)
             Writer.WriteLine();
     }
 
-    public override void AfterDataClassGeneration(string className) => _dataClasses++;
+    public override void AfterDataClassGeneration(ObjectGenerationContext context) => _dataClasses++;
 
     public override void AfterDataClassesGeneration() => WriteLine("#endregion");
 

@@ -663,7 +663,12 @@ using Newtonsoft.Json.Linq;
 
         ValidateClassName(typeName);
 
-        context.BeforeDataClassGeneration(typeName);
+        context.BeforeDataClassGeneration(
+            new ObjectGenerationContext
+            {
+                GraphQlType = graphQlType,
+                CSharpTypeName = typeName
+            });
 
         var writer = context.Writer;
 
@@ -705,7 +710,12 @@ using Newtonsoft.Json.Linq;
         writer.Write(indentation);
         writer.WriteLine("}");
 
-        context.AfterDataClassGeneration(typeName);
+        context.AfterDataClassGeneration(
+            new ObjectGenerationContext
+            {
+                GraphQlType = graphQlType,
+                CSharpTypeName = typeName
+            });
 
         return typeName;
     }
@@ -968,19 +978,24 @@ using Newtonsoft.Json.Linq;
     private static InvalidOperationException FieldTypeResolutionFailedException(string typeName, string fieldName, string reason) =>
         new($"field type resolution failed - type: {typeName}; field: {fieldName}{(reason is null ? null : "; reason: " + reason)}");
 
-    private void GenerateQueryBuilder(GenerationContext context, GraphQlType type, IReadOnlyDictionary<string, GraphQlType> complexTypes)
+    private void GenerateQueryBuilder(GenerationContext context, GraphQlType graphQlType, IReadOnlyDictionary<string, GraphQlType> complexTypes)
     {
         var schema = context.Schema;
-        var typeName = GetCSharpMemberName(type.Name);
+        var typeName = GetCSharpMemberName(graphQlType.Name);
         var className = $"{_configuration.ClassPrefix}{typeName}QueryBuilder{_configuration.ClassSuffix}";
 
-        var fields = type.Kind == GraphQlTypeKind.Union ? null : GetFieldsToGenerate(type, complexTypes);
+        var fields = graphQlType.Kind == GraphQlTypeKind.Union ? null : GetFieldsToGenerate(graphQlType, complexTypes);
         if (fields?.Count == 0)
             return;
 
         ValidateClassName(className);
 
-        context.BeforeQueryBuilderGeneration(className);
+        context.BeforeQueryBuilderGeneration(
+            new ObjectGenerationContext
+            {
+                GraphQlType = graphQlType,
+                CSharpTypeName = className
+            });
 
         var writer = context.Writer;
         var indentation = GetIndentation(context.Indentation);
@@ -1026,7 +1041,7 @@ using Newtonsoft.Json.Linq;
                 var field = fields[i];
                 var fieldType = field.Type.UnwrapIfNonNull();
                 var isList = fieldType.Kind == GraphQlTypeKind.List;
-                var treatUnknownObjectAsComplex = IsUnknownObjectScalar(type, field.Name, fieldType) && !_configuration.TreatUnknownObjectAsScalar;
+                var treatUnknownObjectAsComplex = IsUnknownObjectScalar(graphQlType, field.Name, fieldType) && !_configuration.TreatUnknownObjectAsScalar;
                 var isComplex = isList || treatUnknownObjectAsComplex || IsComplexType(fieldType.Kind);
 
                 writer.Write(fieldMetadataIndentation);
@@ -1049,14 +1064,14 @@ using Newtonsoft.Json.Linq;
                     if (isList)
                     {
                         var itemType = UnwrapListItemType(fieldType, out _)?.UnwrapIfNonNull();
-                        fieldType = itemType ?? throw ListItemTypeResolutionFailedException(type.Name, field.Name);
+                        fieldType = itemType ?? throw ListItemTypeResolutionFailedException(graphQlType.Name, field.Name);
                     }
 
                     if (fieldType.Kind != GraphQlTypeKind.Scalar && fieldType.Kind != GraphQlTypeKind.Enum && fieldType.Kind != GraphQlTypeKind.List)
                     {
                         var fieldTypeName = fieldType.Name;
                         if (fieldTypeName is null)
-                            throw FieldTypeResolutionFailedException(type.Name, field.Name, null);
+                            throw FieldTypeResolutionFailedException(graphQlType.Name, field.Name, null);
 
                         fieldTypeName = GetCSharpMemberName(fieldTypeName);
                             
@@ -1073,18 +1088,18 @@ using Newtonsoft.Json.Linq;
         }
 
         GraphQlDirectiveLocation directiveLocation;
-        if (type.Name == schema.QueryType?.Name)
+        if (graphQlType.Name == schema.QueryType?.Name)
             directiveLocation = GraphQlDirectiveLocation.Query;
-        else if (type.Name == schema.MutationType?.Name)
+        else if (graphQlType.Name == schema.MutationType?.Name)
             directiveLocation = GraphQlDirectiveLocation.Mutation;
-        else if (type.Name == schema.SubscriptionType?.Name)
+        else if (graphQlType.Name == schema.SubscriptionType?.Name)
             directiveLocation = GraphQlDirectiveLocation.Subscription;
         else
             directiveLocation = GraphQlDirectiveLocation.Field;
 
         var hasQueryPrefix = directiveLocation != GraphQlDirectiveLocation.Field;
 
-        WriteOverrideProperty("protected", "string", "TypeName", $"\"{type.Name}\"", indentation, writer);
+        WriteOverrideProperty("protected", "string", "TypeName", $"\"{graphQlType.Name}\"", indentation, writer);
 
         WriteOverrideProperty("public", "IReadOnlyList<GraphQlFieldMetadata>", "AllFields", "AllFieldMetadata", indentation, writer);
 
@@ -1120,7 +1135,7 @@ using Newtonsoft.Json.Linq;
             writer.WriteLine();
         }
 
-        var fragments = GetFragments(type, complexTypes);
+        var fragments = GetFragments(graphQlType, complexTypes);
         fields ??= new List<GraphQlField>();
         var firstFragmentIndex = fields.Count;
         fields.AddRange(fragments);
@@ -1134,7 +1149,7 @@ using Newtonsoft.Json.Linq;
                 
             fieldType = fieldType.UnwrapIfNonNull();
             var isFragment = i >= firstFragmentIndex;
-            var argumentDefinitions = ResolveParameterDefinitions(context, type, field.Args);
+            var argumentDefinitions = ResolveParameterDefinitions(context, graphQlType, field.Args);
             var argumentCollectionVariableName = "args";
             var counter = 0;
             while (argumentDefinitions.Any(a => a.NetParameterName == argumentCollectionVariableName))
@@ -1227,7 +1242,7 @@ using Newtonsoft.Json.Linq;
             {
                 var fieldTypeName = fieldType.Name;
                 if (String.IsNullOrEmpty(fieldTypeName))
-                    throw FieldTypeResolutionFailedException(type.Name, field.Name, null);
+                    throw FieldTypeResolutionFailedException(graphQlType.Name, field.Name, null);
 
                 fieldTypeName = GetCSharpMemberName(fieldTypeName);
 
@@ -1308,7 +1323,12 @@ using Newtonsoft.Json.Linq;
         writer.Write(indentation);
         writer.WriteLine("}");
 
-        context.AfterQueryBuilderGeneration(className);
+        context.AfterQueryBuilderGeneration(
+            new ObjectGenerationContext
+            {
+                GraphQlType = graphQlType,
+                CSharpTypeName = className
+            });
     }
 
     private void WriteObsoleteAttribute(TextWriter writer, string deprecationReason, string indentation)
@@ -1590,15 +1610,20 @@ using Newtonsoft.Json.Linq;
         }
     }
 
-    private void GenerateEnum(GenerationContext context, GraphQlType type)
+    private void GenerateEnum(GenerationContext context, GraphQlType graphQlType)
     {
-        var enumName = _configuration.ClassPrefix + NamingHelper.ToPascalCase(type.Name) + _configuration.ClassSuffix;
+        var enumName = $"{_configuration.ClassPrefix}{NamingHelper.ToPascalCase(graphQlType.Name)}{_configuration.ClassSuffix}";
             
-        context.BeforeEnumGeneration(enumName);
+        context.BeforeEnumGeneration(
+            new ObjectGenerationContext
+            {
+                GraphQlType = graphQlType,
+                CSharpTypeName = enumName
+            });
             
         var writer = context.Writer;
 
-        GenerateCodeComments(writer, type.Description, context.Indentation);
+        GenerateCodeComments(writer, graphQlType.Description, context.Indentation);
         var indentation = GetIndentation(context.Indentation);
         writer.Write(indentation);
         writer.Write("public enum ");
@@ -1606,7 +1631,7 @@ using Newtonsoft.Json.Linq;
         writer.Write(indentation);
         writer.WriteLine("{");
 
-        var enumValues = type.EnumValues.ToList();
+        var enumValues = graphQlType.EnumValues.ToList();
         for (var i = 0; i < enumValues.Count; i++)
         {
             var enumValue = enumValues[i];
@@ -1634,7 +1659,12 @@ using Newtonsoft.Json.Linq;
         writer.Write(indentation);
         writer.WriteLine("}");
 
-        context.AfterEnumGeneration(enumName);
+        context.AfterEnumGeneration(
+            new ObjectGenerationContext
+            {
+                GraphQlType = graphQlType,
+                CSharpTypeName = enumName
+            });
     }
 
     private static readonly HashSet<GraphQlDirectiveLocation> SupportedDirectiveLocations =
@@ -1665,7 +1695,7 @@ using Newtonsoft.Json.Linq;
 
     private void GenerateDirective(GenerationContext context, GraphQlDirective directive)
     {
-        var directiveName = NamingHelper.ToPascalCase(directive.Name) + "Directive";
+        var directiveName = $"{NamingHelper.ToPascalCase(directive.Name)}Directive";
 
         context.BeforeDirectiveGeneration(directiveName);
 

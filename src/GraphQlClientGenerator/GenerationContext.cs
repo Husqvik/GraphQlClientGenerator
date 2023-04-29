@@ -49,9 +49,9 @@ public abstract class GenerationContext
 
     public abstract void BeforeEnumsGeneration();
 
-    public abstract void BeforeEnumGeneration(string enumName);
+    public abstract void BeforeEnumGeneration(ObjectGenerationContext context);
 
-    public abstract void AfterEnumGeneration(string enumName);
+    public abstract void AfterEnumGeneration(ObjectGenerationContext context);
 
     public abstract void AfterEnumsGeneration();
 
@@ -65,9 +65,9 @@ public abstract class GenerationContext
 
     public abstract void BeforeQueryBuildersGeneration();
 
-    public abstract void BeforeQueryBuilderGeneration(string className);
+    public abstract void BeforeQueryBuilderGeneration(ObjectGenerationContext context);
 
-    public abstract void AfterQueryBuilderGeneration(string className);
+    public abstract void AfterQueryBuilderGeneration(ObjectGenerationContext context);
 
     public abstract void AfterQueryBuildersGeneration();
 
@@ -77,11 +77,17 @@ public abstract class GenerationContext
 
     public abstract void BeforeDataClassesGeneration();
 
-    public abstract void BeforeDataClassGeneration(string className);
+    public abstract void BeforeDataClassGeneration(ObjectGenerationContext context);
 
-    public abstract void AfterDataClassGeneration(string className);
+    public abstract void AfterDataClassGeneration(ObjectGenerationContext context);
 
     public abstract void AfterDataClassesGeneration();
 
     public abstract void AfterGeneration();
+}
+
+public struct ObjectGenerationContext
+{
+    public GraphQlType GraphQlType { get; set; }
+    public string CSharpTypeName { get; set; }
 }
