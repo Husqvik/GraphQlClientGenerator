@@ -24,7 +24,7 @@ public class GraphQlSchema
     public GraphQlRequestType SubscriptionType { get; set; }
 }
 
-[DebuggerDisplay(nameof(GraphQlDirective) + " (" + nameof(Name) + "={" + nameof(Name) + ",nq}; " + nameof(Description) + "={" + nameof(Description) + ",nq})")]
+[DebuggerDisplay($"{nameof(GraphQlDirective)} ({nameof(Name)}={{{nameof(Name)},nq}}; {nameof(Description)}={{{nameof(Description)},nq}})")]
 public class GraphQlDirective
 {
     public string Name { get; set; }
@@ -38,7 +38,7 @@ public class GraphQlRequestType
     public string Name { get; set; }
 }
 
-[DebuggerDisplay(nameof(GraphQlType) + " (" + nameof(Name) + "={" + nameof(Name) + ",nq}; " + nameof(Kind) + "={" + nameof(Kind) + "}; " + nameof(Description) + "={" + nameof(Description) + ",nq})")]
+[DebuggerDisplay($"{nameof(GraphQlType)} ({nameof(Name)}={{{nameof(Name)},nq}}; {nameof(Kind)}={{{nameof(Kind)}}}; {nameof(Description)}={{{nameof(Description)},nq}})")]
 public class GraphQlType : GraphQlTypeBase
 {
     public string Description { get; set; }
@@ -57,28 +57,28 @@ public abstract class GraphQlValueBase
     public string Description { get; set; }
 }
 
-[DebuggerDisplay(nameof(GraphQlEnumValue) + " (" + nameof(Name) + "={" + nameof(Name) + ",nq}; " + nameof(Description) + "={" + nameof(Description) + ",nq})")]
+[DebuggerDisplay($"{nameof(GraphQlEnumValue)} ({nameof(Name)}={{{nameof(Name)},nq}}; {nameof(Description)}={{{nameof(Description)},nq}})")]
 public class GraphQlEnumValue : GraphQlValueBase
 {
     public bool IsDeprecated { get; set; }
     public string DeprecationReason { get; set; }
 }
 
-[DebuggerDisplay(nameof(GraphQlField) + " (" + nameof(Name) + "={" + nameof(Name) + ",nq}; " + nameof(Description) + "={" + nameof(Description) + ",nq})")]
+[DebuggerDisplay($"{nameof(GraphQlField)} ({nameof(Name)}={{{nameof(Name)},nq}}; {nameof(Description)}={{{nameof(Description)},nq}})")]
 public class GraphQlField : GraphQlEnumValue, IGraphQlMember
 {
     public IList<GraphQlArgument> Args { get; set; }
     public GraphQlFieldType Type { get; set; }
 }
 
-[DebuggerDisplay(nameof(GraphQlArgument) + " (" + nameof(Name) + "={" + nameof(Name) + ",nq}; " + nameof(Description) + "={" + nameof(Description) + ",nq})")]
+[DebuggerDisplay($"{nameof(GraphQlArgument)} ({nameof(Name)}={{{nameof(Name)},nq}}; {nameof(Description)}={{{nameof(Description)},nq}})")]
 public class GraphQlArgument : GraphQlValueBase, IGraphQlMember
 {
     public GraphQlFieldType Type { get; set; }
     public object DefaultValue { get; set; }
 }
 
-[DebuggerDisplay(nameof(GraphQlFieldType) + " (" + nameof(Name) + "={" + nameof(Name) + ",nq}; " + nameof(Kind) + "={" + nameof(Kind) + "})")]
+[DebuggerDisplay($"{nameof(GraphQlFieldType)} ({nameof(Name)}={{{nameof(Name)},nq}}; {nameof(Kind)}={{{nameof(Kind)}}})")]
 public class GraphQlFieldType : GraphQlTypeBase
 {
     public GraphQlFieldType OfType { get; set; }
