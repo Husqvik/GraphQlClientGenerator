@@ -38,10 +38,10 @@ using Newtonsoft.Json;
 
     private string _currentFileName;
     private TextWriter _currentWriter;
-        
-    public override byte Indentation => 4;
 
-    public override TextWriter Writer => _currentWriter;
+    protected internal override TextWriter Writer => _currentWriter;
+
+    public override byte Indentation => 4;
 
     public IReadOnlyCollection<FileInfo> Files => _files;
 

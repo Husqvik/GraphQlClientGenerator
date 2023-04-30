@@ -10,7 +10,7 @@ public class SingleFileGenerationContext : GenerationContext
     private int _queryBuilders;
     private int _dataClasses;
 
-    public override TextWriter Writer { get; }
+    protected internal override TextWriter Writer { get; }
 
     public SingleFileGenerationContext(GraphQlSchema schema, TextWriter writer, GeneratedObjectType objectTypes = GeneratedObjectType.All, byte indentationSize = 0)
         : base(schema, objectTypes, indentationSize)
