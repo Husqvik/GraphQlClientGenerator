@@ -35,7 +35,6 @@ public static class GraphQlTypes
             { typeof(string), "String" },
             { typeof(Guid), "ID" },
             { typeof(DateTimeOffset), "DateTimeOffset" },
-            { typeof(decimal), "Float" },
             { typeof(Collision3), "Collision" },
             { typeof(InputType), "InputType" },
             { typeof(UnderscoreNamedInput), "underscore_named_input" }
