@@ -491,7 +491,6 @@ using Newtonsoft.Json.Linq;
                             complexType,
                             field,
                             NamingHelper.ToPascalCase(field.Name),
-                            isInterfaceMember,
                             field.IsDeprecated,
                             field.DeprecationReason,
                             true,
@@ -586,7 +585,6 @@ using Newtonsoft.Json.Linq;
                 type,
                 kvp.Value.Member,
                 NamingHelper.ToPascalCase(kvp.Value.Member.Name) + kvp.Value.NameExtension,
-                false,
                 false,
                 null,
                 true,
@@ -786,7 +784,6 @@ using Newtonsoft.Json.Linq;
         GraphQlType baseType,
         IGraphQlMember member,
         string propertyName,
-        bool isInterfaceMember,
         bool isDeprecated,
         string deprecationReason,
         bool decorateWithJsonPropertyAttribute,
@@ -820,6 +817,7 @@ using Newtonsoft.Json.Linq;
                 decorateWithJsonPropertyAttribute = false;
         }
 
+        var isInterfaceMember = baseType.Kind == GraphQlTypeKind.Interface;
         var fieldType = member.Type.UnwrapIfNonNull();
         var isGraphQlInterfaceJsonConverterRequired = fieldType.Kind == GraphQlTypeKind.Interface || fieldType.Kind == GraphQlTypeKind.List && UnwrapListItemType(fieldType, out _).UnwrapIfNonNull().Kind == GraphQlTypeKind.Interface;
         var isBaseTypeInputObject = baseType.Kind == GraphQlTypeKind.InputObject;
