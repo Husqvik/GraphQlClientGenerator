@@ -762,7 +762,7 @@ using Newtonsoft.Json.Linq;
     private string AddQuestionMarkIfNullableReferencesEnabled(string dataTypeIdentifier) => AddQuestionMarkIfNullableReferencesEnabled(_configuration, dataTypeIdentifier);
 
     internal static string AddQuestionMarkIfNullableReferencesEnabled(GraphQlGeneratorConfiguration configuration, string dataTypeIdentifier) =>
-        configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences ? dataTypeIdentifier + "?" : dataTypeIdentifier;
+        configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences ? $"{dataTypeIdentifier}?" : dataTypeIdentifier;
 
     private bool UseCustomClassNameIfDefined(ref string typeName)
     {
@@ -937,7 +937,7 @@ using Newtonsoft.Json.Linq;
         {
             BooleanTypeMapping.Boolean => "bool?",
             BooleanTypeMapping.Custom => _configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(_configuration, baseType, valueType, valueName).NetTypeName,
-            _ => throw new InvalidOperationException($"'{_configuration.BooleanTypeMapping}' not supported")
+            _ => throw new InvalidOperationException($"\"{_configuration.BooleanTypeMapping}\" not supported")
         };
 
     private ScalarFieldTypeDescription GetFloatNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
@@ -947,7 +947,7 @@ using Newtonsoft.Json.Linq;
             FloatTypeMapping.Float => ScalarFieldTypeDescription.FromNetTypeName("float?"),
             FloatTypeMapping.Double => ScalarFieldTypeDescription.FromNetTypeName("double?"),
             FloatTypeMapping.Custom => _configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(_configuration, baseType, valueType, valueName),
-            _ => throw new InvalidOperationException($"'{_configuration.FloatTypeMapping}' not supported")
+            _ => throw new InvalidOperationException($"\"{_configuration.FloatTypeMapping}\" not supported")
         };
 
     private ScalarFieldTypeDescription GetIntegerNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
@@ -957,7 +957,7 @@ using Newtonsoft.Json.Linq;
             IntegerTypeMapping.Int16 => ScalarFieldTypeDescription.FromNetTypeName("short?"),
             IntegerTypeMapping.Int64 => ScalarFieldTypeDescription.FromNetTypeName("long?"),
             IntegerTypeMapping.Custom => _configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(_configuration, baseType, valueType, valueName),
-            _ => throw new InvalidOperationException($"'{_configuration.IntegerTypeMapping}' not supported")
+            _ => throw new InvalidOperationException($"\"{_configuration.IntegerTypeMapping}\" not supported")
         };
 
     private ScalarFieldTypeDescription GetIdNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
@@ -967,14 +967,14 @@ using Newtonsoft.Json.Linq;
             IdTypeMapping.Guid => ScalarFieldTypeDescription.FromNetTypeName("Guid?"),
             IdTypeMapping.Object => ScalarFieldTypeDescription.FromNetTypeName(AddQuestionMarkIfNullableReferencesEnabled("object")),
             IdTypeMapping.Custom => _configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(_configuration, baseType, valueType, valueName),
-            _ => throw new InvalidOperationException($"'{_configuration.IdTypeMapping}' not supported")
+            _ => throw new InvalidOperationException($"\"{_configuration.IdTypeMapping}\" not supported")
         };
 
     private static InvalidOperationException ListItemTypeResolutionFailedException(string typeName, string fieldName) =>
         FieldTypeResolutionFailedException(typeName, fieldName, "list item type was not resolved; nested collections too deep");
 
     private static InvalidOperationException FieldTypeResolutionFailedException(string typeName, string fieldName, string reason) =>
-        new($"field type resolution failed - type: {typeName}; field: {fieldName}{(reason is null ? null : "; reason: " + reason)}");
+        new($"field type resolution failed - type: {typeName}; field: {fieldName}{(reason is null ? null : $"; reason: {reason}")}");
 
     private void GenerateQueryBuilder(GenerationContext context, GraphQlType graphQlType, IReadOnlyDictionary<string, GraphQlType> complexTypes)
     {
