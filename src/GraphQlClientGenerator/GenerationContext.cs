@@ -19,8 +19,6 @@ public abstract class GenerationContext
 
     internal IReadOnlyCollection<string> ReferencedObjectTypes => _referencedObjectTypes;
 
-    internal IReadOnlyDictionary<string, string> NameCollisionMapping => _nameCollisionMapping;
-
     public GraphQlSchema Schema { get; }
 
     public GeneratedObjectType ObjectTypes { get; }
@@ -209,7 +207,7 @@ public abstract class GenerationContext
         if (UseCustomClassNameIfDefined(ref csharpClassName))
             return csharpClassName;
 
-        return applyNameCollisionMapping && NameCollisionMapping.TryGetValue(graphQlName, out csharpClassName) ? csharpClassName : NamingHelper.ToPascalCase(graphQlName);
+        return applyNameCollisionMapping && _nameCollisionMapping.TryGetValue(graphQlName, out csharpClassName) ? csharpClassName : NamingHelper.ToPascalCase(graphQlName);
     }
 
     private bool UseCustomClassNameIfDefined(ref string typeName)
