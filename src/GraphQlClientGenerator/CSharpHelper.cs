@@ -50,4 +50,10 @@ public static class CSharpHelper
         var namespaceElements = @namespace.Split('.');
         return namespaceElements.All(e => IsValidIdentifier(e.Trim()));
     }
+
+    public static void ValidateClassName(string className)
+    {
+        if (!CSharpHelper.IsValidIdentifier(className))
+            throw new InvalidOperationException($"Resulting class name \"{className}\" is not valid. ");
+    }
 }

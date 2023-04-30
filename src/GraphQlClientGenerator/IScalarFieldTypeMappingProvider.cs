@@ -9,6 +9,8 @@ public struct ScalarFieldTypeDescription
 {
     public string NetTypeName { get; set; }
     public string FormatMask { get; set; }
+
+    public static ScalarFieldTypeDescription FromNetTypeName(string netTypeName) => new() { NetTypeName = netTypeName };
 }
 
 public sealed class DefaultScalarFieldTypeMappingProvider : IScalarFieldTypeMappingProvider
