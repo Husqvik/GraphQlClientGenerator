@@ -31,7 +31,7 @@ public sealed class DefaultScalarFieldTypeMappingProvider : IScalarFieldTypeMapp
     {
         valueType = (valueType as GraphQlFieldType)?.UnwrapIfNonNull() ?? valueType;
         if (valueType.Kind == GraphQlTypeKind.Enum)
-            return new ScalarFieldTypeDescription { NetTypeName = configuration.ClassPrefix + NamingHelper.ToPascalCase(valueType.Name) + configuration.ClassSuffix + "?" };
+            return new ScalarFieldTypeDescription { NetTypeName = $"{configuration.ClassPrefix}{NamingHelper.ToPascalCase(valueType.Name)}{configuration.ClassSuffix}?" };
 
         var dataType = valueType.Name == GraphQlTypeBase.GraphQlTypeScalarString ? "string" : "object";
         return new ScalarFieldTypeDescription { NetTypeName = GraphQlGenerator.AddQuestionMarkIfNullableReferencesEnabled(configuration, dataType) };
