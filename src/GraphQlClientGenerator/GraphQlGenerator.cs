@@ -150,6 +150,7 @@ using Newtonsoft.Json.Linq;
     public void Generate(GenerationContext context)
     {
         context.Initialize(_configuration);
+        context.BeforeGeneration();
 
         GenerateBaseClasses(context);
 
@@ -172,7 +173,7 @@ using Newtonsoft.Json.Linq;
     {
         context.BeforeGraphQlTypeNameGeneration();
 
-        var indentation = CSharpHelper.GetIndentation(context.Indentation);
+        var indentation = GetIndentation(context.Indentation);
         var writer = context.Writer;
         writer.Write(indentation);
         writer.WriteLine("public static class GraphQlTypes");
@@ -298,7 +299,7 @@ using Newtonsoft.Json.Linq;
 
         context.BeforeBaseClassGeneration();
 
-        var indentation = CSharpHelper.GetIndentation(context.Indentation);
+        var indentation = GetIndentation(context.Indentation);
 
         using var reader = new StreamReader(typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses.cs"));
         do
@@ -370,7 +371,7 @@ using Newtonsoft.Json.Linq;
                     var generateBackingFields = _configuration.PropertyGeneration == PropertyGenerationOption.BackingField && !isInterfaceMember;
                     if (generateBackingFields)
                     {
-                        var indentation = CSharpHelper.GetIndentation(context.Indentation);
+                        var indentation = GetIndentation(context.Indentation);
 
                         foreach (var field in fieldsToGenerate)
                         {
@@ -435,7 +436,7 @@ using Newtonsoft.Json.Linq;
     private void GenerateInputDataClassBody(GraphQlType type, IEnumerable<IGraphQlMember> members, GenerationContext context)
     {
         var writer = context.Writer;
-        var indentation = CSharpHelper.GetIndentation(context.Indentation);
+        var indentation = GetIndentation(context.Indentation);
 
         var fieldNameMembers = new Dictionary<string, (IGraphQlMember Member, int? NameExtension)>();
         foreach (var member in members)
@@ -550,7 +551,7 @@ using Newtonsoft.Json.Linq;
 
         GenerateCodeComments(writer, graphQlType.Description, context.Indentation);
 
-        var indentation = CSharpHelper.GetIndentation(context.Indentation);
+        var indentation = GetIndentation(context.Indentation);
 
         if (graphQlType.Interfaces?.Count > 0)
         {
@@ -622,7 +623,7 @@ using Newtonsoft.Json.Linq;
 
         GenerateCodeComments(writer, member.Description, context.Indentation + 4);
 
-        var indentation = CSharpHelper.GetIndentation(context.Indentation);
+        var indentation = GetIndentation(context.Indentation);
 
         if (isDeprecated)
         {
@@ -719,7 +720,7 @@ using Newtonsoft.Json.Linq;
             });
 
         var writer = context.Writer;
-        var indentation = CSharpHelper.GetIndentation(context.Indentation);
+        var indentation = GetIndentation(context.Indentation);
         writer.Write(indentation);
         writer.Write(GetMemberAccessibility());
         writer.Write(" ");
@@ -1339,7 +1340,7 @@ using Newtonsoft.Json.Linq;
         var writer = context.Writer;
 
         GenerateCodeComments(writer, graphQlType.Description, context.Indentation);
-        var indentation = CSharpHelper.GetIndentation(context.Indentation);
+        var indentation = GetIndentation(context.Indentation);
         writer.Write(indentation);
         writer.Write("public enum ");
         writer.WriteLine(enumName);
@@ -1421,7 +1422,7 @@ using Newtonsoft.Json.Linq;
         var orderedArgumentDefinitions = ResolveParameterDefinitions(context, null, directive.Args.OrderByDescending(a => a.Type.Kind == GraphQlTypeKind.NonNull));
         var argumentList = String.Join(", ", orderedArgumentDefinitions.Select(d => d.NetParameterDefinitionClause));
 
-        var indentation = CSharpHelper.GetIndentation(context.Indentation);
+        var indentation = GetIndentation(context.Indentation);
         writer.Write(indentation);
         writer.Write("public class ");
         writer.Write(directiveName);
@@ -1462,7 +1463,7 @@ using Newtonsoft.Json.Linq;
         if (String.IsNullOrWhiteSpace(description))
             return;
 
-        var indentation = CSharpHelper.GetIndentation(indentationSize);
+        var indentation = GetIndentation(indentationSize);
 
         if (_configuration.CommentGeneration.HasFlag(CommentGenerationOption.CodeSummary))
         {
@@ -1481,6 +1482,8 @@ using Newtonsoft.Json.Linq;
             writer.WriteLine($"[Description(@\"{description.Replace("\"", "\"\"")}\")]");
         }
     }
+
+    public static string GetIndentation(int size) => new(' ', size);
 
     private struct QueryBuilderParameterDefinition
     {

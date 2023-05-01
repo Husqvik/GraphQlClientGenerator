@@ -16,7 +16,7 @@ public class SingleFileGenerationContext : GenerationContext
         : base(schema, objectTypes, indentationSize)
     {
         Writer = writer ?? throw new ArgumentNullException(nameof(writer));
-        _indentation = CSharpHelper.GetIndentation(indentationSize);
+        _indentation = GraphQlGenerator.GetIndentation(indentationSize);
     }
 
     public override void BeforeGeneration() => _enums = _directives = _queryBuilders = _dataClasses = 0;
