@@ -42,14 +42,17 @@ public abstract class GenerationContext
     public bool FilterDeprecatedFields(GraphQlField field) =>
         !field.IsDeprecated || Configuration.IncludeDeprecatedFields;
 
-    public virtual void BeforeGeneration(GraphQlGeneratorConfiguration configuration)
+    internal void Initialize(GraphQlGeneratorConfiguration configuration)
     {
         Configuration = configuration;
         _nameCollisionMapping.Clear();
         _referencedObjectTypes.Clear();
         _complexTypes = Schema.GetComplexTypes().ToDictionary(t => t.Name);
         ResolveNameCollisions();
+        BeforeGeneration();
     }
+
+    public abstract void BeforeGeneration();
 
     public abstract void BeforeBaseClassGeneration();
 

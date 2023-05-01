@@ -64,11 +64,7 @@ using Newtonsoft.Json;
         _projectFileName = projectFileName;
     }
 
-    public override void BeforeGeneration(GraphQlGeneratorConfiguration configuration)
-    {
-        _files.Clear();
-        base.BeforeGeneration(configuration);
-    }
+    public override void BeforeGeneration() => _files.Clear();
 
     public override void BeforeBaseClassGeneration() => InitializeNewSourceCodeFile("BaseClasses", GraphQlGenerator.RequiredNamespaces);
 

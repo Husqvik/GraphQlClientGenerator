@@ -16,14 +16,10 @@ public class SingleFileGenerationContext : GenerationContext
         : base(schema, objectTypes, indentationSize)
     {
         Writer = writer ?? throw new ArgumentNullException(nameof(writer));
-        _indentation = new String(' ', indentationSize);
+        _indentation = CSharpHelper.GetIndentation(indentationSize);
     }
 
-    public override void BeforeGeneration(GraphQlGeneratorConfiguration configuration)
-    {
-        _enums = _directives = _queryBuilders = _dataClasses = 0;
-        base.BeforeGeneration(configuration);
-    }
+    public override void BeforeGeneration() => _enums = _directives = _queryBuilders = _dataClasses = 0;
 
     public override void BeforeBaseClassGeneration() => WriteLine("#region base classes");
 

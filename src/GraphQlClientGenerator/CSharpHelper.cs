@@ -56,4 +56,6 @@ public static class CSharpHelper
         if (!CSharpHelper.IsValidIdentifier(className))
             throw new InvalidOperationException($"Resulting class name \"{className}\" is not valid. ");
     }
+
+    public static string GetIndentation(int size) => new(' ', size);
 }
