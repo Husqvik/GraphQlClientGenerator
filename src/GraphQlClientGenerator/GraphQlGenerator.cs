@@ -819,17 +819,29 @@ using Newtonsoft.Json.Linq;
         else
             directiveLocation = GraphQlDirectiveLocation.Field;
 
-        if (type.Kind is GraphQlTypeKind.Interface or GraphQlTypeKind.Union)
+        var useCompatibleSyntax = _configuration.CSharpVersion == CSharpVersion.Compatible;
+
+        if (graphQlType.Kind is GraphQlTypeKind.Interface or GraphQlTypeKind.Union)
         {
-            var constructorIndentation = indentation + "    ";
+            var constructorIndentation = $"{indentation}    ";
             writer.Write(constructorIndentation);
-            writer.WriteLine($"public {className}()");
-            writer.Write(constructorIndentation);
-            writer.WriteLine("{");
-            writer.Write(constructorIndentation);
-            writer.WriteLine("    WithTypeName();");
-            writer.Write(constructorIndentation);
-            writer.WriteLine("}");
+            writer.Write("public ");
+            writer.Write(className);
+            writer.Write("()");
+
+            if (useCompatibleSyntax)
+            {
+                writer.WriteLine();
+                writer.Write(constructorIndentation);
+                writer.WriteLine("{");
+                writer.Write(constructorIndentation);
+                writer.WriteLine("    WithTypeName();");
+                writer.Write(constructorIndentation);
+                writer.WriteLine("}");
+            }
+            else
+                writer.WriteLine(" => WithTypeName();");
+
             writer.WriteLine();
         }
 
@@ -841,7 +853,6 @@ using Newtonsoft.Json.Linq;
 
         string ReturnPrefix(bool requiresFullBody) => requiresFullBody ? indentation + "        return " : String.Empty;
 
-        var useCompatibleSyntax = _configuration.CSharpVersion == CSharpVersion.Compatible;
         var stringDataType = AddQuestionMarkIfNullableReferencesEnabled("string");
 
         if (hasQueryPrefix)

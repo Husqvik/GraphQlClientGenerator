@@ -1807,10 +1807,7 @@ public partial class SourceGeneratedPageInfoQueryBuilderV2 : GraphQlQueryBuilder
         new GraphQlFieldMetadata { Name = "startCursor" }
     };
 
-    public SourceGeneratedPageInfoQueryBuilderV2()
-    {
-        WithTypeName();
-    }
+    public SourceGeneratedPageInfoQueryBuilderV2() => WithTypeName();
 
     protected override string TypeName { get; } = "PageInfo";
 
