@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -45,7 +46,7 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
         var generatedSource = GenerateSource(null, scalarFieldTypeMappingProviderTypeName, useFileScopedNamespace);
 
         generatedSource.Encoding.ShouldBe(Encoding.UTF8);
-        var sourceCode = generatedSource.ToString();
+        var sourceCode = generatedSource.ToString().NormalizeLineEndings();
 
         var expectedSourceCode = GetExpectedSourceText(expectedResultResourceName);
         sourceCode.ShouldBe(expectedSourceCode);
@@ -55,7 +56,7 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
     public void SourceGenerationWithRegexCustomScalarFieldTypeMappingProvider()
     {
         var generatedSource = GenerateSource(_fileMappingRules, null, false);
-        var sourceCode = generatedSource.ToString();
+        var sourceCode = generatedSource.ToString().NormalizeLineEndings();
 
         var expectedSourceCode = GetExpectedSourceText("SourceGeneratorResult").Replace("typeof(DateTimeOffset)", "typeof(DateTime)").Replace("DateTimeOffset?", "DateTime?");
         sourceCode.ShouldBe(expectedSourceCode);
@@ -64,7 +65,7 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
     private static string GetExpectedSourceText(string expectedResultsFile)
     {
         using var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream($"GraphQlClientGenerator.Test.ExpectedSingleFileGenerationContext.{expectedResultsFile}"));
-        return reader.ReadToEnd();
+        return reader.ReadToEnd().NormalizeLineEndings();
     }
 
     private SourceText GenerateSource(AdditionalText additionalFile, string scalarFieldTypeMappingProviderTypeName, bool useFileScopedNamespaces)

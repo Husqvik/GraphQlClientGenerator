@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Newtonsoft.Json;
@@ -211,13 +212,13 @@ public class GraphQlGeneratorTest
                 });
 
             var expectedOutput = GetTestResource("ExpectedMultipleFilesContext.Avatar");
-            File.ReadAllText(Path.Combine(directoryInfo.FullName, "Avatar.cs")).ShouldBe(expectedOutput);
+            File.ReadAllText(Path.Combine(directoryInfo.FullName, "Avatar.cs")).NormalizeLineEndings().ShouldBe(expectedOutput);
             expectedOutput = GetTestResource("ExpectedMultipleFilesContext.Home");
-            File.ReadAllText(Path.Combine(directoryInfo.FullName, "Home.cs")).ShouldBe(expectedOutput);
+            File.ReadAllText(Path.Combine(directoryInfo.FullName, "Home.cs")).NormalizeLineEndings().ShouldBe(expectedOutput);
             expectedOutput = GetTestResource("ExpectedMultipleFilesContext.IncludeDirective");
-            File.ReadAllText(Path.Combine(directoryInfo.FullName, "IncludeDirective.cs")).ShouldBe(expectedOutput);
+            File.ReadAllText(Path.Combine(directoryInfo.FullName, "IncludeDirective.cs")).NormalizeLineEndings().ShouldBe(expectedOutput);
             expectedOutput = GetTestResource("ExpectedMultipleFilesContext.MutationQueryBuilder");
-            File.ReadAllText(Path.Combine(directoryInfo.FullName, "MutationQueryBuilder.cs")).ShouldBe(expectedOutput);
+            File.ReadAllText(Path.Combine(directoryInfo.FullName, "MutationQueryBuilder.cs")).NormalizeLineEndings().ShouldBe(expectedOutput);
         }
         finally
         {
@@ -233,9 +234,9 @@ public class GraphQlGeneratorTest
             {
                 CommentGeneration = CommentGenerationOption.CodeSummary | CommentGenerationOption.DescriptionAttribute
             };
-            
+
         var generator = new GraphQlGenerator(configuration);
-        var generatedSourceCode = generator.GenerateFullClientCSharpFile(TestSchema, "GraphQlGenerator.Test");
+        var generatedSourceCode = generator.GenerateFullClientCSharpFile(TestSchema, "GraphQlGenerator.Test").NormalizeLineEndings();
         var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.FullClientCSharpFile");
         generatedSourceCode.ShouldBe(expectedOutput);
     }
@@ -250,7 +251,7 @@ public class GraphQlGeneratorTest
         new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GeneratedObjectType.BaseClasses | GeneratedObjectType.QueryBuilders));
 
         var expectedQueryBuilders = GetTestResource("ExpectedSingleFileGenerationContext.QueryBuilders");
-        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString()).NormalizeLineEndings();
         generatedSourceCode.ShouldBe(expectedQueryBuilders);
     }
 
@@ -263,7 +264,7 @@ public class GraphQlGeneratorTest
         var stringBuilder = new StringBuilder();
         new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GeneratedObjectType.DataClasses));
         var expectedDataClasses = GetTestResource("ExpectedSingleFileGenerationContext.DataClasses");
-        stringBuilder.ToString().ShouldBe(expectedDataClasses);
+        stringBuilder.ToString().NormalizeLineEndings().ShouldBe(expectedDataClasses);
     }
 
     [Fact]
@@ -284,7 +285,7 @@ public class GraphQlGeneratorTest
         var stringBuilder = new StringBuilder();
         new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GeneratedObjectType.DataClasses));
         var expectedDataClasses = GetTestResource("ExpectedSingleFileGenerationContext.DataClassesWithTypeConfiguration");
-        stringBuilder.ToString().ShouldBe(expectedDataClasses);
+        stringBuilder.ToString().NormalizeLineEndings().ShouldBe(expectedDataClasses);
     }
 
     private class TestCustomBooleanTypeMappingProvider : IScalarFieldTypeMappingProvider
@@ -311,7 +312,7 @@ public class GraphQlGeneratorTest
         generator.Generate(CreateGenerationContext(stringBuilder, schema));
 
         var expectedDataClasses = GetTestResource("ExpectedSingleFileGenerationContext.FormatMasks");
-        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString()).NormalizeLineEndings();
         generatedSourceCode.ShouldBe(expectedDataClasses);
     }
 
@@ -346,14 +347,14 @@ public class GraphQlGeneratorTest
                 ClassSuffix = "V1",
                 MemberAccessibility = MemberAccessibility.Internal
             };
-            
+
         var schema = DeserializeTestSchema("TestSchema2");
 
         var stringBuilder = new StringBuilder();
         var generator = new GraphQlGenerator(configuration);
         generator.Generate(CreateGenerationContext(stringBuilder, schema));
 
-        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString()).NormalizeLineEndings();
         var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.NewCSharpSyntaxWithClassPrefixAndSuffix");
         generatedSourceCode.ShouldBe(expectedOutput);
 
@@ -373,7 +374,7 @@ public class GraphQlGeneratorTest
         generator.Generate(CreateGenerationContext(stringBuilder, schema));
 
         var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.NullableReferences");
-        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString()).NormalizeLineEndings();
         generatedSourceCode.ShouldBe(expectedOutput);
     }
 
@@ -388,7 +389,7 @@ public class GraphQlGeneratorTest
                 EnumValueNaming = EnumValueNamingOption.Original,
                 ScalarFieldTypeMappingProvider = TestFormatMaskScalarFieldTypeMappingProvider.Instance
             };
-            
+
         var schema = DeserializeTestSchema("TestSchemaWithUnions");
 
         var stringBuilder = new StringBuilder();
@@ -396,7 +397,7 @@ public class GraphQlGeneratorTest
         generator.Generate(CreateGenerationContext(stringBuilder, schema));
 
         var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.Unions");
-        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString()).NormalizeLineEndings();
         generatedSourceCode.ShouldBe(expectedOutput);
     }
 
@@ -548,13 +549,18 @@ public class GraphQlGeneratorTest
                 .GetMethod("Build", new[] { formattingType, typeof(byte) })
                 .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
 
-        query.ShouldBe("{testField(valueInt16:1,valueUInt16:2,valueByte:3,valueInt32:4,valueUInt32:5,valueInt64:6,valueUInt64:7,valueSingle:8.123,valueDouble:9.456,valueDecimal:10.789,valueDateTime:\"19-06-30 00:27Z\",valueDateTimeOffset:\"2019-06-30T02:27:47.1234567+02:00\",valueGuid:\"00000000-0000-0000-0000-000000000000\",valueString:\"\\\"string\\\" value\"),fieldAlias:objectParameter(objectParameter:[{rootProperty1:\"root value 1\",rootProperty2:123.456,rootProperty3:true,rootProperty4:null,rootProperty5:{nestedProperty1:987,nestedProperty2:\"a \\\"quoted\\\" value\"}},[{rootProperty1:\"root value 2\"},{rootProperty1:false}]])@include(if:$direct)@skip(if:false)}");
+        query.ShouldBe(
+            "{testField(valueInt16:1,valueUInt16:2,valueByte:3,valueInt32:4,valueUInt32:5,valueInt64:6,valueUInt64:7,valueSingle:8.123,valueDouble:9.456,valueDecimal:10.789," +
+            "valueDateTime:\"\"\"19-06-30 00:27Z\"\"\",valueDateTimeOffset:\"\"\"2019-06-30T02:27:47.1234567+02:00\"\"\",valueGuid:\"\"\"00000000-0000-0000-0000-000000000000\"\"\",valueString:\"\"\"\\\"string\\\" value\"\"\"),"+
+            "fieldAlias:objectParameter(objectParameter:[{rootProperty1:\"\"\"root value 1\"\"\",rootProperty2:123.456,rootProperty3:true,rootProperty4:null,rootProperty5:{nestedProperty1:987,"+
+            "nestedProperty2:\"\"\"a \\\"quoted\\\" value\"\"\"}},[{rootProperty1:\"\"\"root value 2\"\"\"},{rootProperty1:false}]])@include(if:$direct)@skip(if:false)}");
         query =
             builderType
                 .GetMethod("Build", new[] { formattingType, typeof(byte) })
                 .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "Indented"), (byte)2 });
 
-        query.ShouldBe($"{{{Environment.NewLine}  testField(valueInt16: 1, valueUInt16: 2, valueByte: 3, valueInt32: 4, valueUInt32: 5, valueInt64: 6, valueUInt64: 7, valueSingle: 8.123, valueDouble: 9.456, valueDecimal: 10.789, valueDateTime: \"19-06-30 00:27Z\", valueDateTimeOffset: \"2019-06-30T02:27:47.1234567+02:00\", valueGuid: \"00000000-0000-0000-0000-000000000000\", valueString: \"\\\"string\\\" value\"){Environment.NewLine}  fieldAlias: objectParameter(objectParameter: [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 1\",{Environment.NewLine}      rootProperty2: 123.456,{Environment.NewLine}      rootProperty3: true,{Environment.NewLine}      rootProperty4: null,{Environment.NewLine}      rootProperty5: {{{Environment.NewLine}        nestedProperty1: 987,{Environment.NewLine}        nestedProperty2: \"a \\\"quoted\\\" value\"}}}},{Environment.NewLine}    [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 2\"}},{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: false}}]]) @include(if: $direct) @skip(if: false){Environment.NewLine}}}");
+        query.ShouldBe(
+            $"{{{Environment.NewLine}  testField(valueInt16: 1, valueUInt16: 2, valueByte: 3, valueInt32: 4, valueUInt32: 5, valueInt64: 6, valueUInt64: 7, valueSingle: 8.123, valueDouble: 9.456, valueDecimal: 10.789, valueDateTime: \"\"\"19-06-30 00:27Z\"\"\", valueDateTimeOffset: \"\"\"2019-06-30T02:27:47.1234567+02:00\"\"\", valueGuid: \"\"\"00000000-0000-0000-0000-000000000000\"\"\", valueString: \"\"\"\\\"string\\\" value\"\"\"){Environment.NewLine}  fieldAlias: objectParameter(objectParameter: [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"\"\"root value 1\"\"\",{Environment.NewLine}      rootProperty2: 123.456,{Environment.NewLine}      rootProperty3: true,{Environment.NewLine}      rootProperty4: null,{Environment.NewLine}      rootProperty5: {{{Environment.NewLine}        nestedProperty1: 987,{Environment.NewLine}        nestedProperty2: \"\"\"a \\\"quoted\\\" value\"\"\"}}}},{Environment.NewLine}    [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"\"\"root value 2\"\"\"}},{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: false}}]]) @include(if: $direct) @skip(if: false){Environment.NewLine}}}");
 
         var rootQueryBuilderType = Type.GetType($"{assemblyName}.QueryQueryBuilder, {assemblyName}");
         rootQueryBuilderType.ShouldNotBeNull();
@@ -631,7 +637,7 @@ public class GraphQlGeneratorTest
     private static string GetTestResource(string name)
     {
         using var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream($"GraphQlClientGenerator.Test.{name}"));
-        return reader.ReadToEnd();
+        return reader.ReadToEnd().NormalizeLineEndings();
     }
 
     private void CompileIntoAssembly(string sourceCode, string assemblyName)
@@ -787,7 +793,9 @@ public class GraphQlGeneratorTest
                 .GetMethod("Build", new[] { formattingType, typeof(byte) })
                 .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
 
-        mutation.ShouldBe("mutation($stringParameter:String=\"Test Value\",$objectParameter:[TestInput!]={testProperty:\"Input Object Parameter Value\",timestamp:\"19-06-30 02:27+02:00\"}){testAction(objectParameter:{inputObject1:{testProperty:\"Nested Value\"},inputObject2:$objectParameter,testProperty:$stringParameter,testNullValueProperty:null})}");
+        mutation.ShouldBe(
+            "mutation($stringParameter:String=\"\"\"Test Value\"\"\",$objectParameter:[TestInput!]={testProperty:\"\"\"Input Object Parameter Value\"\"\",timestamp:\"\"\"19-06-30 02:27+02:00\"\"\"}){"+
+            "testAction(objectParameter:{inputObject1:{testProperty:\"\"\"Nested Value\"\"\"},inputObject2:$objectParameter,testProperty:$stringParameter,testNullValueProperty:null})}");
 
         var inputObjectJson = JsonConvert.SerializeObject(inputObject);
         inputObjectJson.ShouldBe("{\"InputObject1\":{\"InputObject1\":null,\"InputObject2\":null,\"TestProperty\":\"Nested Value\",\"TestNullValueProperty\":null,\"Timestamp\":null},\"InputObject2\":{\"InputObject1\":null,\"InputObject2\":null,\"TestProperty\":\"Input Object Parameter Value\",\"TestNullValueProperty\":null,\"Timestamp\":\"2019-06-30T02:27:47.1234567+02:00\"},\"TestProperty\":\"Test Value\",\"TestNullValueProperty\":null,\"Timestamp\":null}");
@@ -835,7 +843,7 @@ public class GraphQlGeneratorTest
     public void WithNestedListsOfComplexObjects()
     {
         var configuration = new GraphQlGeneratorConfiguration();
-            
+
         var schema = DeserializeTestSchema("TestSchemaWithNestedListsOfComplexObjects");
 
         var stringBuilder = new StringBuilder();
@@ -843,7 +851,7 @@ public class GraphQlGeneratorTest
         generator.Generate(CreateGenerationContext(stringBuilder, schema));
 
         var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.NestedListsOfComplexObjects");
-        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString()).NormalizeLineEndings();
         generatedSourceCode.ShouldBe(expectedOutput);
     }
 
