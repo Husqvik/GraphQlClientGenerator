@@ -167,7 +167,9 @@ namespace SourceGeneratorTestAssembly
     
         public static string EscapeGraphQlStringValue(string value)
         {
-            return value.Replace("\\", "\\\\").Replace("\"", "\\\"");
+            var escaped = value.Replace("\\", "\\\\").Replace("\"", "\\\"");
+    
+            return $"\"\"\"{escaped}\"\"\"";
         }
     
         public static string BuildArgumentValue(object value, string formatMask, GraphQlBuilderOptions options, int level)
@@ -183,7 +185,7 @@ namespace SourceGeneratorTestAssembly
             if (!String.IsNullOrEmpty(formatMask) && enumerable == null)
                 return
                     value is IFormattable formattable
-                        ? $"\"{EscapeGraphQlStringValue(formattable.ToString(formatMask, CultureInfo.InvariantCulture))}\""
+                        ? EscapeGraphQlStringValue(formattable.ToString(formatMask, CultureInfo.InvariantCulture))
                         : throw new ArgumentException($"Value must implement {nameof(IFormattable)} interface to use a format mask. ", nameof(value));
     
             if (value is Enum @enum)
@@ -193,19 +195,19 @@ namespace SourceGeneratorTestAssembly
                 return @bool ? "true" : "false";
     
             if (value is DateTime dateTime)
-                return $"\"{dateTime.ToString("O")}\"";
+                return EscapeGraphQlStringValue(dateTime.ToString("O"));
     
             if (value is DateTimeOffset dateTimeOffset)
-                return $"\"{dateTimeOffset.ToString("O")}\"";
+                return EscapeGraphQlStringValue(dateTimeOffset.ToString("O"));
     
             if (value is IGraphQlInputObject inputObject)
                 return BuildInputObject(inputObject, options, level + 2);
     
-            if (value is Guid)
-                return $"\"{value}\"";
+            if (value is Guid guid)
+                return EscapeGraphQlStringValue(guid.ToString("D"));
     
             if (value is String @string)
-                return $"\"{EscapeGraphQlStringValue(@string)}\"";
+                return EscapeGraphQlStringValue(@string);
     
             if (enumerable != null)
                 return BuildEnumerableArgument(enumerable, formatMask, options, level, '[', ']');
@@ -214,7 +216,7 @@ namespace SourceGeneratorTestAssembly
                 return Convert.ToString(value, CultureInfo.InvariantCulture);
     
             var argumentValue = EscapeGraphQlStringValue(Convert.ToString(value, CultureInfo.InvariantCulture));
-            return $"\"{argumentValue}\"";
+            return argumentValue;
         }
     
         public static string BuildEnumerableArgument(IEnumerable enumerable, string formatMask, GraphQlBuilderOptions options, int level, char openingSymbol, char closingSymbol)
@@ -379,7 +381,7 @@ namespace SourceGeneratorTestAssembly
                         return true;
     
                     case JTokenType.String:
-                        graphQlString = $"\"{GraphQlQueryHelper.EscapeGraphQlStringValue((string)jValue.Value)}\"";
+                        graphQlString = GraphQlQueryHelper.EscapeGraphQlStringValue((string)jValue.Value);
                         return true;
     
                     default:
