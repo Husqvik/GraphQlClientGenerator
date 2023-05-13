@@ -851,7 +851,7 @@ using Newtonsoft.Json.Linq;
 
         WriteOverrideProperty("public", "IReadOnlyList<GraphQlFieldMetadata>", "AllFields", "AllFieldMetadata", indentation, writer);
 
-        string ReturnPrefix(bool requiresFullBody) => requiresFullBody ? indentation + "        return " : String.Empty;
+        string ReturnPrefix(bool requiresFullBody) => requiresFullBody ? $"{indentation}        return " : String.Empty;
 
         var stringDataType = AddQuestionMarkIfNullableReferencesEnabled("string");
 

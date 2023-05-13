@@ -139,6 +139,7 @@ public class GraphQlInterfaceJsonConverter : global::Newtonsoft.Json.JsonConvert
 internal static class GraphQlQueryHelper
 {
     private static readonly Regex RegexGraphQlIdentifier = new Regex(@"^[_A-Za-z][_0-9A-Za-z]*$", RegexOptions.Compiled);
+    private static readonly Regex RegexEscapeGraphQlString = new Regex(@"[\\\""/\b\f\n\r\t]", RegexOptions.Compiled);
 
     public static string GetIndentation(int level, byte indentationSize)
     {
@@ -147,7 +148,32 @@ internal static class GraphQlQueryHelper
 
     public static string EscapeGraphQlStringValue(string value)
     {
-        return value.Replace("\\", "\\\\").Replace("\"", "\\\"");
+        return RegexEscapeGraphQlString.Replace(value, m => @$"\{GetEscapeSequence(m.Value)}");
+    }
+
+    private static string GetEscapeSequence(string input)
+    {
+        switch (input)
+        {
+            case "\\":
+                return "\\";
+            case "\"":
+                return "\"";
+            case "/":
+                return "/";
+            case "\b":
+                return "b";
+            case "\f":
+                return "f";
+            case "\n":
+                return "n";
+            case "\r":
+                return "r";
+            case "\t":
+                return "t";
+            default:
+                throw new InvalidOperationException($"invalid character: {input}");
+        }
     }
 
     public static string BuildArgumentValue(object value, string formatMask, GraphQlBuilderOptions options, int level)
@@ -687,7 +713,8 @@ public abstract partial class GraphQlQueryBuilder : IGraphQlQueryBuilder
                         builder.Append(GraphQlQueryHelper.BuildArgumentValue(queryParameterInfo.ArgumentValue.Value, queryParameterInfo.FormatMask, options, 0));
                     }
 
-                    separator = ",";
+                    if (!isIndentedFormatting)
+                        separator = ",";
                 }
 
                 builder.Append(")");
