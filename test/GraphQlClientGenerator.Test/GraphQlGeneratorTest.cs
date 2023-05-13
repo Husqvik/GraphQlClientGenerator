@@ -631,7 +631,7 @@ public class GraphQlGeneratorTest
     private static string GetTestResource(string name)
     {
         using var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream($"GraphQlClientGenerator.Test.{name}"));
-        return reader.ReadToEnd();
+        return reader.ReadToEnd().ReplaceLineEndings(Environment.NewLine);
     }
 
     private void CompileIntoAssembly(string sourceCode, string assemblyName)
