@@ -674,53 +674,7 @@ public abstract partial class GraphQlQueryBuilder : IGraphQlQueryBuilder
         var indentationSpace = isIndentedFormatting ? " " : String.Empty;
         var builder = new StringBuilder();
 
-        if (!String.IsNullOrEmpty(_operationType))
-        {
-            builder.Append(_operationType);
-
-            if (!String.IsNullOrEmpty(_operationName))
-            {
-                builder.Append(" ");
-                builder.Append(_operationName);
-            }
-
-            if (_queryParameters?.Count > 0)
-            {
-                builder.Append(indentationSpace);
-                builder.Append("(");
-
-                foreach (var queryParameterInfo in _queryParameters)
-                {
-                    if (isIndentedFormatting)
-                    {
-                        builder.AppendLine(separator);
-                        builder.Append(GraphQlQueryHelper.GetIndentation(level, options.IndentationSize));
-                    }
-                    else
-                        builder.Append(separator);
-
-                    builder.Append("$");
-                    builder.Append(queryParameterInfo.ArgumentValue.Name);
-                    builder.Append(":");
-                    builder.Append(indentationSpace);
-
-                    builder.Append(queryParameterInfo.ArgumentValue.GraphQlTypeName);
-
-                    if (!queryParameterInfo.ArgumentValue.GraphQlTypeName.EndsWith("!") && queryParameterInfo.ArgumentValue.Value is not null)
-                    {
-                        builder.Append(indentationSpace);
-                        builder.Append("=");
-                        builder.Append(indentationSpace);
-                        builder.Append(GraphQlQueryHelper.BuildArgumentValue(queryParameterInfo.ArgumentValue.Value, queryParameterInfo.FormatMask, options, 0));
-                    }
-
-                    if (!isIndentedFormatting)
-                        separator = ",";
-                }
-
-                builder.Append(")");
-            }
-        }
+        BuildOperationSignature(builder, options, indentationSpace, level);
 
         if (builder.Length > 0 || level > 1)
             builder.Append(indentationSpace);
@@ -752,6 +706,60 @@ public abstract partial class GraphQlQueryBuilder : IGraphQlQueryBuilder
         builder.Append("}");
 
         return builder.ToString();
+    }
+
+    private void BuildOperationSignature(StringBuilder builder, GraphQlBuilderOptions options, string indentationSpace, int level)
+    {
+        if (String.IsNullOrEmpty(_operationType))
+            return;
+
+        builder.Append(_operationType);
+
+        if (!String.IsNullOrEmpty(_operationName))
+        {
+            builder.Append(" ");
+            builder.Append(_operationName);
+        }
+
+        if (_queryParameters?.Count > 0)
+        {
+            builder.Append(indentationSpace);
+            builder.Append("(");
+
+            var separator = String.Empty;
+            var isIndentedFormatting = options.Formatting == Formatting.Indented;
+
+            foreach (var queryParameterInfo in _queryParameters)
+            {
+                if (isIndentedFormatting)
+                {
+                    builder.AppendLine(separator);
+                    builder.Append(GraphQlQueryHelper.GetIndentation(level, options.IndentationSize));
+                }
+                else
+                    builder.Append(separator);
+
+                builder.Append("$");
+                builder.Append(queryParameterInfo.ArgumentValue.Name);
+                builder.Append(":");
+                builder.Append(indentationSpace);
+
+                builder.Append(queryParameterInfo.ArgumentValue.GraphQlTypeName);
+
+                if (!queryParameterInfo.ArgumentValue.GraphQlTypeName.EndsWith("!") && queryParameterInfo.ArgumentValue.Value is not null)
+                {
+                    builder.Append(indentationSpace);
+                    builder.Append("=");
+                    builder.Append(indentationSpace);
+                    builder.Append(GraphQlQueryHelper.BuildArgumentValue(queryParameterInfo.ArgumentValue.Value, queryParameterInfo.FormatMask, options, 0));
+                }
+
+                if (!isIndentedFormatting)
+                    separator = ",";
+            }
+
+            builder.Append(")");
+        }
     }
 
     protected void IncludeScalarField(string fieldName, string alias, IList<QueryBuilderArgumentInfo> args, GraphQlDirective[] directives)
