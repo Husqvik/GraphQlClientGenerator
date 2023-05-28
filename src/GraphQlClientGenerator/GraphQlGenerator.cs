@@ -76,7 +76,7 @@ using Newtonsoft.Json.Linq;
                 : await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
-            throw new InvalidOperationException($"Status code: {(int)response.StatusCode} ({response.StatusCode}){Environment.NewLine}content:{Environment.NewLine}{content}");
+            throw new InvalidOperationException($"Status code: {(int)response.StatusCode} ({response.StatusCode}); content: {content}");
 
         return DeserializeGraphQlSchema(content);
     }
@@ -89,10 +89,7 @@ using Newtonsoft.Json.Linq;
                 JsonConvert.DeserializeObject<GraphQlResult>(content, SerializerSettings)?.Data?.Schema
                 ?? JsonConvert.DeserializeObject<GraphQlData>(content, SerializerSettings)?.Schema;
 
-            if (schema is null)
-                throw new ArgumentException("not a GraphQL schema", nameof(content));
-
-            return schema;
+            return schema ?? throw new ArgumentException("not a GraphQL schema", nameof(content));
         }
         catch (JsonReaderException exception)
         {
@@ -779,6 +776,10 @@ using Newtonsoft.Json.Linq;
                     writer.Write('"');
                 }
 
+                var requiresParameters = ResolveParameterDefinitions(context, graphQlType, field.Args).Any(a => !a.IsNullable);
+                if (requiresParameters)
+                    writer.Write(", RequiresParameters = true");
+
                 if (isComplex)
                 {
                     writer.Write(", IsComplex = true");
@@ -1288,12 +1289,13 @@ using Newtonsoft.Json.Linq;
 
         var argumentDefinition = $"{argumentNetType} {netParameterName}";
         if (!isArgumentNotNull)
-            argumentDefinition += " = null";
+            argumentDefinition = $"{argumentDefinition} = null";
 
         return
             new QueryBuilderParameterDefinition
             {
                 Argument = argument,
+                IsNullable = !isArgumentNotNull,
                 NetParameterName = netParameterName,
                 NetParameterDefinitionClause = argumentDefinition,
                 FormatMask = argumentTypeDescription.FormatMask
@@ -1513,6 +1515,7 @@ using Newtonsoft.Json.Linq;
     private struct QueryBuilderParameterDefinition
     {
         public GraphQlArgument Argument;
+        public bool IsNullable;
         public string NetParameterName;
         public string NetParameterDefinitionClause;
         public string FormatMask;

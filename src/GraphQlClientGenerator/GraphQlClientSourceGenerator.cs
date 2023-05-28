@@ -30,7 +30,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
                 Diagnostic.Create(
                     DescriptorParameterError,
                     Location.None,
-                    "incompatible language: " + context.Compilation.Language));
+                    $"incompatible language: {context.Compilation.Language}"));
 
             return;
         }

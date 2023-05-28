@@ -23,6 +23,7 @@ namespace SourceGeneratorTestAssembly
         public string Name { get; set; }
         public string DefaultAlias { get; set; }
         public bool IsComplex { get; set; }
+        public bool RequiresParameters { get; set; }
         public Type QueryBuilderType { get; set; }
     }
     
@@ -1231,7 +1232,7 @@ namespace SourceGeneratorTestAssembly
             new GraphQlFieldMetadata { Name = "name" },
             new GraphQlFieldMetadata { Name = "accountType", IsComplex = true },
             new GraphQlFieldMetadata { Name = "homes", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeQueryBuilderV2) },
-            new GraphQlFieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "home", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeQueryBuilderV2) }
         };
 
         protected override string TypeName { get; } = "Viewer";
@@ -1283,8 +1284,8 @@ namespace SourceGeneratorTestAssembly
             new GraphQlFieldMetadata { Name = "meteringPointData", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedMeteringPointDataQueryBuilderV2) },
             new GraphQlFieldMetadata { Name = "currentSubscription", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionQueryBuilderV2) },
             new GraphQlFieldMetadata { Name = "subscriptions", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionQueryBuilderV2) },
-            new GraphQlFieldMetadata { Name = "consumption", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeConsumptionConnectionQueryBuilderV2) },
-            new GraphQlFieldMetadata { Name = "production", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeProductionConnectionQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "consumption", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeConsumptionConnectionQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "production", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeProductionConnectionQueryBuilderV2) },
             new GraphQlFieldMetadata { Name = "features", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeFeaturesQueryBuilderV2) }
         };
 
@@ -1643,7 +1644,7 @@ namespace SourceGeneratorTestAssembly
             new GraphQlFieldMetadata { Name = "current", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) },
             new GraphQlFieldMetadata { Name = "today", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) },
             new GraphQlFieldMetadata { Name = "tomorrow", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) },
-            new GraphQlFieldMetadata { Name = "range", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "range", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2) }
         };
 
         protected override string TypeName { get; } = "PriceInfo";
@@ -2239,9 +2240,9 @@ namespace SourceGeneratorTestAssembly
     {
         private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new GraphQlFieldMetadata { Name = "sendMeterReading", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedMeterReadingResponseQueryBuilderV2) },
-            new GraphQlFieldMetadata { Name = "updateHome", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeQueryBuilderV2) },
-            new GraphQlFieldMetadata { Name = "sendPushNotification", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPushNotificationResponseQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "sendMeterReading", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedMeterReadingResponseQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "updateHome", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "sendPushNotification", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPushNotificationResponseQueryBuilderV2) }
         };
 
         protected override string TypeName { get; } = "RootMutation";
@@ -2340,7 +2341,7 @@ namespace SourceGeneratorTestAssembly
     {
         private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new GraphQlFieldMetadata { Name = "liveMeasurement", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedLiveMeasurementQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "liveMeasurement", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedLiveMeasurementQueryBuilderV2) }
         };
 
         protected override string TypeName { get; } = "RootSubscription";

@@ -195,7 +195,7 @@ public partial class ViewerQueryBuilder : GraphQlQueryBuilder<ViewerQueryBuilder
             new GraphQlFieldMetadata { Name = "name" },
             new GraphQlFieldMetadata { Name = "accountType", IsComplex = true },
             new GraphQlFieldMetadata { Name = "homes", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilder) },
-            new GraphQlFieldMetadata { Name = "home", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilder) }
+            new GraphQlFieldMetadata { Name = "home", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilder) }
         };
 
     protected override string TypeName { get { return "Viewer"; } } 
@@ -275,8 +275,8 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
             new GraphQlFieldMetadata { Name = "meteringPointData", IsComplex = true, QueryBuilderType = typeof(MeteringPointDataQueryBuilder) },
             new GraphQlFieldMetadata { Name = "currentSubscription", IsComplex = true, QueryBuilderType = typeof(SubscriptionQueryBuilder) },
             new GraphQlFieldMetadata { Name = "subscriptions", IsComplex = true, QueryBuilderType = typeof(SubscriptionQueryBuilder) },
-            new GraphQlFieldMetadata { Name = "consumption", IsComplex = true, QueryBuilderType = typeof(HomeConsumptionConnectionQueryBuilder) },
-            new GraphQlFieldMetadata { Name = "production", IsComplex = true, QueryBuilderType = typeof(HomeProductionConnectionQueryBuilder) },
+            new GraphQlFieldMetadata { Name = "consumption", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(HomeConsumptionConnectionQueryBuilder) },
+            new GraphQlFieldMetadata { Name = "production", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(HomeProductionConnectionQueryBuilder) },
             new GraphQlFieldMetadata { Name = "features", IsComplex = true, QueryBuilderType = typeof(HomeFeaturesQueryBuilder) }
         };
 
@@ -941,7 +941,7 @@ public partial class PriceInfoQueryBuilder : GraphQlQueryBuilder<PriceInfoQueryB
             new GraphQlFieldMetadata { Name = "current", IsComplex = true, QueryBuilderType = typeof(PriceQueryBuilder) },
             new GraphQlFieldMetadata { Name = "today", IsComplex = true, QueryBuilderType = typeof(PriceQueryBuilder) },
             new GraphQlFieldMetadata { Name = "tomorrow", IsComplex = true, QueryBuilderType = typeof(PriceQueryBuilder) },
-            new GraphQlFieldMetadata { Name = "range", IsComplex = true, QueryBuilderType = typeof(SubscriptionPriceConnectionQueryBuilder) }
+            new GraphQlFieldMetadata { Name = "range", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SubscriptionPriceConnectionQueryBuilder) }
         };
 
     protected override string TypeName { get { return "PriceInfo"; } } 
@@ -1999,9 +1999,9 @@ public partial class RootMutationQueryBuilder : GraphQlQueryBuilder<RootMutation
     private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         new []
         {
-            new GraphQlFieldMetadata { Name = "sendMeterReading", IsComplex = true, QueryBuilderType = typeof(MeterReadingResponseQueryBuilder) },
-            new GraphQlFieldMetadata { Name = "updateHome", IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilder) },
-            new GraphQlFieldMetadata { Name = "sendPushNotification", IsComplex = true, QueryBuilderType = typeof(PushNotificationResponseQueryBuilder) }
+            new GraphQlFieldMetadata { Name = "sendMeterReading", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(MeterReadingResponseQueryBuilder) },
+            new GraphQlFieldMetadata { Name = "updateHome", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(HomeQueryBuilder) },
+            new GraphQlFieldMetadata { Name = "sendPushNotification", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(PushNotificationResponseQueryBuilder) }
         };
 
     protected override string TypeName { get { return "RootMutation"; } } 
@@ -2145,7 +2145,7 @@ public partial class RootSubscriptionQueryBuilder : GraphQlQueryBuilder<RootSubs
     private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         new []
         {
-            new GraphQlFieldMetadata { Name = "liveMeasurement", IsComplex = true, QueryBuilderType = typeof(LiveMeasurementQueryBuilder) }
+            new GraphQlFieldMetadata { Name = "liveMeasurement", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(LiveMeasurementQueryBuilder) }
         };
 
     protected override string TypeName { get { return "RootSubscription"; } } 

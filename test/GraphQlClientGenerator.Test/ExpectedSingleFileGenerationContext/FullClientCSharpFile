@@ -23,6 +23,7 @@ namespace GraphQlGenerator.Test
         public string Name { get; set; }
         public string DefaultAlias { get; set; }
         public bool IsComplex { get; set; }
+        public bool RequiresParameters { get; set; }
         public Type QueryBuilderType { get; set; }
     }
     

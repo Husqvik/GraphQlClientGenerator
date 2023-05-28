@@ -198,7 +198,7 @@ public partial class ConcreteType3QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
     {
         new GraphQlFieldMetadata { Name = "name" },
         new GraphQlFieldMetadata { Name = "concreteType3Field" },
-        new GraphQlFieldMetadata { Name = "function" }
+        new GraphQlFieldMetadata { Name = "function", RequiresParameters = true }
     };
 
     protected override string TypeName { get; } = "ConcreteType3";
@@ -230,8 +230,8 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
         new GraphQlFieldMetadata { Name = "scalarValue" },
         new GraphQlFieldMetadata { Name = "simpleObject", IsComplex = true, QueryBuilderType = typeof(SimpleObjectTypeQueryBuilder) },
         new GraphQlFieldMetadata { Name = "union", IsComplex = true, QueryBuilderType = typeof(UnionTypeQueryBuilder) },
-        new GraphQlFieldMetadata { Name = "interface", IsComplex = true, QueryBuilderType = typeof(NamedTypeQueryBuilder) },
-        new GraphQlFieldMetadata { Name = "interfaces", IsComplex = true, QueryBuilderType = typeof(NamedTypeQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "interface", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(NamedTypeQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "interfaces", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(NamedTypeQueryBuilder) },
         new GraphQlFieldMetadata { Name = "underscore_named_field", DefaultAlias = "underscoreNamedField", IsComplex = true, QueryBuilderType = typeof(UnderscoreNamedClassQueryBuilder) },
         new GraphQlFieldMetadata { Name = "nestedLists", IsComplex = true },
         new GraphQlFieldMetadata { Name = "_" },
