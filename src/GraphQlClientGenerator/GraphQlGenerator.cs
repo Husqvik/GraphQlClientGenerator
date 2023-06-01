@@ -1446,7 +1446,12 @@ using Newtonsoft.Json.Linq;
 
         GenerateCodeComments(writer, directive.Description, context.Indentation);
 
-        var orderedArgumentDefinitions = ResolveParameterDefinitions(context, null, directive.Args.OrderByDescending(a => a.Type.Kind == GraphQlTypeKind.NonNull));
+        var orderedArgumentDefinitions =
+            ResolveParameterDefinitions(
+                context,
+                new GraphQlType { Name = directive.Name, Description = directive.Description, InputFields = directive.Args } /* TODO: make some common ancestor */,
+                directive.Args.OrderByDescending(a => a.Type.Kind == GraphQlTypeKind.NonNull));
+
         var argumentList = String.Join(", ", orderedArgumentDefinitions.Select(d => d.NetParameterDefinitionClause));
 
         var indentation = GetIndentation(context.Indentation);
