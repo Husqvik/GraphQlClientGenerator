@@ -664,7 +664,7 @@ public abstract partial class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     protected void IncludeAllFields()
     {
-        IncludeFields(AllFields);
+        IncludeFields(AllFields.Where(f => !f.RequiresParameters));
     }
 
     protected virtual string Build(GraphQlBuilderOptions options, int level)
@@ -801,27 +801,29 @@ public abstract partial class GraphQlQueryBuilder : IGraphQlQueryBuilder
             {
                 var builderType = GetType();
 
-                if (parentTypes != null && parentTypes.Any(t => t.IsAssignableFrom(field.QueryBuilderType)))
+                if (_operationType != null && GetType() == field.QueryBuilderType || parentTypes != null && parentTypes.Any(t => t.IsAssignableFrom(field.QueryBuilderType)))
                     continue;
 
                 parentTypes?.Add(builderType);
 
-                var queryBuilder = InitializeChildBuilder(builderType, field.QueryBuilderType, parentTypes);
+                var queryBuilder = InitializeChildQueryBuilder(builderType, field.QueryBuilderType, parentTypes);
 
                 var includeFragmentMethods = field.QueryBuilderType.GetMethods().Where(IsIncludeFragmentMethod);
 
                 foreach (var includeFragmentMethod in includeFragmentMethods)
-                    includeFragmentMethod.Invoke(queryBuilder, new object[] { InitializeChildBuilder(builderType, includeFragmentMethod.GetParameters()[0].ParameterType, parentTypes) });
+                    includeFragmentMethod.Invoke(
+                        queryBuilder,
+                        new object[] { InitializeChildQueryBuilder(builderType, includeFragmentMethod.GetParameters()[0].ParameterType, parentTypes) });
 
                 IncludeObjectField(field.Name, field.DefaultAlias, queryBuilder, null, null);
             }
         }
     }
 
-    private static GraphQlQueryBuilder InitializeChildBuilder(Type parentQueryBuilderType, Type queryBuilderType, List<Type> parentTypes)
+    private static GraphQlQueryBuilder InitializeChildQueryBuilder(Type parentQueryBuilderType, Type queryBuilderType, List<Type> parentTypes)
     {
         var queryBuilder = (GraphQlQueryBuilder)Activator.CreateInstance(queryBuilderType);
-        queryBuilder.IncludeFields(queryBuilder.AllFields, parentTypes ?? new List<Type> { parentQueryBuilderType });
+        queryBuilder.IncludeFields(queryBuilder.AllFields.Where(f => !f.RequiresParameters), parentTypes ?? new List<Type> { parentQueryBuilderType });
         return queryBuilder;
     }
 
@@ -873,7 +875,7 @@ public abstract partial class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
             var arguments =
                 _args.Select(
-                    a => $"{a.ArgumentName}:{separator}{(a.ArgumentValue.Name == null ? GraphQlQueryHelper.BuildArgumentValue(a.ArgumentValue.Value, a.FormatMask, options, level) : "$" + a.ArgumentValue.Name)}");
+                    a => $"{a.ArgumentName}:{separator}{(a.ArgumentValue.Name == null ? GraphQlQueryHelper.BuildArgumentValue(a.ArgumentValue.Value, a.FormatMask, options, level) : $"${a.ArgumentValue.Name}")}");
 
             return $"({String.Join($",{separator}", arguments)})";
         }
@@ -884,7 +886,7 @@ public abstract partial class GraphQlQueryBuilder : IGraphQlQueryBuilder
         protected static string BuildAliasPrefix(string alias, Formatting formatting)
         {
             var separator = formatting == Formatting.Indented ? " " : String.Empty;
-            return String.IsNullOrWhiteSpace(alias) ? null : alias + ':' + separator;
+            return String.IsNullOrWhiteSpace(alias) ? null : $"{alias}:{separator}";
         }
     }
 
@@ -943,15 +945,21 @@ public abstract partial class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryB
     {
     }
 
+    /// <summary>
+    /// Includes all fields that don't require parameters into the query.
+    /// </summary>
     public TQueryBuilder WithAllFields()
     {
         IncludeAllFields();
         return (TQueryBuilder)this;
     }
 
+    /// <summary>
+    /// Includes all scalar fields that don't require parameters into the query.
+    /// </summary>
     public TQueryBuilder WithAllScalarFields()
     {
-        IncludeFields(AllFields.Where(f => !f.IsComplex));
+        IncludeFields(AllFields.Where(f => !f.IsComplex && !f.RequiresParameters));
         return (TQueryBuilder)this;
     }
 
@@ -961,6 +969,9 @@ public abstract partial class GraphQlQueryBuilder<TQueryBuilder> : GraphQlQueryB
         return (TQueryBuilder)this;
     }
 
+    /// <summary>
+    /// Includes "__typename" field; included automatically for interface and union types.
+    /// </summary>
     public TQueryBuilder WithTypeName(string alias = null, params GraphQlDirective[] directives)
     {
         IncludeScalarField("__typename", alias, null, directives);

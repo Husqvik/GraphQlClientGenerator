@@ -824,8 +824,9 @@ using Newtonsoft.Json.Linq;
 
         if (graphQlType.Kind is GraphQlTypeKind.Interface or GraphQlTypeKind.Union)
         {
-            var constructorIndentation = $"{indentation}    ";
-            writer.Write(constructorIndentation);
+            const string memberIndentation = "    ";
+            writer.Write(indentation);
+            writer.Write(memberIndentation);
             writer.Write("public ");
             writer.Write(className);
             writer.Write("()");
@@ -833,11 +834,14 @@ using Newtonsoft.Json.Linq;
             if (useCompatibleSyntax)
             {
                 writer.WriteLine();
-                writer.Write(constructorIndentation);
+                writer.Write(indentation);
+                writer.Write(memberIndentation);
                 writer.WriteLine("{");
-                writer.Write(constructorIndentation);
+                writer.Write(indentation);
+                writer.Write(memberIndentation);
                 writer.WriteLine("    WithTypeName();");
-                writer.Write(constructorIndentation);
+                writer.Write(indentation);
+                writer.Write(memberIndentation);
                 writer.WriteLine("}");
             }
             else
