@@ -102,6 +102,7 @@ public abstract class GenerationContext
     protected internal List<GraphQlField> GetFieldsToGenerate(GraphQlType type)
     {
         var typeFields = type.Fields;
+
         if (type.Kind == GraphQlTypeKind.Union)
         {
             var unionFields = new List<GraphQlField>();
@@ -118,13 +119,13 @@ public abstract class GenerationContext
 
     protected internal IEnumerable<GraphQlField> GetFragments(GraphQlType type)
     {
-        var fragments = new List<GraphQlField>();
         if (type.Kind != GraphQlTypeKind.Union && type.Kind != GraphQlTypeKind.Interface)
-            return fragments;
+            return Enumerable.Empty<GraphQlField>();
 
+        var fragments = new Dictionary<string, GraphQlField>();
         foreach (var possibleType in type.PossibleTypes)
             if (_complexTypes.TryGetValue(possibleType.Name, out var consistOfType) && consistOfType.Fields is not null)
-                fragments.Add(
+                fragments[possibleType.Name] =
                     new GraphQlField
                     {
                         Name = consistOfType.Name,
@@ -135,9 +136,9 @@ public abstract class GenerationContext
                                 Name = consistOfType.Name,
                                 Kind = consistOfType.Kind
                             }
-                    });
+                    };
 
-        return fragments;
+        return fragments.Values;
     }
 
     protected internal ScalarFieldTypeDescription GetDataPropertyType(GraphQlType baseType, IGraphQlMember member)
