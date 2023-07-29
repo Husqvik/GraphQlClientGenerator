@@ -141,6 +141,11 @@
               "kind": "OBJECT",
               "name": "ConcreteType3",
               "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "ConcreteType3",
+              "ofType": null
             }
           ]
         },
