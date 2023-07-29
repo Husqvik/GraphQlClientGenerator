@@ -8,7 +8,13 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Title>GraphQL C# Client Generator</Title>
     <PackageTags>GraphQL Client Generator</PackageTags>
-    <PackageReleaseNotes>Allow nullable query parameters without specifying default value</PackageReleaseNotes>
+    <PackageReleaseNotes>
+	  <![CDATA[
+Ignore duplicates within INTERFACE/UNION possible types
+Always request __typename for INTERFACE/UNION
+Fixed missing escaping of non printable characters
+]]>
+</PackageReleaseNotes>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>

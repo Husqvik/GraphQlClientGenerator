@@ -2,7 +2,7 @@
 <Project>
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
-    <Copyright>Copyright 2017-2022</Copyright>
+    <Copyright>Copyright 2017-2023</Copyright>
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
     <VersionPrefix>0.9.15</VersionPrefix>
