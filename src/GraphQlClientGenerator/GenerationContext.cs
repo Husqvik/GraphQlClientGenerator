@@ -163,12 +163,8 @@ public abstract class GenerationContext
 
             case GraphQlTypeKind.List:
                 var itemType = GraphQlGenerator.UnwrapListItemType(fieldType, Configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences, out var netCollectionOpenType);
-                var unwrappedItemType = itemType?.UnwrapIfNonNull();
-                if (unwrappedItemType is null)
-                    throw GraphQlGenerator.ListItemTypeResolutionFailedException(baseType.Name, fieldType.Name);
-
+                var unwrappedItemType = itemType?.UnwrapIfNonNull() ?? throw GraphQlGenerator.ListItemTypeResolutionFailedException(baseType.Name, fieldType.Name);
                 var itemTypeName = GetCSharpClassName(unwrappedItemType.Name);
-
                 var netItemType =
                     IsUnknownObjectScalar(baseType, member.Name, itemType)
                         ? "object"

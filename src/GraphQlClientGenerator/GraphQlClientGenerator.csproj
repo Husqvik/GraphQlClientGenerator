@@ -4,7 +4,7 @@
     <AssemblyTitle>GraphQL C# Client Generator</AssemblyTitle>
     <Description>A simple strongly typed C# GraphQL client generator library</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);1591</NoWarn>
+    <NoWarn>$(NoWarn);1591;RS1035</NoWarn>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Title>GraphQL C# Client Generator</Title>
     <PackageTags>GraphQL Client Generator</PackageTags>
@@ -15,6 +15,7 @@ Always request __typename for INTERFACE/UNION
 Fixed missing escaping of non printable characters
 ]]>
     </PackageReleaseNotes>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>

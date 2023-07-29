@@ -792,12 +792,8 @@ using Newtonsoft.Json.Linq;
 
                     if (fieldType.Kind != GraphQlTypeKind.Scalar && fieldType.Kind != GraphQlTypeKind.Enum && fieldType.Kind != GraphQlTypeKind.List)
                     {
-                        var fieldTypeName = fieldType.Name;
-                        if (fieldTypeName is null)
-                            throw FieldTypeResolutionFailedException(graphQlType.Name, field.Name, null);
-
+                        var fieldTypeName = fieldType.Name ?? throw FieldTypeResolutionFailedException(graphQlType.Name, field.Name, null);
                         fieldTypeName = context.GetCSharpClassName(fieldTypeName, false);
-                            
                         writer.Write($", QueryBuilderType = typeof({_configuration.ClassPrefix}{fieldTypeName}QueryBuilder{_configuration.ClassSuffix})");
                     }
                 }
