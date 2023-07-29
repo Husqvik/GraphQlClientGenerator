@@ -14,7 +14,7 @@ Ignore duplicates within INTERFACE/UNION possible types
 Always request __typename for INTERFACE/UNION
 Fixed missing escaping of non printable characters
 ]]>
-</PackageReleaseNotes>
+    </PackageReleaseNotes>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
