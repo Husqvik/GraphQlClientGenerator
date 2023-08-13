@@ -456,17 +456,31 @@ using Newtonsoft.Json.Linq;
     {
         var writer = context.Writer;
         var indentation = GetIndentation(context.Indentation);
+        var propertyContexts = new Dictionary<string, DataPropertyContext>();
 
-        var fieldNameMembers = new Dictionary<string, (IGraphQlMember Member, int? NameExtension)>();
         foreach (var member in members)
         {
             var fieldName = GetBackingFieldName(member.Name, false);
             var originalFieldName = fieldName;
             var collidingNameExtendingIndex = 1;
-            while (fieldNameMembers.ContainsKey(fieldName))
+            while (propertyContexts.ContainsKey(fieldName))
                 fieldName = $"{originalFieldName}{++collidingNameExtendingIndex}";
 
-            fieldNameMembers.Add(fieldName, (member, collidingNameExtendingIndex == 1 ? null : collidingNameExtendingIndex));
+            var propertyName = NamingHelper.ToPascalCase(member.Name);
+            if (collidingNameExtendingIndex > 1)
+                propertyName = $"{propertyName}{collidingNameExtendingIndex}";
+
+            propertyContexts.Add(
+                fieldName,
+                new DataPropertyContext
+                {
+                    Member = member,
+                    PropertyName = propertyName,
+                    IsDeprecated = false,
+                    DeprecationReason = null,
+                    DecorateWithJsonPropertyAttribute = true,
+                    RequiresRawName = false
+                });
 
             writer.Write(indentation);
             writer.Write("    private InputPropertyInfo ");
@@ -478,18 +492,10 @@ using Newtonsoft.Json.Linq;
 
         var useCompatibleSyntax = _configuration.CSharpVersion == CSharpVersion.Compatible;
 
-        foreach (var kvp in fieldNameMembers)
+        foreach (var kvp in propertyContexts)
             GenerateDataProperty(
                 type,
-                new DataPropertyContext
-                {
-                    Member = kvp.Value.Member,
-                    PropertyName = NamingHelper.ToPascalCase(kvp.Value.Member.Name) + kvp.Value.NameExtension,
-                    IsDeprecated = false,
-                    DeprecationReason = null,
-                    DecorateWithJsonPropertyAttribute = true,
-                    RequiresRawName = false
-                },
+                kvp.Value,
                 (t, _) =>
                 {
                     writer.WriteLine();
@@ -540,7 +546,7 @@ using Newtonsoft.Json.Linq;
         writer.Write(indentation);
         writer.WriteLine("    {");
 
-        foreach (var fieldName in fieldNameMembers.Keys)
+        foreach (var fieldName in propertyContexts.Keys)
         {
             writer.Write(indentation);
             writer.Write("        if (");
@@ -750,7 +756,9 @@ using Newtonsoft.Json.Linq;
 
         writer.Write("class ");
         writer.Write(className);
-        writer.WriteLine($" : GraphQlQueryBuilder<{className}>");
+        writer.Write(" : GraphQlQueryBuilder<");
+        writer.Write(className);
+        writer.WriteLine(">");
         writer.Write(indentation);
         writer.WriteLine("{");
         writer.Write(indentation);
@@ -817,7 +825,12 @@ using Newtonsoft.Json.Linq;
                     {
                         var fieldTypeName = fieldType.Name ?? throw FieldTypeResolutionFailedException(graphQlType.Name, field.Name, null);
                         fieldTypeName = context.GetCSharpClassName(fieldTypeName, false);
-                        writer.Write($", QueryBuilderType = typeof({_configuration.ClassPrefix}{fieldTypeName}QueryBuilder{_configuration.ClassSuffix})");
+                        writer.Write(", QueryBuilderType = typeof(");
+                        writer.Write(_configuration.ClassPrefix);
+                        writer.Write(fieldTypeName);
+                        writer.Write("QueryBuilder");
+                        writer.Write(_configuration.ClassSuffix);
+                        writer.Write(")");
                     }
                 }
 
@@ -896,7 +909,9 @@ using Newtonsoft.Json.Linq;
             writer.WriteLine();
 
             writer.Write(indentation);
-            writer.Write($"    public {className} WithParameter<T>(GraphQlQueryParameter<T> parameter)");
+            writer.Write("    public ");
+            writer.Write(className);
+            writer.Write(" WithParameter<T>(GraphQlQueryParameter<T> parameter)");
             WriteQueryBuilderMethodBody(
                 useCompatibleSyntax,
                 indentation,
