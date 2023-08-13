@@ -155,7 +155,8 @@ public partial class ConcreteType1QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
     private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
         new GraphQlFieldMetadata { Name = "name" },
-        new GraphQlFieldMetadata { Name = "concreteType1Field" }
+        new GraphQlFieldMetadata { Name = "concreteType1Field" },
+        new GraphQlFieldMetadata { Name = "Value" }
     };
 
     protected override string TypeName { get; } = "ConcreteType1";
@@ -169,6 +170,10 @@ public partial class ConcreteType1QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
     public ConcreteType1QueryBuilder WithConcreteType1Field(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("concreteType1Field", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public ConcreteType1QueryBuilder ExceptConcreteType1Field() => ExceptField("concreteType1Field");
+
+    public ConcreteType1QueryBuilder WithValue(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("Value", alias, new GraphQlDirective?[] { include, skip, customDirective });
+
+    public ConcreteType1QueryBuilder ExceptValue() => ExceptField("Value");
 }
 
 public partial class ConcreteType2QueryBuilder : GraphQlQueryBuilder<ConcreteType2QueryBuilder>
@@ -176,7 +181,8 @@ public partial class ConcreteType2QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
     private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
         new GraphQlFieldMetadata { Name = "name" },
-        new GraphQlFieldMetadata { Name = "concreteType2Field" }
+        new GraphQlFieldMetadata { Name = "concreteType2Field" },
+        new GraphQlFieldMetadata { Name = "value" }
     };
 
     protected override string TypeName { get; } = "ConcreteType2";
@@ -190,6 +196,10 @@ public partial class ConcreteType2QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
     public ConcreteType2QueryBuilder WithConcreteType2Field(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("concreteType2Field", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public ConcreteType2QueryBuilder ExceptConcreteType2Field() => ExceptField("concreteType2Field");
+
+    public ConcreteType2QueryBuilder WithValue(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("value", alias, new GraphQlDirective?[] { include, skip, customDirective });
+
+    public ConcreteType2QueryBuilder ExceptValue() => ExceptField("value");
 }
 
 public partial class ConcreteType3QueryBuilder : GraphQlQueryBuilder<ConcreteType3QueryBuilder>
@@ -198,6 +208,7 @@ public partial class ConcreteType3QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
     {
         new GraphQlFieldMetadata { Name = "name" },
         new GraphQlFieldMetadata { Name = "concreteType3Field" },
+        new GraphQlFieldMetadata { Name = "VALUE" },
         new GraphQlFieldMetadata { Name = "function", RequiresParameters = true }
     };
 
@@ -212,6 +223,10 @@ public partial class ConcreteType3QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
     public ConcreteType3QueryBuilder WithConcreteType3Field(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("concreteType3Field", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public ConcreteType3QueryBuilder ExceptConcreteType3Field() => ExceptField("concreteType3Field");
+
+    public ConcreteType3QueryBuilder WithValue(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("VALUE", alias, new GraphQlDirective?[] { include, skip, customDirective });
+
+    public ConcreteType3QueryBuilder ExceptValue() => ExceptField("VALUE");
 
     public ConcreteType3QueryBuilder WithFunction(QueryBuilderParameter<string> value, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null)
     {
@@ -642,8 +657,11 @@ public partial class UnionType
 {
     public string? Name { get; set; }
     public string? ConcreteType1Field { get; set; }
+    public string? Value { get; set; }
     public string? ConcreteType2Field { get; set; }
+    public string? value { get; set; }
     public string? ConcreteType3Field { get; set; }
+    public string? VALUE { get; set; }
     public string? Function { get; set; }
 }
 
@@ -657,6 +675,7 @@ public partial class ConcreteType1 : INamedType
 {
     public string? Name { get; set; }
     public string? ConcreteType1Field { get; set; }
+    public string? Value { get; set; }
 }
 
 [GraphQlObjectType("ConcreteType2")]
@@ -664,6 +683,7 @@ public partial class ConcreteType2 : INamedType
 {
     public string? Name { get; set; }
     public string? ConcreteType2Field { get; set; }
+    public string? Value { get; set; }
 }
 
 [GraphQlObjectType("ConcreteType3")]
@@ -671,6 +691,7 @@ public partial class ConcreteType3 : INamedType
 {
     public string? Name { get; set; }
     public string? ConcreteType3Field { get; set; }
+    public string? Value { get; set; }
     public string? Function { get; set; }
 }
 
