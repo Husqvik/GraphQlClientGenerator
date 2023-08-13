@@ -142,7 +142,7 @@
               "name": "ConcreteType3",
               "ofType": null
             },
-            {
+            { // The duplicate is intentional
               "kind": "OBJECT",
               "name": "ConcreteType3",
               "ofType": null

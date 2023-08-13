@@ -302,7 +302,7 @@ public abstract class GenerationContext
             else
                 continue;
 
-            var candidateClassName = NamingHelper.ToPascalCase(graphQlType.Name); ;
+            var candidateClassName = NamingHelper.ToPascalCase(graphQlType.Name);
             var finalClassName = candidateClassName;
             var collisionIteration = 1;
 

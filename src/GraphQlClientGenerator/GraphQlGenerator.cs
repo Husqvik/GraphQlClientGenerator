@@ -358,45 +358,6 @@ using Newtonsoft.Json.Linq;
             var isInterface = complexType.Kind == GraphQlTypeKind.Interface;
             var csharpTypeName = context.GetCSharpClassName(complexType.Name);
 
-            void GenerateBody(bool isInterfaceMember)
-            {
-                var writer = context.Writer;
-                if (hasInputReference)
-                    GenerateInputDataClassBody(complexType, fieldsToGenerate, context);
-                else if (fieldsToGenerate is not null)
-                {
-                    var generateBackingFields = _configuration.PropertyGeneration == PropertyGenerationOption.BackingField && !isInterfaceMember;
-                    if (generateBackingFields)
-                    {
-                        var indentation = GetIndentation(context.Indentation);
-
-                        foreach (var field in fieldsToGenerate)
-                        {
-                            writer.Write(indentation);
-                            writer.Write("    private ");
-                            writer.Write(context.GetDataPropertyType(complexType, field).NetTypeName);
-                            writer.Write(" ");
-                            writer.Write(GetBackingFieldName(field.Name));
-                            writer.WriteLine(";");
-                        }
-
-                        writer.WriteLine();
-                    }
-
-                    foreach (var field in fieldsToGenerate)
-                        GenerateDataProperty(
-                            complexType,
-                            field,
-                            NamingHelper.ToPascalCase(field.Name),
-                            field.IsDeprecated,
-                            field.DeprecationReason,
-                            true,
-                            (_, backingFieldName) =>
-                                writer.Write(generateBackingFields ? _configuration.PropertyAccessorBodyWriter(backingFieldName, context.GetDataPropertyType(complexType, field)) : " { get; set; }"),
-                            context);
-                }
-            }
-
             var interfacesToImplement = new List<string>();
             if (isInterface)
             {
@@ -423,12 +384,73 @@ using Newtonsoft.Json.Linq;
 
             if (!isInterface)
                 GenerateFileMember(context, csharpTypeName, complexType, String.Join(", ", interfacesToImplement), () => GenerateBody(false));
+
+            continue;
+
+            void GenerateBody(bool isInterfaceMember)
+            {
+                var writer = context.Writer;
+                if (hasInputReference)
+                    GenerateInputDataClassBody(complexType, fieldsToGenerate, context);
+                else if (fieldsToGenerate is not null)
+                {
+                    var csharpPropertyFieldLookup = fieldsToGenerate.ToLookup(f => NamingHelper.ToPascalCase(f.Name));
+                    var generateBackingFields = _configuration.PropertyGeneration == PropertyGenerationOption.BackingField && !isInterfaceMember;
+                    if (generateBackingFields)
+                    {
+                        var indentation = GetIndentation(context.Indentation);
+
+                        foreach (var field in fieldsToGenerate)
+                        {
+                            var propertyName = NamingHelper.ToPascalCase(field.Name);
+                            var backingFieldName = GetBackingFieldName(field.Name, csharpPropertyFieldLookup[propertyName].Count() > 1);
+
+                            writer.Write(indentation);
+                            writer.Write("    private ");
+                            writer.Write(context.GetDataPropertyType(complexType, field).NetTypeName);
+                            writer.Write(" ");
+                            writer.Write(backingFieldName);
+                            writer.WriteLine(";");
+                        }
+
+                        writer.WriteLine();
+                    }
+
+                    foreach (var field in fieldsToGenerate)
+                    {
+                        var propertyName = NamingHelper.ToPascalCase(field.Name);
+                        var requiresRawName = csharpPropertyFieldLookup[propertyName].Count() > 1;
+                        if (requiresRawName)
+                            propertyName = field.Name;
+
+                        GenerateDataProperty(
+                            complexType,
+                            new DataPropertyContext
+                            {
+                                Member = field,
+                                PropertyName = propertyName,
+                                IsDeprecated = field.IsDeprecated,
+                                DeprecationReason = field.DeprecationReason,
+                                DecorateWithJsonPropertyAttribute = true,
+                                RequiresRawName = requiresRawName
+                            },
+                            (_, backingFieldName) =>
+                                writer.Write(generateBackingFields
+                                    ? _configuration.PropertyAccessorBodyWriter(backingFieldName, context.GetDataPropertyType(complexType, field))
+                                    : " { get; set; }"),
+                            context);
+                    }
+                }
+            }
         }
 
         context.AfterDataClassesGeneration();
     }
 
-    private static string GetBackingFieldName(string graphQlFieldName) => $"_{NamingHelper.LowerFirst(NamingHelper.ToPascalCase(graphQlFieldName))}";
+    private static string GetBackingFieldName(string graphQlFieldName, bool requiresRawName) =>
+        requiresRawName
+            ? $"_{graphQlFieldName}"
+            : $"_{NamingHelper.LowerFirst(NamingHelper.ToPascalCase(graphQlFieldName))}";
 
     private void GenerateInputDataClassBody(GraphQlType type, IEnumerable<IGraphQlMember> members, GenerationContext context)
     {
@@ -438,7 +460,7 @@ using Newtonsoft.Json.Linq;
         var fieldNameMembers = new Dictionary<string, (IGraphQlMember Member, int? NameExtension)>();
         foreach (var member in members)
         {
-            var fieldName = GetBackingFieldName(member.Name);
+            var fieldName = GetBackingFieldName(member.Name, false);
             var originalFieldName = fieldName;
             var collidingNameExtendingIndex = 1;
             while (fieldNameMembers.ContainsKey(fieldName))
@@ -459,11 +481,15 @@ using Newtonsoft.Json.Linq;
         foreach (var kvp in fieldNameMembers)
             GenerateDataProperty(
                 type,
-                kvp.Value.Member,
-                NamingHelper.ToPascalCase(kvp.Value.Member.Name) + kvp.Value.NameExtension,
-                false,
-                null,
-                true,
+                new DataPropertyContext
+                {
+                    Member = kvp.Value.Member,
+                    PropertyName = NamingHelper.ToPascalCase(kvp.Value.Member.Name) + kvp.Value.NameExtension,
+                    IsDeprecated = false,
+                    DeprecationReason = null,
+                    DecorateWithJsonPropertyAttribute = true,
+                    RequiresRawName = false
+                },
                 (t, _) =>
                 {
                     writer.WriteLine();
@@ -557,7 +583,7 @@ using Newtonsoft.Json.Linq;
             writer.Write(graphQlType.Name);
             writer.WriteLine("\")]");
         }
-            
+
         writer.Write(indentation);
         writer.Write(GetMemberAccessibility());
         writer.Write(" ");
@@ -605,14 +631,11 @@ using Newtonsoft.Json.Linq;
 
     private void GenerateDataProperty(
         GraphQlType baseType,
-        IGraphQlMember member,
-        string propertyName,
-        bool isDeprecated,
-        string deprecationReason,
-        bool decorateWithJsonPropertyAttribute,
+        DataPropertyContext propertyContext,
         WriteDataClassPropertyBodyDelegate writeBody,
         GenerationContext context)
     {
+        var member = propertyContext.Member;
         var propertyTypeDescription = context.GetDataPropertyType(baseType, member);
         var propertyTypeName = propertyTypeDescription.NetTypeName;
 
@@ -622,18 +645,17 @@ using Newtonsoft.Json.Linq;
 
         var indentation = GetIndentation(context.Indentation);
 
-        if (isDeprecated)
-        {
-            WriteObsoleteAttribute(writer, deprecationReason, indentation);
-        }
+        if (propertyContext.IsDeprecated)
+            WriteObsoleteAttribute(writer, propertyContext.DeprecationReason, indentation);
 
+        var decorateWithJsonPropertyAttribute = propertyContext.DecorateWithJsonPropertyAttribute;
         if (decorateWithJsonPropertyAttribute)
         {
             decorateWithJsonPropertyAttribute =
                 _configuration.JsonPropertyGeneration == JsonPropertyGenerationOption.Always ||
                 !String.Equals(
                     member.Name,
-                    propertyName.TrimStart('@'),
+                    propertyContext.PropertyName.TrimStart('@'),
                     _configuration.JsonPropertyGeneration == JsonPropertyGenerationOption.CaseInsensitive ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
 
             if (_configuration.JsonPropertyGeneration is JsonPropertyGenerationOption.Never or JsonPropertyGenerationOption.UseDefaultAlias)
@@ -642,7 +664,8 @@ using Newtonsoft.Json.Linq;
 
         var isInterfaceMember = baseType.Kind == GraphQlTypeKind.Interface;
         var fieldType = member.Type.UnwrapIfNonNull();
-        var isGraphQlInterfaceJsonConverterRequired = fieldType.Kind == GraphQlTypeKind.Interface || fieldType.Kind == GraphQlTypeKind.List && UnwrapListItemType(fieldType, false, out _).UnwrapIfNonNull().Kind == GraphQlTypeKind.Interface;
+        var isGraphQlInterfaceJsonConverterRequired = fieldType.Kind == GraphQlTypeKind.Interface ||
+                                                      fieldType.Kind == GraphQlTypeKind.List && UnwrapListItemType(fieldType, false, out _).UnwrapIfNonNull().Kind == GraphQlTypeKind.Interface;
         var isBaseTypeInputObject = baseType.Kind == GraphQlTypeKind.InputObject;
         var isPreprocessorDirectiveDisableNewtonsoftJsonRequired = !isInterfaceMember && decorateWithJsonPropertyAttribute || isGraphQlInterfaceJsonConverterRequired || isBaseTypeInputObject;
         if (isPreprocessorDirectiveDisableNewtonsoftJsonRequired)
@@ -684,9 +707,9 @@ using Newtonsoft.Json.Linq;
 
         writer.Write(propertyTypeName);
         writer.Write(" ");
-        writer.Write(propertyName);
+        writer.Write(propertyContext.PropertyName);
 
-        writeBody(propertyTypeDescription with { NetTypeName = propertyTypeName }, GetBackingFieldName(member.Name));
+        writeBody(propertyTypeDescription with { NetTypeName = propertyTypeName }, GetBackingFieldName(member.Name, propertyContext.RequiresRawName));
 
         writer.WriteLine();
     }
@@ -894,7 +917,7 @@ using Newtonsoft.Json.Linq;
             var fieldType = field.Type.UnwrapIfNonNull();
             if (fieldType.Kind == GraphQlTypeKind.List)
                 fieldType = UnwrapListItemType(fieldType, false, out _);
-                
+
             fieldType = fieldType.UnwrapIfNonNull();
             var isFragment = i >= firstFragmentIndex;
             var argumentDefinitions = ResolveParameterDefinitions(context, graphQlType, field.Args);
@@ -958,9 +981,9 @@ using Newtonsoft.Json.Linq;
                     writer.Write(", ");
 
                 WriteAliasParameter();
-                    
+
                 var fieldDirectiveParameterNameList = WriteDirectiveParameterList(schema, argumentDefinitions, GraphQlDirectiveLocation.Field, writer);
-                    
+
                 writer.Write(")");
 
                 WriteQueryBuilderMethodBody(
@@ -996,7 +1019,8 @@ using Newtonsoft.Json.Linq;
 
                 var builderParameterName = NamingHelper.LowerFirst(fieldTypeName);
                 writer.Write(indentation);
-                writer.Write($"    public {className} With{csharpPropertyName}{(isFragment ? "Fragment" : null)}({_configuration.ClassPrefix}{fieldTypeName}QueryBuilder{_configuration.ClassSuffix} {builderParameterName}QueryBuilder");
+                writer.Write(
+                    $"    public {className} With{csharpPropertyName}{(isFragment ? "Fragment" : null)}({_configuration.ClassPrefix}{fieldTypeName}QueryBuilder{_configuration.ClassSuffix} {builderParameterName}QueryBuilder");
 
                 if (argumentDefinitions.Count > 0)
                 {
@@ -1266,9 +1290,9 @@ using Newtonsoft.Json.Linq;
             unwrappedType.Kind == GraphQlTypeKind.Enum
                 ? ScalarFieldTypeDescription.FromNetTypeName($"{_configuration.ClassPrefix}{NamingHelper.ToPascalCase(unwrappedType.Name)}{_configuration.ClassSuffix}?")
                 : context.ResolveScalarNetType(baseType, argument.Name, argumentType);
-            
+
         var argumentNetType = argumentTypeDescription.NetTypeName;
-            
+
         if (isTypeNotNull)
             argumentNetType = argumentNetType.TrimEnd('?');
 
@@ -1277,7 +1301,7 @@ using Newtonsoft.Json.Linq;
         {
             argumentNetType = context.GetCSharpClassName(unwrappedType.Name);
             argumentNetType = $"{_configuration.ClassPrefix}{argumentNetType}{_configuration.ClassSuffix}";
-                
+
             if (!isTypeNotNull)
                 argumentNetType = AddQuestionMarkIfNullableReferencesEnabled(argumentNetType);
         }
@@ -1356,14 +1380,14 @@ using Newtonsoft.Json.Linq;
     private void GenerateEnum(GenerationContext context, GraphQlType graphQlType)
     {
         var enumName = $"{_configuration.ClassPrefix}{NamingHelper.ToPascalCase(graphQlType.Name)}{_configuration.ClassSuffix}";
-            
+
         context.BeforeEnumGeneration(
             new ObjectGenerationContext
             {
                 GraphQlType = graphQlType,
                 CSharpTypeName = enumName
             });
-            
+
         var writer = context.Writer;
 
         GenerateCodeComments(writer, graphQlType.Description, context.Indentation);
@@ -1524,5 +1548,15 @@ using Newtonsoft.Json.Linq;
         public string NetParameterName;
         public string NetParameterDefinitionClause;
         public string FormatMask;
+    }
+
+    private struct DataPropertyContext
+    {
+        public IGraphQlMember Member;
+        public string PropertyName;
+        public bool IsDeprecated;
+        public string DeprecationReason;
+        public bool DecorateWithJsonPropertyAttribute;
+        public bool RequiresRawName;
     }
 }
