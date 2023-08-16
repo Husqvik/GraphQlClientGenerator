@@ -888,8 +888,6 @@ using Newtonsoft.Json.Linq;
 
         WriteOverrideProperty("public", "IReadOnlyList<GraphQlFieldMetadata>", "AllFields", "AllFieldMetadata", indentation, writer);
 
-        string ReturnPrefix(bool requiresFullBody) => requiresFullBody ? $"{indentation}        return " : String.Empty;
-
         var stringDataType = AddQuestionMarkIfNullableReferencesEnabled("string");
 
         if (hasQueryPrefix)
@@ -962,21 +960,6 @@ using Newtonsoft.Json.Linq;
             var returnPrefix = ReturnPrefix(requiresFullBody);
             var csharpPropertyName = NamingHelper.ToPascalCase(field.Name);
 
-            void WriteAliasParameter()
-            {
-                writer.Write(stringDataType);
-                writer.Write(" alias = ");
-
-                if (_configuration.JsonPropertyGeneration == JsonPropertyGenerationOption.UseDefaultAlias && !String.Equals(field.Name, csharpPropertyName, StringComparison.OrdinalIgnoreCase))
-                {
-                    writer.Write('"');
-                    writer.Write(NamingHelper.LowerFirst(csharpPropertyName));
-                    writer.Write('"');
-                }
-                else
-                    writer.Write("null");
-            }
-
             if (field.IsDeprecated)
             {
                 WriteObsoleteAttribute(writer, field.DeprecationReason, indentation);
@@ -1034,8 +1017,22 @@ using Newtonsoft.Json.Linq;
 
                 var builderParameterName = NamingHelper.LowerFirst(fieldTypeName);
                 writer.Write(indentation);
-                writer.Write(
-                    $"    public {className} With{csharpPropertyName}{(isFragment ? "Fragment" : null)}({_configuration.ClassPrefix}{fieldTypeName}QueryBuilder{_configuration.ClassSuffix} {builderParameterName}QueryBuilder");
+                writer.Write("    public ");
+                writer.Write(className);
+                writer.Write(" With");
+                writer.Write(csharpPropertyName);
+
+                if (isFragment)
+                    writer.Write("Fragment");
+
+                writer.Write('(');
+                writer.Write(_configuration.ClassPrefix);
+                writer.Write(fieldTypeName);
+                writer.Write("QueryBuilder");
+                writer.Write(_configuration.ClassSuffix);
+                writer.Write(' ');
+                writer.Write(builderParameterName);
+                writer.Write("QueryBuilder");
 
                 if (argumentDefinitions.Count > 0)
                 {
@@ -1094,7 +1091,11 @@ using Newtonsoft.Json.Linq;
                 writer.WriteLine();
 
                 writer.Write(indentation);
-                writer.Write($"    public {className} Except{csharpPropertyName}()");
+                writer.Write("    public ");
+                writer.Write(className);
+                writer.Write(" Except");
+                writer.Write(csharpPropertyName);
+                writer.Write("()");
 
                 WriteQueryBuilderMethodBody(
                     useCompatibleSyntax,
@@ -1105,6 +1106,23 @@ using Newtonsoft.Json.Linq;
 
             if (i < fields.Count - 1)
                 writer.WriteLine();
+
+            continue;
+
+            void WriteAliasParameter()
+            {
+                writer.Write(stringDataType);
+                writer.Write(" alias = ");
+
+                if (_configuration.JsonPropertyGeneration == JsonPropertyGenerationOption.UseDefaultAlias && !String.Equals(field.Name, csharpPropertyName, StringComparison.OrdinalIgnoreCase))
+                {
+                    writer.Write('"');
+                    writer.Write(NamingHelper.LowerFirst(csharpPropertyName));
+                    writer.Write('"');
+                }
+                else
+                    writer.Write("null");
+            }
         }
 
         writer.Write(indentation);
@@ -1116,6 +1134,10 @@ using Newtonsoft.Json.Linq;
                 GraphQlType = graphQlType,
                 CSharpTypeName = className
             });
+
+        return;
+
+        string ReturnPrefix(bool requiresFullBody) => requiresFullBody ? $"{indentation}        return " : String.Empty;
     }
 
     private static void WriteObsoleteAttribute(TextWriter writer, string deprecationReason, string indentation)
@@ -1351,25 +1373,6 @@ using Newtonsoft.Json.Linq;
         writer.Write(argumentCollectionVariableName);
         writer.WriteLine(" = new List<QueryBuilderArgumentInfo>();");
 
-        static void WriteAddKeyValuePair(TextWriter writer, QueryBuilderParameterDefinition argumentDefinition, string variableName)
-        {
-            var argument = argumentDefinition.Argument;
-            writer.Write(variableName);
-            writer.Write(".Add(new QueryBuilderArgumentInfo { ArgumentName = \"");
-            writer.Write(argument.Name);
-            writer.Write("\", ArgumentValue = ");
-            writer.Write(argumentDefinition.NetParameterName);
-
-            if (!String.IsNullOrEmpty(argumentDefinition.FormatMask))
-            {
-                writer.Write(", FormatMask = \"");
-                writer.Write(argumentDefinition.FormatMask.Replace("\"", "\\\""));
-                writer.Write("\"");
-            }
-
-            writer.WriteLine("} );");
-        }
-
         foreach (var argumentDefinition in argumentDefinitions)
         {
             writer.Write(indentation);
@@ -1389,6 +1392,27 @@ using Newtonsoft.Json.Linq;
                 WriteAddKeyValuePair(writer, argumentDefinition, argumentCollectionVariableName);
                 writer.WriteLine();
             }
+        }
+
+        return;
+
+        static void WriteAddKeyValuePair(TextWriter writer, QueryBuilderParameterDefinition argumentDefinition, string variableName)
+        {
+            var argument = argumentDefinition.Argument;
+            writer.Write(variableName);
+            writer.Write(".Add(new QueryBuilderArgumentInfo { ArgumentName = \"");
+            writer.Write(argument.Name);
+            writer.Write("\", ArgumentValue = ");
+            writer.Write(argumentDefinition.NetParameterName);
+
+            if (!String.IsNullOrEmpty(argumentDefinition.FormatMask))
+            {
+                writer.Write(", FormatMask = \"");
+                writer.Write(argumentDefinition.FormatMask.Replace("\"", "\\\""));
+                writer.Write("\"");
+            }
+
+            writer.WriteLine("} );");
         }
     }
 
@@ -1428,7 +1452,11 @@ using Newtonsoft.Json.Linq;
                     : NamingHelper.ToValidCSharpName(enumValue.Name);
 
             if (useCSharpNaming && netIdentifier != enumValue.Name)
-                writer.Write($"[EnumMember(Value = \"{enumValue.Name}\")] ");
+            {
+                writer.Write("[EnumMember(Value = \"");
+                writer.Write(enumValue.Name);
+                writer.Write("\")] ");
+            }
 
             writer.Write(netIdentifier);
 
