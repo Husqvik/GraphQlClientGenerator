@@ -250,6 +250,7 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
         new GraphQlFieldMetadata { Name = "underscore_named_field", DefaultAlias = "underscoreNamedField", IsComplex = true, QueryBuilderType = typeof(UnderscoreNamedClassQueryBuilder) },
         new GraphQlFieldMetadata { Name = "nestedLists", IsComplex = true },
         new GraphQlFieldMetadata { Name = "_" },
+        new GraphQlFieldMetadata { Name = "COLLISIONS" },
         new GraphQlFieldMetadata { Name = "collisions" }
     };
 
@@ -319,7 +320,11 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
 
     public QueryQueryBuilder Except_() => ExceptField("_");
 
-    public QueryQueryBuilder WithCollisions(QueryBuilderParameter<IEnumerable<string?>>? args = null, QueryBuilderParameter<IEnumerable<string?>>? inputArgs = null, QueryBuilderParameter<IEnumerable<string?>>? inputArgs1 = null, QueryBuilderParameter<bool?>? skip = null, QueryBuilderParameter<bool?>? skipDirective = null, QueryBuilderParameter<bool?>? skipDirectiveValue = null, QueryBuilderParameter<bool?>? include = null, QueryBuilderParameter<bool?>? includeDirective = null, QueryBuilderParameter<bool?>? includeDirectiveValue = null, string? alias = null, IncludeDirective? includeDirectiveValue1 = null, SkipDirective? skipDirectiveValue1 = null, CustomDirectiveDirective? customDirective = null)
+    public QueryQueryBuilder WithCOLLISIONS(string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("COLLISIONS", alias, new GraphQlDirective?[] { include, skip, customDirective });
+
+    public QueryQueryBuilder ExceptCOLLISIONS() => ExceptField("COLLISIONS");
+
+    public QueryQueryBuilder Withcollisions(QueryBuilderParameter<IEnumerable<string?>>? args = null, QueryBuilderParameter<IEnumerable<string?>>? inputArgs = null, QueryBuilderParameter<IEnumerable<string?>>? inputArgs1 = null, QueryBuilderParameter<bool?>? skip = null, QueryBuilderParameter<bool?>? skipDirective = null, QueryBuilderParameter<bool?>? skipDirectiveValue = null, QueryBuilderParameter<bool?>? include = null, QueryBuilderParameter<bool?>? includeDirective = null, QueryBuilderParameter<bool?>? includeDirectiveValue = null, string? alias = null, IncludeDirective? includeDirectiveValue1 = null, SkipDirective? skipDirectiveValue1 = null, CustomDirectiveDirective? customDirective = null)
     {
         var inputArgs2 = new List<QueryBuilderArgumentInfo>();
         if (args != null)
@@ -352,7 +357,7 @@ public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
         return WithScalarField("collisions", alias, new GraphQlDirective?[] { includeDirectiveValue1, skipDirectiveValue1, customDirective }, inputArgs2);
     }
 
-    public QueryQueryBuilder ExceptCollisions() => ExceptField("collisions");
+    public QueryQueryBuilder Exceptcollisions() => ExceptField("collisions");
 }
 
 public partial class UnderscoreNamedClassQueryBuilder : GraphQlQueryBuilder<UnderscoreNamedClassQueryBuilder>
@@ -711,7 +716,8 @@ public partial class Query
     public UnderscoreNamedClass? UnderscoreNamedField { get; set; }
     public IList<IList<IList<decimal>>?>? NestedLists { get; set; }
     public string? _ { get; set; }
-    public string? Collisions { get; set; }
+    public string? COLLISIONS { get; set; }
+    public string? collisions { get; set; }
 }
 
 public partial class UnderscoreNamedClass

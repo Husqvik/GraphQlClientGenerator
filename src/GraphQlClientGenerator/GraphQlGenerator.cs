@@ -394,7 +394,7 @@ using Newtonsoft.Json.Linq;
                     GenerateInputDataClassBody(complexType, fieldsToGenerate, context);
                 else if (fieldsToGenerate is not null)
                 {
-                    var csharpPropertyFieldLookup = fieldsToGenerate.ToLookup(f => NamingHelper.ToPascalCase(f.Name));
+                    var csharpNameLookup = fieldsToGenerate.ToLookup(f => NamingHelper.ToPascalCase(f.Name));
                     var generateBackingFields = _configuration.PropertyGeneration == PropertyGenerationOption.BackingField && !isInterfaceMember;
                     if (generateBackingFields)
                     {
@@ -403,7 +403,7 @@ using Newtonsoft.Json.Linq;
                         foreach (var field in fieldsToGenerate)
                         {
                             var propertyName = NamingHelper.ToPascalCase(field.Name);
-                            var backingFieldName = GetBackingFieldName(field.Name, csharpPropertyFieldLookup[propertyName].Count() > 1);
+                            var backingFieldName = GetBackingFieldName(field.Name, csharpNameLookup[propertyName].Count() > 1);
 
                             writer.Write(indentation);
                             writer.Write("    private ");
@@ -419,7 +419,7 @@ using Newtonsoft.Json.Linq;
                     foreach (var field in fieldsToGenerate)
                     {
                         var propertyName = NamingHelper.ToPascalCase(field.Name);
-                        var requiresRawName = csharpPropertyFieldLookup[propertyName].Count() > 1;
+                        var requiresRawName = csharpNameLookup[propertyName].Count() > 1;
                         if (requiresRawName)
                             propertyName = field.Name;
 
@@ -834,7 +834,8 @@ using Newtonsoft.Json.Linq;
                     }
                 }
 
-                writer.WriteLine($" }}{comma}");
+                writer.Write(" }");
+                writer.WriteLine(comma);
             }
 
             writer.Write(fieldMetadataIndentation);
@@ -923,6 +924,7 @@ using Newtonsoft.Json.Linq;
         fields ??= new List<GraphQlField>();
         var firstFragmentIndex = fields.Count;
         fields.AddRange(fragments);
+        var csharpNameLookup = fields.ToLookup(f => NamingHelper.ToPascalCase(f.Name));
 
         for (var i = 0; i < fields.Count; i++)
         {
@@ -959,6 +961,9 @@ using Newtonsoft.Json.Linq;
             var requiresFullBody = useCompatibleSyntax || argumentDefinitions.Any();
             var returnPrefix = ReturnPrefix(requiresFullBody);
             var csharpPropertyName = NamingHelper.ToPascalCase(field.Name);
+            var requiresRawName = csharpNameLookup[csharpPropertyName].Count() > 1;
+            if (requiresRawName)
+                csharpPropertyName = field.Name;
 
             if (field.IsDeprecated)
             {
