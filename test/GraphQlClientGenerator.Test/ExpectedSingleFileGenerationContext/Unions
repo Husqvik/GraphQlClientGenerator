@@ -32,6 +32,7 @@ public static class GraphQlTypes
     public static readonly IReadOnlyDictionary<Type, string> ReverseMapping =
         new Dictionary<Type, string>
         {
+            { typeof(UnderscoreNamedEnum), "underscore_named_enum" },
             { typeof(string), "String" },
             { typeof(Guid), "ID" },
             { typeof(DateTimeOffset), "DateTimeOffset" },
