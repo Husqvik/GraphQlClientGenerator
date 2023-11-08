@@ -9,11 +9,7 @@
     <PackageId>GraphQlClientGenerator.Tool</PackageId>
     <PackageTags>GraphQL Client Generator Tool Console</PackageTags>
     <PackageReleaseNotes>
-	  <![CDATA[
-Ignore duplicates within INTERFACE/UNION possible types
-Always request __typename for INTERFACE/UNION
-Fixed missing escaping of non printable characters
-]]>
+	  <![CDATA[Added --dataClassMemberNullability option]]>
     </PackageReleaseNotes>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>graphql-client-generator</ToolCommandName>

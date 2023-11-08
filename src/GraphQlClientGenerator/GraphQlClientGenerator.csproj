@@ -9,11 +9,7 @@
     <Title>GraphQL C# Client Generator</Title>
     <PackageTags>GraphQL Client Generator</PackageTags>
     <PackageReleaseNotes>
-	  <![CDATA[
-Ignore duplicates within INTERFACE/UNION possible types
-Always request __typename for INTERFACE/UNION
-Fixed missing escaping of non printable characters
-]]>
+	  <![CDATA[Added DataClassMemberNullability option]]>
     </PackageReleaseNotes>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
