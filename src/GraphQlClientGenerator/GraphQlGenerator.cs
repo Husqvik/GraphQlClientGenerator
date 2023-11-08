@@ -205,24 +205,6 @@ using Newtonsoft.Json.Linq;
         var netTypeKeys = new HashSet<string>();
         string typeMappingSeparator = null;
 
-        void WriteMappingEntry(string netType, string graphQlTypeName)
-        {
-            if (!netTypeKeys.Add(netType))
-                return;
-
-            if (typeMappingSeparator is not null)
-                writer.WriteLine(typeMappingSeparator);
-
-            writer.Write(indentation);
-            writer.Write("            { typeof(");
-            writer.Write(netType);
-            writer.Write("), \"");
-            writer.Write(graphQlTypeName);
-            writer.Write("\" }");
-
-            typeMappingSeparator = ",";
-        }
-
         foreach (var type in graphQlTypes.Where(t => t.Kind is GraphQlTypeKind.Object or GraphQlTypeKind.InputObject))
         {
             if (type.Kind == GraphQlTypeKind.InputObject)
@@ -246,7 +228,7 @@ using Newtonsoft.Json.Linq;
                     if (fieldType.Kind != GraphQlTypeKind.Scalar)
                         continue;
 
-                    var netType = context.ResolveScalarNetType(type, member.Name, member.Type).NetTypeName.TrimEnd('?');
+                    var netType = context.ResolveScalarNetType(type, member.Name, member.Type, false).NetTypeName.TrimEnd('?');
                     if (netType.EndsWith("object") || netType.EndsWith("System.Object"))
                         continue;
 
@@ -261,6 +243,26 @@ using Newtonsoft.Json.Linq;
         writer.WriteLine("}");
 
         context.AfterGraphQlTypeNameGeneration();
+
+        return;
+
+        void WriteMappingEntry(string netType, string graphQlTypeName)
+        {
+            if (!netTypeKeys.Add(netType))
+                return;
+
+            if (typeMappingSeparator is not null)
+                writer.WriteLine(typeMappingSeparator);
+
+            writer.Write(indentation);
+            writer.Write("            { typeof(");
+            writer.Write(netType);
+            writer.Write("), \"");
+            writer.Write(graphQlTypeName);
+            writer.Write("\" }");
+
+            typeMappingSeparator = ",";
+        }
     }
 
     private void GenerateEnums(GenerationContext context)
@@ -670,8 +672,10 @@ using Newtonsoft.Json.Linq;
 
         var isInterfaceMember = baseType.Kind == GraphQlTypeKind.Interface;
         var fieldType = member.Type.UnwrapIfNonNull();
-        var isGraphQlInterfaceJsonConverterRequired = fieldType.Kind == GraphQlTypeKind.Interface ||
-                                                      fieldType.Kind == GraphQlTypeKind.List && UnwrapListItemType(fieldType, false, out _).UnwrapIfNonNull().Kind == GraphQlTypeKind.Interface;
+        var isGraphQlInterfaceJsonConverterRequired =
+            fieldType.Kind == GraphQlTypeKind.Interface ||
+            fieldType.Kind == GraphQlTypeKind.List && UnwrapListItemType(fieldType, false, out _).UnwrapIfNonNull().Kind == GraphQlTypeKind.Interface;
+
         var isBaseTypeInputObject = baseType.Kind == GraphQlTypeKind.InputObject;
         var isPreprocessorDirectiveDisableNewtonsoftJsonRequired = !isInterfaceMember && decorateWithJsonPropertyAttribute || isGraphQlInterfaceJsonConverterRequired || isBaseTypeInputObject;
         if (isPreprocessorDirectiveDisableNewtonsoftJsonRequired)
@@ -1330,13 +1334,10 @@ using Newtonsoft.Json.Linq;
 
         var argumentTypeDescription =
             unwrappedType.Kind == GraphQlTypeKind.Enum
-                ? ScalarFieldTypeDescription.FromNetTypeName($"{_configuration.ClassPrefix}{NamingHelper.ToPascalCase(unwrappedType.Name)}{_configuration.ClassSuffix}?")
-                : context.ResolveScalarNetType(baseType, argument.Name, argumentType);
+                ? ScalarFieldTypeDescription.FromNetTypeName($"{_configuration.ClassPrefix}{NamingHelper.ToPascalCase(unwrappedType.Name)}{_configuration.ClassSuffix}{(isTypeNotNull ? "?" : null)}")
+                : context.ResolveScalarNetType(baseType, argument.Name, argumentType, false);
 
         var argumentNetType = argumentTypeDescription.NetTypeName;
-
-        if (isTypeNotNull)
-            argumentNetType = argumentNetType.TrimEnd('?');
 
         var isInputObject = unwrappedType.Kind == GraphQlTypeKind.InputObject;
         if (isInputObject)

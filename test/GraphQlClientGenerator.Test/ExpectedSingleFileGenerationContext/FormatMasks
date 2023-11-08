@@ -434,7 +434,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return ExceptField("subscriptions");
     }
 
-    public HomeQueryBuilder WithConsumption(HomeConsumptionConnectionQueryBuilder homeConsumptionConnectionQueryBuilder, QueryBuilderParameter<EnergyResolution> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<DateTimeOffset?> before = null, QueryBuilderParameter<DateTimeOffset?> after = null, QueryBuilderParameter<bool?> filterEmptyNodes = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
+    public HomeQueryBuilder WithConsumption(HomeConsumptionConnectionQueryBuilder homeConsumptionConnectionQueryBuilder, QueryBuilderParameter<EnergyResolution?> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<DateTimeOffset?> before = null, QueryBuilderParameter<DateTimeOffset?> after = null, QueryBuilderParameter<bool?> filterEmptyNodes = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "resolution", ArgumentValue = resolution} );
@@ -461,7 +461,7 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
         return ExceptField("consumption");
     }
 
-    public HomeQueryBuilder WithProduction(HomeProductionConnectionQueryBuilder homeProductionConnectionQueryBuilder, QueryBuilderParameter<EnergyResolution> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<DateTimeOffset?> before = null, QueryBuilderParameter<DateTimeOffset?> after = null, QueryBuilderParameter<bool?> filterEmptyNodes = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
+    public HomeQueryBuilder WithProduction(HomeProductionConnectionQueryBuilder homeProductionConnectionQueryBuilder, QueryBuilderParameter<EnergyResolution?> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<DateTimeOffset?> before = null, QueryBuilderParameter<DateTimeOffset?> after = null, QueryBuilderParameter<bool?> filterEmptyNodes = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "resolution", ArgumentValue = resolution} );
@@ -978,7 +978,7 @@ public partial class PriceInfoQueryBuilder : GraphQlQueryBuilder<PriceInfoQueryB
         return ExceptField("tomorrow");
     }
 
-    public PriceInfoQueryBuilder WithRange(SubscriptionPriceConnectionQueryBuilder subscriptionPriceConnectionQueryBuilder, QueryBuilderParameter<PriceResolution> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<DateTimeOffset?> before = null, QueryBuilderParameter<DateTimeOffset?> after = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
+    public PriceInfoQueryBuilder WithRange(SubscriptionPriceConnectionQueryBuilder subscriptionPriceConnectionQueryBuilder, QueryBuilderParameter<PriceResolution?> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<DateTimeOffset?> before = null, QueryBuilderParameter<DateTimeOffset?> after = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "resolution", ArgumentValue = resolution} );

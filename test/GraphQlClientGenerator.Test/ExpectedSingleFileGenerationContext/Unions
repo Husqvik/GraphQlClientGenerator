@@ -228,7 +228,7 @@ public partial class ConcreteType3QueryBuilder : GraphQlQueryBuilder<ConcreteTyp
 
     public ConcreteType3QueryBuilder ExceptValue() => ExceptField("VALUE");
 
-    public ConcreteType3QueryBuilder WithFunction(QueryBuilderParameter<string> value, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null)
+    public ConcreteType3QueryBuilder WithFunction(QueryBuilderParameter<string?> value, string? alias = null, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "value", ArgumentValue = value} );

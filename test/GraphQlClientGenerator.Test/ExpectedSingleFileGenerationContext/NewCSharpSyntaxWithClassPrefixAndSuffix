@@ -455,7 +455,7 @@ internal partial class TestHomeQueryBuilderV1 : GraphQlQueryBuilder<TestHomeQuer
 
     public TestHomeQueryBuilderV1 ExceptPreLiveComparison() => ExceptField("preLiveComparison");
 
-    public TestHomeQueryBuilderV1 WithComparisons(TestComparisonQueryBuilderV1 comparisonQueryBuilder, QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null, QueryBuilderParameter<TestResolutionV1?> resolution = null, QueryBuilderParameter<bool?> useDemoData = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
+    public TestHomeQueryBuilderV1 WithComparisons(TestComparisonQueryBuilderV1 comparisonQueryBuilder, QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null, QueryBuilderParameter<TestResolutionV1> resolution = null, QueryBuilderParameter<bool?> useDemoData = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (from != null)
@@ -507,7 +507,7 @@ internal partial class TestHomeQueryBuilderV1 : GraphQlQueryBuilder<TestHomeQuer
 
     public TestHomeQueryBuilderV1 ExceptSignupStatus() => ExceptField("signupStatus");
 
-    public TestHomeQueryBuilderV1 WithDisaggregation(TestDisaggregationQueryBuilderV1 disaggregationQueryBuilder, QueryBuilderParameter<TestResolutionV1?> resolution = null, QueryBuilderParameter<bool?> useDemoData = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
+    public TestHomeQueryBuilderV1 WithDisaggregation(TestDisaggregationQueryBuilderV1 disaggregationQueryBuilder, QueryBuilderParameter<TestResolutionV1> resolution = null, QueryBuilderParameter<bool?> useDemoData = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (resolution != null)

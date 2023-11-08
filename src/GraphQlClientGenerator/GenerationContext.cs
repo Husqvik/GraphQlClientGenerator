@@ -170,7 +170,7 @@ public abstract class GenerationContext
                         ? "object"
                         : $"{(unwrappedItemType.Kind == GraphQlTypeKind.Interface ? "I" : null)}{Configuration.ClassPrefix}{itemTypeName}{Configuration.ClassSuffix}";
 
-                var suggestedScalarNetType = ResolveScalarNetType(baseType, member.Name, itemType).NetTypeName.TrimEnd('?');
+                var suggestedScalarNetType = ResolveScalarNetType(baseType, member.Name, itemType, true).NetTypeName.TrimEnd('?');
                 if (!String.Equals(suggestedScalarNetType, "object") && !suggestedScalarNetType.TrimEnd().EndsWith("System.Object"))
                     netItemType = suggestedScalarNetType;
 
@@ -181,7 +181,7 @@ public abstract class GenerationContext
                 return ScalarFieldTypeDescription.FromNetTypeName(AddQuestionMarkIfNullableReferencesEnabled(netCollectionType));
 
             case GraphQlTypeKind.Scalar:
-                return ResolveScalarNetType(baseType, member.Name, member.Type);
+                return ResolveScalarNetType(baseType, member.Name, member.Type, Configuration.DataClassMemberNullability != DataClassMemberNullability.DefinedBySchema);
 
             default:
                 return ScalarFieldTypeDescription.FromNetTypeName(AddQuestionMarkIfNullableReferencesEnabled("string"));
@@ -196,8 +196,8 @@ public abstract class GenerationContext
         if (fieldType.UnwrapIfNonNull().Kind != GraphQlTypeKind.Scalar)
             return false;
 
-        var netType = ResolveScalarNetType(baseType, valueName, fieldType).NetTypeName;
-        return netType == "object" || netType.EndsWith("System.Object") || netType == "object?" || netType.EndsWith("System.Object?");
+        var netType = ResolveScalarNetType(baseType, valueName, fieldType, false).NetTypeName;
+        return netType is "object" or "object?" || netType.EndsWith("System.Object") || netType.EndsWith("System.Object?");
     }
 
     internal string GetCSharpClassName(string graphQlName, bool applyNameCollisionMapping = true)
@@ -219,51 +219,51 @@ public abstract class GenerationContext
         return true;
     }
 
-    internal ScalarFieldTypeDescription ResolveScalarNetType(GraphQlType baseType, string valueName, GraphQlFieldType valueType) =>
+    internal ScalarFieldTypeDescription ResolveScalarNetType(GraphQlType baseType, string valueName, GraphQlFieldType valueType, bool alwaysNullable) =>
         valueType.UnwrapIfNonNull().Name switch
         {
-            GraphQlTypeBase.GraphQlTypeScalarInteger => GetIntegerNetType(baseType, valueType, valueName),
+            GraphQlTypeBase.GraphQlTypeScalarInteger => GetIntegerNetType(baseType, valueType, valueName, alwaysNullable),
             GraphQlTypeBase.GraphQlTypeScalarString => GetCustomScalarNetType(baseType, valueType, valueName),
-            GraphQlTypeBase.GraphQlTypeScalarFloat => GetFloatNetType(baseType, valueType, valueName),
-            GraphQlTypeBase.GraphQlTypeScalarBoolean => ScalarFieldTypeDescription.FromNetTypeName(GetBooleanNetType(baseType, valueType, valueName)),
-            GraphQlTypeBase.GraphQlTypeScalarId => GetIdNetType(baseType, valueType, valueName),
+            GraphQlTypeBase.GraphQlTypeScalarFloat => GetFloatNetType(baseType, valueType, valueName, alwaysNullable),
+            GraphQlTypeBase.GraphQlTypeScalarBoolean => GetBooleanNetType(baseType, valueType, valueName, alwaysNullable),
+            GraphQlTypeBase.GraphQlTypeScalarId => GetIdNetType(baseType, valueType, valueName, alwaysNullable),
             _ => GetCustomScalarNetType(baseType, valueType, valueName)
         };
 
-    private string GetBooleanNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
+    private ScalarFieldTypeDescription GetBooleanNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName, bool alwaysNullable) =>
         Configuration.BooleanTypeMapping switch
         {
-            BooleanTypeMapping.Boolean => "bool?",
-            BooleanTypeMapping.Custom => Configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(Configuration, baseType, valueType, valueName).NetTypeName,
+            BooleanTypeMapping.Boolean => NullableScalarNetTypeName(valueType, "bool", alwaysNullable),
+            BooleanTypeMapping.Custom => Configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(Configuration, baseType, valueType, valueName),
             _ => throw new InvalidOperationException($"\"{Configuration.BooleanTypeMapping}\" not supported")
         };
 
-    private ScalarFieldTypeDescription GetFloatNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
+    private ScalarFieldTypeDescription GetFloatNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName, bool alwaysNullable) =>
         Configuration.FloatTypeMapping switch
         {
-            FloatTypeMapping.Decimal => ScalarFieldTypeDescription.FromNetTypeName("decimal?"),
-            FloatTypeMapping.Float => ScalarFieldTypeDescription.FromNetTypeName("float?"),
-            FloatTypeMapping.Double => ScalarFieldTypeDescription.FromNetTypeName("double?"),
+            FloatTypeMapping.Decimal => NullableScalarNetTypeName(valueType, "decimal", alwaysNullable),
+            FloatTypeMapping.Float => NullableScalarNetTypeName(valueType, "float", alwaysNullable),
+            FloatTypeMapping.Double => NullableScalarNetTypeName(valueType, "double", alwaysNullable),
             FloatTypeMapping.Custom => Configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(Configuration, baseType, valueType, valueName),
             _ => throw new InvalidOperationException($"\"{Configuration.FloatTypeMapping}\" not supported")
         };
 
-    private ScalarFieldTypeDescription GetIntegerNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
+    private ScalarFieldTypeDescription GetIntegerNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName, bool alwaysNullable) =>
         Configuration.IntegerTypeMapping switch
         {
-            IntegerTypeMapping.Int32 => ScalarFieldTypeDescription.FromNetTypeName("int?"),
-            IntegerTypeMapping.Int16 => ScalarFieldTypeDescription.FromNetTypeName("short?"),
-            IntegerTypeMapping.Int64 => ScalarFieldTypeDescription.FromNetTypeName("long?"),
+            IntegerTypeMapping.Int32 => NullableScalarNetTypeName(valueType, "int", alwaysNullable),
+            IntegerTypeMapping.Int16 => NullableScalarNetTypeName(valueType, "short", alwaysNullable),
+            IntegerTypeMapping.Int64 => NullableScalarNetTypeName(valueType, "long", alwaysNullable),
             IntegerTypeMapping.Custom => Configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(Configuration, baseType, valueType, valueName),
             _ => throw new InvalidOperationException($"\"{Configuration.IntegerTypeMapping}\" not supported")
         };
 
-    private ScalarFieldTypeDescription GetIdNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
+    private ScalarFieldTypeDescription GetIdNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName, bool alwaysNullable) =>
         Configuration.IdTypeMapping switch
         {
-            IdTypeMapping.String => ScalarFieldTypeDescription.FromNetTypeName(AddQuestionMarkIfNullableReferencesEnabled("string")),
-            IdTypeMapping.Guid => ScalarFieldTypeDescription.FromNetTypeName("Guid?"),
-            IdTypeMapping.Object => ScalarFieldTypeDescription.FromNetTypeName(AddQuestionMarkIfNullableReferencesEnabled("object")),
+            IdTypeMapping.String => NullableScalarNetTypeName(valueType, "string", alwaysNullable),
+            IdTypeMapping.Guid => NullableScalarNetTypeName(valueType, "Guid", alwaysNullable),
+            IdTypeMapping.Object => NullableScalarNetTypeName(valueType, "object", alwaysNullable),
             IdTypeMapping.Custom => Configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(Configuration, baseType, valueType, valueName),
             _ => throw new InvalidOperationException($"\"{Configuration.IdTypeMapping}\" not supported")
         };
@@ -281,6 +281,15 @@ public abstract class GenerationContext
             throw new InvalidOperationException("invalid format mask");
 
         return typeDescription with { NetTypeName = typeDescription.NetTypeName.Replace(" ", String.Empty).Replace("\t", String.Empty) };
+    }
+
+    private ScalarFieldTypeDescription NullableScalarNetTypeName(GraphQlTypeBase valueType, string netType, bool alwaysNullable)
+    {
+        var isNotNull = !alwaysNullable && valueType.Kind is GraphQlTypeKind.NonNull;
+        var isReferenceType = netType is "string" or "object";
+        var areNullableReferencesDisabled = Configuration.CSharpVersion != CSharpVersion.NewestWithNullableReferences && isReferenceType;
+        var netTypeName = isNotNull || areNullableReferencesDisabled ? netType : $"{netType}?";
+        return ScalarFieldTypeDescription.FromNetTypeName(netTypeName);
     }
 
     private void ResolveNameCollisions()

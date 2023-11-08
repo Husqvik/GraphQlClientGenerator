@@ -75,6 +75,8 @@ public class GraphQlGeneratorConfiguration
 
     public bool FileScopedNamespaces { get; set; }
 
+    public DataClassMemberNullability DataClassMemberNullability { get; set; }
+
     public GraphQlGeneratorConfiguration() => Reset();
 
     public void Reset()
@@ -98,6 +100,7 @@ public class GraphQlGeneratorConfiguration
         PropertyGeneration = PropertyGenerationOption.AutoProperty;
         EnumValueNaming = EnumValueNamingOption.CSharp;
         FileScopedNamespaces = false;
+        DataClassMemberNullability = DataClassMemberNullability.AlwaysNullable;
     }
 
     public string GeneratePropertyAccessors(string backingFieldName, ScalarFieldTypeDescription backingFieldType)
@@ -196,4 +199,10 @@ public enum CommentGenerationOption
     Disabled = 0,
     CodeSummary = 1,
     DescriptionAttribute = 2
+}
+
+public enum DataClassMemberNullability
+{
+    AlwaysNullable,
+    DefinedBySchema
 }

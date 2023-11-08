@@ -23,5 +23,6 @@ public class ProgramOptions
     public BooleanTypeMapping BooleanTypeMapping { get; set; }
     public JsonPropertyGenerationOption JsonPropertyAttribute { get; set; }
     public EnumValueNamingOption EnumValueNaming { get; set; }
+    public DataClassMemberNullability DataClassMemberNullability { get; set; }
     public bool IncludeDeprecatedFields { get; set; }
 }
