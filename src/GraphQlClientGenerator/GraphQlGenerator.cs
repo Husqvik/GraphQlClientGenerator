@@ -393,58 +393,10 @@ public class GraphQlGenerator
 
             void GenerateBody(bool isInterfaceMember)
             {
-                var writer = context.Writer;
                 if (hasInputReference)
                     GenerateInputDataClassBody(complexType, fieldsToGenerate, context);
                 else if (fieldsToGenerate is not null)
-                {
-                    var csharpNameLookup = fieldsToGenerate.ToLookup(f => NamingHelper.ToPascalCase(f.Name));
-                    var generateBackingFields = _configuration.PropertyGeneration == PropertyGenerationOption.BackingField && !isInterfaceMember;
-                    if (generateBackingFields)
-                    {
-                        var indentation = GetIndentation(context.Indentation);
-
-                        foreach (var field in fieldsToGenerate)
-                        {
-                            var propertyName = NamingHelper.ToPascalCase(field.Name);
-                            var backingFieldName = GetBackingFieldName(field.Name, csharpNameLookup[propertyName].Count() > 1);
-
-                            writer.Write(indentation);
-                            writer.Write("    private ");
-                            writer.Write(context.GetDataPropertyType(complexType, field).NetTypeName);
-                            writer.Write(" ");
-                            writer.Write(backingFieldName);
-                            writer.WriteLine(";");
-                        }
-
-                        writer.WriteLine();
-                    }
-
-                    foreach (var field in fieldsToGenerate)
-                    {
-                        var propertyName = NamingHelper.ToPascalCase(field.Name);
-                        var requiresRawName = csharpNameLookup[propertyName].Count() > 1;
-                        if (requiresRawName)
-                            propertyName = field.Name;
-
-                        GenerateDataProperty(
-                            complexType,
-                            new DataPropertyContext
-                            {
-                                Member = field,
-                                PropertyName = propertyName,
-                                IsDeprecated = field.IsDeprecated,
-                                DeprecationReason = field.DeprecationReason,
-                                DecorateWithJsonPropertyAttribute = true,
-                                RequiresRawName = requiresRawName
-                            },
-                            (_, backingFieldName) =>
-                                writer.Write(generateBackingFields
-                                    ? _configuration.PropertyAccessorBodyWriter(backingFieldName, context.GetDataPropertyType(complexType, field))
-                                    : " { get; set; }"),
-                            context);
-                    }
-                }
+                    GenerateDataClassBody(complexType, fieldsToGenerate, context, isInterfaceMember);
             }
         }
 
@@ -455,6 +407,57 @@ public class GraphQlGenerator
         requiresRawName
             ? $"_{graphQlFieldName}"
             : $"_{NamingHelper.LowerFirst(NamingHelper.ToPascalCase(graphQlFieldName))}";
+
+    private void GenerateDataClassBody(GraphQlType type, ICollection<GraphQlField> fieldsToGenerate, GenerationContext context, bool isInterfaceMember)
+    {
+        var writer = context.Writer;
+        var csharpNameLookup = fieldsToGenerate.ToLookup(f => NamingHelper.ToPascalCase(f.Name));
+        var generateBackingFields = _configuration.PropertyGeneration == PropertyGenerationOption.BackingField && !isInterfaceMember;
+        if (generateBackingFields)
+        {
+            var indentation = GetIndentation(context.Indentation);
+
+            foreach (var field in fieldsToGenerate)
+            {
+                var propertyName = NamingHelper.ToPascalCase(field.Name);
+                var backingFieldName = GetBackingFieldName(field.Name, csharpNameLookup[propertyName].Count() > 1);
+
+                writer.Write(indentation);
+                writer.Write("    private ");
+                writer.Write(context.GetDataPropertyType(type, field).NetTypeName);
+                writer.Write(" ");
+                writer.Write(backingFieldName);
+                writer.WriteLine(";");
+            }
+
+            writer.WriteLine();
+        }
+
+        foreach (var field in fieldsToGenerate)
+        {
+            var propertyName = NamingHelper.ToPascalCase(field.Name);
+            var requiresRawName = csharpNameLookup[propertyName].Count() > 1;
+            if (requiresRawName)
+                propertyName = field.Name;
+
+            GenerateDataProperty(
+                type,
+                new DataPropertyContext
+                {
+                    Member = field,
+                    PropertyName = propertyName,
+                    IsDeprecated = field.IsDeprecated,
+                    DeprecationReason = field.DeprecationReason,
+                    DecorateWithJsonPropertyAttribute = true,
+                    RequiresRawName = requiresRawName
+                },
+                (_, backingFieldName) =>
+                    writer.Write(generateBackingFields
+                        ? _configuration.PropertyAccessorBodyWriter(backingFieldName, context.GetDataPropertyType(type, field))
+                        : " { get; set; }"),
+                context);
+        }
+    }
 
     private void GenerateInputDataClassBody(GraphQlType type, IEnumerable<IGraphQlMember> members, GenerationContext context)
     {
