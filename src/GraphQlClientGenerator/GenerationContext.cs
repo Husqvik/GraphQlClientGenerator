@@ -303,7 +303,7 @@ public abstract class GenerationContext
             var propertyNamesToGenerate = new List<string>();
             if (isInputObject)
             {
-                FindAllReferencedObjectTypes(Schema, graphQlType, _referencedObjectTypes);
+                FindAllReferencedObjectTypes(graphQlType);
                 propertyNamesToGenerate.AddRange(graphQlType.InputFields.Select(f => NamingHelper.ToPascalCase(f.Name)));
             }
             else if (graphQlType.Kind.IsComplex())
@@ -349,7 +349,7 @@ public abstract class GenerationContext
         }
     }
 
-    private static void FindAllReferencedObjectTypes(GraphQlSchema schema, GraphQlType type, ISet<string> objectTypes)
+    private void FindAllReferencedObjectTypes(GraphQlType type)
     {
         foreach (var member in (IEnumerable<IGraphQlMember>)type.InputFields ?? type.Fields)
         {
@@ -358,17 +358,17 @@ public abstract class GenerationContext
             switch (unwrappedType.Kind)
             {
                 case GraphQlTypeKind.Object:
-                    objectTypes.Add(unwrappedType.Name);
-                    memberType = schema.Types.Single(t => t.Name == unwrappedType.Name);
-                    FindAllReferencedObjectTypes(schema, memberType, objectTypes);
+                    _referencedObjectTypes.Add(unwrappedType.Name);
+                    memberType = _complexTypes[unwrappedType.Name];
+                    FindAllReferencedObjectTypes(memberType);
                     break;
 
                 case GraphQlTypeKind.List:
                     var itemType = unwrappedType.OfType.UnwrapIfNonNull();
                     if (itemType.Kind.IsComplex())
                     {
-                        memberType = schema.Types.Single(t => t.Name == itemType.Name);
-                        FindAllReferencedObjectTypes(schema, memberType, objectTypes);
+                        memberType = _complexTypes[itemType.Name];
+                        FindAllReferencedObjectTypes(memberType);
                     }
 
                     break;
