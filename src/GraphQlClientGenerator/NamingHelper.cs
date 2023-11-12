@@ -90,7 +90,7 @@ internal static class NamingHelper
 
     public static string LowerFirst(string value) => Char.ToLowerInvariant(value[0]) + value.Substring(1);
 
-    public static string ToValidCSharpName(string name) => CSharpKeywords.Contains(name) ? $"@{name}" : name;
+    public static string EnsureCSharpQuoting(string name) => CSharpKeywords.Contains(name) ? $"@{name}" : name;
 
     private static readonly Regex RegexInvalidCharacters = new("[^_a-zA-Z0-9]");
     private static readonly Regex RegexNextWhiteSpace = new(@"(?<=\s)");

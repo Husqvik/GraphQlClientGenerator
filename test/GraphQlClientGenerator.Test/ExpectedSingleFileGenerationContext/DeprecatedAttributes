@@ -64,7 +64,9 @@ public enum Avatar
     [EnumMember(Value = "castle")] Castle,
     [EnumMember(Value = "apartment")] Apartment,
     [EnumMember(Value = "cottage")] Cottage,
-    [EnumMember(Value = "rowhouse")] Rowhouse
+    [Obsolete(@"use 'rowhouse' instead")]
+    ROWHOUSE,
+    rowhouse
 }
 
 public enum PriceLevel

@@ -39,7 +39,7 @@ public abstract class GenerationContext
         Indentation = indentationSize;
     }
 
-    public bool FilterDeprecatedFields(GraphQlField field) =>
+    public bool FilterDeprecatedFields(GraphQlEnumValue field) =>
         !field.IsDeprecated || Configuration.IncludeDeprecatedFields;
 
     public void Initialize(GraphQlGeneratorConfiguration configuration)

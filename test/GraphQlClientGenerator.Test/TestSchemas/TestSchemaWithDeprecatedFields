@@ -642,6 +642,12 @@
               "deprecationReason": null
             },
             {
+              "name": "ROWHOUSE",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "use 'rowhouse' instead"
+            },
+            {
               "name": "rowhouse",
               "description": null,
               "isDeprecated": false,

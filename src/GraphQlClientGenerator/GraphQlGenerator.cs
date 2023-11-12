@@ -14,21 +14,23 @@ public class GraphQlGenerator
     public const string PreprocessorDirectiveDisableNewtonsoftJson = "GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON";
 
     public const string RequiredNamespaces =
-        $@"using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Text.RegularExpressions;
-#if !{PreprocessorDirectiveDisableNewtonsoftJson}
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-#endif
-";
+        $"""
+        using System;
+        using System.Collections;
+        using System.Collections.Generic;
+        using System.ComponentModel;
+        using System.Globalization;
+        using System.Linq;
+        using System.Reflection;
+        using System.Runtime.Serialization;
+        using System.Text;
+        using System.Text.RegularExpressions;
+        #if !{PreprocessorDirectiveDisableNewtonsoftJson}
+        using Newtonsoft.Json;
+        using Newtonsoft.Json.Linq;
+        #endif
+
+        """;
 
     private delegate void WriteDataClassPropertyBodyDelegate(ScalarFieldTypeDescription netType, string backingFieldName);
 
@@ -847,17 +849,8 @@ using Newtonsoft.Json.Linq;
             writer.WriteLine();
         }
 
-        GraphQlDirectiveLocation directiveLocation;
-        if (graphQlType.Name == schema.QueryType?.Name)
-            directiveLocation = GraphQlDirectiveLocation.Query;
-        else if (graphQlType.Name == schema.MutationType?.Name)
-            directiveLocation = GraphQlDirectiveLocation.Mutation;
-        else if (graphQlType.Name == schema.SubscriptionType?.Name)
-            directiveLocation = GraphQlDirectiveLocation.Subscription;
-        else
-            directiveLocation = GraphQlDirectiveLocation.Field;
-
         var useCompatibleSyntax = _configuration.CSharpVersion == CSharpVersion.Compatible;
+        var directiveLocation = GetDirectiveLocation(context.Schema, graphQlType.Name);
 
         if (graphQlType.Kind is GraphQlTypeKind.Interface or GraphQlTypeKind.Union)
         {
@@ -970,9 +963,7 @@ using Newtonsoft.Json.Linq;
                 csharpPropertyName = field.Name;
 
             if (field.IsDeprecated)
-            {
                 WriteObsoleteAttribute(writer, field.DeprecationReason, indentation);
-            }
 
             if (fieldType.Kind is GraphQlTypeKind.Scalar or GraphQlTypeKind.Enum or GraphQlTypeKind.List)
             {
@@ -1149,11 +1140,27 @@ using Newtonsoft.Json.Linq;
         string ReturnPrefix(bool requiresFullBody) => requiresFullBody ? $"{indentation}        return " : String.Empty;
     }
 
+    private static GraphQlDirectiveLocation GetDirectiveLocation(GraphQlSchema schema, string graphQlTypeName)
+    {
+        if (graphQlTypeName == schema.QueryType?.Name)
+            return GraphQlDirectiveLocation.Query;
+
+        if (graphQlTypeName == schema.MutationType?.Name)
+            return GraphQlDirectiveLocation.Mutation;
+
+        if (graphQlTypeName == schema.SubscriptionType?.Name)
+            return GraphQlDirectiveLocation.Subscription;
+
+        return GraphQlDirectiveLocation.Field;
+    }
+
     private static void WriteObsoleteAttribute(TextWriter writer, string deprecationReason, string indentation)
     {
         deprecationReason = String.IsNullOrWhiteSpace(deprecationReason) ? null : $"(@\"{deprecationReason.Replace("\"", "\"\"")}\")";
         writer.Write(indentation);
-        writer.WriteLine($"    [Obsolete{deprecationReason}]");
+        writer.Write("    [Obsolete");
+        writer.Write(deprecationReason);
+        writer.WriteLine("]");
     }
 
     private IList<QueryBuilderParameterDefinition> ResolveParameterDefinitions(GenerationContext context, GraphQlType type, IEnumerable<GraphQlArgument> graphQlArguments)
@@ -1165,7 +1172,7 @@ using Newtonsoft.Json.Linq;
         var collidingNames = new Dictionary<string, int>();
         foreach (var argument in graphQlArguments.Where(a => IsCompatibleArgument(a.Type)))
         {
-            var netParameterName = NamingHelper.ToValidCSharpName(NamingHelper.LowerFirst(NamingHelper.ToPascalCase(argument.Name)));
+            var netParameterName = NamingHelper.EnsureCSharpQuoting(NamingHelper.LowerFirst(NamingHelper.ToPascalCase(argument.Name)));
             collidingNames[netParameterName] = collidingNames.TryGetValue(netParameterName, out var extendingIndex) ? extendingIndex + 1 : 1;
 
             if (extendingIndex > 0)
@@ -1443,33 +1450,41 @@ using Newtonsoft.Json.Linq;
         writer.Write(indentation);
         writer.WriteLine("{");
 
-        var enumValues = graphQlType.EnumValues.ToList();
-        for (var i = 0; i < enumValues.Count; i++)
+        var useCSharpNaming = _configuration.EnumValueNaming == EnumValueNamingOption.CSharp;
+        var enumFieldsToGenerate = graphQlType.EnumValues.Where(context.FilterDeprecatedFields).ToArray();
+        var byIdentifierGroupedFieldsToGenerate =
+            enumFieldsToGenerate
+                .GroupBy(v => useCSharpNaming ? NamingHelper.ToCSharpEnumName(v.Name) : NamingHelper.EnsureCSharpQuoting(v.Name))
+                .ToArray();
+
+        var valueCounter = 0;
+        foreach (var nameValues in byIdentifierGroupedFieldsToGenerate)
         {
-            var enumValue = enumValues[i];
-            GenerateCodeComments(writer, enumValue.Description, context.Indentation + 4);
-            writer.Write(indentation);
-            writer.Write("    ");
-
-            var useCSharpNaming = _configuration.EnumValueNaming == EnumValueNamingOption.CSharp;
-            var netIdentifier =
-                useCSharpNaming
-                    ? NamingHelper.ToCSharpEnumName(enumValue.Name)
-                    : NamingHelper.ToValidCSharpName(enumValue.Name);
-
-            if (useCSharpNaming && netIdentifier != enumValue.Name)
+            foreach (var enumValue in nameValues)
             {
-                writer.Write("[EnumMember(Value = \"");
-                writer.Write(enumValue.Name);
-                writer.Write("\")] ");
+                GenerateCodeComments(writer, enumValue.Description, context.Indentation + 4);
+
+                if (enumValue.IsDeprecated)
+                    WriteObsoleteAttribute(writer, enumValue.DeprecationReason, indentation);
+
+                writer.Write(indentation);
+                writer.Write("    ");
+
+                var enumIdentifier = nameValues.Count() == 1 ? nameValues.Key : enumValue.Name;
+                if (useCSharpNaming && enumIdentifier != enumValue.Name)
+                {
+                    writer.Write("[EnumMember(Value = \"");
+                    writer.Write(enumValue.Name);
+                    writer.Write("\")] ");
+                }
+
+                writer.Write(enumIdentifier);
+
+                if (++valueCounter < enumFieldsToGenerate.Length)
+                    writer.Write(",");
+
+                writer.WriteLine();
             }
-
-            writer.Write(netIdentifier);
-
-            if (i < enumValues.Count - 1)
-                writer.Write(",");
-
-            writer.WriteLine();
         }
 
         writer.Write(indentation);
