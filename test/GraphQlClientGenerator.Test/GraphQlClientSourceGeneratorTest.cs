@@ -48,7 +48,7 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
         var sourceCode = generatedSource.ToString();
 
         var expectedSourceCode = GetExpectedSourceText(expectedResultResourceName);
-        sourceCode.ShouldBe(expectedSourceCode);
+        sourceCode.ShouldBe(expectedSourceCode, StringCompareShould.IgnoreLineEndings);
     }
 
     [Fact]
@@ -58,7 +58,7 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
         var sourceCode = generatedSource.ToString();
 
         var expectedSourceCode = GetExpectedSourceText("SourceGeneratorResult").Replace("typeof(DateTimeOffset)", "typeof(DateTime)").Replace("DateTimeOffset?", "DateTime?");
-        sourceCode.ShouldBe(expectedSourceCode);
+        sourceCode.ShouldBe(expectedSourceCode, StringCompareShould.IgnoreLineEndings);
     }
 
     private static string GetExpectedSourceText(string expectedResultsFile)
