@@ -377,7 +377,7 @@ public abstract class GenerationContext
         }
     }
 
-    public void WriteNamespaceStart(string @namespace)
+    protected void WriteNamespaceStart(string @namespace)
     {
         Writer.Write($"namespace {@namespace}");
         if (Configuration.FileScopedNamespaces)
