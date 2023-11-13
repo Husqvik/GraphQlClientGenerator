@@ -23,12 +23,12 @@ public abstract class GenerationContext
 
     public GeneratedObjectType ObjectTypes { get; }
 
-    public virtual byte Indentation { get; }
+    public byte Indentation { get; protected set; }
 
     protected internal abstract TextWriter Writer { get; }
 
 
-    protected GenerationContext(GraphQlSchema schema, GeneratedObjectType objectTypes, byte indentationSize)
+    protected GenerationContext(GraphQlSchema schema, GeneratedObjectType objectTypes)
     {
         var optionsInteger = (int)objectTypes;
         if (optionsInteger is < 1 or > 7)
@@ -36,7 +36,6 @@ public abstract class GenerationContext
 
         Schema = schema ?? throw new ArgumentNullException(nameof(schema));
         ObjectTypes = objectTypes;
-        Indentation = indentationSize;
     }
 
     public bool FilterDeprecatedFields(GraphQlEnumValue field) =>
@@ -49,6 +48,8 @@ public abstract class GenerationContext
         _referencedObjectTypes.Clear();
         _complexTypes = Schema.GetComplexTypes().ToDictionary(t => t.Name);
         ResolveNameCollisions();
+
+        Indentation = (byte)(configuration.FileScopedNamespaces ? 0 : 4);
     }
 
     public abstract void BeforeGeneration();
@@ -374,6 +375,26 @@ public abstract class GenerationContext
                     break;
             }
         }
+    }
+
+    public void WriteNamespaceStart(string @namespace)
+    {
+        Writer.Write($"namespace {@namespace}");
+        if (Configuration.FileScopedNamespaces)
+        {
+            Writer.WriteLine(";");
+            Writer.WriteLine();
+        }
+        else
+        {
+            Writer.WriteLine();
+            Writer.WriteLine("{");
+        }
+    }
+
+    protected void WriteNamespaceEnd()
+    {
+        if(!Configuration.FileScopedNamespaces) Writer.WriteLine("}");
     }
 }
 
