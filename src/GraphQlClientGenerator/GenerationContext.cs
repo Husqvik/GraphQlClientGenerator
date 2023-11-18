@@ -13,9 +13,11 @@ public abstract class GenerationContext
 {
     private readonly HashSet<string> _referencedObjectTypes = new();
     private readonly Dictionary<string, string> _nameCollisionMapping = new();
+    private GraphQlGeneratorConfiguration _configuration;
     private IReadOnlyDictionary<string, GraphQlType> _complexTypes;
 
-    protected GraphQlGeneratorConfiguration Configuration { get; private set; }
+    protected GraphQlGeneratorConfiguration Configuration =>
+        _configuration ?? throw new InvalidOperationException($"{nameof(Configuration)} not initialized; call \"{nameof(Initialize)}\" method first. ");
 
     internal IReadOnlyCollection<string> ReferencedObjectTypes => _referencedObjectTypes;
 
@@ -27,7 +29,7 @@ public abstract class GenerationContext
 
     protected internal abstract TextWriter Writer { get; }
 
-    protected GenerationContext(GraphQlSchema schema, GeneratedObjectType objectTypes, byte indentationSize)
+    protected GenerationContext(GraphQlSchema schema, GeneratedObjectType objectTypes)
     {
         var optionsInteger = (int)objectTypes;
         if (optionsInteger is < 1 or > 7)
@@ -35,7 +37,6 @@ public abstract class GenerationContext
 
         Schema = schema ?? throw new ArgumentNullException(nameof(schema));
         ObjectTypes = objectTypes;
-        Indentation = indentationSize;
     }
 
     public bool FilterIfDeprecated(GraphQlEnumValue field) => !field.IsDeprecated || Configuration.IncludeDeprecatedFields;
@@ -53,7 +54,7 @@ public abstract class GenerationContext
 
     public void Initialize(GraphQlGeneratorConfiguration configuration)
     {
-        Configuration = configuration;
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         _nameCollisionMapping.Clear();
         _referencedObjectTypes.Clear();
         _complexTypes = Schema.GetComplexTypes().ToDictionary(t => t.Name);

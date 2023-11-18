@@ -5,30 +5,32 @@ public class MultipleFileGenerationContext : GenerationContext
     private const string ProjectTemplate =
         $"""
         <Project Sdk="Microsoft.NET.Sdk">
-        
+
           <PropertyGroup>
             <TargetFramework>netstandard2.0</TargetFramework>
             <LangVersion>latest</LangVersion>
           </PropertyGroup>
-        
+
           <ItemGroup Condition="!$(DefineConstants.Contains({GraphQlGenerator.PreprocessorDirectiveDisableNewtonsoftJson}))">
             <PackageReference Include="Newtonsoft.Json" Version="13.*" />
           </ItemGroup>
-        
+
         </Project>
 
         """;
 
     private const string RequiredNamespaces =
-        $@"using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Runtime.Serialization;
-#if!{GraphQlGenerator.PreprocessorDirectiveDisableNewtonsoftJson}
-using Newtonsoft.Json;
-#endif
-";
+        $"""
+        using System;
+        using System.Collections.Generic;
+        using System.ComponentModel;
+        using System.Globalization;
+        using System.Runtime.Serialization;
+        #if!{GraphQlGenerator.PreprocessorDirectiveDisableNewtonsoftJson}
+        using Newtonsoft.Json;
+        #endif
+
+        """;
 
     private readonly List<FileInfo> _files = new();
 
@@ -41,7 +43,7 @@ using Newtonsoft.Json;
 
     protected internal override TextWriter Writer => _currentWriter;
 
-    public override byte Indentation => 4;
+    public override byte Indentation => (byte)(Configuration.FileScopedNamespaces ? 0 : 4);
 
     public IReadOnlyCollection<FileInfo> Files => _files;
 
@@ -51,10 +53,10 @@ using Newtonsoft.Json;
         string @namespace,
         string projectFileName = null,
         GeneratedObjectType objectTypes = GeneratedObjectType.All)
-        : base(schema, objectTypes, 4)
+        : base(schema, objectTypes)
     {
         if (!Directory.Exists(outputDirectory))
-            throw new ArgumentException($"Directory \"{outputDirectory}\" does not exist. ", nameof(outputDirectory));
+            throw new ArgumentException($"Directory \"{outputDirectory}\" does not exist.", nameof(outputDirectory));
 
         if (String.IsNullOrWhiteSpace(@namespace))
             throw new ArgumentException("namespace required", nameof(@namespace));
@@ -149,7 +151,7 @@ using Newtonsoft.Json;
 
     private void InitializeNewSourceCodeFile(string memberName, string requiredNamespaces = RequiredNamespaces)
     {
-        if (_currentWriter != null)
+        if (_currentWriter is not null)
         {
             _currentWriter.Dispose();
             CollectFileInfo();
@@ -161,11 +163,21 @@ using Newtonsoft.Json;
         _currentWriter.WriteLine();
         _currentWriter.WriteLine(requiredNamespaces);
         _currentWriter.Write("namespace ");
-        _currentWriter.WriteLine(_namespace);
-        _currentWriter.WriteLine("{");
+        _currentWriter.Write(_namespace);
+
+        if (Configuration.FileScopedNamespaces)
+        {
+            _currentWriter.WriteLine(';');
+            _currentWriter.WriteLine();
+        }
+        else
+        {
+            _currentWriter.WriteLine();
+            _currentWriter.WriteLine('{');
+        }
     }
 
-    private void WriteNamespaceEnd() => _currentWriter.WriteLine("}");
+    private void WriteNamespaceEnd() => _currentWriter.WriteLine(Configuration.FileScopedNamespaces ? String.Empty : "}");
 
     private void CollectFileInfo() => _files.Add(new FileInfo(_currentFileName));
 }

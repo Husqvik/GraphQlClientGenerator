@@ -28,14 +28,26 @@ public class GraphQlGeneratorTest
         _outputHelper = outputHelper;
     }
 
-    [Fact]
-    public void MultipleFileGeneration()
+    private static readonly IReadOnlyList<int> ExpectedFileSizes =
+        new[]
+        {
+            446, 475, 1399, 1179, 978, 4291, 519, 569, 2132, 1942, 455, 1114, 1173, 1685, 1779, 756, 494, 1611, 498, 1438, 792, 491, 1469, 4152, 963, 762, 3703, 5073, 478, 1416, 566, 2230, 613, 2414, 1225, 7007, 447,
+            1250, 571, 676, 2838, 2587, 489, 1493, 461, 1312, 368, 6061, 594, 2250, 1957, 921, 7944, 879, 1530, 493, 1537, 4786, 17353, 807, 1626, 627, 2712, 10001, 972, 5274, 1101, 552, 3332, 7244, 434, 1436, 543, 501,
+            1549, 2001, 575, 2286, 531, 1844, 621, 2619, 767, 571, 2032, 581, 2203, 3655, 755, 3898, 588, 2198, 676, 537, 1860, 2969, 1072, 795, 4017, 5758, 898, 4540, 520, 1793, 423, 1380, 664, 751, 3597, 2913, 450,
+            1202, 480, 589, 559, 2013, 548, 1876, 2327, 559, 2254, 782, 853, 4477, 938, 530, 1867, 872, 4593, 584, 2116, 501, 1492, 489, 2694, 5109, 586, 2242, 558, 1985, 561, 1230, 3652, 1985
+        };
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void MultipleFileGeneration(bool fileScopedNamespaces)
     {
         var configuration =
             new GraphQlGeneratorConfiguration
             {
                 CommentGeneration = CommentGenerationOption.CodeSummary | CommentGenerationOption.DescriptionAttribute,
-                CSharpVersion = CSharpVersion.Newest
+                CSharpVersion = CSharpVersion.Newest,
+                FileScopedNamespaces = fileScopedNamespaces
             };
 
         var generator = new GraphQlGenerator(configuration);
@@ -203,20 +215,24 @@ public class GraphQlGeneratorTest
                     "WeatherQueryBuilder.cs"
                 });
 
-            var fileSizes = files.Where(f => f.Name != "BaseClasses.cs").Select(f => f.Length);
-            fileSizes.ShouldBe(
-                new long[]
-                {
-                    446, 475, 1399, 1179, 978, 4291, 519, 569, 2132, 1942, 455, 1114, 1173, 1685, 1779, 756, 494, 1611, 498, 1438, 792, 491, 1469, 4152, 963, 762, 3703, 5073, 478, 1416, 566, 2230, 613, 2414, 1225, 7007, 447, 1250, 571, 676, 2838, 2587, 489, 1493, 461, 1312, 368, 6061, 594, 2250, 1957, 921, 7944, 879, 1530, 493, 1537, 4786, 17353, 807, 1626, 627, 2712, 10001, 972, 5274, 1101, 552, 3332, 7244, 434, 1436, 543, 501, 1549, 2001, 575, 2286, 531, 1844, 621, 2619, 767, 571, 2032, 581, 2203, 3655, 755, 3898, 588, 2198, 676, 537, 1860, 2969, 1072, 795, 4017, 5758, 898, 4540, 520, 1793, 423, 1380, 664, 751, 3597, 2913, 450, 1202, 480, 589, 559, 2013, 548, 1876, 2327, 559, 2254, 782, 853, 4477, 938, 530, 1867, 872, 4593, 584, 2116, 501, 1492, 489, 2694, 5109, 586, 2242, 558, 1985, 561, 1230, 3652, 1985
-                });
+            var fileSizes =
+                files
+                    .Where(f => f.Name != "BaseClasses.cs")
+                    .Select(f => File.ReadAllText(f.FullName).ReplaceLineEndings(Environment.NewLine).Length);
 
-            var expectedOutput = GetTestResource("ExpectedMultipleFilesContext.Avatar");
+            var resourceSuffix = String.Empty;
+            if (fileScopedNamespaces)
+                resourceSuffix = ".FileScoped";
+            else
+                fileSizes.ShouldBe(ExpectedFileSizes);
+
+            var expectedOutput = GetTestResource($"ExpectedMultipleFilesContext.Avatar{resourceSuffix}");
             File.ReadAllText(Path.Combine(directoryInfo.FullName, "Avatar.cs")).ShouldBe(expectedOutput);
-            expectedOutput = GetTestResource("ExpectedMultipleFilesContext.Home");
+            expectedOutput = GetTestResource($"ExpectedMultipleFilesContext.Home{resourceSuffix}");
             File.ReadAllText(Path.Combine(directoryInfo.FullName, "Home.cs")).ShouldBe(expectedOutput);
-            expectedOutput = GetTestResource("ExpectedMultipleFilesContext.IncludeDirective");
+            expectedOutput = GetTestResource($"ExpectedMultipleFilesContext.IncludeDirective{resourceSuffix}");
             File.ReadAllText(Path.Combine(directoryInfo.FullName, "IncludeDirective.cs")).ShouldBe(expectedOutput);
-            expectedOutput = GetTestResource("ExpectedMultipleFilesContext.MutationQueryBuilder");
+            expectedOutput = GetTestResource($"ExpectedMultipleFilesContext.MutationQueryBuilder{resourceSuffix}");
             File.ReadAllText(Path.Combine(directoryInfo.FullName, "MutationQueryBuilder.cs")).ShouldBe(expectedOutput);
         }
         finally

@@ -82,7 +82,12 @@ internal static class GraphQlCSharpFileHelper
         }
         else
         {
-            var multipleFileGenerationContext = new MultipleFileGenerationContext(schema, options.OutputPath, options.Namespace);
+            var projectFileInfo =
+                options.OutputPath is not null && options.OutputPath.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase)
+                    ? new FileInfo(options.OutputPath)
+                    : null;
+
+            var multipleFileGenerationContext = new MultipleFileGenerationContext(schema, projectFileInfo?.DirectoryName ?? options.OutputPath, options.Namespace, projectFileInfo?.Name);
             generator.Generate(multipleFileGenerationContext);
             generatedFiles.AddRange(multipleFileGenerationContext.Files);
         }

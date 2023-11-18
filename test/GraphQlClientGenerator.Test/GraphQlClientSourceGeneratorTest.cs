@@ -10,18 +10,18 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
 {
     private const string FileNameTestSchema = "GraphQlClientSourceGeneratorTest";
 
-    private readonly AdditionalFile _fileGraphQlSchema;
-    private readonly AdditionalFile _fileMappingRules;
+    private readonly AdditionalFile _fileGraphQlSchema =
+        CreateAdditionalFile("GraphQlClientGenerator.Test.TestSchemas.TestSchema3", $"{FileNameTestSchema}.GQL.Schema.Json");
 
-    public GraphQlClientSourceGeneratorTest()
-    {
-        _fileGraphQlSchema = CreateAdditionalFile("GraphQlClientGenerator.Test.TestSchemas.TestSchema3", $"{FileNameTestSchema}.GQL.Schema.Json");
-        _fileMappingRules = CreateAdditionalFile("GraphQlClientGenerator.Test.RegexCustomScalarFieldTypeMappingRules", "RegexScalarFieldTypeMappingProvider.gql.config.JSON");
-    }
+    private readonly AdditionalFile _fileMappingRules =
+        CreateAdditionalFile("GraphQlClientGenerator.Test.RegexCustomScalarFieldTypeMappingRules", "RegexScalarFieldTypeMappingProvider.gql.config.JSON");
 
     private static AdditionalFile CreateAdditionalFile(string resourceName, string fileName)
     {
-        var resourceStream = typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream(resourceName) ?? throw new InvalidOperationException($"resource \"{resourceName}\" not found");
+        var resourceStream =
+            typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream(resourceName)
+            ?? throw new InvalidOperationException($"resource \"{resourceName}\" not found");
+
         var fullFileName = Path.Combine(Path.GetTempPath(), fileName);
         using var fileStream = File.Create(fullFileName);
         resourceStream.CopyTo(fileStream);
