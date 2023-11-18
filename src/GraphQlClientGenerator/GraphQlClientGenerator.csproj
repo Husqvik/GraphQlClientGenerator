@@ -9,7 +9,12 @@
     <Title>GraphQL C# Client Generator</Title>
     <PackageTags>GraphQL Client Generator</PackageTags>
     <PackageReleaseNotes>
-	  <![CDATA[Added DataClassMemberNullability option]]>
+	  <![CDATA[
+	  Added DataClassMemberNullability option
+	  Fixed naming conflict when enum values generated using PascalCase
+	  Fixed incorrect interface name generation causing compilation error
+	  Do not generate query builder method if criteria contain only deprecated (with disabled deprecated fields generation) fields causing compilation error
+	  ]]>
     </PackageReleaseNotes>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>

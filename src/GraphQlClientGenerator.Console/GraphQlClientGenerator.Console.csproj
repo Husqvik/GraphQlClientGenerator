@@ -4,12 +4,17 @@
     <AssemblyTitle>GraphQL C# Client Generator Console App</AssemblyTitle>
     <Description>A simple strongly typed C# GraphQL client generator console app</Description>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Title>GraphQL C# Client Generator Console App</Title>
     <PackageId>GraphQlClientGenerator.Tool</PackageId>
     <PackageTags>GraphQL Client Generator Tool Console</PackageTags>
     <PackageReleaseNotes>
-	  <![CDATA[Added --dataClassMemberNullability option]]>
+	  <![CDATA[
+	  Added --dataClassMemberNullability option
+	  Fixed naming conflict when enum values generated using PascalCase
+	  Fixed incorrect interface name generation causing compilation error
+	  Do not generate query builder method if criteria contain only deprecated (with disabled deprecated fields generation) fields causing compilation error
+	  ]]>
     </PackageReleaseNotes>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>graphql-client-generator</ToolCommandName>
