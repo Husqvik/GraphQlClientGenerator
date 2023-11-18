@@ -301,8 +301,9 @@ public class GraphQlGenerator
         context.BeforeBaseClassGeneration();
 
         var indentation = GetIndentation(context.Indentation);
-
-        using var reader = new StreamReader(typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses.cs"));
+        const string resourceName = "GraphQlClientGenerator.BaseClasses.cs";
+        var baseClassesStream = typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetManifestResourceStream(resourceName);
+        using var reader = new StreamReader(baseClassesStream ?? throw new InvalidOperationException($"\"{resourceName}\" resource not found"));
         do
         {
             var line = reader.ReadLine();
@@ -357,11 +358,10 @@ public class GraphQlGenerator
 
         foreach (var complexType in complexTypes.Values)
         {
-            var hasInputReference = context.ReferencedObjectTypes.Contains(complexType.Name);
+            var hasInputReference = complexType.Kind is GraphQlTypeKind.InputObject && context.ReferencedObjectTypes.Contains(complexType.Name);
             var fieldsToGenerate = context.GetFieldsToGenerate(complexType);
-            var isInterface = complexType.Kind == GraphQlTypeKind.Interface;
+            var isInterface = complexType.Kind is GraphQlTypeKind.Interface;
             var csharpTypeName = context.GetCSharpClassName(complexType.Name);
-
             var interfacesToImplement = new List<string>();
             if (isInterface)
             {
@@ -377,7 +377,7 @@ public class GraphQlGenerator
                     var interfaceName = $"I{_configuration.ClassPrefix}{csharpInterfaceName}{_configuration.ClassSuffix}";
                     interfacesToImplement.Add(interfaceName);
 
-                    foreach (var interfaceField in complexTypes[@interface.Name].Fields.Where(context.FilterDeprecatedFields))
+                    foreach (var interfaceField in complexTypes[@interface.Name].Fields.Where(context.FilterIfDeprecated))
                         if (fieldNames.Add(interfaceField.Name))
                             fieldsToGenerate.Add(interfaceField);
                 }
@@ -386,7 +386,7 @@ public class GraphQlGenerator
             if (hasInputReference)
                 interfacesToImplement.Add("IGraphQlInputObject");
 
-            if (!isInterface)
+            if (!isInterface && fieldsToGenerate.Any())
                 GenerateFileMember(context, csharpTypeName, complexType, String.Join(", ", interfacesToImplement), () => GenerateBody(false));
 
             continue;
@@ -569,10 +569,7 @@ public class GraphQlGenerator
 
     private string GenerateFileMember(GenerationContext context, string typeName, GraphQlType graphQlType, string baseTypeName, Action generateFileMemberBody)
     {
-        typeName = $"{_configuration.ClassPrefix}{typeName}{_configuration.ClassSuffix}";
-
-        if (graphQlType.Kind == GraphQlTypeKind.Interface)
-            typeName = $"I{typeName}";
+        typeName = context.GetFullyQualifiedNetTypeName(typeName, graphQlType.Kind);
 
         CSharpHelper.ValidateClassName(typeName);
 
@@ -604,7 +601,7 @@ public class GraphQlGenerator
         if (_configuration.GeneratePartialClasses)
             writer.Write("partial ");
 
-        writer.Write(graphQlType.Kind == GraphQlTypeKind.Interface ? "interface" : "class");
+        writer.Write(graphQlType.Kind is GraphQlTypeKind.Interface ? "interface" : "class");
         writer.Write(" ");
         writer.Write(typeName);
 
@@ -740,8 +737,7 @@ public class GraphQlGenerator
         var schema = context.Schema;
         var typeName = context.GetCSharpClassName(graphQlType.Name, false);
         var className = $"{_configuration.ClassPrefix}{typeName}QueryBuilder{_configuration.ClassSuffix}";
-
-        var fields = graphQlType.Kind == GraphQlTypeKind.Union ? null : context.GetFieldsToGenerate(graphQlType);
+        var fields = graphQlType.Kind is GraphQlTypeKind.Union ? null : context.GetFieldsToGenerate(graphQlType);
         if (fields?.Count == 0)
             return;
 
@@ -775,7 +771,7 @@ public class GraphQlGenerator
 
         if (fields is null)
         {
-            writer.WriteLine(" new GraphQlFieldMetadata[0];");
+            writer.WriteLine(" new GraphQlFieldMetadata[0];"); // TODO: Array.Empty<GraphQlFieldMetadata>();
             writer.WriteLine();
         }
         else
@@ -929,11 +925,7 @@ public class GraphQlGenerator
         for (var i = 0; i < fields.Count; i++)
         {
             var field = fields[i];
-            var fieldType = field.Type.UnwrapIfNonNull();
-            if (fieldType.Kind == GraphQlTypeKind.List)
-                fieldType = UnwrapListItemType(fieldType, false, out _);
-
-            fieldType = fieldType.UnwrapIfNonNull();
+            var fieldType = UnwrapIfNotNullOrList(field.Type);
             var isFragment = i >= firstFragmentIndex;
             var argumentDefinitions = ResolveParameterDefinitions(context, graphQlType, field.Args);
             var argumentCollectionVariableName = "args";
@@ -946,7 +938,7 @@ public class GraphQlGenerator
                         break;
 
                     default:
-                        argumentCollectionVariableName = $"inputArgs{(counter == 0 ? null : counter)}";
+                        argumentCollectionVariableName = $"inputArgs{(counter is 0 ? null : counter)}";
                         counter++;
                         break;
                 }
@@ -1012,11 +1004,10 @@ public class GraphQlGenerator
             }
             else
             {
-                var fieldTypeName = fieldType.Name;
-                if (String.IsNullOrEmpty(fieldTypeName))
+                if (String.IsNullOrEmpty(fieldType.Name))
                     throw FieldTypeResolutionFailedException(graphQlType.Name, field.Name, null);
 
-                fieldTypeName = context.GetCSharpClassName(fieldTypeName, false);
+                var fieldTypeName = context.GetCSharpClassName(fieldType.Name, false);
 
                 var builderParameterName = NamingHelper.LowerFirst(fieldTypeName);
                 writer.Write(indentation);
@@ -1201,6 +1192,15 @@ public class GraphQlGenerator
         }
     }
 
+    internal static GraphQlFieldType UnwrapIfNotNullOrList(GraphQlFieldType type)
+    {
+        var fieldType = type.UnwrapIfNonNull();
+        if (fieldType.Kind is GraphQlTypeKind.List)
+            fieldType = UnwrapListItemType(fieldType, false, out _);
+
+        return fieldType.UnwrapIfNonNull();
+    }
+
     internal static GraphQlFieldType UnwrapListItemType(GraphQlFieldType type, bool nullableReferencesEnabled, out string netCollectionOpenType)
     {
         var levels = 0;
@@ -1238,7 +1238,11 @@ public class GraphQlGenerator
         return type;
     }
 
-    private string WriteDirectiveParameterList(GraphQlSchema schema, IEnumerable<QueryBuilderParameterDefinition> argumentDefinitions, GraphQlDirectiveLocation directiveLocation, TextWriter writer)
+    private string WriteDirectiveParameterList(
+        GraphQlSchema schema,
+        IEnumerable<QueryBuilderParameterDefinition> argumentDefinitions,
+        GraphQlDirectiveLocation directiveLocation,
+        TextWriter writer)
     {
         var argumentNames = new HashSet<string>(argumentDefinitions.Select(ad => ad.NetParameterName));
         var directiveParameterNames = new List<string>();
@@ -1454,7 +1458,7 @@ public class GraphQlGenerator
         writer.WriteLine("{");
 
         var useCSharpNaming = _configuration.EnumValueNaming == EnumValueNamingOption.CSharp;
-        var enumFieldsToGenerate = graphQlType.EnumValues.Where(context.FilterDeprecatedFields).ToArray();
+        var enumFieldsToGenerate = graphQlType.EnumValues.Where(context.FilterIfDeprecated).ToArray();
         var byIdentifierGroupedFieldsToGenerate =
             enumFieldsToGenerate
                 .GroupBy(v => useCSharpNaming ? NamingHelper.ToCSharpEnumName(v.Name) : NamingHelper.EnsureCSharpQuoting(v.Name))

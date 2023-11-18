@@ -133,6 +133,8 @@ public class Me
     public ICollection<Home> Homes { get; set; }
     public Feed Feed { get; set; }
     public ICollection<object> EnergyStatements { get; set; }
+    [Obsolete(@"invalid circular reference")]
+    public Me NestedMe { get; set; }
 }
 
 public class Home

@@ -19,6 +19,7 @@ public static class GraphQlTypes
     public const string Mutation = "Mutation";
     public const string Query = "Query";
     public const string SimpleObjectType = "SimpleObjectType";
+    public const string TypeWithOnlyDeprecatedFields = "TypeWithOnlyDeprecatedFields";
     public const string UnderscoreNamedClass = "underscore_named_class";
 
     public const string Collision = "Collision";

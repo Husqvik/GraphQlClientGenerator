@@ -218,6 +218,18 @@
               },
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "nestedMe",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Me",
+                "ofType": null
+              },
+              "isDeprecated": true,
+              "deprecationReason": "invalid circular reference"
             }
           ],
           "inputFields": null,

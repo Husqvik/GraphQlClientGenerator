@@ -27,7 +27,6 @@ public abstract class GenerationContext
 
     protected internal abstract TextWriter Writer { get; }
 
-
     protected GenerationContext(GraphQlSchema schema, GeneratedObjectType objectTypes, byte indentationSize)
     {
         var optionsInteger = (int)objectTypes;
@@ -39,8 +38,18 @@ public abstract class GenerationContext
         Indentation = indentationSize;
     }
 
-    public bool FilterDeprecatedFields(GraphQlEnumValue field) =>
-        !field.IsDeprecated || Configuration.IncludeDeprecatedFields;
+    public bool FilterIfDeprecated(GraphQlEnumValue field) => !field.IsDeprecated || Configuration.IncludeDeprecatedFields;
+
+    private bool FilterIfAllFieldsDeprecated(GraphQlField field)
+    {
+        var fieldType = GraphQlGenerator.UnwrapIfNotNullOrList(field.Type);
+        if (!fieldType.Kind.IsComplex())
+            return true;
+
+        var graphQlType = _complexTypes[fieldType.Name];
+
+        return GetFields(graphQlType).Any(FilterIfDeprecated);
+    }
 
     public void Initialize(GraphQlGeneratorConfiguration configuration)
     {
@@ -48,6 +57,7 @@ public abstract class GenerationContext
         _nameCollisionMapping.Clear();
         _referencedObjectTypes.Clear();
         _complexTypes = Schema.GetComplexTypes().ToDictionary(t => t.Name);
+        ResolverReferencedObjectTypes();
         ResolveNameCollisions();
     }
 
@@ -99,22 +109,21 @@ public abstract class GenerationContext
 
     public abstract void AfterGeneration();
 
-    protected internal List<GraphQlField> GetFieldsToGenerate(GraphQlType type)
+    protected internal List<GraphQlField> GetFieldsToGenerate(GraphQlType type) =>
+        GetFields(type)?.Where(FilterIfDeprecated).Where(FilterIfAllFieldsDeprecated).ToList();
+
+    private IEnumerable<GraphQlField> GetFields(GraphQlType type)
     {
-        var typeFields = type.Fields;
+        if (type.Kind != GraphQlTypeKind.Union)
+            return type.Fields;
 
-        if (type.Kind == GraphQlTypeKind.Union)
-        {
-            var unionFields = new List<GraphQlField>();
-            var unionFieldNames = new HashSet<string>();
-            foreach (var possibleType in type.PossibleTypes)
-                if (_complexTypes.TryGetValue(possibleType.Name, out var consistOfType) && consistOfType.Fields is not null)
-                    unionFields.AddRange(consistOfType.Fields.Where(f => unionFieldNames.Add(f.Name)));
+        var unionFields = new List<GraphQlField>();
+        var unionFieldNames = new HashSet<string>();
+        foreach (var possibleType in type.PossibleTypes)
+            if (_complexTypes.TryGetValue(possibleType.Name, out var consistOfType) && consistOfType.Fields is not null)
+                unionFields.AddRange(consistOfType.Fields.Where(f => unionFieldNames.Add(f.Name)));
 
-            typeFields = unionFields;
-        }
-
-        return typeFields?.Where(FilterDeprecatedFields).ToList();
+        return unionFields;
     }
 
     protected internal IEnumerable<GraphQlField> GetFragments(GraphQlType type)
@@ -206,7 +215,12 @@ public abstract class GenerationContext
         if (UseCustomClassNameIfDefined(ref csharpClassName))
             return csharpClassName;
 
-        return applyNameCollisionMapping && _nameCollisionMapping.TryGetValue(graphQlName, out csharpClassName) ? csharpClassName : NamingHelper.ToPascalCase(graphQlName);
+        csharpClassName =
+            applyNameCollisionMapping && _nameCollisionMapping.TryGetValue(graphQlName, out csharpClassName)
+                ? csharpClassName
+                : NamingHelper.ToPascalCase(graphQlName);
+
+        return csharpClassName;
     }
 
     private bool UseCustomClassNameIfDefined(ref string typeName)
@@ -230,12 +244,15 @@ public abstract class GenerationContext
             _ => GetCustomScalarNetType(baseType, valueType, valueName)
         };
 
+    internal string GetFullyQualifiedNetTypeName(string baseTypeName, GraphQlTypeKind kind) =>
+        $"{(kind is GraphQlTypeKind.Interface ? "I" : null)}{Configuration.ClassPrefix}{baseTypeName}{Configuration.ClassSuffix}";
+
     private ScalarFieldTypeDescription GetBooleanNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName, bool alwaysNullable) =>
         Configuration.BooleanTypeMapping switch
         {
             BooleanTypeMapping.Boolean => NullableScalarNetTypeName(valueType, "bool", alwaysNullable),
             BooleanTypeMapping.Custom => Configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(Configuration, baseType, valueType, valueName),
-            _ => throw new InvalidOperationException($"\"{Configuration.BooleanTypeMapping}\" not supported")
+            _ => throw new InvalidOperationException($"boolean mapping \"{Configuration.BooleanTypeMapping}\" not supported")
         };
 
     private ScalarFieldTypeDescription GetFloatNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName, bool alwaysNullable) =>
@@ -245,7 +262,7 @@ public abstract class GenerationContext
             FloatTypeMapping.Float => NullableScalarNetTypeName(valueType, "float", alwaysNullable),
             FloatTypeMapping.Double => NullableScalarNetTypeName(valueType, "double", alwaysNullable),
             FloatTypeMapping.Custom => Configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(Configuration, baseType, valueType, valueName),
-            _ => throw new InvalidOperationException($"\"{Configuration.FloatTypeMapping}\" not supported")
+            _ => throw new InvalidOperationException($"float mapping \"{Configuration.FloatTypeMapping}\" not supported")
         };
 
     private ScalarFieldTypeDescription GetIntegerNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName, bool alwaysNullable) =>
@@ -255,7 +272,7 @@ public abstract class GenerationContext
             IntegerTypeMapping.Int16 => NullableScalarNetTypeName(valueType, "short", alwaysNullable),
             IntegerTypeMapping.Int64 => NullableScalarNetTypeName(valueType, "long", alwaysNullable),
             IntegerTypeMapping.Custom => Configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(Configuration, baseType, valueType, valueName),
-            _ => throw new InvalidOperationException($"\"{Configuration.IntegerTypeMapping}\" not supported")
+            _ => throw new InvalidOperationException($"integer mapping \"{Configuration.IntegerTypeMapping}\" not supported")
         };
 
     private ScalarFieldTypeDescription GetIdNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName, bool alwaysNullable) =>
@@ -265,7 +282,7 @@ public abstract class GenerationContext
             IdTypeMapping.Guid => NullableScalarNetTypeName(valueType, "Guid", alwaysNullable),
             IdTypeMapping.Object => NullableScalarNetTypeName(valueType, "object", alwaysNullable),
             IdTypeMapping.Custom => Configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(Configuration, baseType, valueType, valueName),
-            _ => throw new InvalidOperationException($"\"{Configuration.IdTypeMapping}\" not supported")
+            _ => throw new InvalidOperationException($"id mapping \"{Configuration.IdTypeMapping}\" not supported")
         };
 
     private ScalarFieldTypeDescription GetCustomScalarNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
@@ -292,20 +309,23 @@ public abstract class GenerationContext
         return ScalarFieldTypeDescription.FromNetTypeName(netTypeName);
     }
 
+    private void ResolverReferencedObjectTypes()
+    {
+        foreach (var graphQlType in Schema.Types.Where(t => t.Kind is GraphQlTypeKind.Object or GraphQlTypeKind.Interface or GraphQlTypeKind.List && !t.IsBuiltIn()))
+            FindAllReferencedObjectTypes(graphQlType);
+    }
+
     private void ResolveNameCollisions()
     {
-        var complexTypeCsharpNames = new HashSet<string>(_complexTypes.Keys.Select(NamingHelper.ToPascalCase));
+        var complexTypeCSharpNames = new HashSet<string>(_complexTypes.Keys.Select(NamingHelper.ToPascalCase));
         var inputObjectTypes = new HashSet<string>(Schema.GetInputObjectTypes().Select(t => NamingHelper.ToPascalCase(t.Name)));
 
         foreach (var graphQlType in Schema.Types.Where(t => !t.IsBuiltIn()))
         {
-            var isInputObject = graphQlType.Kind == GraphQlTypeKind.InputObject;
+            var isInputObject = graphQlType.Kind is GraphQlTypeKind.InputObject;
             var propertyNamesToGenerate = new List<string>();
             if (isInputObject)
-            {
-                FindAllReferencedObjectTypes(graphQlType);
                 propertyNamesToGenerate.AddRange(graphQlType.InputFields.Select(f => NamingHelper.ToPascalCase(f.Name)));
-            }
             else if (graphQlType.Kind.IsComplex())
                 propertyNamesToGenerate.AddRange(GetFieldsToGenerate(graphQlType).Select(f => NamingHelper.ToPascalCase(f.Name)));
             else
@@ -317,10 +337,10 @@ public abstract class GenerationContext
 
             do
             {
-                var finalClassNameIncludingPrefixAndSuffix = $"{Configuration.ClassPrefix}{finalClassName}{Configuration.ClassSuffix}";
+                var finalClassNameIncludingPrefixAndSuffix = GetFullyQualifiedNetTypeName(finalClassName, graphQlType.Kind);
                 var hasNameCollision = propertyNamesToGenerate.Any(n => n == finalClassNameIncludingPrefixAndSuffix);
                 if (candidateClassName != finalClassName)
-                    hasNameCollision |= complexTypeCsharpNames.Contains(finalClassName) || inputObjectTypes.Contains(finalClassName);
+                    hasNameCollision |= complexTypeCSharpNames.Contains(finalClassName) || inputObjectTypes.Contains(finalClassName);
 
                 if (!hasNameCollision)
                     break;
@@ -351,25 +371,29 @@ public abstract class GenerationContext
 
     private void FindAllReferencedObjectTypes(GraphQlType type)
     {
-        foreach (var member in (IEnumerable<IGraphQlMember>)type.InputFields ?? type.Fields)
+        if (type.Kind is GraphQlTypeKind.Union)
+            return;
+
+        var members = (IEnumerable<IGraphQlMember>)type.InputFields ?? type.Fields?.Where(FilterIfDeprecated);
+        foreach (var member in members ?? throw new InvalidOperationException($"no members defined for GraphQL type \"{type.Name}\" ({type.Kind})"))
         {
             var unwrappedType = member.Type.UnwrapIfNonNull();
-            GraphQlType memberType;
+
             switch (unwrappedType.Kind)
             {
                 case GraphQlTypeKind.Object:
-                    _referencedObjectTypes.Add(unwrappedType.Name);
-                    memberType = _complexTypes[unwrappedType.Name];
+                case GraphQlTypeKind.Interface:
+                    if (!_referencedObjectTypes.Add(unwrappedType.Name))
+                        break;
+
+                    var memberType = _complexTypes[unwrappedType.Name];
                     FindAllReferencedObjectTypes(memberType);
                     break;
 
                 case GraphQlTypeKind.List:
                     var itemType = unwrappedType.OfType.UnwrapIfNonNull();
                     if (itemType.Kind.IsComplex())
-                    {
-                        memberType = _complexTypes[itemType.Name];
-                        FindAllReferencedObjectTypes(memberType);
-                    }
+                        FindAllReferencedObjectTypes(_complexTypes[itemType.Name]);
 
                     break;
             }
