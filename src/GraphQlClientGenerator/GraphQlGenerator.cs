@@ -425,7 +425,7 @@ public class GraphQlGenerator
                 writer.Write(indentation);
                 writer.Write("    private ");
                 writer.Write(context.GetDataPropertyType(type, field).NetTypeName);
-                writer.Write(" ");
+                writer.Write(' ');
                 writer.Write(backingFieldName);
                 writer.WriteLine(";");
             }
@@ -596,13 +596,13 @@ public class GraphQlGenerator
 
         writer.Write(indentation);
         writer.Write(GetMemberAccessibility());
-        writer.Write(" ");
+        writer.Write(' ');
 
         if (_configuration.GeneratePartialClasses)
             writer.Write("partial ");
 
         writer.Write(graphQlType.Kind is GraphQlTypeKind.Interface ? "interface" : "class");
-        writer.Write(" ");
+        writer.Write(' ');
         writer.Write(typeName);
 
         if (!String.IsNullOrEmpty(baseTypeName))
@@ -718,7 +718,7 @@ public class GraphQlGenerator
             writer.Write("public ");
 
         writer.Write(propertyTypeName);
-        writer.Write(" ");
+        writer.Write(' ');
         writer.Write(propertyContext.PropertyName);
 
         writeBody(propertyTypeDescription with { NetTypeName = propertyTypeName }, GetBackingFieldName(member.Name, propertyContext.RequiresRawName));
@@ -750,11 +750,12 @@ public class GraphQlGenerator
                 CSharpTypeName = className
             });
 
+        var useCompatibleSyntax = _configuration.CSharpVersion == CSharpVersion.Compatible;
         var writer = context.Writer;
         var indentation = GetIndentation(context.Indentation);
         writer.Write(indentation);
         writer.Write(GetMemberAccessibility());
-        writer.Write(" ");
+        writer.Write(' ');
 
         if (_configuration.GeneratePartialClasses)
             writer.Write("partial ");
@@ -771,7 +772,9 @@ public class GraphQlGenerator
 
         if (fields is null)
         {
-            writer.WriteLine(" new GraphQlFieldMetadata[0];"); // TODO: Array.Empty<GraphQlFieldMetadata>();
+            writer.Write(' ');
+            writer.Write(useCompatibleSyntax ? "new GraphQlFieldMetadata[0]" : "Array.Empty<GraphQlFieldMetadata>()");
+            writer.WriteLine(';');
             writer.WriteLine();
         }
         else
@@ -780,7 +783,7 @@ public class GraphQlGenerator
 
             var fieldMetadataIndentation = indentation;
 
-            if (_configuration.CSharpVersion == CSharpVersion.Compatible)
+            if (useCompatibleSyntax)
             {
                 writer.Write(indentation);
                 writer.WriteLine("        new []");
@@ -848,7 +851,6 @@ public class GraphQlGenerator
             writer.WriteLine();
         }
 
-        var useCompatibleSyntax = _configuration.CSharpVersion == CSharpVersion.Compatible;
         var directiveLocation = GetDirectiveLocation(context.Schema, graphQlType.Name);
 
         if (graphQlType.Kind is GraphQlTypeKind.Interface or GraphQlTypeKind.Union)
@@ -1274,7 +1276,7 @@ public class GraphQlGenerator
 
             writer.Write(", ");
             writer.Write(AddQuestionMarkIfNullableReferencesEnabled(directiveClassName));
-            writer.Write(" ");
+            writer.Write(' ');
             writer.Write(directiveParameterName);
             writer.Write(" = null");
         }
@@ -1312,7 +1314,7 @@ public class GraphQlGenerator
         writer.Write(accessibility);
         writer.Write(" override ");
         writer.Write(propertyType);
-        writer.Write(" ");
+        writer.Write(' ');
         writer.Write(propertyName);
         writer.Write(" { get");
 

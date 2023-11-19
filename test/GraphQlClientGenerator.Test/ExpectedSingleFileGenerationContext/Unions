@@ -112,7 +112,7 @@ public partial class SimpleObjectTypeQueryBuilder : GraphQlQueryBuilder<SimpleOb
 
 public partial class UnionTypeQueryBuilder : GraphQlQueryBuilder<UnionTypeQueryBuilder>
 {
-    private static readonly GraphQlFieldMetadata[] AllFieldMetadata = new GraphQlFieldMetadata[0];
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata = Array.Empty<GraphQlFieldMetadata>();
 
     public UnionTypeQueryBuilder() => WithTypeName();
 
