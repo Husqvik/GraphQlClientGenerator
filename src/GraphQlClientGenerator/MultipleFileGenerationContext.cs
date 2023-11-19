@@ -26,7 +26,7 @@ public class MultipleFileGenerationContext : GenerationContext
         using System.ComponentModel;
         using System.Globalization;
         using System.Runtime.Serialization;
-        #if!{GraphQlGenerator.PreprocessorDirectiveDisableNewtonsoftJson}
+        #if !{GraphQlGenerator.PreprocessorDirectiveDisableNewtonsoftJson}
         using Newtonsoft.Json;
         #endif
 
