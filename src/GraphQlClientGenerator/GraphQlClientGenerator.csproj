@@ -14,6 +14,7 @@
 	  Fixed naming conflict when enum values generated using PascalCase
 	  Fixed incorrect interface name generation causing compilation error
 	  Do not generate query builder method if criteria contain only deprecated (with disabled deprecated fields generation) fields causing compilation error
+	  Source generator: support for OutputType option
 	  ]]>
     </PackageReleaseNotes>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
