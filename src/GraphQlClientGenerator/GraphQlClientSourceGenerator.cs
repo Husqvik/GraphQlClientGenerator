@@ -237,15 +237,30 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
             context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(currentParameterName), out var fileScopedNamespacesRaw);
             configuration.FileScopedNamespaces = !String.IsNullOrWhiteSpace(fileScopedNamespacesRaw) && Convert.ToBoolean(fileScopedNamespacesRaw);
 
+            currentParameterName = "OutputType";
+            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(currentParameterName), out var outputTypeRaw);
+            var outputType =
+                String.IsNullOrWhiteSpace(outputTypeRaw)
+                    ? OutputType.SingleFile
+                    : (OutputType)Enum.Parse(typeof(OutputType), outputTypeRaw, true);
+
             var generator = new GraphQlGenerator(configuration);
 
             foreach (var (targetFileName, schema) in graphQlSchemas)
             {
-                var builder = new StringBuilder();
-                using (var writer = new StringWriter(builder))
-                    generator.WriteFullClientCSharpFile(schema, @namespace, writer);
+                if (outputType == OutputType.SingleFile)
+                {
+                    var builder = new StringBuilder();
+                    using (var writer = new StringWriter(builder))
+                        generator.WriteFullClientCSharpFile(schema, @namespace, writer);
 
-                context.AddSource(targetFileName, SourceText.From(builder.ToString(), Encoding.UTF8));
+                    context.AddSource(targetFileName, SourceText.From(builder.ToString(), Encoding.UTF8));
+                }
+                else
+                {
+                    var multipleFileGenerationContext = new MultipleFileGenerationContext(schema, new SourceGeneratorFileEmitter(context), @namespace);
+                    generator.Generate(multipleFileGenerationContext);
+                }
             }
 
             context.ReportDiagnostic(
@@ -264,10 +279,28 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
 
     private static DiagnosticDescriptor CreateDiagnosticDescriptor(DiagnosticSeverity severity, int code) =>
         new(
-            ApplicationCode + code,
-            severity + " " + ApplicationCode + code,
+            $"{ApplicationCode}{code}",
+            $"{severity} {ApplicationCode}{code}",
             "{0}",
             "GraphQlClientGenerator",
             severity,
             true);
+}
+
+public class SourceGeneratorFileEmitter(GeneratorExecutionContext sourceGeneratorContext) : ICodeFileEmitter
+{
+    public CodeFile CreateFile(string fileName) => new(fileName, new MemoryStream());
+
+    public CodeFileInfo CollectFileInfo(CodeFile codeFile)
+    {
+        if (codeFile.Stream is not MemoryStream memoryStream)
+            throw new ArgumentException($"File was not created by {nameof(SourceGeneratorFileEmitter)}.", nameof(codeFile));
+
+        codeFile.Writer.Flush();
+        memoryStream.Position = 0;
+        sourceGeneratorContext.AddSource(codeFile.FileName, SourceText.From(codeFile.Stream, Encoding.UTF8));
+        var fileSize = (int)codeFile.Stream.Length;
+        codeFile.Dispose();
+        return new CodeFileInfo { FileName = codeFile.FileName, Length = fileSize };
+    }
 }

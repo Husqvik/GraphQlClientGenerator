@@ -9,11 +9,11 @@ internal static class GraphQlCSharpFileHelper
     {
         try
         {
-            var generatedFiles = new List<FileInfo>();
+            var generatedFiles = new List<CodeFileInfo>();
             await GenerateClientSourceCode(console, options, generatedFiles);
 
-            foreach (var file in generatedFiles)
-                console.Out.WriteLine($"File {file.FullName} generated successfully ({file.Length:N0} B). ");
+            foreach (var fileInfo in generatedFiles)
+                console.Out.WriteLine($"File {fileInfo.FileName} generated successfully ({fileInfo.Length:N0} B). ");
 
             return 0;
         }
@@ -24,7 +24,7 @@ internal static class GraphQlCSharpFileHelper
         }
     }
 
-    private static async Task GenerateClientSourceCode(IConsole console, ProgramOptions options, List<FileInfo> generatedFiles)
+    private static async Task GenerateClientSourceCode(IConsole console, ProgramOptions options, List<CodeFileInfo> generatedFiles)
     {
         GraphQlSchema schema;
 
@@ -78,7 +78,7 @@ internal static class GraphQlCSharpFileHelper
         if (options.OutputType == OutputType.SingleFile)
         {
             await File.WriteAllTextAsync(options.OutputPath, generator.GenerateFullClientCSharpFile(schema, options.Namespace));
-            generatedFiles.Add(new FileInfo(options.OutputPath));
+            generatedFiles.Add(new CodeFileInfo { FileName = options.OutputPath, Length = (int)new FileInfo(options.OutputPath).Length });
         }
         else
         {
@@ -87,7 +87,8 @@ internal static class GraphQlCSharpFileHelper
                     ? new FileInfo(options.OutputPath)
                     : null;
 
-            var multipleFileGenerationContext = new MultipleFileGenerationContext(schema, projectFileInfo?.DirectoryName ?? options.OutputPath, options.Namespace, projectFileInfo?.Name);
+            var codeFileEmitter = new FileSystemEmitter(projectFileInfo?.DirectoryName ?? options.OutputPath);
+            var multipleFileGenerationContext = new MultipleFileGenerationContext(schema, codeFileEmitter, options.Namespace, projectFileInfo?.Name);
             generator.Generate(multipleFileGenerationContext);
             generatedFiles.AddRange(multipleFileGenerationContext.Files);
         }

@@ -60,7 +60,8 @@ public class GraphQlGeneratorTest
 
         try
         {
-            var context = new MultipleFileGenerationContext(DeserializeTestSchema("TestSchema2"), directoryInfo.FullName, "GraphQlGeneratorTest", "GraphQlGeneratorTest.csproj");
+            var codeFileEmitter = new FileSystemEmitter(directoryInfo.FullName);
+            var context = new MultipleFileGenerationContext(DeserializeTestSchema("TestSchema2"), codeFileEmitter, "GraphQlGeneratorTest", "GraphQlGeneratorTest.csproj");
             generator.Generate(context);
 
             var files = directoryInfo.GetFiles().OrderBy(f => f.Name).ToArray();

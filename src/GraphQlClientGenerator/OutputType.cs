@@ -1,4 +1,4 @@
-﻿namespace GraphQlClientGenerator.Console;
+﻿namespace GraphQlClientGenerator;
 
 public enum OutputType
 {
