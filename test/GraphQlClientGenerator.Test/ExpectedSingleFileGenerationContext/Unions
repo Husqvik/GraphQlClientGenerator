@@ -659,16 +659,8 @@ public partial class SimpleObjectType
     public ICollection<string>? StringArrayValue { get; set; }
 }
 
-public partial class UnionType
+public partial interface IUnionType
 {
-    public string? Name { get; set; }
-    public string? ConcreteType1Field { get; set; }
-    public string? Value { get; set; }
-    public string? ConcreteType2Field { get; set; }
-    public string? value { get; set; }
-    public string? ConcreteType3Field { get; set; }
-    public string? VALUE { get; set; }
-    public string? Function { get; set; }
 }
 
 public partial interface INamedType
@@ -677,7 +669,7 @@ public partial interface INamedType
 }
 
 [GraphQlObjectType("ConcreteType1")]
-public partial class ConcreteType1 : INamedType
+public partial class ConcreteType1 : IUnionType, INamedType
 {
     public string? Name { get; set; }
     public string? ConcreteType1Field { get; set; }
@@ -685,7 +677,7 @@ public partial class ConcreteType1 : INamedType
 }
 
 [GraphQlObjectType("ConcreteType2")]
-public partial class ConcreteType2 : INamedType
+public partial class ConcreteType2 : IUnionType, INamedType
 {
     public string? Name { get; set; }
     public string? ConcreteType2Field { get; set; }
@@ -693,7 +685,7 @@ public partial class ConcreteType2 : INamedType
 }
 
 [GraphQlObjectType("ConcreteType3")]
-public partial class ConcreteType3 : INamedType
+public partial class ConcreteType3 : IUnionType, INamedType
 {
     public string? Name { get; set; }
     public string? ConcreteType3Field { get; set; }
@@ -705,7 +697,10 @@ public partial class Query
 {
     public DateTimeOffset? ScalarValue { get; set; }
     public SimpleObjectType? SimpleObject { get; set; }
-    public ICollection<UnionType>? Union { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
+    #endif
+    public ICollection<IUnionType>? Union { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
     #endif

@@ -48,8 +48,12 @@ public abstract class GenerationContext
             return true;
 
         var graphQlType = _complexTypes[fieldType.Name];
+        var nestedTypeFields =
+            graphQlType.Kind is GraphQlTypeKind.Union
+                ? graphQlType.PossibleTypes.Select(t => _complexTypes[t.Name]).SelectMany(t => t.Fields)
+                : graphQlType.Fields;
 
-        return GetFields(graphQlType).Any(FilterIfDeprecated);
+        return nestedTypeFields.Any(FilterIfDeprecated);
     }
 
     public void Initialize(GraphQlGeneratorConfiguration configuration)
@@ -111,21 +115,7 @@ public abstract class GenerationContext
     public abstract void AfterGeneration();
 
     protected internal List<GraphQlField> GetFieldsToGenerate(GraphQlType type) =>
-        GetFields(type)?.Where(FilterIfDeprecated).Where(FilterIfAllFieldsDeprecated).ToList();
-
-    private IEnumerable<GraphQlField> GetFields(GraphQlType type)
-    {
-        if (type.Kind != GraphQlTypeKind.Union)
-            return type.Fields;
-
-        var unionFields = new List<GraphQlField>();
-        var unionFieldNames = new HashSet<string>();
-        foreach (var possibleType in type.PossibleTypes)
-            if (_complexTypes.TryGetValue(possibleType.Name, out var consistOfType) && consistOfType.Fields is not null)
-                unionFields.AddRange(consistOfType.Fields.Where(f => unionFieldNames.Add(f.Name)));
-
-        return unionFields;
-    }
+        type.Fields?.Where(FilterIfDeprecated).Where(FilterIfAllFieldsDeprecated).ToList();
 
     protected internal IEnumerable<GraphQlField> GetFragments(GraphQlType type)
     {
@@ -162,10 +152,7 @@ public abstract class GenerationContext
             case GraphQlTypeKind.Union:
             case GraphQlTypeKind.InputObject:
                 var fieldTypeName = GetCSharpClassName(fieldType.Name);
-                var propertyType = $"{Configuration.ClassPrefix}{fieldTypeName}{Configuration.ClassSuffix}";
-                if (fieldType.Kind == GraphQlTypeKind.Interface)
-                    propertyType = $"I{propertyType}";
-
+                var propertyType = GetFullyQualifiedNetTypeName(fieldTypeName, fieldType.Kind);
                 return ScalarFieldTypeDescription.FromNetTypeName(AddQuestionMarkIfNullableReferencesEnabled(propertyType));
 
             case GraphQlTypeKind.Enum:
@@ -178,7 +165,7 @@ public abstract class GenerationContext
                 var netItemType =
                     IsUnknownObjectScalar(baseType, member.Name, itemType)
                         ? "object"
-                        : $"{(unwrappedItemType.Kind == GraphQlTypeKind.Interface ? "I" : null)}{Configuration.ClassPrefix}{itemTypeName}{Configuration.ClassSuffix}";
+                        : GetFullyQualifiedNetTypeName(itemTypeName, unwrappedItemType.Kind);
 
                 var suggestedScalarNetType = ResolveScalarNetType(baseType, member.Name, itemType, true).NetTypeName.TrimEnd('?');
                 if (!String.Equals(suggestedScalarNetType, "object") && !suggestedScalarNetType.TrimEnd().EndsWith("System.Object"))
@@ -246,7 +233,7 @@ public abstract class GenerationContext
         };
 
     internal string GetFullyQualifiedNetTypeName(string baseTypeName, GraphQlTypeKind kind) =>
-        $"{(kind is GraphQlTypeKind.Interface ? "I" : null)}{Configuration.ClassPrefix}{baseTypeName}{Configuration.ClassSuffix}";
+        $"{(kind is GraphQlTypeKind.Interface or GraphQlTypeKind.Union ? "I" : null)}{Configuration.ClassPrefix}{baseTypeName}{Configuration.ClassSuffix}";
 
     private ScalarFieldTypeDescription GetBooleanNetType(GraphQlType baseType, GraphQlTypeBase valueType, string valueName, bool alwaysNullable) =>
         Configuration.BooleanTypeMapping switch
@@ -327,7 +314,7 @@ public abstract class GenerationContext
             var propertyNamesToGenerate = new List<string>();
             if (isInputObject)
                 propertyNamesToGenerate.AddRange(graphQlType.InputFields.Select(f => NamingHelper.ToPascalCase(f.Name)));
-            else if (graphQlType.Kind.IsComplex())
+            else if (graphQlType.Kind is GraphQlTypeKind.Object or GraphQlTypeKind.Interface)
                 propertyNamesToGenerate.AddRange(GetFieldsToGenerate(graphQlType).Select(f => NamingHelper.ToPascalCase(f.Name)));
             else
                 continue;

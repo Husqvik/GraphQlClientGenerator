@@ -5,9 +5,10 @@ namespace GraphQlClientGenerator;
 
 internal static class NamingHelper
 {
+    internal const string MetadataFieldTypeName = "__typename";
+
     private static readonly HashSet<string> CSharpKeywords =
-        new()
-        {
+        [
             "abstract",
             "as",
             "base",
@@ -86,7 +87,7 @@ internal static class NamingHelper
             "void",
             "volatile",
             "while",
-        };
+        ];
 
     public static string LowerFirst(string value) => Char.ToLowerInvariant(value[0]) + value.Substring(1);
 
@@ -103,6 +104,9 @@ internal static class NamingHelper
     /// <remarks>https://stackoverflow.com/questions/18627112/how-can-i-convert-text-to-pascal-case</remarks>>
     public static string ToPascalCase(string text)
     {
+        if (text is MetadataFieldTypeName)
+            return "TypeName";
+
         var textWithoutWhiteSpace = RegexInvalidCharacters.Replace(RegexWhiteSpace.Replace(text, String.Empty), String.Empty);
         if (textWithoutWhiteSpace.All(c => c == '_'))
             return textWithoutWhiteSpace;
