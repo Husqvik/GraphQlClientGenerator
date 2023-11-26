@@ -842,10 +842,10 @@ public class GraphQlGenerator
 
                 var csharpPropertyName = NamingHelper.ToPascalCase(field.Name);
                 if (_configuration.JsonPropertyGeneration is JsonPropertyGenerationOption.UseDefaultAlias &&
-                    !String.Equals(field.Name, csharpPropertyName, StringComparison.OrdinalIgnoreCase))
+                    !String.Equals(field.Name, csharpPropertyName, StringComparison.Ordinal))
                 {
                     writer.Write(", DefaultAlias = \"");
-                    writer.Write(NamingHelper.LowerFirst(csharpPropertyName));
+                    writer.Write(csharpPropertyName);
                     writer.Write('"');
                 }
 
@@ -1145,10 +1145,10 @@ public class GraphQlGenerator
                 writer.Write(" alias = ");
 
                 if (_configuration.JsonPropertyGeneration is JsonPropertyGenerationOption.UseDefaultAlias &&
-                    !String.Equals(field.Name, csharpPropertyName, StringComparison.OrdinalIgnoreCase))
+                    !String.Equals(field.Name, csharpPropertyName, StringComparison.Ordinal))
                 {
                     writer.Write('"');
-                    writer.Write(NamingHelper.LowerFirst(csharpPropertyName));
+                    writer.Write(csharpPropertyName);
                     writer.Write('"');
                 }
                 else

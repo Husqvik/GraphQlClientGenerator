@@ -89,7 +89,7 @@ internal static class NamingHelper
             "while",
         ];
 
-    public static string LowerFirst(string value) => Char.ToLowerInvariant(value[0]) + value.Substring(1);
+    public static string LowerFirst(string value) => $"{Char.ToLowerInvariant(value[0])}{value.Substring(1)}";
 
     public static string EnsureCSharpQuoting(string name) => CSharpKeywords.Contains(name) ? $"@{name}" : name;
 
@@ -108,7 +108,7 @@ internal static class NamingHelper
             return "TypeName";
 
         var textWithoutWhiteSpace = RegexInvalidCharacters.Replace(RegexWhiteSpace.Replace(text, String.Empty), String.Empty);
-        if (textWithoutWhiteSpace.All(c => c == '_'))
+        if (textWithoutWhiteSpace.All(c => c is '_'))
             return textWithoutWhiteSpace;
             
         var pascalCase =
@@ -135,7 +135,7 @@ internal static class NamingHelper
         var hasUpperLetters = false;
         foreach (var @char in name)
         {
-            if (@char == '_')
+            if (@char is '_')
             {
                 startNewWord = true;
                 continue;
