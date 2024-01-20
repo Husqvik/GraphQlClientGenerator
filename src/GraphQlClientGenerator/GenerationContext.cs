@@ -25,7 +25,7 @@ public abstract class GenerationContext
 
     public GeneratedObjectType ObjectTypes { get; }
 
-    public virtual byte Indentation { get; }
+    public virtual byte Indentation => 0;
 
     protected internal abstract TextWriter Writer { get; }
 
@@ -62,7 +62,7 @@ public abstract class GenerationContext
         _nameCollisionMapping.Clear();
         _referencedObjectTypes.Clear();
         _complexTypes = Schema.GetComplexTypes().ToDictionary(t => t.Name);
-        ResolverReferencedObjectTypes();
+        ResolveReferencedObjectTypes();
         ResolveNameCollisions();
     }
 
@@ -297,7 +297,7 @@ public abstract class GenerationContext
         return ScalarFieldTypeDescription.FromNetTypeName(netTypeName);
     }
 
-    private void ResolverReferencedObjectTypes()
+    private void ResolveReferencedObjectTypes()
     {
         foreach (var graphQlType in Schema.Types.Where(t => t.Kind is GraphQlTypeKind.Object or GraphQlTypeKind.Interface or GraphQlTypeKind.List && !t.IsBuiltIn()))
             FindAllReferencedObjectTypes(graphQlType);
@@ -380,7 +380,7 @@ public abstract class GenerationContext
 
                 case GraphQlTypeKind.List:
                     var itemType = unwrappedType.OfType.UnwrapIfNonNull();
-                    if (itemType.Kind.IsComplex())
+                    if (itemType.Kind.IsComplex() && _referencedObjectTypes.Add(itemType.Name))
                         FindAllReferencedObjectTypes(_complexTypes[itemType.Name]);
 
                     break;

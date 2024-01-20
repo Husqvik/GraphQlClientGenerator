@@ -86,7 +86,8 @@ public partial class SimpleObjectTypeQueryBuilder : GraphQlQueryBuilder<SimpleOb
         new GraphQlFieldMetadata { Name = "id", DefaultAlias = "Id" },
         new GraphQlFieldMetadata { Name = "stringValueNullable", DefaultAlias = "StringValueNullable" },
         new GraphQlFieldMetadata { Name = "stringValue", DefaultAlias = "StringValue" },
-        new GraphQlFieldMetadata { Name = "stringArrayValue", DefaultAlias = "StringArrayValue", IsComplex = true }
+        new GraphQlFieldMetadata { Name = "stringArrayValue", DefaultAlias = "StringArrayValue", IsComplex = true },
+        new GraphQlFieldMetadata { Name = "nestedList", DefaultAlias = "NestedList", IsComplex = true, QueryBuilderType = typeof(SimpleObjectTypeQueryBuilder) }
     };
 
     protected override string TypeName { get; } = "SimpleObjectType";
@@ -108,13 +109,17 @@ public partial class SimpleObjectTypeQueryBuilder : GraphQlQueryBuilder<SimpleOb
     public SimpleObjectTypeQueryBuilder WithStringArrayValue(string? alias = "StringArrayValue", IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("stringArrayValue", alias, new GraphQlDirective?[] { include, skip, customDirective });
 
     public SimpleObjectTypeQueryBuilder ExceptStringArrayValue() => ExceptField("stringArrayValue");
+
+    public SimpleObjectTypeQueryBuilder WithNestedList(SimpleObjectTypeQueryBuilder simpleObjectTypeQueryBuilder, string? alias = "NestedList", IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithObjectField("nestedList", alias, simpleObjectTypeQueryBuilder, new GraphQlDirective?[] { include, skip, customDirective });
+
+    public SimpleObjectTypeQueryBuilder ExceptNestedList() => ExceptField("nestedList");
 }
 
 public partial class UnionTypeQueryBuilder : GraphQlQueryBuilder<UnionTypeQueryBuilder>
 {
     private static readonly GraphQlFieldMetadata[] AllFieldMetadata = Array.Empty<GraphQlFieldMetadata>();
 
-    public UnionTypeQueryBuilder() => WithTypeName();
+    public UnionTypeQueryBuilder() => WithTypeName("TypeName");
 
     protected override string TypeName { get; } = "UnionType";
 
@@ -134,7 +139,7 @@ public partial class NamedTypeQueryBuilder : GraphQlQueryBuilder<NamedTypeQueryB
         new GraphQlFieldMetadata { Name = "name", DefaultAlias = "Name" }
     };
 
-    public NamedTypeQueryBuilder() => WithTypeName();
+    public NamedTypeQueryBuilder() => WithTypeName("TypeName");
 
     protected override string TypeName { get; } = "NamedType";
 
@@ -657,6 +662,7 @@ public partial class SimpleObjectType
     public string? StringValueNullable { get; set; }
     public string? StringValue { get; set; }
     public ICollection<string>? StringArrayValue { get; set; }
+    public ICollection<SimpleObjectType?>? NestedList { get; set; }
 }
 
 public partial interface IUnionType

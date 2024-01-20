@@ -10,10 +10,7 @@
     <PackageTags>GraphQL Client Generator Tool Console</PackageTags>
     <PackageReleaseNotes>
 	  <![CDATA[
-	  Added --dataClassMemberNullability option
-	  Fixed naming conflict when enum values generated using PascalCase
-	  Fixed incorrect interface name generation causing compilation error
-	  Do not generate query builder method if criteria contain only deprecated (with disabled deprecated fields generation) fields causing compilation error
+	  Fixed stack overflow if schema contains type with list of the same type as a property
 	  ]]>
     </PackageReleaseNotes>
     <PackAsTool>true</PackAsTool>

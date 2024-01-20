@@ -2,10 +2,10 @@
 <Project>
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
-    <Copyright>Copyright 2017-2023</Copyright>
+    <Copyright>Copyright 2017-2024</Copyright>
     <Authors>Husqvik</Authors>
     <Company>Tibber</Company>
-    <VersionPrefix>0.9.17</VersionPrefix>
+    <VersionPrefix>0.9.18</VersionPrefix>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Husqvik/GraphQlClientGenerator</PackageProjectUrl>
     <PackageIcon>GraphQlLogo.png</PackageIcon>

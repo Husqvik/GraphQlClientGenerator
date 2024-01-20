@@ -783,7 +783,7 @@ public class GraphQlGenerator
                 CSharpTypeName = className
             });
 
-        var useCompatibleSyntax = _configuration.CSharpVersion == CSharpVersion.Compatible;
+        var useCompatibleSyntax = _configuration.CSharpVersion is CSharpVersion.Compatible;
         var writer = context.Writer;
         var indentation = GetIndentation(context.Indentation);
         writer.Write(indentation);
@@ -904,15 +904,33 @@ public class GraphQlGenerator
                 writer.WriteLine('{');
                 writer.Write(indentation);
                 writer.Write(memberIndentation);
-                writer.WriteLine("    WithTypeName();");
+                writer.Write("    ");
+                WriteWithTypeNameField();
                 writer.Write(indentation);
                 writer.Write(memberIndentation);
                 writer.WriteLine('}');
             }
             else
-                writer.WriteLine(" => WithTypeName();");
+            {
+                writer.Write(" => ");
+                WriteWithTypeNameField();
+            }
 
             writer.WriteLine();
+
+            void WriteWithTypeNameField()
+            {
+                writer.Write("WithTypeName(");
+
+                if (_configuration.JsonPropertyGeneration is JsonPropertyGenerationOption.UseDefaultAlias)
+                {
+                    writer.Write('"');
+                    writer.Write(NamingHelper.ToPascalCase(NamingHelper.MetadataFieldTypeName));
+                    writer.Write('"');
+                }
+
+                writer.WriteLine(");");
+            }
         }
 
         var hasQueryPrefix = directiveLocation != GraphQlDirectiveLocation.Field;
