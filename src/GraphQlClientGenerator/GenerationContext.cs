@@ -362,6 +362,9 @@ public abstract class GenerationContext
         if (type.Kind is GraphQlTypeKind.Union)
             return;
 
+        if (type.Kind is GraphQlTypeKind.Object or GraphQlTypeKind.Interface && !_referencedObjectTypes.Add(type.Name))
+            return;
+
         var members = (IEnumerable<IGraphQlMember>)type.InputFields ?? type.Fields?.Where(FilterIfDeprecated);
         foreach (var member in members ?? throw new InvalidOperationException($"no members defined for GraphQL type \"{type.Name}\" ({type.Kind})"))
         {
@@ -371,16 +374,13 @@ public abstract class GenerationContext
             {
                 case GraphQlTypeKind.Object:
                 case GraphQlTypeKind.Interface:
-                    if (!_referencedObjectTypes.Add(unwrappedType.Name))
-                        break;
-
                     var memberType = _complexTypes[unwrappedType.Name];
                     FindAllReferencedObjectTypes(memberType);
                     break;
 
                 case GraphQlTypeKind.List:
                     var itemType = unwrappedType.OfType.UnwrapIfNonNull();
-                    if (itemType.Kind.IsComplex() && _referencedObjectTypes.Add(itemType.Name))
+                    if (itemType.Kind.IsComplex())
                         FindAllReferencedObjectTypes(_complexTypes[itemType.Name]);
 
                     break;
