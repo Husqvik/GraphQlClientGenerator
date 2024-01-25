@@ -38,17 +38,15 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
     }
 
     [Theory]
-    [InlineData("GraphQlClientGenerator.DefaultScalarFieldTypeMappingProvider, GraphQlClientGenerator", false, "SourceGeneratorResult")]
-    [InlineData(null, true, "SourceGeneratorResultWithFileScopedNamespaces")]
-    public void SourceGeneration(string scalarFieldTypeMappingProviderTypeName, bool useFileScopedNamespace, string expectedResultResourceName)
+    [InlineData("GraphQlClientGenerator.DefaultScalarFieldTypeMappingProvider, GraphQlClientGenerator", false)]
+    [InlineData(null, true)]
+    public Task SourceGeneration(string scalarFieldTypeMappingProviderTypeName, bool useFileScopedNamespace)
     {
         var generatedSource = GenerateSource(SetupGeneratorOptions(OutputType.SingleFile, useFileScopedNamespace, scalarFieldTypeMappingProviderTypeName), null);
 
         generatedSource.Encoding.ShouldBe(Encoding.UTF8);
         var sourceCode = generatedSource.ToString();
-
-        var expectedSourceCode = GetExpectedSourceText(expectedResultResourceName);
-        sourceCode.ShouldBe(expectedSourceCode);
+        return Verify(sourceCode).UseParameters(useFileScopedNamespace);
     }
 
     [Fact]
@@ -132,35 +130,27 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
         return runResult.Results[0];
     }
 
-    private class AdditionalFile : AdditionalText
+    private class AdditionalFile(string path) : AdditionalText
     {
-        public AdditionalFile(string path) => Path = path;
-
         public override SourceText GetText(CancellationToken cancellationToken = default) =>
             SourceText.From(File.ReadAllText(Path));
 
-        public override string Path { get; }
+        public override string Path { get; } = path;
     }
 
-    private class CompilerAnalyzerConfigOptionsProvider : AnalyzerConfigOptionsProvider
+    private class CompilerAnalyzerConfigOptionsProvider(AnalyzerConfigOptions globalOptions) : AnalyzerConfigOptionsProvider
     {
-        private static readonly CompilerAnalyzerConfigOptions DummyOptions = new(new Dictionary<string, string>());
+        private static readonly CompilerAnalyzerConfigOptions DummyOptions = new([]);
 
-        public CompilerAnalyzerConfigOptionsProvider(AnalyzerConfigOptions globalOptions) => GlobalOptions = globalOptions;
-
-        public override AnalyzerConfigOptions GlobalOptions { get; }
+        public override AnalyzerConfigOptions GlobalOptions { get; } = globalOptions;
 
         public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => DummyOptions;
 
         public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => DummyOptions;
     }
 
-    private class CompilerAnalyzerConfigOptions : AnalyzerConfigOptions
+    private class CompilerAnalyzerConfigOptions(Dictionary<string, string> options) : AnalyzerConfigOptions
     {
-        private readonly Dictionary<string, string> _options;
-
-        public CompilerAnalyzerConfigOptions(Dictionary<string, string> options) => _options = options;
-
-        public override bool TryGetValue(string key, out string value) => _options.TryGetValue(key, out value);
+        public override bool TryGetValue(string key, out string value) => options.TryGetValue(key, out value);
     }
 }
