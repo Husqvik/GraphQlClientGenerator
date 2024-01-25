@@ -50,13 +50,12 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
     }
 
     [Fact]
-    public void SourceGenerationWithRegexCustomScalarFieldTypeMappingProvider()
+    public Task SourceGenerationWithRegexCustomScalarFieldTypeMappingProvider()
     {
         var generatedSource = GenerateSource(SetupGeneratorOptions(OutputType.SingleFile, false, null), _fileMappingRules);
         var sourceCode = generatedSource.ToString();
 
-        var expectedSourceCode = GetExpectedSourceText("SourceGeneratorResult").Replace("typeof(DateTimeOffset)", "typeof(DateTime)").Replace("DateTimeOffset?", "DateTime?");
-        sourceCode.ShouldBe(expectedSourceCode);
+        return Verify(sourceCode);
     }
 
     [Fact]
