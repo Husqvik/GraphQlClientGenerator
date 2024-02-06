@@ -1519,6 +1519,9 @@ public class GraphQlGenerator
                 .GroupBy(v => useCSharpNaming ? NamingHelper.ToCSharpEnumName(v.Name) : NamingHelper.EnsureCSharpQuoting(v.Name))
                 .ToArray();
 
+        if (!useCSharpNaming)
+            WriteReSharperInconsistentNamingDirective(writer, "disable", indentation);
+
         var valueCounter = 0;
         foreach (var nameValues in byIdentifierGroupedFieldsToGenerate)
         {
@@ -1549,6 +1552,9 @@ public class GraphQlGenerator
             }
         }
 
+        if (!useCSharpNaming)
+            WriteReSharperInconsistentNamingDirective(writer, "restore", indentation);
+
         writer.Write(indentation);
         writer.WriteLine("}");
 
@@ -1560,15 +1566,22 @@ public class GraphQlGenerator
             });
     }
 
+    private static void WriteReSharperInconsistentNamingDirective(TextWriter writer, string directiveValue, string indentation)
+    {
+        writer.Write(indentation);
+        writer.Write("    // ReSharper ");
+        writer.Write(directiveValue);
+        writer.WriteLine(" InconsistentNaming");
+    }
+
     private static readonly HashSet<GraphQlDirectiveLocation> SupportedDirectiveLocations =
-        new()
-        {
-            GraphQlDirectiveLocation.Object,
-            GraphQlDirectiveLocation.Field,
-            GraphQlDirectiveLocation.Query,
-            GraphQlDirectiveLocation.Mutation,
-            GraphQlDirectiveLocation.Subscription
-        };
+    [
+        GraphQlDirectiveLocation.Object,
+        GraphQlDirectiveLocation.Field,
+        GraphQlDirectiveLocation.Query,
+        GraphQlDirectiveLocation.Mutation,
+        GraphQlDirectiveLocation.Subscription
+    ];
 
     private void GenerateDirectives(GenerationContext context)
     {

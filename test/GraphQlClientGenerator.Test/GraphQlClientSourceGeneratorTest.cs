@@ -68,12 +68,6 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
             [3550, 744, 578, 791, 1404, 485, 620, 926, 642, 659, 1505, 3110, 11684, 3742, 4952, 1481, 4167, 3842, 3927, 2899, 2653, 6104, 4392, 1700, 2623, 5018, 4797, 1730, 2602, 4551, 3904, 1719, 1214, 4294, 1939, 1682, 1921, 9664, 1924, 5903, 2053, 643, 1374, 4359, 1557, 2584, 853, 2373, 1892, 1398, 1765, 943, 2586, 703, 840, 938, 3168, 2098, 704, 934, 2927, 1743, 702, 684, 1234, 812, 725, 705, 6927]);
     }
 
-    private static string GetExpectedSourceText(string expectedResultsFile)
-    {
-        using var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream($"GraphQlClientGenerator.Test.ExpectedSingleFileGenerationContext.{expectedResultsFile}"));
-        return reader.ReadToEnd();
-    }
-
     private static Dictionary<string, string> SetupGeneratorOptions(OutputType outputType, bool useFileScopedNamespaces, string scalarFieldTypeMappingProviderTypeName)
     {
         var configurationOptions =
