@@ -29,6 +29,7 @@ public static class GraphQlTypes
     public const string UnionType = "UnionType";
 
     public const string NamedType = "NamedType";
+    public const string WithOnlyDeprecatedFields = "WithOnlyDeprecatedFields";
 
     public static readonly IReadOnlyDictionary<Type, string> ReverseMapping =
         new Dictionary<Type, string>
@@ -676,8 +677,12 @@ public partial interface INamedType
     string? Name { get; set; }
 }
 
+public partial interface IWithOnlyDeprecatedFields
+{
+}
+
 [GraphQlObjectType("ConcreteType1")]
-public partial class ConcreteType1 : IUnionType, INamedType
+public partial class ConcreteType1 : IUnionType, INamedType, IWithOnlyDeprecatedFields
 {
     public string? Name { get; set; }
     public string? ConcreteType1Field { get; set; }

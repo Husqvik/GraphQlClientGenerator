@@ -236,6 +236,35 @@
           ]
         },
         {
+          "kind": "INTERFACE",
+          "name": "WithOnlyDeprecatedFields",
+          "description": null,
+          "fields": [
+            {
+              "name": "deprecated_field",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": true,
+              "deprecationReason": "do not use"
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": [
+            {
+              "kind": "OBJECT",
+              "name": "ConcreteType1",
+              "ofType": null
+            }
+          ]
+        },
+        {
           "kind": "OBJECT",
           "name": "ConcreteType1",
           "description": null,
@@ -290,6 +319,11 @@
             {
               "kind": "INTERFACE",
               "name": "NamedType",
+              "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "WithOnlyDeprecatedFields",
               "ofType": null
             }
           ],

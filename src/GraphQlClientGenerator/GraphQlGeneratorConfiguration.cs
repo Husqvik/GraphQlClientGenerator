@@ -64,7 +64,7 @@ public class GraphQlGeneratorConfiguration
     public MemberAccessibility MemberAccessibility { get; set; }
 
     /// <summary>
-    /// This property is used for mapping GraphQL scalar type into specific .NET type. By default any custom GraphQL scalar type is mapped into <see cref="System.Object"/>.
+    /// This property is used for mapping GraphQL scalar type into specific .NET type. By default, any custom GraphQL scalar type is mapped into <see cref="object"/>.
     /// </summary>
     public IScalarFieldTypeMappingProvider ScalarFieldTypeMappingProvider { get; set; }
 

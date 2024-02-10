@@ -416,13 +416,9 @@ public class GraphQlGenerator
             if (hasInputReference)
                 interfacesToImplement.Add("IGraphQlInputObject");
 
-            if (fieldsToGenerate.Any())
-                GenerateFileMember(
-                    context,
-                    csharpTypeName,
-                    complexType,
-                    String.Join(", ", interfacesToImplement),
-                    () => GenerateBody(complexType.Kind is GraphQlTypeKind.Interface));
+            var isInterface = complexType.Kind is GraphQlTypeKind.Interface;
+            if (isInterface || fieldsToGenerate.Any())
+                GenerateFileMember(context, csharpTypeName, complexType, String.Join(", ", interfacesToImplement), () => GenerateBody(isInterface));
 
             continue;
 
@@ -723,7 +719,9 @@ public class GraphQlGenerator
         if (!isInterfaceMember && decorateWithJsonPropertyAttribute)
         {
             writer.Write(indentation);
-            writer.WriteLine($"    [JsonProperty(\"{member.Name}\")]");
+            writer.Write("    [JsonProperty(\"");
+            writer.Write(member.Name);
+            writer.WriteLine("\")]");
         }
 
         if (isGraphQlInterfaceJsonConverterRequired)
@@ -734,7 +732,9 @@ public class GraphQlGenerator
         else if (isBaseTypeInputObject)
         {
             writer.Write(indentation);
-            writer.WriteLine($"    [JsonConverter(typeof(QueryBuilderParameterConverter<{propertyTypeName}>))]");
+            writer.Write("    [JsonConverter(typeof(QueryBuilderParameterConverter<");
+            writer.Write(propertyTypeName);
+            writer.WriteLine(">))]");
             propertyTypeName = AddQuestionMarkIfNullableReferencesEnabled($"QueryBuilderParameter<{propertyTypeName}>");
         }
 
