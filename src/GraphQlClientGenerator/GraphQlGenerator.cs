@@ -1519,8 +1519,7 @@ public class GraphQlGenerator
                 .GroupBy(v => useCSharpNaming ? NamingHelper.ToCSharpEnumName(v.Name) : NamingHelper.EnsureCSharpQuoting(v.Name))
                 .ToArray();
 
-        if (!useCSharpNaming)
-            WriteReSharperInconsistentNamingDirective(writer, "disable", indentation);
+        WriteReSharperInconsistentNamingDirective(writer, "disable", indentation);
 
         var valueCounter = 0;
         foreach (var nameValues in byIdentifierGroupedFieldsToGenerate)
@@ -1552,8 +1551,7 @@ public class GraphQlGenerator
             }
         }
 
-        if (!useCSharpNaming)
-            WriteReSharperInconsistentNamingDirective(writer, "restore", indentation);
+        WriteReSharperInconsistentNamingDirective(writer, "restore", indentation);
 
         writer.Write(indentation);
         writer.WriteLine("}");
@@ -1566,8 +1564,11 @@ public class GraphQlGenerator
             });
     }
 
-    private static void WriteReSharperInconsistentNamingDirective(TextWriter writer, string directiveValue, string indentation)
+    private void WriteReSharperInconsistentNamingDirective(TextWriter writer, string directiveValue, string indentation)
     {
+        if (_configuration.EnumValueNaming == EnumValueNamingOption.CSharp)
+            return;
+
         writer.Write(indentation);
         writer.Write("    // ReSharper ");
         writer.Write(directiveValue);

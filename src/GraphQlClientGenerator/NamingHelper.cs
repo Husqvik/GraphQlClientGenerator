@@ -7,87 +7,89 @@ internal static class NamingHelper
 {
     internal const string MetadataFieldTypeName = "__typename";
 
+    private static readonly char[] UnderscoreSeparator = ['_'];
+
     private static readonly HashSet<string> CSharpKeywords =
-        [
-            "abstract",
-            "as",
-            "base",
-            "bool",
-            "break",
-            "byte",
-            "case",
-            "catch",
-            "char",
-            "checked",
-            "class",
-            "const",
-            "continue",
-            "decimal",
-            "default",
-            "delegate",
-            "do",
-            "double",
-            "else",
-            "enum",
-            "event",
-            "explicit",
-            "extern",
-            "false",
-            "finally",
-            "fixed",
-            "float",
-            "for",
-            "foreach",
-            "goto",
-            "if",
-            "implicit",
-            "in",
-            "int",
-            "interface",
-            "internal",
-            "is",
-            "lock",
-            "long",
-            "namespace",
-            "new",
-            "null",
-            "object",
-            "operator",
-            "out",
-            "override",
-            "params",
-            "private",
-            "protected",
-            "public",
-            "readonly",
-            "ref",
-            "return",
-            "sbyte",
-            "sealed",
-            "short",
-            "sizeof",
-            "stackalloc",
-            "static",
-            "string",
-            "struct",
-            "switch",
-            "this",
-            "throw",
-            "true",
-            "try",
-            "typeof",
-            "uint",
-            "ulong",
-            "unchecked",
-            "unsafe",
-            "ushort",
-            "using",
-            "using",
-            "static",
-            "void",
-            "volatile",
-            "while",
-        ];
+    [
+        "abstract",
+        "as",
+        "base",
+        "bool",
+        "break",
+        "byte",
+        "case",
+        "catch",
+        "char",
+        "checked",
+        "class",
+        "const",
+        "continue",
+        "decimal",
+        "default",
+        "delegate",
+        "do",
+        "double",
+        "else",
+        "enum",
+        "event",
+        "explicit",
+        "extern",
+        "false",
+        "finally",
+        "fixed",
+        "float",
+        "for",
+        "foreach",
+        "goto",
+        "if",
+        "implicit",
+        "in",
+        "int",
+        "interface",
+        "internal",
+        "is",
+        "lock",
+        "long",
+        "namespace",
+        "new",
+        "null",
+        "object",
+        "operator",
+        "out",
+        "override",
+        "params",
+        "private",
+        "protected",
+        "public",
+        "readonly",
+        "ref",
+        "return",
+        "sbyte",
+        "sealed",
+        "short",
+        "sizeof",
+        "stackalloc",
+        "static",
+        "string",
+        "struct",
+        "switch",
+        "this",
+        "throw",
+        "true",
+        "try",
+        "typeof",
+        "uint",
+        "ulong",
+        "unchecked",
+        "unsafe",
+        "ushort",
+        "using",
+        "using",
+        "static",
+        "void",
+        "volatile",
+        "while",
+    ];
 
     public static string LowerFirst(string value) => $"{Char.ToLowerInvariant(value[0])}{value.Substring(1)}";
 
@@ -110,12 +112,12 @@ internal static class NamingHelper
         var textWithoutWhiteSpace = RegexInvalidCharacters.Replace(RegexWhiteSpace.Replace(text, String.Empty), String.Empty);
         if (textWithoutWhiteSpace.All(c => c is '_'))
             return textWithoutWhiteSpace;
-            
+
         var pascalCase =
             RegexInvalidCharacters
                 // Replaces white spaces with underscore, then replace all invalid chars with an empty string.
                 .Replace(RegexNextWhiteSpace.Replace(text, "_"), String.Empty)
-                .Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries)
+                .Split(UnderscoreSeparator, StringSplitOptions.RemoveEmptyEntries)
                 .Select(w => RegexUpperCaseFirstLetter.Replace(w, m => m.Value.ToUpper()))
                 // Replace second and all following upper case letters to lower if there is no next lower (ABC -> Abc).
                 .Select(w => RegexFirstCharFollowedByUpperCasesOnly.Replace(w, m => m.Value.ToLower()))
@@ -133,11 +135,18 @@ internal static class NamingHelper
         var startNewWord = true;
         var hasLowerLetters = false;
         var hasUpperLetters = false;
-        foreach (var @char in name)
+        var length = name?.Length ?? throw new ArgumentNullException(nameof(name));
+
+        for (var i = 0; i < length; i++)
         {
+            var @char = name[i];
             if (@char is '_')
             {
                 startNewWord = true;
+
+                if (i == 0 && length > 1 && Char.IsDigit(name[i + 1]))
+                    builder.Append('_');
+
                 continue;
             }
 

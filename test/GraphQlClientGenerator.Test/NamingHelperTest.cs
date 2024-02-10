@@ -23,8 +23,14 @@ public class NamingHelperTest
     [InlineData("_", "_")]
     [InlineData(" _ _ ? ", "__")]
     [InlineData(" _ _ ? x ", "X")]
+    [InlineData(NamingHelper.MetadataFieldTypeName, "TypeName")]
     public void ToPascalCase(string text, string expectedText) => NamingHelper.ToPascalCase(text).ShouldBe(expectedText);
 
     [Fact]
     public void LowerFirst() => NamingHelper.LowerFirst("PropertyName").ShouldBe("propertyName");
+
+    [Theory]
+    [InlineData("APPLICATION_OCTET_STREAM", "ApplicationOctetStream")]
+    [InlineData("_2048X2048", "_2048X2048")]
+    public void ToCSharpEnumName(string text, string expectedText) => NamingHelper.ToCSharpEnumName(text).ShouldBe(expectedText);
 }
