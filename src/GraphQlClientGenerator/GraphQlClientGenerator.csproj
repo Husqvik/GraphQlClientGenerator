@@ -10,7 +10,8 @@
     <PackageTags>GraphQL Client Generator</PackageTags>
     <PackageReleaseNotes>
 	  <![CDATA[
-	  Fixed stack overflow if schema contains type with list of the same type as a property
+	  Fixed CSharp enum name generation when name starts with _ followed by a digit
+	  Fixed missing interface generation when it contains only deprecated fields
 	  ]]>
     </PackageReleaseNotes>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
