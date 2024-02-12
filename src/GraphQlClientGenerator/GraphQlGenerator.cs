@@ -393,7 +393,7 @@ public class GraphQlGenerator
             var csharpTypeName = context.GetCSharpClassName(complexType.Name);
             var interfacesToImplement = new HashSet<string>(unionLookup[complexType.Name].Select(n => context.GetFullyQualifiedNetTypeName(n, GraphQlTypeKind.Interface)));
             //var implementsUnion = interfacesToImplement.Any();
-            if (complexType.Interfaces?.Count > 0)
+            if (complexType.Kind is GraphQlTypeKind.Object && complexType.Interfaces?.Count > 0)
             {
                 var fieldNames = new HashSet<string>(fieldsToGenerate.Select(f => f.Name));
 
