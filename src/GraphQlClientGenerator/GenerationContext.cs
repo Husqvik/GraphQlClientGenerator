@@ -11,8 +11,8 @@ public enum GeneratedObjectType
 
 public abstract class GenerationContext
 {
-    private readonly HashSet<string> _referencedObjectTypes = new();
-    private readonly Dictionary<string, string> _nameCollisionMapping = new();
+    private readonly HashSet<string> _referencedObjectTypes = [];
+    private readonly Dictionary<string, string> _nameCollisionMapping = [];
     private GraphQlGeneratorConfiguration _configuration;
     private IReadOnlyDictionary<string, GraphQlType> _complexTypes;
 

@@ -383,7 +383,7 @@ public class GraphQlGenerator
                     csharpUnionTypeName,
                     complexType,
                     null,
-                    () => GenerateDataClassBody(complexType, Array.Empty<GraphQlField>(), context, true));
+                    () => GenerateDataClassBody(complexType, [], context, true));
 
                 continue;
             }
@@ -439,7 +439,7 @@ public class GraphQlGenerator
             ? $"_{graphQlFieldName}"
             : $"_{NamingHelper.LowerFirst(NamingHelper.ToPascalCase(graphQlFieldName))}";
 
-    private void GenerateDataClassBody(GraphQlType type, ICollection<GraphQlField> fieldsToGenerate, GenerationContext context, bool isInterfaceMember)
+    private void GenerateDataClassBody(GraphQlType type, IReadOnlyCollection<GraphQlField> fieldsToGenerate, GenerationContext context, bool isInterfaceMember)
     {
         var writer = context.Writer;
         var csharpNameLookup = fieldsToGenerate.ToLookup(f => NamingHelper.ToPascalCase(f.Name));
@@ -1212,10 +1212,10 @@ public class GraphQlGenerator
         writer.WriteLine("]");
     }
 
-    private IList<QueryBuilderParameterDefinition> ResolveParameterDefinitions(GenerationContext context, GraphQlType type, IEnumerable<GraphQlArgument> graphQlArguments)
+    private IReadOnlyList<QueryBuilderParameterDefinition> ResolveParameterDefinitions(GenerationContext context, GraphQlType type, IEnumerable<GraphQlArgument> graphQlArguments)
     {
         if (graphQlArguments is null)
-            return Array.Empty<QueryBuilderParameterDefinition>();
+            return [];
 
         var parameterDefinitions = new List<QueryBuilderParameterDefinition>();
         var collidingNames = new Dictionary<string, int>();
@@ -1438,7 +1438,7 @@ public class GraphQlGenerator
             };
     }
 
-    private static void AppendArgumentDictionary(string indentation, TextWriter writer, ICollection<QueryBuilderParameterDefinition> argumentDefinitions, string argumentCollectionVariableName)
+    private static void AppendArgumentDictionary(string indentation, TextWriter writer, IReadOnlyCollection<QueryBuilderParameterDefinition> argumentDefinitions, string argumentCollectionVariableName)
     {
         if (argumentDefinitions.Count == 0)
             return;
@@ -1675,13 +1675,15 @@ public class GraphQlGenerator
         if (_configuration.CommentGeneration.HasFlag(CommentGenerationOption.DescriptionAttribute))
         {
             writer.Write(indentation);
-            writer.WriteLine($"[Description(@\"{description.Replace("\"", "\"\"")}\")]");
+            writer.Write("[Description(@\"");
+            writer.Write(description.Replace("\"", "\"\""));
+            writer.WriteLine("\")]");
         }
     }
 
     public static string GetIndentation(int size) => new(' ', size);
 
-    private struct QueryBuilderParameterDefinition
+    private record struct QueryBuilderParameterDefinition
     {
         public GraphQlArgument Argument;
         public bool IsNullable;
@@ -1690,7 +1692,7 @@ public class GraphQlGenerator
         public string FormatMask;
     }
 
-    private struct DataPropertyContext
+    private record struct DataPropertyContext
     {
         public IGraphQlMember Member;
         public string PropertyName;
