@@ -1359,7 +1359,7 @@ public class GraphQlGenerator
         netCollectionOpenType =
             levels == 1
                 ? "ICollection<{0}>"
-                : String.Concat(Enumerable.Repeat("IList<", levels).Append("{0}").Concat(nullableSymbols.Select(s => $">{s}")));
+                : String.Concat(Enumerable.Repeat("ICollection<", levels).Append("{0}").Concat(nullableSymbols.Select(s => $">{s}")));
 
         return type;
     }

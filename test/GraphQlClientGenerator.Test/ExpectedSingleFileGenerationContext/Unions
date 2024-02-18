@@ -723,7 +723,7 @@ public partial class Query
     #endif
     public ICollection<INamedType>? Interfaces { get; set; }
     public UnderscoreNamedClass? UnderscoreNamedField { get; set; }
-    public IList<IList<IList<decimal>>?>? NestedLists { get; set; }
+    public ICollection<ICollection<ICollection<decimal>>?>? NestedLists { get; set; }
     public string? _ { get; set; }
     public string? COLLISIONS { get; set; }
     public string? collisions { get; set; }

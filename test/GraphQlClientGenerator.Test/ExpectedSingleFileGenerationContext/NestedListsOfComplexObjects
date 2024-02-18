@@ -122,7 +122,7 @@ public partial class Query
 
 public partial class ObjectWithNestedListsField
 {
-    public IList<IList<AnotherComplex>> NestedListOfComplexObjects { get; set; }
+    public ICollection<ICollection<AnotherComplex>> NestedListOfComplexObjects { get; set; }
 }
 
 public partial class AnotherComplex
