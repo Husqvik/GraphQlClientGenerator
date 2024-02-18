@@ -159,7 +159,7 @@ public abstract class GenerationContext
                 return Configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(Configuration, baseType, member.Type, member.Name);
 
             case GraphQlTypeKind.List:
-                var itemType = GraphQlGenerator.UnwrapListItemType(fieldType, Configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences, out var netCollectionOpenType);
+                var itemType = GraphQlGenerator.UnwrapListItemType(fieldType, Configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences, out var netCollectionOpenType, out _);
                 var unwrappedItemType = itemType?.UnwrapIfNonNull() ?? throw GraphQlGenerator.ListItemTypeResolutionFailedException(baseType.Name, fieldType.Name);
                 var itemTypeName = GetCSharpClassName(unwrappedItemType.Name);
                 var netItemType =
