@@ -389,7 +389,7 @@ public abstract class GenerationContext
     }
 }
 
-public struct ObjectGenerationContext
+public record struct ObjectGenerationContext
 {
     public GraphQlType GraphQlType { get; set; }
     public string CSharpTypeName { get; set; }
