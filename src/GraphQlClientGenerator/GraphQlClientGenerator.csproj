@@ -12,6 +12,7 @@
 	  <![CDATA[
 	  Fixed CSharp enum name generation when name starts with _ followed by a digit
 	  Fixed missing interface generation when it contains only deprecated fields
+	  Initial support for interface inheritance and implementation of interface fields using concrete types
 	  ]]>
     </PackageReleaseNotes>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
