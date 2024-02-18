@@ -400,6 +400,9 @@ public class GraphQlGenerator
                     var interfaceType = complexTypes[@interface.Name];
                     foreach (var interfaceField in interfaceType.Fields.Where(context.FilterIfDeprecated))
                     {
+                        if (!IsFieldOwner(complexTypes, interfaceType, interfaceField))
+                            continue;
+
                         var interfaceFieldNetType = context.GetDataPropertyType(interfaceType, interfaceField).NetTypeName;
                         if (namedFields.TryGetValue(interfaceField.Name, out var nameField))
                         {
@@ -444,6 +447,21 @@ public class GraphQlGenerator
         }
 
         context.AfterDataClassesGeneration();
+    }
+
+    private static bool IsFieldOwner(Dictionary<string, GraphQlType> complexTypes, GraphQlType interfaceType, GraphQlField field)
+    {
+        if (interfaceType.Interfaces?.Count is null or 0)
+            return true;
+
+        foreach (var inheritedInterfaceReference in interfaceType.Interfaces)
+        {
+            var inheritedInterfaceType = complexTypes[inheritedInterfaceReference.Name];
+            if (inheritedInterfaceType.Fields.Any(f => f.Type.Equals(field.Type)))
+                return false;
+        }
+
+        return true;
     }
 
     private static string GetBackingFieldName(string graphQlFieldName, bool requiresRawName) =>
