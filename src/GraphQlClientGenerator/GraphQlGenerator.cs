@@ -805,12 +805,15 @@ public class GraphQlGenerator
             var itemType = UnwrapListItemType(fieldType, _configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences, out _, out var levels);
             var useCompatibleSyntax = _configuration.CSharpVersion is CSharpVersion.Compatible;
             writer.Write(" { get");
-            writer.Write(useCompatibleSyntax ? " { return " : " => ");
+            writer.Write(useCompatibleSyntax ? " { " : " => ");
 
             if (levels >= 2)
                 WriteAccessorException("getter");
             else
             {
+                if (useCompatibleSyntax)
+                    writer.Write("return ");
+
                 writer.Write(propertyContext.PropertyName);
 
                 if (fieldType.Kind is GraphQlTypeKind.List)
