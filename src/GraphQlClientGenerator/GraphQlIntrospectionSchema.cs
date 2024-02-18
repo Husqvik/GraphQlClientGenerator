@@ -80,6 +80,31 @@ public class GraphQlArgument : GraphQlValueBase, IGraphQlMember
 public class GraphQlFieldType : GraphQlTypeBase
 {
     public GraphQlFieldType OfType { get; set; }
+
+    private bool Equals(GraphQlFieldType other) =>
+        Kind == other.Kind && Name == other.Name && (OfType is null && other.OfType is null || OfType is not null && other.OfType is not null && OfType.Equals(other.OfType));
+
+    public override bool Equals(object obj)
+    {
+        if (obj is null)
+            return false;
+
+        if (ReferenceEquals(this, obj))
+            return true;
+
+        return obj.GetType() == GetType() && Equals((GraphQlFieldType)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            var hashCode = OfType is null ? 0 : OfType.GetHashCode();
+            hashCode = (hashCode * 397) ^ (int)Kind;
+            hashCode = (hashCode * 397) ^ (Name is null ? 0 : Name.GetHashCode());
+            return hashCode;
+        }
+    }
 }
 
 public abstract class GraphQlTypeBase
