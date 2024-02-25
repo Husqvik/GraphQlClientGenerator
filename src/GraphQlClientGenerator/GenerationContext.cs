@@ -13,6 +13,7 @@ public abstract class GenerationContext
 {
     private readonly HashSet<string> _referencedObjectTypes = [];
     private readonly Dictionary<string, string> _nameCollisionMapping = [];
+    private readonly HashSet<(string GraphQlTypeName, string FieldName)> _typeFieldCovarianceRequired = [];
     private GraphQlGeneratorConfiguration _configuration;
     private IReadOnlyDictionary<string, GraphQlType> _complexTypes;
 
@@ -61,9 +62,11 @@ public abstract class GenerationContext
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         _nameCollisionMapping.Clear();
         _referencedObjectTypes.Clear();
+        _typeFieldCovarianceRequired.Clear();
         _complexTypes = Schema.GetComplexTypes().ToDictionary(t => t.Name);
         ResolveReferencedObjectTypes();
         ResolveNameCollisions();
+        ResolveCovarianceRequiredFields();
     }
 
     public abstract void BeforeGeneration();
@@ -159,7 +162,8 @@ public abstract class GenerationContext
                 return Configuration.ScalarFieldTypeMappingProvider.GetCustomScalarFieldType(Configuration, baseType, member.Type, member.Name);
 
             case GraphQlTypeKind.List:
-                var itemType = GraphQlGenerator.UnwrapListItemType(fieldType, Configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences, out var netCollectionOpenType, out _);
+                var isCovarianceRequired = _typeFieldCovarianceRequired.Contains((baseType.Name, member.Name));
+                var itemType = GraphQlGenerator.UnwrapListItemType(fieldType, Configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences, isCovarianceRequired, out var netCollectionOpenType, out _);
                 var unwrappedItemType = itemType?.UnwrapIfNonNull() ?? throw GraphQlGenerator.ListItemTypeResolutionFailedException(baseType.Name, fieldType.Name);
                 var itemTypeName = GetCSharpClassName(unwrappedItemType.Name);
                 var netItemType =
@@ -385,6 +389,32 @@ public abstract class GenerationContext
 
                     break;
             }
+        }
+    }
+
+    private void ResolveCovarianceRequiredFields()
+    {
+        var interfaceImplementations =
+            _complexTypes.Values
+                .Where(t => t.Kind is GraphQlTypeKind.Object && t.Interfaces?.Count > 0)
+                .SelectMany(t => t.Interfaces.Select(i => (InterfaceName: i.Name, ImplementationType: t)))
+                .ToLookup(x => x.InterfaceName, x => x.ImplementationType);
+
+        foreach (var interfaceType in _complexTypes.Values.Where(t => t.Kind is GraphQlTypeKind.Interface))
+        foreach (var interfaceField in interfaceType.Fields.Where(f => f.Type.UnwrapIfNonNull().Kind is GraphQlTypeKind.List))
+        foreach (var implementationType in interfaceImplementations[interfaceType.Name])
+        {
+            var implementationField = implementationType.Fields.SingleOrDefault(f => f.Name == interfaceField.Name);
+            var isSchemaInvalid = implementationField is null;
+            if (isSchemaInvalid)
+                continue;
+
+            var isCovarianceRequired = !implementationField.Type.Equals(interfaceField.Type);
+            if (!isCovarianceRequired)
+                continue;
+
+            _typeFieldCovarianceRequired.Add((interfaceType.Name, interfaceField.Name));
+            break;
         }
     }
 }

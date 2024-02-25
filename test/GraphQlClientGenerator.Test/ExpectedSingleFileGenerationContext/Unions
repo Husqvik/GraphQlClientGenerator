@@ -846,11 +846,11 @@ public partial interface IWithValueAccessor
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
     #endif
-    ICollection<IValueAccessor>? Accessors { get; set; }
+    IEnumerable<IValueAccessor>? Accessors { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
     [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
     #endif
-    ICollection<ICollection<IValueAccessor>>? NestedAccessors { get; set; }
+    IEnumerable<IEnumerable<IValueAccessor>>? NestedAccessors { get; set; }
 }
 
 [GraphQlObjectType("ConcreteType1")]
@@ -865,8 +865,8 @@ public partial class ConcreteType1 : IUnionType, IBaseType, INamedType, IOtherWi
     public ICollection<ValueAccessorObject>? Accessors { get; set; }
     public ICollection<ICollection<ValueAccessorObject>>? NestedAccessors { get; set; }
     IValueAccessor? IWithValueAccessor.Accessor { get => Accessor; set => throw new NotSupportedException("Use \"ConcreteType1.Accessor\" property setter"); }
-    ICollection<IValueAccessor>? IWithValueAccessor.Accessors { get => Accessors.Cast<IValueAccessor>().ToList(); set => throw new NotSupportedException("Use \"ConcreteType1.Accessors\" property setter"); }
-    ICollection<ICollection<IValueAccessor>>? IWithValueAccessor.NestedAccessors { get => throw new NotSupportedException("Use \"ConcreteType1.NestedAccessors\" property getter"); set => throw new NotSupportedException("Use \"ConcreteType1.NestedAccessors\" property setter"); }
+    IEnumerable<IValueAccessor>? IWithValueAccessor.Accessors { get => Accessors; set => throw new NotSupportedException("Use \"ConcreteType1.Accessors\" property setter"); }
+    IEnumerable<IEnumerable<IValueAccessor>>? IWithValueAccessor.NestedAccessors { get => NestedAccessors; set => throw new NotSupportedException("Use \"ConcreteType1.NestedAccessors\" property setter"); }
 }
 
 [GraphQlObjectType("ConcreteType2")]
