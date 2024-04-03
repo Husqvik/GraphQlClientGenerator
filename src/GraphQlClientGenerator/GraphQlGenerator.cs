@@ -1695,7 +1695,7 @@ public class GraphQlGenerator
             ResolveParameterDefinitions(
                 context,
                 new GraphQlType { Name = directive.Name, Description = directive.Description, InputFields = directive.Args } /* TODO: make some common ancestor */,
-                directive.Args.OrderByDescending(a => a.Type.Kind == GraphQlTypeKind.NonNull));
+                directive.Args.OrderByDescending(a => a.Type.Kind is GraphQlTypeKind.NonNull));
 
         var argumentList = String.Join(", ", orderedArgumentDefinitions.Select(d => d.NetParameterDefinitionClause));
 

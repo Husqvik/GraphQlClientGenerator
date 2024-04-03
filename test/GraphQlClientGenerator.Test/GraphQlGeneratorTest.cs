@@ -240,7 +240,7 @@ public class GraphQlGeneratorTest
     }
 
     [Fact]
-    public void GenerateFullClientCSharpFile()
+    public Task GenerateFullClientCSharpFile()
     {
         var configuration =
             new GraphQlGeneratorConfiguration
@@ -250,8 +250,7 @@ public class GraphQlGeneratorTest
             
         var generator = new GraphQlGenerator(configuration);
         var generatedSourceCode = generator.GenerateFullClientCSharpFile(TestSchema, "GraphQlGenerator.Test");
-        var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.FullClientCSharpFile");
-        generatedSourceCode.ShouldBe(expectedOutput);
+        return Verify(generatedSourceCode);
     }
 
     [Fact]

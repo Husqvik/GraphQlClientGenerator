@@ -808,42 +808,51 @@ public abstract partial class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     protected void IncludeFields(IEnumerable<GraphQlFieldMetadata> fields)
     {
-        IncludeFields(fields, null);
+        IncludeFields(fields, 0, new Dictionary<Type, int>());
     }
 
-    private void IncludeFields(IEnumerable<GraphQlFieldMetadata> fields, List<Type> parentTypes)
+    private void IncludeFields(IEnumerable<GraphQlFieldMetadata> fields, int level, Dictionary<Type, int> parentTypeLevel)
     {
+        Type builderType = null;
+
         foreach (var field in fields)
         {
             if (field.QueryBuilderType == null)
                 IncludeScalarField(field.Name, field.DefaultAlias, null, null);
             else
             {
-                var builderType = GetType();
-
-                if (_operationType != null && GetType() == field.QueryBuilderType || parentTypes != null && parentTypes.Any(t => t.IsAssignableFrom(field.QueryBuilderType)))
+                if (parentTypeLevel.TryGetValue(field.QueryBuilderType, out var parentLevel) && parentLevel < level)
                     continue;
 
-                parentTypes?.Add(builderType);
+                if (builderType is null)
+                {
+                    builderType = GetType();
+                    parentLevel = parentTypeLevel.TryGetValue(builderType, out parentLevel) ? parentLevel : level;
+                    parentTypeLevel[builderType] = Math.Min(level, parentLevel);
+                }
 
-                var queryBuilder = InitializeChildQueryBuilder(builderType, field.QueryBuilderType, parentTypes);
+                var queryBuilder = InitializeChildQueryBuilder(builderType, field.QueryBuilderType, level, parentTypeLevel);
 
                 var includeFragmentMethods = field.QueryBuilderType.GetMethods().Where(IsIncludeFragmentMethod);
 
                 foreach (var includeFragmentMethod in includeFragmentMethods)
                     includeFragmentMethod.Invoke(
                         queryBuilder,
-                        new object[] { InitializeChildQueryBuilder(builderType, includeFragmentMethod.GetParameters()[0].ParameterType, parentTypes) });
+                        new object[] { InitializeChildQueryBuilder(builderType, includeFragmentMethod.GetParameters()[0].ParameterType, level, parentTypeLevel) });
 
                 IncludeObjectField(field.Name, field.DefaultAlias, queryBuilder, null, null);
             }
         }
     }
 
-    private static GraphQlQueryBuilder InitializeChildQueryBuilder(Type parentQueryBuilderType, Type queryBuilderType, List<Type> parentTypes)
+    private static GraphQlQueryBuilder InitializeChildQueryBuilder(Type parentQueryBuilderType, Type queryBuilderType, int level, Dictionary<Type, int> parentTypeLevel)
     {
         var queryBuilder = (GraphQlQueryBuilder)Activator.CreateInstance(queryBuilderType);
-        queryBuilder.IncludeFields(queryBuilder.AllFields.Where(f => !f.RequiresParameters), parentTypes ?? new List<Type> { parentQueryBuilderType });
+        queryBuilder.IncludeFields(
+            queryBuilder.AllFields.Where(f => !f.RequiresParameters),
+            level + 1,
+            parentTypeLevel);
+
         return queryBuilder;
     }
 
