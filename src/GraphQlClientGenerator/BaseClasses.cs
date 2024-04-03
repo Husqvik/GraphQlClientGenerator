@@ -801,7 +801,8 @@ public abstract partial class GraphQlQueryBuilder : IGraphQlQueryBuilder
                 IncludeScalarField(field.Name, field.DefaultAlias, null, null);
             else
             {
-                if (parentTypeLevel.TryGetValue(field.QueryBuilderType, out var parentLevel) && parentLevel < level)
+                if (_operationType != null && GetType() == field.QueryBuilderType ||
+                    parentTypeLevel.TryGetValue(field.QueryBuilderType, out var parentLevel) && parentLevel < level)
                     continue;
 
                 if (builderType is null)
