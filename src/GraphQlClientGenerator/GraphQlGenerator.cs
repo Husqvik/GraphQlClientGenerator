@@ -220,17 +220,17 @@ public class GraphQlGenerator
 
         foreach (var type in graphQlTypes.Where(t => t.Kind is GraphQlTypeKind.Object or GraphQlTypeKind.InputObject))
         {
-            if (type.Kind == GraphQlTypeKind.InputObject)
+            if (type.Kind is GraphQlTypeKind.InputObject)
             {
-                var netType = $"{_configuration.ClassPrefix}{context.GetCSharpClassName(type.Name)}{_configuration.ClassSuffix}";
+                var netType = context.GetFullyQualifiedNetTypeName(context.GetCSharpClassName(type.Name), type.Kind);
                 WriteMappingEntry(netType, type.Name);
             }
             else
             {
-                foreach (var member in type.Kind == GraphQlTypeKind.Object ? (IEnumerable<IGraphQlMember>)type.Fields : type.InputFields)
+                foreach (var member in type.Kind is GraphQlTypeKind.Object ? (IEnumerable<IGraphQlMember>)type.Fields : type.InputFields)
                 {
                     var fieldType = member.Type.UnwrapIfNonNull();
-                    if (fieldType.Kind == GraphQlTypeKind.List)
+                    if (fieldType.Kind is GraphQlTypeKind.List)
                     {
                         var itemType = UnwrapListItemType(fieldType, false, false, out _, out _);
                         fieldType = itemType?.UnwrapIfNonNull();
@@ -851,7 +851,6 @@ public class GraphQlGenerator
 
     private void GenerateQueryBuilder(GenerationContext context, GraphQlType graphQlType)
     {
-        var schema = context.Schema;
         var typeName = context.GetCSharpClassName(graphQlType.Name, false);
         var className = $"{_configuration.ClassPrefix}{typeName}QueryBuilder{_configuration.ClassSuffix}";
         var fields = graphQlType.Kind is GraphQlTypeKind.Union ? null : context.GetFieldsToGenerate(graphQlType);
@@ -1377,9 +1376,7 @@ public class GraphQlGenerator
         return type;
     }
 
-    private string WriteDirectiveParameterList(
-        GenerationContext context,
-        IEnumerable<QueryBuilderParameterDefinition> argumentDefinitions)
+    private string WriteDirectiveParameterList(GenerationContext context, IEnumerable<QueryBuilderParameterDefinition> argumentDefinitions)
     {
         var argumentNames = new HashSet<string>(argumentDefinitions.Select(ad => ad.NetParameterName));
         var directiveParameterNames = new List<string>();
@@ -1473,20 +1470,20 @@ public class GraphQlGenerator
     private QueryBuilderParameterDefinition BuildMethodParameterDefinition(GenerationContext context, GraphQlType baseType, GraphQlArgument argument, string netParameterName)
     {
         var argumentType = argument.Type;
-        var isArgumentNotNull = argumentType.Kind == GraphQlTypeKind.NonNull;
+        var isArgumentNotNull = argumentType.Kind is GraphQlTypeKind.NonNull;
         var isTypeNotNull = isArgumentNotNull;
         var unwrappedType = argumentType.UnwrapIfNonNull();
-        var isCollection = unwrappedType.Kind == GraphQlTypeKind.List;
+        var isCollection = unwrappedType.Kind is GraphQlTypeKind.List;
         if (isCollection)
         {
-            isTypeNotNull = unwrappedType.OfType.Kind == GraphQlTypeKind.NonNull;
+            isTypeNotNull = unwrappedType.OfType.Kind is GraphQlTypeKind.NonNull;
             argumentType = unwrappedType.OfType;
             unwrappedType = argumentType.UnwrapIfNonNull();
         }
 
         var argumentTypeDescription =
-            unwrappedType.Kind == GraphQlTypeKind.Enum
-                ? ScalarFieldTypeDescription.FromNetTypeName($"{_configuration.ClassPrefix}{NamingHelper.ToPascalCase(unwrappedType.Name)}{_configuration.ClassSuffix}{(isTypeNotNull ? "?" : null)}")
+            unwrappedType.Kind is GraphQlTypeKind.Enum
+                ? ScalarFieldTypeDescription.FromNetTypeName($"{context.GetFullyQualifiedNetTypeName(NamingHelper.ToPascalCase(unwrappedType.Name), unwrappedType.Kind)}{(isTypeNotNull ? "?" : null)}")
                 : context.ResolveScalarNetType(baseType, argument.Name, argumentType, false);
 
         var argumentNetType = argumentTypeDescription.NetTypeName;
@@ -1495,7 +1492,7 @@ public class GraphQlGenerator
         if (isInputObject)
         {
             argumentNetType = context.GetCSharpClassName(unwrappedType.Name);
-            argumentNetType = $"{_configuration.ClassPrefix}{argumentNetType}{_configuration.ClassSuffix}";
+            argumentNetType = context.GetFullyQualifiedNetTypeName(argumentNetType, unwrappedType.Kind);
 
             if (!isTypeNotNull)
                 argumentNetType = AddQuestionMarkIfNullableReferencesEnabled(argumentNetType);
@@ -1576,7 +1573,7 @@ public class GraphQlGenerator
 
     private void GenerateEnum(GenerationContext context, GraphQlType graphQlType)
     {
-        var enumName = $"{_configuration.ClassPrefix}{NamingHelper.ToPascalCase(graphQlType.Name)}{_configuration.ClassSuffix}";
+        var enumName = context.GetFullyQualifiedNetTypeName(NamingHelper.ToPascalCase(graphQlType.Name), graphQlType.Kind);
 
         context.BeforeEnumGeneration(
             new ObjectGenerationContext
@@ -1649,7 +1646,7 @@ public class GraphQlGenerator
 
     private void WriteReSharperInconsistentNamingDirective(TextWriter writer, string directiveValue, string indentation)
     {
-        if (_configuration.EnumValueNaming == EnumValueNamingOption.CSharp)
+        if (_configuration.EnumValueNaming is EnumValueNamingOption.CSharp)
             return;
 
         writer.Write(indentation);
