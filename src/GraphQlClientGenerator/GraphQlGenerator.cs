@@ -1113,7 +1113,7 @@ public class GraphQlGenerator
 
                 WriteAliasParameter();
 
-                var fieldDirectiveParameterNameList = WriteDirectiveParameterList(schema, argumentDefinitions, GraphQlDirectiveLocation.Field, writer);
+                var fieldDirectiveParameterNameList = WriteDirectiveParameterList(context, argumentDefinitions);
 
                 writer.Write(")");
 
@@ -1178,7 +1178,7 @@ public class GraphQlGenerator
                     WriteAliasParameter();
                 }
 
-                var fieldDirectiveParameterNameList = WriteDirectiveParameterList(schema, argumentDefinitions, GraphQlDirectiveLocation.Field, writer);
+                var fieldDirectiveParameterNameList = WriteDirectiveParameterList(context, argumentDefinitions);
 
                 writer.Write(")");
 
@@ -1378,15 +1378,13 @@ public class GraphQlGenerator
     }
 
     private string WriteDirectiveParameterList(
-        GraphQlSchema schema,
-        IEnumerable<QueryBuilderParameterDefinition> argumentDefinitions,
-        GraphQlDirectiveLocation directiveLocation,
-        TextWriter writer)
+        GenerationContext context,
+        IEnumerable<QueryBuilderParameterDefinition> argumentDefinitions)
     {
         var argumentNames = new HashSet<string>(argumentDefinitions.Select(ad => ad.NetParameterName));
         var directiveParameterNames = new List<string>();
 
-        foreach (var directive in schema.Directives.Where(d => d.Locations.Contains(directiveLocation)))
+        foreach (var directive in context.Schema.Directives.Where(d => d.Locations.Contains(GraphQlDirectiveLocation.Field)))
         {
             var csharpDirectiveName = NamingHelper.ToPascalCase(directive.Name);
             var directiveClassName = $"{csharpDirectiveName}Directive";
@@ -1411,6 +1409,7 @@ public class GraphQlGenerator
 
             directiveParameterNames.Add(directiveParameterName);
 
+            var writer = context.Writer;
             writer.Write(", ");
             writer.Write(AddQuestionMarkIfNullableReferencesEnabled(directiveClassName));
             writer.Write(' ');
