@@ -74,7 +74,8 @@ public class GraphQlGenerator
         else
             requestContent = new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json");
 
-        using var request = new HttpRequestMessage(method, url) { Content = requestContent };
+        using var request = new HttpRequestMessage(method, url);
+        request.Content = requestContent;
 
         if (headers is not null)
             foreach (var kvp in headers)
@@ -567,7 +568,7 @@ public class GraphQlGenerator
 
         writer.WriteLine();
 
-        var useCompatibleSyntax = _configuration.CSharpVersion == CSharpVersion.Compatible;
+        var useCompatibleSyntax = _configuration.CSharpVersion is CSharpVersion.Compatible;
 
         foreach (var kvp in propertyContexts)
             GenerateDataProperty(
@@ -691,10 +692,10 @@ public class GraphQlGenerator
     }
 
     private string AddQuestionMarkIfNullableReferencesEnabled(string dataTypeIdentifier) =>
-        AddQuestionMarkIfNullableReferencesEnabled(_configuration, dataTypeIdentifier);
+        AddQuestionMarkIfNullableReferencesEnabled(_configuration.CSharpVersion, dataTypeIdentifier);
 
-    internal static string AddQuestionMarkIfNullableReferencesEnabled(GraphQlGeneratorConfiguration configuration, string dataTypeIdentifier) =>
-        configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences ? $"{dataTypeIdentifier}?" : dataTypeIdentifier;
+    internal static string AddQuestionMarkIfNullableReferencesEnabled(CSharpVersion cSharpVersion, string dataTypeIdentifier) =>
+        cSharpVersion is CSharpVersion.NewestWithNullableReferences ? $"{dataTypeIdentifier}?" : dataTypeIdentifier;
 
     private string GetMemberAccessibility() =>
         _configuration.MemberAccessibility is MemberAccessibility.Internal ? "internal" : "public";

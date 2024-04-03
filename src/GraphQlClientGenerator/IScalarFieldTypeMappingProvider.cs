@@ -34,6 +34,6 @@ public sealed class DefaultScalarFieldTypeMappingProvider : IScalarFieldTypeMapp
             return new ScalarFieldTypeDescription { NetTypeName = $"{configuration.ClassPrefix}{NamingHelper.ToPascalCase(valueType.Name)}{configuration.ClassSuffix}?" };
 
         var dataType = valueType.Name == GraphQlTypeBase.GraphQlTypeScalarString ? "string" : "object";
-        return new ScalarFieldTypeDescription { NetTypeName = GraphQlGenerator.AddQuestionMarkIfNullableReferencesEnabled(configuration, dataType) };
+        return new ScalarFieldTypeDescription { NetTypeName = GraphQlGenerator.AddQuestionMarkIfNullableReferencesEnabled(configuration.CSharpVersion, dataType) };
     }
 }

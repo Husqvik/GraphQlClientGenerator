@@ -190,7 +190,7 @@ public abstract class GenerationContext
     }
 
     private string AddQuestionMarkIfNullableReferencesEnabled(string dataTypeIdentifier) =>
-        GraphQlGenerator.AddQuestionMarkIfNullableReferencesEnabled(Configuration, dataTypeIdentifier);
+        GraphQlGenerator.AddQuestionMarkIfNullableReferencesEnabled(Configuration.CSharpVersion, dataTypeIdentifier);
 
     internal bool IsUnknownObjectScalar(GraphQlType baseType, string valueName, GraphQlFieldType fieldType)
     {
