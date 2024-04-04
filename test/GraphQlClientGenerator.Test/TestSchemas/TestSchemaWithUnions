@@ -185,6 +185,11 @@
               "name": "ConcreteType3",
               "ofType": null
             },
+            {
+              "kind": "OBJECT",
+              "name": "ConcreteType4",
+              "ofType": null
+            },
             { // The duplicate is intentional
               "kind": "OBJECT",
               "name": "ConcreteType3",
@@ -787,6 +792,33 @@
               "ofType": null
             }
           ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "ConcreteType4",
+          "description": null,
+          "fields": [
+            {
+              "name": "concreteType4Field",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
           "enumValues": null,
           "possibleTypes": null
         },

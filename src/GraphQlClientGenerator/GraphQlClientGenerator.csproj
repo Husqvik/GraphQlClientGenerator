@@ -9,11 +9,9 @@
     <Title>GraphQL C# Client Generator</Title>
     <PackageTags>GraphQL Client Generator</PackageTags>
     <PackageReleaseNotes>
-	  <![CDATA[
-	  Fixed CSharp enum name generation when name starts with _ followed by a digit
-	  Fixed missing interface generation when it contains only deprecated fields
-	  Initial support for interface inheritance and implementation of interface fields using concrete types
-	  ]]>
+      <![CDATA[
+      Fixed missing GraphQlObjectType attribute generation when UNION subtype does not implement any GraphQL interface
+      ]]>
     </PackageReleaseNotes>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
