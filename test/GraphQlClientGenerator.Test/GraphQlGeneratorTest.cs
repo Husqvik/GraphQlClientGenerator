@@ -51,161 +51,165 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
 
         try
         {
-            var codeFileEmitter = new FileSystemEmitter(directoryInfo.FullName);
-            var context = new MultipleFileGenerationContext(DeserializeTestSchema("TestSchema2"), codeFileEmitter, "GraphQlGeneratorTest", "GraphQlGeneratorTest.csproj");
+            var context =
+                new MultipleFileGenerationContext(
+                    DeserializeTestSchema("TestSchema2"),
+                    new FileSystemEmitter(directoryInfo.FullName),
+                    "GraphQlGeneratorTest",
+                    "GraphQlGeneratorTest.csproj");
+
             generator.Generate(context);
 
             var files = directoryInfo.GetFiles().OrderBy(f => f.Name).ToArray();
             var fileNames = files.Select(f => f.Name);
             fileNames.ShouldBe(
-                new[]
-                {
-                    "About.cs",
-                    "AboutItem.cs",
-                    "AboutItemQueryBuilder.cs",
-                    "AboutQueryBuilder.cs",
-                    "Address.cs",
-                    "AddressQueryBuilder.cs",
-                    "AppState.cs",
-                    "AppStateFronScreen.cs",
-                    "AppStateFronScreenMutation.cs",
-                    "AppStateFronScreenQueryBuilder.cs",
-                    "AppStateJourney.cs",
-                    "AppStateJourneyMutation.cs",
-                    "AppStateJourneyQueryBuilder.cs",
-                    "AppStateMutation.cs",
-                    "AppStateQueryBuilder.cs",
-                    "Avatar.cs",
-                    "AwayMode.cs",
-                    "AwayModeQueryBuilder.cs",
-                    "AwayModeSettings.cs",
-                    "AwayModeSettingsQueryBuilder.cs",
-                    "BaseClasses.cs",
-                    "Comparison.cs",
-                    "ComparisonData.cs",
-                    "ComparisonDataQueryBuilder.cs",
-                    "ComparisonQueryBuilder.cs",
-                    "Consumption.cs",
-                    "ConsumptionMonth.cs",
-                    "ConsumptionMonthQueryBuilder.cs",
-                    "ConsumptionQueryBuilder.cs",
-                    "CreditCard.cs",
-                    "CreditCardQueryBuilder.cs",
-                    "DayNightSchedule.cs",
-                    "DayNightScheduleQueryBuilder.cs",
-                    "DayNightScheduleSettings.cs",
-                    "DayNightScheduleSettingsQueryBuilder.cs",
-                    "Disaggregation.cs",
-                    "DisaggregationQueryBuilder.cs",
-                    "EnergyDeal.cs",
-                    "EnergyDealQueryBuilder.cs",
-                    "Feed.cs",
-                    "FeedItem.cs",
-                    "FeedItemQueryBuilder.cs",
-                    "FeedQueryBuilder.cs",
-                    "GqlMutationError.cs",
-                    "GqlMutationErrorQueryBuilder.cs",
-                    "GqlMutationGeneralResponse.cs",
-                    "GqlMutationGeneralResponseQueryBuilder.cs",
-                    "GraphQlGeneratorTest.csproj",
-                    "GraphQlTypes.cs",
-                    "Greeting.cs",
-                    "GreetingQueryBuilder.cs",
-                    "Home.cs",
-                    "HomeMutation.cs",
-                    "HomeMutationQueryBuilder.cs",
-                    "HomeProfileQuestion.cs",
-                    "HomeProfileQuestionAnswer.cs",
-                    "HomeProfileQuestionInput.cs",
-                    "HomeProfileQuestionInputQueryBuilder.cs",
-                    "HomeProfileQuestionQueryBuilder.cs",
-                    "HomeQueryBuilder.cs",
-                    "IncludeDirective.cs",
-                    "Invoice.cs",
-                    "InvoicePayment.cs",
-                    "InvoicePaymentQueryBuilder.cs",
-                    "InvoiceQueryBuilder.cs",
-                    "InvoiceSection.cs",
-                    "InvoiceSectionQueryBuilder.cs",
-                    "Me.cs",
-                    "MeMutation.cs",
-                    "MeMutationQueryBuilder.cs",
-                    "MeQueryBuilder.cs",
-                    "Mutation.cs",
-                    "MutationQueryBuilder.cs",
-                    "PairableDevice.cs",
-                    "PairableDeviceOAuth.cs",
-                    "PairableDeviceOAuthQueryBuilder.cs",
-                    "PairableDeviceQueryBuilder.cs",
-                    "PairDeviceResult.cs",
-                    "PairDeviceResultQueryBuilder.cs",
-                    "PaymentMethod.cs",
-                    "PaymentMethodQueryBuilder.cs",
-                    "PreLiveComparison.cs",
-                    "PreLiveComparisonQueryBuilder.cs",
-                    "PriceRating.cs",
-                    "PriceRatingColorOffset.cs",
-                    "PriceRatingColorOffsetQueryBuilder.cs",
-                    "PriceRatingEntry.cs",
-                    "PriceRatingEntryQueryBuilder.cs",
-                    "PriceRatingQueryBuilder.cs",
-                    "PriceRatingRoot.cs",
-                    "PriceRatingRootQueryBuilder.cs",
-                    "ProcessStep.cs",
-                    "ProcessStepQueryBuilder.cs",
-                    "Producer.cs",
-                    "ProducerBullet.cs",
-                    "ProducerBulletQueryBuilder.cs",
-                    "ProducerQueryBuilder.cs",
-                    "Production.cs",
-                    "ProductionMonth.cs",
-                    "ProductionMonthQueryBuilder.cs",
-                    "ProductionQueryBuilder.cs",
-                    "ProductionValue.cs",
-                    "ProductionValueQueryBuilder.cs",
-                    "PushNotification.cs",
-                    "PushNotificationQueryBuilder.cs",
-                    "Query.cs",
-                    "QueryQueryBuilder.cs",
-                    "Report.cs",
-                    "ReportCell.cs",
-                    "ReportCellQueryBuilder.cs",
-                    "ReportQueryBuilder.cs",
-                    "ReportRoot.cs",
-                    "ReportRootQueryBuilder.cs",
-                    "Resolution.cs",
-                    "Sensor.cs",
-                    "SensorHistory.cs",
-                    "SensorHistoryQueryBuilder.cs",
-                    "SensorHistoryValue.cs",
-                    "SensorHistoryValueQueryBuilder.cs",
-                    "SensorQueryBuilder.cs",
-                    "SignupStatus.cs",
-                    "SignupStatusQueryBuilder.cs",
-                    "SkipDirective.cs",
-                    "Subscription.cs",
-                    "SubscriptionQueryBuilder.cs",
-                    "Thermostat.cs",
-                    "ThermostatCapability.cs",
-                    "ThermostatCapabilityQueryBuilder.cs",
-                    "ThermostatMeasurement.cs",
-                    "ThermostatMeasurementQueryBuilder.cs",
-                    "ThermostatMeasurements.cs",
-                    "ThermostatMeasurementsQueryBuilder.cs",
-                    "ThermostatMode.cs",
-                    "ThermostatModeQueryBuilder.cs",
-                    "ThermostatMutation.cs",
-                    "ThermostatMutationQueryBuilder.cs",
-                    "ThermostatQueryBuilder.cs",
-                    "ThermostatState.cs",
-                    "ThermostatStateQueryBuilder.cs",
-                    "Wallet.cs",
-                    "WalletQueryBuilder.cs",
-                    "Weather.cs",
-                    "WeatherEntry.cs",
-                    "WeatherEntryQueryBuilder.cs",
-                    "WeatherQueryBuilder.cs"
-                });
+            [
+                "About.cs",
+                "AboutItem.cs",
+                "AboutItemQueryBuilder.cs",
+                "AboutQueryBuilder.cs",
+                "Address.cs",
+                "AddressQueryBuilder.cs",
+                "AppState.cs",
+                "AppStateFronScreen.cs",
+                "AppStateFronScreenMutation.cs",
+                "AppStateFronScreenQueryBuilder.cs",
+                "AppStateJourney.cs",
+                "AppStateJourneyMutation.cs",
+                "AppStateJourneyQueryBuilder.cs",
+                "AppStateMutation.cs",
+                "AppStateQueryBuilder.cs",
+                "Avatar.cs",
+                "AwayMode.cs",
+                "AwayModeQueryBuilder.cs",
+                "AwayModeSettings.cs",
+                "AwayModeSettingsQueryBuilder.cs",
+                "BaseClasses.cs",
+                "Comparison.cs",
+                "ComparisonData.cs",
+                "ComparisonDataQueryBuilder.cs",
+                "ComparisonQueryBuilder.cs",
+                "Consumption.cs",
+                "ConsumptionMonth.cs",
+                "ConsumptionMonthQueryBuilder.cs",
+                "ConsumptionQueryBuilder.cs",
+                "CreditCard.cs",
+                "CreditCardQueryBuilder.cs",
+                "DayNightSchedule.cs",
+                "DayNightScheduleQueryBuilder.cs",
+                "DayNightScheduleSettings.cs",
+                "DayNightScheduleSettingsQueryBuilder.cs",
+                "Disaggregation.cs",
+                "DisaggregationQueryBuilder.cs",
+                "EnergyDeal.cs",
+                "EnergyDealQueryBuilder.cs",
+                "Feed.cs",
+                "FeedItem.cs",
+                "FeedItemQueryBuilder.cs",
+                "FeedQueryBuilder.cs",
+                "GqlMutationError.cs",
+                "GqlMutationErrorQueryBuilder.cs",
+                "GqlMutationGeneralResponse.cs",
+                "GqlMutationGeneralResponseQueryBuilder.cs",
+                "GraphQlGeneratorTest.csproj",
+                "GraphQlTypes.cs",
+                "Greeting.cs",
+                "GreetingQueryBuilder.cs",
+                "Home.cs",
+                "HomeMutation.cs",
+                "HomeMutationQueryBuilder.cs",
+                "HomeProfileQuestion.cs",
+                "HomeProfileQuestionAnswer.cs",
+                "HomeProfileQuestionInput.cs",
+                "HomeProfileQuestionInputQueryBuilder.cs",
+                "HomeProfileQuestionQueryBuilder.cs",
+                "HomeQueryBuilder.cs",
+                "IncludeDirective.cs",
+                "Invoice.cs",
+                "InvoicePayment.cs",
+                "InvoicePaymentQueryBuilder.cs",
+                "InvoiceQueryBuilder.cs",
+                "InvoiceSection.cs",
+                "InvoiceSectionQueryBuilder.cs",
+                "Me.cs",
+                "MeMutation.cs",
+                "MeMutationQueryBuilder.cs",
+                "MeQueryBuilder.cs",
+                "Mutation.cs",
+                "MutationQueryBuilder.cs",
+                "PairableDevice.cs",
+                "PairableDeviceOAuth.cs",
+                "PairableDeviceOAuthQueryBuilder.cs",
+                "PairableDeviceQueryBuilder.cs",
+                "PairDeviceResult.cs",
+                "PairDeviceResultQueryBuilder.cs",
+                "PaymentMethod.cs",
+                "PaymentMethodQueryBuilder.cs",
+                "PreLiveComparison.cs",
+                "PreLiveComparisonQueryBuilder.cs",
+                "PriceRating.cs",
+                "PriceRatingColorOffset.cs",
+                "PriceRatingColorOffsetQueryBuilder.cs",
+                "PriceRatingEntry.cs",
+                "PriceRatingEntryQueryBuilder.cs",
+                "PriceRatingQueryBuilder.cs",
+                "PriceRatingRoot.cs",
+                "PriceRatingRootQueryBuilder.cs",
+                "ProcessStep.cs",
+                "ProcessStepQueryBuilder.cs",
+                "Producer.cs",
+                "ProducerBullet.cs",
+                "ProducerBulletQueryBuilder.cs",
+                "ProducerQueryBuilder.cs",
+                "Production.cs",
+                "ProductionMonth.cs",
+                "ProductionMonthQueryBuilder.cs",
+                "ProductionQueryBuilder.cs",
+                "ProductionValue.cs",
+                "ProductionValueQueryBuilder.cs",
+                "PushNotification.cs",
+                "PushNotificationQueryBuilder.cs",
+                "Query.cs",
+                "QueryQueryBuilder.cs",
+                "Report.cs",
+                "ReportCell.cs",
+                "ReportCellQueryBuilder.cs",
+                "ReportQueryBuilder.cs",
+                "ReportRoot.cs",
+                "ReportRootQueryBuilder.cs",
+                "Resolution.cs",
+                "Sensor.cs",
+                "SensorHistory.cs",
+                "SensorHistoryQueryBuilder.cs",
+                "SensorHistoryValue.cs",
+                "SensorHistoryValueQueryBuilder.cs",
+                "SensorQueryBuilder.cs",
+                "SignupStatus.cs",
+                "SignupStatusQueryBuilder.cs",
+                "SkipDirective.cs",
+                "Subscription.cs",
+                "SubscriptionQueryBuilder.cs",
+                "Thermostat.cs",
+                "ThermostatCapability.cs",
+                "ThermostatCapabilityQueryBuilder.cs",
+                "ThermostatMeasurement.cs",
+                "ThermostatMeasurementQueryBuilder.cs",
+                "ThermostatMeasurements.cs",
+                "ThermostatMeasurementsQueryBuilder.cs",
+                "ThermostatMode.cs",
+                "ThermostatModeQueryBuilder.cs",
+                "ThermostatMutation.cs",
+                "ThermostatMutationQueryBuilder.cs",
+                "ThermostatQueryBuilder.cs",
+                "ThermostatState.cs",
+                "ThermostatStateQueryBuilder.cs",
+                "Wallet.cs",
+                "WalletQueryBuilder.cs",
+                "Weather.cs",
+                "WeatherEntry.cs",
+                "WeatherEntryQueryBuilder.cs",
+                "WeatherQueryBuilder.cs"
+            ]);
 
             var fileSizes =
                 files
@@ -532,6 +536,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         var builderInstance = Activator.CreateInstance(builderType);
         builderType
             .GetMethod("WithTestField", BindingFlags.Instance | BindingFlags.Public)
+            .ShouldNotBeNull()
             .Invoke(
                 builderInstance,
                 new object[]
@@ -554,6 +559,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
 
         builderType
             .GetMethod("WithObjectParameterField", BindingFlags.Instance | BindingFlags.Public)
+            .ShouldNotBeNull()
             .Invoke(
                 builderInstance,
                 new object[]
@@ -568,39 +574,52 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         var query =
             builderType
                 .GetMethod("Build", [formattingType, typeof(byte)])
+                .ShouldNotBeNull()
                 .Invoke(builderInstance, [Enum.Parse(formattingType, "None"), (byte)2]);
 
         query.ShouldBe("{testField(valueInt16:1,valueUInt16:2,valueByte:3,valueInt32:4,valueUInt32:5,valueInt64:6,valueUInt64:7,valueSingle:8.123,valueDouble:9.456,valueDecimal:10.789,valueDateTime:\"19-06-30 00:27Z\",valueDateTimeOffset:\"2019-06-30T02:27:47.1234567+02:00\",valueGuid:\"00000000-0000-0000-0000-000000000000\",valueString:\"\\\"string\\\" value\"),fieldAlias:objectParameter(objectParameter:[{rootProperty1:\"root value 1\",rootProperty2:123.456,rootProperty3:true,rootProperty4:null,rootProperty5:{nestedProperty1:987,nestedProperty2:\"a \\\"quoted\\\" value\\\\t\\\\r\\\\n\"}},[{rootProperty1:\"root value 2\"},{rootProperty1:false}]])@include(if:$direct)@skip(if:false)}");
         query =
             builderType
                 .GetMethod("Build", [formattingType, typeof(byte)])
+                .ShouldNotBeNull()
                 .Invoke(builderInstance, [Enum.Parse(formattingType, "Indented"), (byte)2]);
 
         query.ShouldBe($"{{{Environment.NewLine}  testField(valueInt16: 1, valueUInt16: 2, valueByte: 3, valueInt32: 4, valueUInt32: 5, valueInt64: 6, valueUInt64: 7, valueSingle: 8.123, valueDouble: 9.456, valueDecimal: 10.789, valueDateTime: \"19-06-30 00:27Z\", valueDateTimeOffset: \"2019-06-30T02:27:47.1234567+02:00\", valueGuid: \"00000000-0000-0000-0000-000000000000\", valueString: \"\\\"string\\\" value\"){Environment.NewLine}  fieldAlias: objectParameter(objectParameter: [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 1\",{Environment.NewLine}      rootProperty2: 123.456,{Environment.NewLine}      rootProperty3: true,{Environment.NewLine}      rootProperty4: null,{Environment.NewLine}      rootProperty5: {{{Environment.NewLine}        nestedProperty1: 987,{Environment.NewLine}        nestedProperty2: \"a \\\"quoted\\\" value\\\\t\\\\r\\\\n\"}}}},{Environment.NewLine}    [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 2\"}},{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: false}}]]) @include(if: $direct) @skip(if: false){Environment.NewLine}}}");
 
         var rootQueryBuilderType = Type.GetType($"{assemblyName}.QueryQueryBuilder, {assemblyName}");
         rootQueryBuilderType.ShouldNotBeNull();
-        var rootQueryBuilderInstance = rootQueryBuilderType.GetConstructor([typeof(string)]).Invoke(new object[1]);
-        rootQueryBuilderType.GetMethod("WithAllFields", BindingFlags.Instance | BindingFlags.Public).Invoke(rootQueryBuilderInstance, null);
+        var rootQueryBuilderInstance = rootQueryBuilderType.GetConstructor([typeof(string)]).ShouldNotBeNull().Invoke(new object[1]);
+        rootQueryBuilderType
+            .GetMethod("WithAllFields", BindingFlags.Instance | BindingFlags.Public)
+            .ShouldNotBeNull()
+            .Invoke(rootQueryBuilderInstance, null);
+
         rootQueryBuilderType
             .GetMethod("Build", [formattingType, typeof(byte)])
+            .ShouldNotBeNull()
             .Invoke(rootQueryBuilderInstance, [Enum.Parse(formattingType, "None"), (byte)2]);
 
         builderType
             .GetMethod("Clear", BindingFlags.Instance | BindingFlags.Public)
+            .ShouldNotBeNull()
             .Invoke(builderInstance, null);
 
-        var meBuilderType = Type.GetType($"{assemblyName}.MeQueryBuilder, {assemblyName}");
+        var meBuilderType = Type.GetType($"{assemblyName}.MeQueryBuilder, {assemblyName}").ShouldNotBeNull();
         var childFragmentBuilderInstance = Activator.CreateInstance(meBuilderType);
-        meBuilderType.GetMethod("WithAllScalarFields", BindingFlags.Instance | BindingFlags.Public).Invoke(childFragmentBuilderInstance, null);
+        meBuilderType
+            .GetMethod("WithAllScalarFields", BindingFlags.Instance | BindingFlags.Public)
+            .ShouldNotBeNull()
+            .Invoke(childFragmentBuilderInstance, null);
 
         builderType
             .GetMethod("WithTestFragment", BindingFlags.Instance | BindingFlags.Public)
+            .ShouldNotBeNull()
             .Invoke(builderInstance, [childFragmentBuilderInstance]);
 
         query =
             builderType
                 .GetMethod("Build", [formattingType, typeof(byte)])
+                .ShouldNotBeNull()
                 .Invoke(builderInstance, [Enum.Parse(formattingType, "None"), (byte)2]);
 
         query.ShouldBe("{...on Me{id,firstName,lastName,fullName,ssn,email,language,tone,mobile}}");
@@ -638,13 +657,13 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         object parameter;
         if (name == null)
         {
-            var makeGenericType = Type.GetType($"{sourceAssembly}.QueryBuilderParameter`1, {sourceAssembly}").MakeGenericType(genericType);
-            parameter = Activator.CreateInstance(makeGenericType, BindingFlags.Instance | BindingFlags.NonPublic, null, [value], CultureInfo.InvariantCulture);
+            var queryBuilderParameterType = Type.GetType($"{sourceAssembly}.QueryBuilderParameter`1, {sourceAssembly}").ShouldNotBeNull().MakeGenericType(genericType);
+            parameter = Activator.CreateInstance(queryBuilderParameterType, BindingFlags.Instance | BindingFlags.NonPublic, null, [value], CultureInfo.InvariantCulture);
         }
         else
         {
-            var makeGenericType = Type.GetType($"{sourceAssembly}.GraphQlQueryParameter`1, {sourceAssembly}").MakeGenericType(genericType);
-            parameter = Activator.CreateInstance(makeGenericType, BindingFlags.Instance | BindingFlags.Public, null, [name, graphQlType, value], CultureInfo.InvariantCulture);
+            var queryParameterType = Type.GetType($"{sourceAssembly}.GraphQlQueryParameter`1, {sourceAssembly}").ShouldNotBeNull().MakeGenericType(genericType);
+            parameter = Activator.CreateInstance(queryParameterType, BindingFlags.Instance | BindingFlags.Public, null, [name, graphQlType, value], CultureInfo.InvariantCulture);
         }
 
         return parameter;
@@ -652,11 +671,11 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
 
     private static string GetTestResource(string name)
     {
-        using var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream($"GraphQlClientGenerator.Test.{name}"));
+        using var reader = new StreamReader(typeof(GraphQlGeneratorTest).Assembly.GetManifestResourceStream($"GraphQlClientGenerator.Test.{name}").ShouldNotBeNull());
         return reader.ReadToEnd().ReplaceLineEndings(Environment.NewLine);
     }
 
-    private void CompileIntoAssembly(string sourceCode, string assemblyName)
+    private Assembly CompileIntoAssembly(string sourceCode, string assemblyName)
     {
         var compilation = CompilationHelper.CreateCompilation(sourceCode, assemblyName);
         var assemblyFileName = Path.GetTempFileName();
@@ -668,7 +687,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         var errorReport = String.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity == DiagnosticSeverity.Error).Select(l => $"[{l.Severity}] {l}"));
         errorReport.ShouldBeNullOrEmpty();
 
-        Assembly.LoadFrom(assemblyFileName);
+        return Assembly.LoadFrom(assemblyFileName);
     }
 
     [Fact]
@@ -777,24 +796,25 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         var inputObjectType = Type.GetType($"{assemblyName}.TestInput, {assemblyName}");
         inputObjectType.ShouldNotBeNull();
 
-        var queryParameter2Value = Activator.CreateInstance(inputObjectType);
+        var queryParameter2Value = Activator.CreateInstance(inputObjectType).ShouldNotBeNull();
         var queryParameter1 = CreateParameter(assemblyName, "Test Value", "stringParameter", "String");
         var queryParameter2 = CreateParameter(assemblyName, queryParameter2Value, "objectParameter", "[TestInput!]");
-        var testPropertyInfo = inputObjectType.GetProperty("TestProperty");
+        var testPropertyInfo = inputObjectType.GetProperty("TestProperty").ShouldNotBeNull();
         testPropertyInfo.SetValue(queryParameter2Value, CreateParameter(assemblyName, "Input Object Parameter Value"));
-        var timestampPropertyInfo = inputObjectType.GetProperty("Timestamp");
+        var timestampPropertyInfo = inputObjectType.GetProperty("Timestamp").ShouldNotBeNull();
         timestampPropertyInfo.SetValue(queryParameter2Value, CreateParameter(assemblyName, new DateTimeOffset(2019, 6, 30, 2, 27, 47, TimeSpan.FromHours(2)).AddTicks(1234567)));
 
         var inputObject = Activator.CreateInstance(inputObjectType);
         testPropertyInfo.SetValue(inputObject, queryParameter1);
         var nestedObject = Activator.CreateInstance(inputObjectType);
         testPropertyInfo.SetValue(nestedObject, CreateParameter(assemblyName, "Nested Value"));
-        inputObjectType.GetProperty("InputObject1").SetValue(inputObject, CreateParameter(assemblyName, nestedObject));
-        inputObjectType.GetProperty("InputObject2").SetValue(inputObject, queryParameter2);
-        inputObjectType.GetProperty("TestNullValueProperty").SetValue(inputObject, CreateParameter(assemblyName, null, null, "String", typeof(String)));
+        inputObjectType.GetProperty("InputObject1").ShouldNotBeNull().SetValue(inputObject, CreateParameter(assemblyName, nestedObject));
+        inputObjectType.GetProperty("InputObject2").ShouldNotBeNull().SetValue(inputObject, queryParameter2);
+        inputObjectType.GetProperty("TestNullValueProperty").ShouldNotBeNull().SetValue(inputObject, CreateParameter(assemblyName, null, null, "String", typeof(String)));
 
         builderType
             .GetMethod("WithTestAction", BindingFlags.Instance | BindingFlags.Public)
+            .ShouldNotBeNull()
             .Invoke(
                 builderInstance,
                 new []
@@ -802,14 +822,15 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
                     inputObject
                 }.Select(p => CreateParameter(assemblyName, p)).ToArray());
 
-        var withParameterMethod = builderType.GetMethod("WithParameter", BindingFlags.Instance | BindingFlags.Public);
+        var withParameterMethod = builderType.GetMethod("WithParameter", BindingFlags.Instance | BindingFlags.Public).ShouldNotBeNull();
         withParameterMethod.MakeGenericMethod(typeof(String)).Invoke(builderInstance, [queryParameter1]);
         withParameterMethod.MakeGenericMethod(queryParameter2Value.GetType()).Invoke(builderInstance, [queryParameter2]);
 
         var mutation =
             builderType
-                .GetMethod("Build", new[] { formattingType, typeof(byte) })
-                .Invoke(builderInstance, new[] { Enum.Parse(formattingType, "None"), (byte)2 });
+                .GetMethod("Build", [formattingType, typeof(byte)])
+                .ShouldNotBeNull()
+                .Invoke(builderInstance, [Enum.Parse(formattingType, "None"), (byte)2]);
 
         mutation.ShouldBe("mutation($stringParameter:String=\"Test Value\",$objectParameter:[TestInput!]={testProperty:\"Input Object Parameter Value\",timestamp:\"19-06-30 02:27+02:00\"}){testAction(objectParameter:{inputObject1:{testProperty:\"Nested Value\"},inputObject2:$objectParameter,testProperty:$stringParameter,testNullValueProperty:null})}");
 
@@ -817,8 +838,8 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         inputObjectJson.ShouldBe("{\"InputObject1\":{\"InputObject1\":null,\"InputObject2\":null,\"TestProperty\":\"Nested Value\",\"TestNullValueProperty\":null,\"Timestamp\":null},\"InputObject2\":{\"InputObject1\":null,\"InputObject2\":null,\"TestProperty\":\"Input Object Parameter Value\",\"TestNullValueProperty\":null,\"Timestamp\":\"2019-06-30T02:27:47.1234567+02:00\"},\"TestProperty\":\"Test Value\",\"TestNullValueProperty\":null,\"Timestamp\":null}");
 
         var deserializedInputObject = JsonConvert.DeserializeObject(inputObjectJson, inputObjectType);
-        var testPropertyValue = testPropertyInfo.GetValue(deserializedInputObject);
-        var converter = testPropertyValue.GetType().GetMethod("op_Implicit", [testPropertyValue.GetType()]);
+        var testPropertyValue = testPropertyInfo.GetValue(deserializedInputObject).ShouldNotBeNull();
+        var converter = testPropertyValue.GetType().GetMethod("op_Implicit", [testPropertyValue.GetType()]).ShouldNotBeNull();
         var testPropertyPlainValue = converter.Invoke(null, [testPropertyValue]);
         testPropertyPlainValue.ShouldBe("Test Value");
     }
@@ -840,12 +861,13 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         GetQueryParameterGraphQlType(typeof(Decimal), false).ShouldBe("Float!");
         GetQueryParameterGraphQlType(typeof(Guid), true).ShouldBe("ID");
         GetQueryParameterGraphQlType(typeof(String), false).ShouldBe("String!");
+        return;
 
         string GetQueryParameterGraphQlType(Type valueType, bool nullable)
         {
             var queryParameterType = GetGeneratedType("GraphQlQueryParameter`1");
             var queryParameter = Activator.CreateInstance(queryParameterType.MakeGenericType(valueType), "parameter_name", null, nullable);
-            return (string)queryParameterType.GetProperty("GraphQlTypeName", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(queryParameter);
+            return (string)queryParameterType.GetProperty("GraphQlTypeName", BindingFlags.Instance | BindingFlags.NonPublic).ShouldNotBeNull().GetValue(queryParameter);
         }
 
         Type GetGeneratedType(string typeName)
@@ -873,7 +895,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
 
     private static string StripBaseClasses(string sourceCode)
     {
-        using var reader = new StreamReader(typeof(GraphQlGenerator).Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses.cs"));
+        using var reader = new StreamReader(typeof(GraphQlGenerator).Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses.cs").ShouldNotBeNull());
         return sourceCode.Replace("#region base classes" + Environment.NewLine + reader.ReadToEnd() + Environment.NewLine + "#endregion", null).Trim();
     }
 }
