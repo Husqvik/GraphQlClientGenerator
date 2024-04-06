@@ -119,12 +119,12 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
             if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(currentParameterName), out var httpMethod))
                 httpMethod = "POST";
 
-            currentParameterName = "CommentGeneration";
+            currentParameterName = "CodeDocumentationType";
             context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(currentParameterName), out var commentGenerationRaw);
-            configuration.CommentGeneration =
+            configuration.CodeDocumentationType =
                 String.IsNullOrWhiteSpace(commentGenerationRaw)
-                    ? CommentGenerationOption.CodeSummary
-                    : (CommentGenerationOption)Enum.Parse(typeof(CommentGenerationOption), commentGenerationRaw, true);
+                    ? CodeDocumentationType.XmlSummary
+                    : (CodeDocumentationType)Enum.Parse(typeof(CodeDocumentationType), commentGenerationRaw, true);
 
             currentParameterName = "FloatTypeMapping";
             context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(currentParameterName), out var floatTypeMappingRaw);

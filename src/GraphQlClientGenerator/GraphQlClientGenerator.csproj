@@ -22,7 +22,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.*" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.*" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.*" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.*" PrivateAssets="All" />
     <PackageReference Include="System.Net.Http" Version="4.*" />
     <PackageReference Include="Newtonsoft.Json" Version="13.*" GeneratePathProperty="true" />
   </ItemGroup>

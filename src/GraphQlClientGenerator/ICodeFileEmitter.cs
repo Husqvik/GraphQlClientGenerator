@@ -11,7 +11,7 @@ public struct CodeFileInfo
 {
     public string FileName { get; set; }
 
-    public int Length { get; set; }
+    public long Length { get; set; }
 }
 
 public class CodeFile(string fileName, Stream stream) : IDisposable

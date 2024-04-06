@@ -49,6 +49,7 @@ internal static class GraphQlCSharpFileHelper
                 CSharpVersion = options.CSharpVersion,
                 ClassPrefix = options.ClassPrefix,
                 ClassSuffix = options.ClassSuffix,
+                CodeDocumentationType = options.CodeDocumentationType,
                 GeneratePartialClasses = options.PartialClasses,
                 MemberAccessibility = options.MemberAccessibility,
                 IdTypeMapping = options.IdTypeMapping,
@@ -75,10 +76,10 @@ internal static class GraphQlCSharpFileHelper
 
         var generator = new GraphQlGenerator(generatorConfiguration);
 
-        if (options.OutputType == OutputType.SingleFile)
+        if (options.OutputType is OutputType.SingleFile)
         {
-            await File.WriteAllTextAsync(options.OutputPath, generator.GenerateFullClientCSharpFile(schema, options.Namespace));
-            generatedFiles.Add(new CodeFileInfo { FileName = options.OutputPath, Length = (int)new FileInfo(options.OutputPath).Length });
+            await File.WriteAllTextAsync(options.OutputPath, generator.GenerateFullClientCSharpFile(schema, options.Namespace, console.Out.WriteLine));
+            generatedFiles.Add(new CodeFileInfo { FileName = options.OutputPath, Length = new FileInfo(options.OutputPath).Length });
         }
         else
         {
@@ -88,7 +89,7 @@ internal static class GraphQlCSharpFileHelper
                     : null;
 
             var codeFileEmitter = new FileSystemEmitter(projectFileInfo?.DirectoryName ?? options.OutputPath);
-            var multipleFileGenerationContext = new MultipleFileGenerationContext(schema, codeFileEmitter, options.Namespace, projectFileInfo?.Name);
+            var multipleFileGenerationContext = new MultipleFileGenerationContext(schema, codeFileEmitter, options.Namespace, projectFileInfo?.Name) { LogMessage = console.Out.WriteLine };
             generator.Generate(multipleFileGenerationContext);
             generatedFiles.AddRange(multipleFileGenerationContext.Files);
         }

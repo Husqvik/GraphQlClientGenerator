@@ -12,6 +12,7 @@ public class ProgramOptions
     public string ClassPrefix { get; set; }
     public string ClassSuffix { get; set; }
     public CSharpVersion CSharpVersion { get; set; }
+    public CodeDocumentationType CodeDocumentationType { get; set; }
     public MemberAccessibility MemberAccessibility { get; set; }
     public OutputType OutputType { get; set; }
     public bool PartialClasses { get; set; }

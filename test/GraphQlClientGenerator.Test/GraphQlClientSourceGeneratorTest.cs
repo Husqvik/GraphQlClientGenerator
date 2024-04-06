@@ -76,7 +76,7 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
                 { "build_property.GraphQlClientGenerator_ClassPrefix", "SourceGenerated" },
                 { "build_property.GraphQlClientGenerator_ClassSuffix", "V2" },
                 { "build_property.GraphQlClientGenerator_IncludeDeprecatedFields", "true" },
-                { "build_property.GraphQlClientGenerator_CommentGeneration", nameof(CommentGenerationOption.CodeSummary) },
+                { "build_property.GraphQlClientGenerator_CodeDocumentationType", nameof(CodeDocumentationType.XmlSummary) },
                 { "build_property.GraphQlClientGenerator_FloatTypeMapping", nameof(FloatTypeMapping.Double) },
                 { "build_property.GraphQlClientGenerator_BooleanTypeMapping", nameof(BooleanTypeMapping.Boolean) },
                 { "build_property.GraphQlClientGenerator_IdTypeMapping", nameof(IdTypeMapping.String) },

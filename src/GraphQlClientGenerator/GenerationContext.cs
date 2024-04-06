@@ -15,12 +15,12 @@ public abstract class GenerationContext
     private readonly Dictionary<string, GraphQlDirective> _directives = [];
     private readonly Dictionary<string, string> _nameCollisionMapping = [];
     private readonly HashSet<(string GraphQlTypeName, string FieldName)> _typeFieldCovarianceRequired = [];
-    private readonly List<LogMessage> _logMessages = [];
     private GraphQlGeneratorConfiguration _configuration;
     private IReadOnlyDictionary<string, GraphQlType> _complexTypes;
+    private ILookup<string, string> _typeUnionMembership;
 
     protected GraphQlGeneratorConfiguration Configuration =>
-        _configuration ?? throw new InvalidOperationException($"{nameof(Configuration)} not initialized; call \"{nameof(Initialize)}\" method first. ");
+        _configuration ?? throw NotInitializedException(nameof(Configuration));
 
     protected internal abstract TextWriter Writer { get; }
 
@@ -28,29 +28,31 @@ public abstract class GenerationContext
 
     internal IReadOnlyCollection<GraphQlDirective> Directives => _directives.Values;
 
+    internal ILookup<string, string> TypeUnionMembership =>
+        _typeUnionMembership ?? throw NotInitializedException(nameof(TypeUnionMembership));
+
     public virtual byte Indentation => 0;
 
     public GraphQlSchema Schema { get; }
 
     public GeneratedObjectType ObjectTypes { get; }
 
-    public IReadOnlyList<LogMessage> LogMessages => _logMessages;
+    public Action<string> LogMessage { get; set; }
 
     protected GenerationContext(GraphQlSchema schema, GeneratedObjectType objectTypes)
     {
         var optionsInteger = (int)objectTypes;
         if (optionsInteger is < 1 or > 7)
-            throw new ArgumentException("invalid value", nameof(objectTypes));
+            throw new ArgumentOutOfRangeException(nameof(objectTypes), objectTypes, "invalid value");
 
         Schema = schema ?? throw new ArgumentNullException(nameof(schema));
         ObjectTypes = objectTypes;
     }
 
-    public void Initialize(GraphQlGeneratorConfiguration configuration)
+    protected internal void Initialize(GraphQlGeneratorConfiguration configuration)
     {
         _complexTypes = null;
         _directives.Clear();
-        _logMessages.Clear();
         _nameCollisionMapping.Clear();
         _referencedObjectTypes.Clear();
         _typeFieldCovarianceRequired.Clear();
@@ -58,9 +60,15 @@ public abstract class GenerationContext
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
         ResolveDirectives();
+        ResolveTypeUnionLookup();
         ResolveReferencedObjectTypes();
         ResolveNameCollisions();
         ResolveCovarianceRequiredFields();
+        Initialize();
+    }
+
+    protected virtual void Initialize()
+    {
     }
 
     public abstract void BeforeGeneration();
@@ -203,8 +211,6 @@ public abstract class GenerationContext
 
     private string AddQuestionMarkIfNullableReferencesEnabled(string dataTypeIdentifier) =>
         GraphQlGenerator.AddQuestionMarkIfNullableReferencesEnabled(Configuration.CSharpVersion, dataTypeIdentifier);
-
-    protected void Log(string message) => _logMessages.Add(new LogMessage { Timestamp = DateTimeOffset.Now, Message = message });
 
     internal bool IsUnknownObjectScalar(GraphQlType baseType, string valueName, GraphQlFieldType fieldType)
     {
@@ -432,14 +438,40 @@ public abstract class GenerationContext
         }
     }
 
+    private void ResolveTypeUnionLookup()
+    {
+        var duplicateCheck = new HashSet<string>();
+        _typeUnionMembership =
+            _complexTypes.Values
+                .Where(t => t.Kind is GraphQlTypeKind.Union)
+                .SelectMany(
+                    u =>
+                        u.PossibleTypes
+                            .Where(t =>
+                            {
+                                if (duplicateCheck.Add(t.Name))
+                                    return true;
+
+                                Warn($"duplicate union \"{u.Name}\" possible type \"{t.Name}\"");
+                                return false;
+                            })
+                            .Select(t => (UnionName: u.Name, PossibleTypeName: t.Name)))
+                .ToLookup(x => x.PossibleTypeName, x => x.UnionName);
+    }
+
     private void ResolveDirectives()
     {
         foreach (var directive in Schema.Directives)
             if (_directives.ContainsKey(directive.Name))
-                Log($"duplicate \"{directive.Name}\" directive definition");
+                Warn($"duplicate \"{directive.Name}\" directive definition");
             else
                 _directives[directive.Name] = directive;
     }
+
+    private void Warn(string message) => LogMessage?.Invoke($"WARNING: {message}");
+
+    private static InvalidOperationException NotInitializedException(string propertyName) =>
+        new($"\"{propertyName}\" not initialized; call \"{nameof(Initialize)}\" method first. ");
 }
 
 public record struct ObjectGenerationContext

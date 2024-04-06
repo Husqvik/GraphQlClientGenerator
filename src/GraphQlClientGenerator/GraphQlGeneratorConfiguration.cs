@@ -13,11 +13,11 @@ public class GraphQlGeneratorConfiguration
     public string ClassSuffix { get; set; }
 
     /// <summary>
-    /// Allows to define custom class names for specific GraphQL types. One common reason for this is to avoid property of the same name as its parent class.
+    /// Allows to define custom class names for specific GraphQL types.
     /// </summary>
     public IDictionary<string, string> CustomClassNameMapping { get; } = new Dictionary<string, string>();
 
-    public CommentGenerationOption CommentGeneration { get; set; }
+    public CodeDocumentationType CodeDocumentationType { get; set; }
 
     public bool IncludeDeprecatedFields { get; set; }
 
@@ -87,7 +87,7 @@ public class GraphQlGeneratorConfiguration
         CSharpVersion = CSharpVersion.Compatible;
         ScalarFieldTypeMappingProvider = DefaultScalarFieldTypeMappingProvider.Instance;
         PropertyAccessorBodyWriter = GeneratePropertyAccessors;
-        CommentGeneration = CommentGenerationOption.Disabled;
+        CodeDocumentationType = CodeDocumentationType.Disabled;
         IncludeDeprecatedFields = false;
         FloatTypeMapping = FloatTypeMapping.Decimal;
         BooleanTypeMapping = BooleanTypeMapping.Boolean;
@@ -194,10 +194,10 @@ public enum PropertyGenerationOption
 }
 
 [Flags]
-public enum CommentGenerationOption
+public enum CodeDocumentationType
 {
     Disabled = 0,
-    CodeSummary = 1,
+    XmlSummary = 1,
     DescriptionAttribute = 2
 }
 

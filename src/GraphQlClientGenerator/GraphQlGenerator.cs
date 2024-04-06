@@ -113,15 +113,15 @@ public class GraphQlGenerator
         }
     }
 
-    public string GenerateFullClientCSharpFile(GraphQlSchema schema, string @namespace)
+    public string GenerateFullClientCSharpFile(GraphQlSchema schema, string @namespace, Action<string> logMessage = null)
     {
         var builder = new StringBuilder();
         using var writer = new StringWriter(builder);
-        WriteFullClientCSharpFile(schema, @namespace, writer);
+        WriteFullClientCSharpFile(schema, @namespace, writer, logMessage);
         return builder.ToString();
     }
 
-    public void WriteFullClientCSharpFile(GraphQlSchema schema, string @namespace, TextWriter writer)
+    public void WriteFullClientCSharpFile(GraphQlSchema schema, string @namespace, TextWriter writer, Action<string> logMessage = null)
     {
         if (String.IsNullOrWhiteSpace(@namespace))
             throw new ArgumentException("namespace required", nameof(@namespace));
@@ -139,13 +139,13 @@ public class GraphQlGenerator
         {
             writer.WriteLine(";");
             writer.WriteLine();
-            Generate(new SingleFileGenerationContext(schema, writer, indentationSize: 0));
+            Generate(new SingleFileGenerationContext(schema, writer, indentationSize: 0) { LogMessage = logMessage });
         }
         else
         {
             writer.WriteLine();
             writer.WriteLine("{");
-            Generate(new SingleFileGenerationContext(schema, writer, indentationSize: 4));
+            Generate(new SingleFileGenerationContext(schema, writer, indentationSize: 4) { LogMessage = logMessage });
             writer.WriteLine("}");
         }
 
@@ -367,12 +367,6 @@ public class GraphQlGenerator
 
         context.BeforeDataClassesGeneration();
 
-        var unionLookup =
-            complexTypes.Values
-                .Where(t => t.Kind is GraphQlTypeKind.Union)
-                .SelectMany(u => u.PossibleTypes.Select(t => (UnionName: u.Name, PossibleTypeName: t.Name)))
-                .ToLookup(x => x.PossibleTypeName, x => x.UnionName);
-
         foreach (var complexType in complexTypes.Values)
         {
             if (complexType.Kind is GraphQlTypeKind.Union)
@@ -382,7 +376,7 @@ public class GraphQlGenerator
             }
 
             var isInterface = complexType.Kind is GraphQlTypeKind.Interface;
-            var interfacesToImplement = new HashSet<string>(unionLookup[complexType.Name].Select(n => context.GetFullyQualifiedNetTypeName(n, GraphQlTypeKind.Interface)));
+            var interfacesToImplement = new HashSet<string>(context.TypeUnionMembership[complexType.Name].Select(n => context.GetFullyQualifiedNetTypeName(n, GraphQlTypeKind.Interface)));
             var fieldsToGenerate = context.GetFieldsToGenerate(complexType).Select(f => new FieldGenerationInfo(f, complexType, false)).ToList();
 
             //var implementsUnion = interfacesToImplement.Any();
@@ -1748,7 +1742,7 @@ public class GraphQlGenerator
 
         var indentation = GetIndentation(indentationSize);
 
-        if (_configuration.CommentGeneration.HasFlag(CommentGenerationOption.CodeSummary))
+        if (_configuration.CodeDocumentationType.HasFlag(CodeDocumentationType.XmlSummary))
         {
             writer.Write(indentation);
             writer.WriteLine("/// <summary>");
@@ -1759,7 +1753,7 @@ public class GraphQlGenerator
             writer.WriteLine("/// </summary>");
         }
 
-        if (_configuration.CommentGeneration.HasFlag(CommentGenerationOption.DescriptionAttribute))
+        if (_configuration.CodeDocumentationType.HasFlag(CodeDocumentationType.DescriptionAttribute))
         {
             writer.Write(indentation);
             writer.Write("[Description(@\"");

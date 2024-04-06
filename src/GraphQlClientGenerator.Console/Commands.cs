@@ -9,13 +9,13 @@ internal static class Commands
 
     private static RootCommand SetupGenerateCommand()
     {
-        var serviceUrlOption = new Option<string>(new[] { "--serviceUrl", "-u" }, "GraphQL service URL used for retrieving schema metadata");
-        var schemaFileOption = new Option<string>(new[] { "--schemaFileName", "-s" }, "Path to schema metadata file in JSON format");
+        var serviceUrlOption = new Option<string>(["--serviceUrl", "-u"], "GraphQL service URL used for retrieving schema metadata");
+        var schemaFileOption = new Option<string>(["--schemaFileName", "-s"], "Path to schema metadata file in JSON format");
 
         var classMappingOption =
             new Option<string[]>(
                 "--classMapping",
-                "Format: {GraphQlTypeName}:{C#ClassName}; allows to define custom class names for specific GraphQL types; common reason for this is to avoid property of the same name as its parent class");
+                "Format: {GraphQlTypeName}:{C#ClassName}; allows to define custom class names for specific GraphQL types");
 
         classMappingOption.AddValidator(
             static option =>
@@ -38,8 +38,8 @@ internal static class Commands
         var command =
             new RootCommand
             {
-                new Option<string>(new[] { "--outputPath", "-o" }, "Output path; include file name for single file output type; folder name for one class per file output type") { IsRequired = true },
-                new Option<string>(new[] { "--namespace", "-n" }, "Root namespace all classes and other members are generated to") { IsRequired = true },
+                new Option<string>(["--outputPath", "-o"], "Output path; include file name for single file output type; folder name for one class per file output type") { IsRequired = true },
+                new Option<string>(["--namespace", "-n"], "Root namespace all classes and other members are generated to") { IsRequired = true },
                 serviceUrlOption,
                 schemaFileOption,
                 new Option<string>("--httpMethod", () => "POST", "GraphQL schema metadata retrieval HTTP method"),
@@ -47,6 +47,7 @@ internal static class Commands
                 new Option<string>("--classPrefix", "Class prefix; value \"Test\" extends class name to \"TestTypeName\""),
                 new Option<string>("--classSuffix", "Class suffix, for instance for version control; value \"V2\" extends class name to \"TypeNameV2\""),
                 new Option<CSharpVersion>("--csharpVersion", () => CSharpVersion.Compatible, "C# version compatibility"),
+                new Option<CodeDocumentationType>("--codeDocumentationType", () => CodeDocumentationType.Disabled, "Specifies code documentation generation option"),
                 new Option<MemberAccessibility>("--memberAccessibility", () => MemberAccessibility.Public, "Class and interface access level"),
                 new Option<OutputType>("--outputType", () => OutputType.SingleFile, "Specifies generated classes organization"),
                 new Option<bool>("--partialClasses", () => false, "Mark classes as \"partial\""),
