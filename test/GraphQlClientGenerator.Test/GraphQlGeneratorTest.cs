@@ -8,25 +8,15 @@ using Xunit.Abstractions;
 
 namespace GraphQlClientGenerator.Test;
 
-public class GraphQlGeneratorTest
+public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
 {
     private static readonly GraphQlSchema TestSchema = DeserializeTestSchema("TestSchema");
-
-    private readonly ITestOutputHelper _outputHelper;
 
     private static GraphQlSchema DeserializeTestSchema(string resourceName) =>
         GraphQlGenerator.DeserializeGraphQlSchema(GetTestResource("TestSchemas." + resourceName));
 
-    private static GenerationContext CreateGenerationContext(
-        StringBuilder builder,
-        GraphQlSchema schema,
-        GeneratedObjectType objectTypes = GeneratedObjectType.All) =>
-        new SingleFileGenerationContext(schema, new StringWriter(builder), objectTypes);
-
-    public GraphQlGeneratorTest(ITestOutputHelper outputHelper)
-    {
-        _outputHelper = outputHelper;
-    }
+    private static SingleFileGenerationContext CreateGenerationContext(StringBuilder builder, GraphQlSchema schema, GeneratedObjectType objectTypes = GeneratedObjectType.All) =>
+        new(schema, new StringWriter(builder), objectTypes);
 
     private static readonly IReadOnlyList<int> ExpectedFileSizes = [
         447, 476, 1400, 1180, 979, 4292, 520, 570, 2133, 1943, 456, 1115, 1174, 1686, 1780, 757, 495, 1612, 499, 1439, 793, 492, 1470, 4153, 964, 763, 3704, 5074, 479, 1417, 567, 2231, 614, 2415, 1226, 7008, 448,
@@ -51,7 +41,7 @@ public class GraphQlGeneratorTest
 
         var tempPath = Path.GetTempPath();
 
-        _outputHelper.WriteLine($"temp path: {tempPath}");
+        outputHelper.WriteLine($"temp path: {tempPath}");
 
         var directoryInfo = Directory.CreateDirectory(Path.Combine(tempPath, "GraphQlGeneratorTest"));
 
@@ -412,11 +402,18 @@ public class GraphQlGeneratorTest
 
         var stringBuilder = new StringBuilder();
         var generator = new GraphQlGenerator(configuration);
-        generator.Generate(CreateGenerationContext(stringBuilder, schema));
+        var generationContext = CreateGenerationContext(stringBuilder, schema);
+        var now = DateTimeOffset.Now;
+
+        generator.Generate(generationContext);
 
         var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.Unions");
         var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
         generatedSourceCode.ShouldBe(expectedOutput);
+
+        var message = generationContext.LogMessages.ShouldHaveSingleItem();
+        message.Timestamp.ShouldBeGreaterThanOrEqualTo(now);
+        message.Message.ShouldBe("duplicate \"skip\" directive definition");
     }
 
     [Fact]
@@ -660,7 +657,7 @@ public class GraphQlGeneratorTest
         var result = compilation.Emit(assemblyFileName);
         var compilationReport = String.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity != DiagnosticSeverity.Hidden).Select(l => $"[{l.Severity}] {l}"));
         if (!String.IsNullOrEmpty(compilationReport))
-            _outputHelper.WriteLine(compilationReport);
+            outputHelper.WriteLine(compilationReport);
 
         var errorReport = String.Join(Environment.NewLine, result.Diagnostics.Where(l => l.Severity == DiagnosticSeverity.Error).Select(l => $"[{l.Severity}] {l}"));
         errorReport.ShouldBeNullOrEmpty();

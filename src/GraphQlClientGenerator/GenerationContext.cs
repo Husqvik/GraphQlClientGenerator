@@ -12,23 +12,29 @@ public enum GeneratedObjectType
 public abstract class GenerationContext
 {
     private readonly HashSet<string> _referencedObjectTypes = [];
+    private readonly Dictionary<string, GraphQlDirective> _directives = [];
     private readonly Dictionary<string, string> _nameCollisionMapping = [];
     private readonly HashSet<(string GraphQlTypeName, string FieldName)> _typeFieldCovarianceRequired = [];
+    private readonly List<LogMessage> _logMessages = [];
     private GraphQlGeneratorConfiguration _configuration;
     private IReadOnlyDictionary<string, GraphQlType> _complexTypes;
 
     protected GraphQlGeneratorConfiguration Configuration =>
         _configuration ?? throw new InvalidOperationException($"{nameof(Configuration)} not initialized; call \"{nameof(Initialize)}\" method first. ");
 
+    protected internal abstract TextWriter Writer { get; }
+
     internal IReadOnlyCollection<string> ReferencedObjectTypes => _referencedObjectTypes;
+
+    internal IReadOnlyCollection<GraphQlDirective> Directives => _directives.Values;
+
+    public virtual byte Indentation => 0;
 
     public GraphQlSchema Schema { get; }
 
     public GeneratedObjectType ObjectTypes { get; }
 
-    public virtual byte Indentation => 0;
-
-    protected internal abstract TextWriter Writer { get; }
+    public IReadOnlyList<LogMessage> LogMessages => _logMessages;
 
     protected GenerationContext(GraphQlSchema schema, GeneratedObjectType objectTypes)
     {
@@ -40,30 +46,18 @@ public abstract class GenerationContext
         ObjectTypes = objectTypes;
     }
 
-    public bool FilterIfDeprecated(GraphQlEnumValue field) => !field.IsDeprecated || Configuration.IncludeDeprecatedFields;
-
-    private bool FilterIfAllFieldsDeprecated(GraphQlField field)
-    {
-        var fieldType = GraphQlGenerator.UnwrapIfNotNullOrList(field.Type);
-        if (!fieldType.Kind.IsComplex())
-            return true;
-
-        var graphQlType = _complexTypes[fieldType.Name];
-        var nestedTypeFields =
-            graphQlType.Kind is GraphQlTypeKind.Union
-                ? graphQlType.PossibleTypes.Select(t => _complexTypes[t.Name]).SelectMany(t => t.Fields)
-                : graphQlType.Fields;
-
-        return nestedTypeFields.Any(FilterIfDeprecated);
-    }
-
     public void Initialize(GraphQlGeneratorConfiguration configuration)
     {
-        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        _complexTypes = null;
+        _directives.Clear();
+        _logMessages.Clear();
         _nameCollisionMapping.Clear();
         _referencedObjectTypes.Clear();
         _typeFieldCovarianceRequired.Clear();
         _complexTypes = Schema.GetComplexTypes().ToDictionary(t => t.Name);
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+        ResolveDirectives();
         ResolveReferencedObjectTypes();
         ResolveNameCollisions();
         ResolveCovarianceRequiredFields();
@@ -119,6 +113,24 @@ public abstract class GenerationContext
 
     protected internal List<GraphQlField> GetFieldsToGenerate(GraphQlType type) =>
         type.Fields?.Where(FilterIfDeprecated).Where(FilterIfAllFieldsDeprecated).ToList();
+
+    public bool FilterIfDeprecated(GraphQlEnumValue field) => !field.IsDeprecated || Configuration.IncludeDeprecatedFields;
+
+    private bool FilterIfAllFieldsDeprecated(GraphQlField field)
+    {
+        var fieldType = GraphQlGenerator.UnwrapIfNotNullOrList(field.Type);
+        if (!fieldType.Kind.IsComplex())
+            return true;
+
+        var graphQlType = _complexTypes[fieldType.Name];
+        var nestedTypeFields =
+            graphQlType.Kind is GraphQlTypeKind.Union
+                ? graphQlType.PossibleTypes.Select(t => _complexTypes[t.Name]).SelectMany(t => t.Fields)
+                : graphQlType.Fields;
+
+        return nestedTypeFields.Any(FilterIfDeprecated);
+    }
+
 
     protected internal IEnumerable<GraphQlField> GetFragments(GraphQlType type)
     {
@@ -191,6 +203,8 @@ public abstract class GenerationContext
 
     private string AddQuestionMarkIfNullableReferencesEnabled(string dataTypeIdentifier) =>
         GraphQlGenerator.AddQuestionMarkIfNullableReferencesEnabled(Configuration.CSharpVersion, dataTypeIdentifier);
+
+    protected void Log(string message) => _logMessages.Add(new LogMessage { Timestamp = DateTimeOffset.Now, Message = message });
 
     internal bool IsUnknownObjectScalar(GraphQlType baseType, string valueName, GraphQlFieldType fieldType)
     {
@@ -417,10 +431,25 @@ public abstract class GenerationContext
             break;
         }
     }
+
+    private void ResolveDirectives()
+    {
+        foreach (var directive in Schema.Directives)
+            if (_directives.ContainsKey(directive.Name))
+                Log($"duplicate \"{directive.Name}\" directive definition");
+            else
+                _directives[directive.Name] = directive;
+    }
 }
 
 public record struct ObjectGenerationContext
 {
     public GraphQlType GraphQlType { get; set; }
     public string CSharpTypeName { get; set; }
+}
+
+public record struct LogMessage
+{
+    public DateTimeOffset Timestamp { get; set; }
+    public string Message { get; set; }
 }

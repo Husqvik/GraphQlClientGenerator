@@ -1388,7 +1388,7 @@ public class GraphQlGenerator
         var argumentNames = new HashSet<string>(argumentDefinitions.Select(ad => ad.NetParameterName));
         var directiveParameterNames = new List<string>();
 
-        foreach (var directive in context.Schema.Directives.Where(d => d.Locations.Contains(GraphQlDirectiveLocation.Field)))
+        foreach (var directive in context.Directives.Where(d => d.Locations.Contains(GraphQlDirectiveLocation.Field)))
         {
             var csharpDirectiveName = NamingHelper.ToPascalCase(directive.Name);
             var directiveClassName = $"{csharpDirectiveName}Directive";
@@ -1676,13 +1676,13 @@ public class GraphQlGenerator
         if (IsQueryBuilderGenerationDisabled(context.ObjectTypes))
             return;
 
-        var queryBuilderDirectives = context.Schema.Directives.Where(t => SupportedDirectiveLocations.Overlaps(t.Locations)).ToList();
-        if (!queryBuilderDirectives.Any())
+        var directives = context.Directives.Where(t => SupportedDirectiveLocations.Overlaps(t.Locations)).ToList();
+        if (!directives.Any())
             return;
 
         context.BeforeDirectivesGeneration();
 
-        queryBuilderDirectives.ForEach(d => GenerateDirective(context, d));
+        directives.ForEach(d => GenerateDirective(context, d));
 
         context.AfterDirectivesGeneration();
     }
