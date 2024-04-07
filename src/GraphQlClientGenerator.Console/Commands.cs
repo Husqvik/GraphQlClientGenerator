@@ -85,13 +85,13 @@ internal static class Commands
         command.AddValidator(
             option =>
             {
-                var result = option.FindResultFor(regexScalarFieldTypeMappingConfigurationOption);
-                if (result is null)
+                var regexScalarFieldTypeMappingConfigurationFileName = option.FindResultFor(regexScalarFieldTypeMappingConfigurationOption)?.GetValueOrDefault<string>();
+                if (regexScalarFieldTypeMappingConfigurationFileName is null)
                     return;
 
                 try
                 {
-                    RegexScalarFieldTypeMappingProvider.ParseRulesFromJson(File.ReadAllText(result.GetValueOrDefault<string>()));
+                    RegexScalarFieldTypeMappingProvider.ParseRulesFromJson(File.ReadAllText(regexScalarFieldTypeMappingConfigurationFileName));
                 }
                 catch (Exception exception)
                 {

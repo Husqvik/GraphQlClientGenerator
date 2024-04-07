@@ -10,16 +10,16 @@ public class SingleFileGenerationContext : GenerationContext
     private int _queryBuilders;
     private int _dataClasses;
 
-    public override byte Indentation { get; }
+    public override byte IndentationSize { get; }
 
     protected internal override TextWriter Writer { get; }
 
-    public SingleFileGenerationContext(GraphQlSchema schema, TextWriter writer, GeneratedObjectType objectTypes = GeneratedObjectType.All, byte indentationSize = 0)
+    public SingleFileGenerationContext(GraphQlSchema schema, TextWriter writer, GeneratedObjectType objectTypes = GeneratedObjectType.All, byte indentationSizeSize = 0)
         : base(schema, objectTypes)
     {
         Writer = writer ?? throw new ArgumentNullException(nameof(writer));
-        Indentation = indentationSize;
-        _indentation = GraphQlGenerator.GetIndentation(indentationSize);
+        IndentationSize = indentationSizeSize;
+        _indentation = GraphQlGenerator.GetIndentation(indentationSizeSize);
     }
 
     public override void BeforeGeneration() => _enums = _directives = _queryBuilders = _dataClasses = 0;

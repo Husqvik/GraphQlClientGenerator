@@ -32,8 +32,6 @@ public class MultipleFileGenerationContext : GenerationContext
 
         """;
 
-    private readonly List<CodeFileInfo> _files = new();
-
     private readonly ICodeFileEmitter _codeFileEmitter;
     private readonly string _namespace;
     private readonly string _projectFileName;
@@ -42,9 +40,7 @@ public class MultipleFileGenerationContext : GenerationContext
 
     protected internal override TextWriter Writer => _currentFile.Writer;
 
-    public override byte Indentation => (byte)(Configuration.FileScopedNamespaces ? 0 : 4);
-
-    public IReadOnlyCollection<CodeFileInfo> Files => _files;
+    public override byte IndentationSize => (byte)(Configuration.FileScopedNamespaces ? 0 : 4);
 
     public MultipleFileGenerationContext(
         GraphQlSchema schema,
@@ -66,7 +62,9 @@ public class MultipleFileGenerationContext : GenerationContext
         _projectFileName = projectFileName;
     }
 
-    public override void BeforeGeneration() => _files.Clear();
+    public override void BeforeGeneration()
+    {
+    }
 
     public override void BeforeBaseClassGeneration() => InitializeNewSourceCodeFile("BaseClasses", GraphQlGenerator.RequiredNamespaces);
 
@@ -141,7 +139,7 @@ public class MultipleFileGenerationContext : GenerationContext
 
         var projectFile = _codeFileEmitter.CreateFile(_projectFileName);
         projectFile.Writer.Write(ProjectTemplate);
-        _files.Add(_codeFileEmitter.CollectFileInfo(projectFile));
+        LogFileCreation(_codeFileEmitter.CollectFileInfo(projectFile));
     }
 
     private void InitializeNewSourceCodeFile(string memberName, string requiredNamespaces = RequiredNamespaces)
@@ -174,10 +172,13 @@ public class MultipleFileGenerationContext : GenerationContext
     private void CollectCurrentFile()
     {
         if (_currentFile is not null)
-            _files.Add(_codeFileEmitter.CollectFileInfo(_currentFile));
+            LogFileCreation(_codeFileEmitter.CollectFileInfo(_currentFile));
 
         _currentFile = null;
     }
+
+    private void LogFileCreation(CodeFileInfo fileInfo) =>
+        Log($"File {fileInfo.FileName} generated successfully ({fileInfo.Length:N0} B). ");
 }
 
 public class FileSystemEmitter : ICodeFileEmitter

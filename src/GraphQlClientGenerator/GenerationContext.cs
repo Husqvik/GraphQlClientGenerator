@@ -31,13 +31,13 @@ public abstract class GenerationContext
     internal ILookup<string, string> TypeUnionMembership =>
         _typeUnionMembership ?? throw NotInitializedException(nameof(TypeUnionMembership));
 
-    public virtual byte Indentation => 0;
+    public virtual byte IndentationSize => 0;
 
     public GraphQlSchema Schema { get; }
 
     public GeneratedObjectType ObjectTypes { get; }
 
-    public Action<string> LogMessage { get; set; }
+    public Action<string> LogMessage { private get; set; }
 
     protected GenerationContext(GraphQlSchema schema, GeneratedObjectType objectTypes)
     {
@@ -468,7 +468,9 @@ public abstract class GenerationContext
                 _directives[directive.Name] = directive;
     }
 
-    private void Warn(string message) => LogMessage?.Invoke($"WARNING: {message}");
+    protected void Warn(string message) => LogMessage?.Invoke($"WARNING: {message}");
+
+    protected void Log(string message) => LogMessage?.Invoke(message);
 
     private static InvalidOperationException NotInitializedException(string propertyName) =>
         new($"\"{propertyName}\" not initialized; call \"{nameof(Initialize)}\" method first. ");

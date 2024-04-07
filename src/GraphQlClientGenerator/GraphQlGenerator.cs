@@ -139,13 +139,13 @@ public class GraphQlGenerator
         {
             writer.WriteLine(";");
             writer.WriteLine();
-            Generate(new SingleFileGenerationContext(schema, writer, indentationSize: 0) { LogMessage = logMessage });
+            Generate(new SingleFileGenerationContext(schema, writer, indentationSizeSize: 0) { LogMessage = logMessage });
         }
         else
         {
             writer.WriteLine();
             writer.WriteLine("{");
-            Generate(new SingleFileGenerationContext(schema, writer, indentationSize: 4) { LogMessage = logMessage });
+            Generate(new SingleFileGenerationContext(schema, writer, indentationSizeSize: 4) { LogMessage = logMessage });
             writer.WriteLine("}");
         }
 
@@ -186,7 +186,7 @@ public class GraphQlGenerator
     {
         context.BeforeGraphQlTypeNameGeneration();
 
-        var indentation = GetIndentation(context.Indentation);
+        var indentation = GetIndentation(context.IndentationSize);
         var writer = context.Writer;
         writer.Write(indentation);
         writer.WriteLine("public static class GraphQlTypes");
@@ -314,7 +314,7 @@ public class GraphQlGenerator
 
         context.BeforeBaseClassGeneration();
 
-        var indentation = GetIndentation(context.Indentation);
+        var indentation = GetIndentation(context.IndentationSize);
         const string resourceName = "GraphQlClientGenerator.BaseClasses.cs";
         var baseClassesStream = typeof(GraphQlGenerator).GetTypeInfo().Assembly.GetManifestResourceStream(resourceName);
         using var reader = new StreamReader(baseClassesStream ?? throw new InvalidOperationException($"\"{resourceName}\" resource not found"));
@@ -472,7 +472,7 @@ public class GraphQlGenerator
         var generateBackingFields = _configuration.PropertyGeneration == PropertyGenerationOption.BackingField && !isInterfaceMember;
         if (generateBackingFields)
         {
-            var indentation = GetIndentation(context.Indentation);
+            var indentation = GetIndentation(context.IndentationSize);
 
             foreach (var fieldInfo in fieldsToGenerate)
             {
@@ -525,7 +525,7 @@ public class GraphQlGenerator
     private void GenerateInputDataClassBody(ObjectGenerationContext objectContext, IEnumerable<IGraphQlMember> members, GenerationContext context)
     {
         var writer = context.Writer;
-        var indentation = GetIndentation(context.Indentation);
+        var indentation = GetIndentation(context.IndentationSize);
         var propertyContexts = new Dictionary<string, DataPropertyContext>();
 
         foreach (var member in members)
@@ -644,9 +644,9 @@ public class GraphQlGenerator
 
         var writer = context.Writer;
 
-        GenerateCodeComments(writer, graphQlType.Description, context.Indentation);
+        GenerateCodeComments(writer, graphQlType.Description, context.IndentationSize);
 
-        var indentation = GetIndentation(context.Indentation);
+        var indentation = GetIndentation(context.IndentationSize);
 
         if (graphQlType.Kind != GraphQlTypeKind.Interface && interfaces.Any(i => i != InputObjectInterfaceTypeName))
         {
@@ -713,9 +713,9 @@ public class GraphQlGenerator
 
         var writer = context.Writer;
 
-        GenerateCodeComments(writer, member.Description, context.Indentation + 4);
+        GenerateCodeComments(writer, member.Description, context.IndentationSize + 4);
 
-        var indentation = GetIndentation(context.Indentation);
+        var indentation = GetIndentation(context.IndentationSize);
 
         if (propertyContext.IsDeprecated)
             WriteObsoleteAttribute(writer, propertyContext.DeprecationReason, indentation);
@@ -860,16 +860,18 @@ public class GraphQlGenerator
 
         CSharpHelper.ValidateClassName(className);
 
-        context.BeforeQueryBuilderGeneration(
+        var objectGenerationContext =
             new ObjectGenerationContext
             {
                 GraphQlType = graphQlType,
                 CSharpTypeName = className
-            });
+            };
+
+        context.BeforeQueryBuilderGeneration(objectGenerationContext);
 
         var useCompatibleSyntax = _configuration.CSharpVersion is CSharpVersion.Compatible;
         var writer = context.Writer;
-        var indentation = GetIndentation(context.Indentation);
+        var indentation = GetIndentation(context.IndentationSize);
         writer.Write(indentation);
         writer.Write(GetMemberAccessibility());
         writer.Write(' ');
@@ -1261,12 +1263,7 @@ public class GraphQlGenerator
         writer.Write(indentation);
         writer.WriteLine("}");
 
-        context.AfterQueryBuilderGeneration(
-            new ObjectGenerationContext
-            {
-                GraphQlType = graphQlType,
-                CSharpTypeName = className
-            });
+        context.AfterQueryBuilderGeneration(objectGenerationContext);
 
         return;
 
@@ -1576,17 +1573,19 @@ public class GraphQlGenerator
     {
         var enumName = context.GetFullyQualifiedNetTypeName(NamingHelper.ToPascalCase(graphQlType.Name), graphQlType.Kind);
 
-        context.BeforeEnumGeneration(
+        var objectGenerationContext =
             new ObjectGenerationContext
             {
                 GraphQlType = graphQlType,
                 CSharpTypeName = enumName
-            });
+            };
+
+        context.BeforeEnumGeneration(objectGenerationContext);
 
         var writer = context.Writer;
 
-        GenerateCodeComments(writer, graphQlType.Description, context.Indentation);
-        var indentation = GetIndentation(context.Indentation);
+        GenerateCodeComments(writer, graphQlType.Description, context.IndentationSize);
+        var indentation = GetIndentation(context.IndentationSize);
         writer.Write(indentation);
         writer.Write("public enum ");
         writer.WriteLine(enumName);
@@ -1607,7 +1606,7 @@ public class GraphQlGenerator
         {
             foreach (var enumValue in nameValues)
             {
-                GenerateCodeComments(writer, enumValue.Description, context.Indentation + 4);
+                GenerateCodeComments(writer, enumValue.Description, context.IndentationSize + 4);
 
                 if (enumValue.IsDeprecated)
                     WriteObsoleteAttribute(writer, enumValue.DeprecationReason, indentation);
@@ -1637,12 +1636,7 @@ public class GraphQlGenerator
         writer.Write(indentation);
         writer.WriteLine("}");
 
-        context.AfterEnumGeneration(
-            new ObjectGenerationContext
-            {
-                GraphQlType = graphQlType,
-                CSharpTypeName = enumName
-            });
+        context.AfterEnumGeneration(objectGenerationContext);
     }
 
     private void WriteReSharperInconsistentNamingDirective(TextWriter writer, string directiveValue, string indentation)
@@ -1689,7 +1683,7 @@ public class GraphQlGenerator
 
         var writer = context.Writer;
 
-        GenerateCodeComments(writer, directive.Description, context.Indentation);
+        GenerateCodeComments(writer, directive.Description, context.IndentationSize);
 
         var orderedArgumentDefinitions =
             ResolveParameterDefinitions(
@@ -1699,7 +1693,7 @@ public class GraphQlGenerator
 
         var argumentList = String.Join(", ", orderedArgumentDefinitions.Select(d => d.NetParameterDefinitionClause));
 
-        var indentation = GetIndentation(context.Indentation);
+        var indentation = GetIndentation(context.IndentationSize);
         writer.Write(indentation);
         writer.Write("public class ");
         writer.Write(directiveName);
