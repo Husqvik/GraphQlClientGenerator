@@ -35,7 +35,7 @@ public static class KeyValueParameterParser
 
         foreach (var parameter in sourceParameters ?? Enumerable.Empty<string>())
         {
-            var parts = parameter.Split(new[] { ':' }, 2);
+            var parts = parameter.Split([':'], 2);
             if (parts.Length != 2)
             {
                 errorMessage = "\"header\" value must have format {Header}:{Value}. ";

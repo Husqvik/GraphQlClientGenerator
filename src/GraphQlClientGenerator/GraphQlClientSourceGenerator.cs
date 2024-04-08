@@ -40,14 +40,16 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
             context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("ServiceUrl"), out var serviceUrl);
             var isServiceUrlMissing = String.IsNullOrWhiteSpace(serviceUrl);
             var graphQlSchemaFiles = context.AdditionalFiles.Where(f => Path.GetFileName(f.Path).EndsWith(".gql.schema.json", StringComparison.OrdinalIgnoreCase)).ToList();
-            var regexScalarFieldTypeMappingProviderConfigurationFile =
-                context.AdditionalFiles.SingleOrDefault(f => String.Equals(Path.GetFileName(f.Path), FileNameRegexScalarFieldTypeMappingProviderConfiguration, StringComparison.OrdinalIgnoreCase));
+            var regexScalarFieldTypeMappingProviderConfigurationJson =
+                context.AdditionalFiles
+                    .SingleOrDefault(f => String.Equals(Path.GetFileName(f.Path), FileNameRegexScalarFieldTypeMappingProviderConfiguration, StringComparison.OrdinalIgnoreCase))
+                    ?.GetText()
+                    ?.ToString();
 
-            ICollection<RegexScalarFieldTypeMappingRule> regexScalarFieldTypeMappingProviderRules = null;
-
-            if (regexScalarFieldTypeMappingProviderConfigurationFile is not null)
-                regexScalarFieldTypeMappingProviderRules =
-                    RegexScalarFieldTypeMappingProvider.ParseRulesFromJson(regexScalarFieldTypeMappingProviderConfigurationFile.GetText().ToString());
+            var regexScalarFieldTypeMappingProviderRules =
+                regexScalarFieldTypeMappingProviderConfigurationJson is not null
+                    ? RegexScalarFieldTypeMappingProvider.ParseRulesFromJson(regexScalarFieldTypeMappingProviderConfigurationJson)
+                    : null;
 
             var isSchemaFileSpecified = graphQlSchemaFiles.Any();
             if (isServiceUrlMissing && !isSchemaFileSpecified)
@@ -164,7 +166,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
             currentParameterName = "CustomClassMapping";
             context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(currentParameterName), out var customClassMappingRaw);
             if (!KeyValueParameterParser.TryGetCustomClassMapping(
-                    customClassMappingRaw?.Split(new[] { '|', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries),
+                    customClassMappingRaw?.Split(['|', ';', ' '], StringSplitOptions.RemoveEmptyEntries),
                     out var customMapping,
                     out var customMappingParsingErrorMessage))
             {
@@ -178,7 +180,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
             currentParameterName = "Headers";
             context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(currentParameterName), out var headersRaw);
             if (!KeyValueParameterParser.TryGetCustomHeaders(
-                    headersRaw?.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries),
+                    headersRaw?.Split(['|'], StringSplitOptions.RemoveEmptyEntries),
                     out var headers,
                     out var headerParsingErrorMessage))
             {
