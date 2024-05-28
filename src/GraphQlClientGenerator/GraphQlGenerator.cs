@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
@@ -36,8 +37,11 @@ public class GraphQlGenerator
 
     private delegate void WriteDataClassPropertyBodyDelegate(ScalarFieldTypeDescription netType, string backingFieldName);
 
+    public static HttpClientHandler CreateDefaultHttpClientHandler() =>
+        new() { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
+
     private static HttpClient CreateHttpClient(HttpMessageHandler messageHandler = null) =>
-        new(messageHandler ?? new HttpClientHandler())
+        new(messageHandler ?? CreateDefaultHttpClientHandler())
         {
             DefaultRequestHeaders =
             {

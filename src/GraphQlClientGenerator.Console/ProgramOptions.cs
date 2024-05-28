@@ -5,6 +5,7 @@ public class ProgramOptions
     public string OutputPath { get; set; }
     public string Namespace { get; set; }
     public bool FileScopedNamespaces { get; set; }
+    public bool IgnoreServiceUrlCertificateErrors { get; set; }
     public string ServiceUrl { get; set; }
     public string SchemaFileName { get; set; }
     public string HttpMethod { get; set; }

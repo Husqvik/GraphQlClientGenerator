@@ -34,7 +34,11 @@ internal static class GraphQlCSharpFileHelper
             if (!KeyValueParameterParser.TryGetCustomHeaders(options.Header, out var headers, out var headerParsingErrorMessage))
                 throw new InvalidOperationException(headerParsingErrorMessage);
 
-            schema = await GraphQlGenerator.RetrieveSchema(new HttpMethod(options.HttpMethod), options.ServiceUrl, headers);
+            using var httpClientHandler = GraphQlGenerator.CreateDefaultHttpClientHandler();
+            if (options.IgnoreServiceUrlCertificateErrors)
+                httpClientHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+
+            schema = await GraphQlGenerator.RetrieveSchema(new HttpMethod(options.HttpMethod), options.ServiceUrl, headers, httpClientHandler);
             console.WriteLine($"GraphQL Schema retrieved from {options.ServiceUrl}. ");
         }
             

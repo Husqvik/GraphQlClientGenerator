@@ -12,6 +12,7 @@
       <![CDATA[
       Fixed missing GraphQlObjectType attribute generation when UNION subtype does not implement any GraphQL interface
       Expose --codeDocumentationType parameter
+      Introduced --ignoreServiceUrlCertificateErrors parameter
       ]]>
     </PackageReleaseNotes>
     <PackAsTool>true</PackAsTool>

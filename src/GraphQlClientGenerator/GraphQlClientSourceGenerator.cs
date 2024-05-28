@@ -227,7 +227,17 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
             }
             else
             {
-                graphQlSchemas.Add((FileNameGraphQlClientSource, GraphQlGenerator.RetrieveSchema(new HttpMethod(httpMethod), serviceUrl, headers).GetAwaiter().GetResult()));
+                using var httpClientHandler = GraphQlGenerator.CreateDefaultHttpClientHandler();
+                currentParameterName = "IgnoreServiceUrlCertificateErrors";
+                var ignoreServiceUrlCertificateErrors =
+                    context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(currentParameterName), out var ignoreServiceUrlCertificateErrorsRaw) &&
+                    !String.IsNullOrWhiteSpace(ignoreServiceUrlCertificateErrorsRaw) && Convert.ToBoolean(ignoreServiceUrlCertificateErrorsRaw);
+
+                if (ignoreServiceUrlCertificateErrors)
+                    httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
+
+                var graphQlSchema = GraphQlGenerator.RetrieveSchema(new HttpMethod(httpMethod), serviceUrl, headers, httpClientHandler).GetAwaiter().GetResult();
+                graphQlSchemas.Add((FileNameGraphQlClientSource, graphQlSchema));
                 context.ReportDiagnostic(
                     Diagnostic.Create(
                         DescriptorInfo,
