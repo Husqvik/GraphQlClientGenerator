@@ -821,7 +821,8 @@ public abstract partial class GraphQlQueryBuilder : IGraphQlQueryBuilder
                         queryBuilder,
                         new object[] { InitializeChildQueryBuilder(builderType, includeFragmentMethod.GetParameters()[0].ParameterType, level, parentTypeLevel) });
 
-                IncludeObjectField(field.Name, field.DefaultAlias, queryBuilder, null, null);
+                if (queryBuilder._fieldCriteria.Count > 0 || queryBuilder._fragments != null)
+                    IncludeObjectField(field.Name, field.DefaultAlias, queryBuilder, null, null);
             }
         }
     }
