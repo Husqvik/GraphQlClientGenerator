@@ -10,6 +10,26 @@
       "subscriptionType": null,
       "types": [
         {
+          "fields": [
+            {
+              "args": [],
+              "type": {
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "UUID"
+                },
+                "kind": "NON_NULL"
+              },
+              "isDeprecated": false,
+              "name": "id",
+              "description": null
+            }
+          ],
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "Type"
+        },
+        {
           "kind": "SCALAR",
           "name": "DateTimeOffset",
           "description": null,

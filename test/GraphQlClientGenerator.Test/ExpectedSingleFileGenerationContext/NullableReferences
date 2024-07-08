@@ -85,8 +85,8 @@ public static class GraphQlTypes
     public const string AppStateMutation = "AppStateMutation";
     public const string HomeProfileQuestionAnswer = "HomeProfileQuestionAnswer";
 
-    public static readonly IReadOnlyDictionary<Type, string> ReverseMapping =
-        new Dictionary<Type, string>
+    public static readonly IReadOnlyDictionary<global::System.Type, string> ReverseMapping =
+        new Dictionary<global::System.Type, string>
         {
             { typeof(string), "String" },
             { typeof(decimal), "Float" },

@@ -4,7 +4,7 @@
     public string DefaultAlias { get; set; }
     public bool IsComplex { get; set; }
     public bool RequiresParameters { get; set; }
-    public Type QueryBuilderType { get; set; }
+    public global::System.Type QueryBuilderType { get; set; }
 }
 
 public enum Formatting
@@ -23,7 +23,7 @@ public class GraphQlObjectTypeAttribute : global::System.Attribute
 #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
 public class QueryBuilderParameterConverter<T> : global::Newtonsoft.Json.JsonConverter
 {
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    public override object ReadJson(JsonReader reader, global::System.Type objectType, object existingValue, JsonSerializer serializer)
     {
         switch (reader.TokenType)
         {
@@ -43,22 +43,22 @@ public class QueryBuilderParameterConverter<T> : global::Newtonsoft.Json.JsonCon
             serializer.Serialize(writer, ((QueryBuilderParameter<T>)value).Value, typeof(T));
     }
 
-    public override bool CanConvert(Type objectType) => objectType.IsSubclassOf(typeof(QueryBuilderParameter));
+    public override bool CanConvert(global::System.Type objectType) => objectType.IsSubclassOf(typeof(QueryBuilderParameter));
 }
 
 public class GraphQlInterfaceJsonConverter : global::Newtonsoft.Json.JsonConverter
 {
     private const string FieldNameType = "__typename";
 
-    private static readonly Dictionary<string, Type> InterfaceTypeMapping =
+    private static readonly Dictionary<string, global::System.Type> InterfaceTypeMapping =
         typeof(GraphQlInterfaceJsonConverter).Assembly.GetTypes()
             .Select(t => new { Type = t, Attribute = t.GetCustomAttribute<GraphQlObjectTypeAttribute>() })
             .Where(x => x.Attribute != null && x.Type.Namespace == typeof(GraphQlInterfaceJsonConverter).Namespace)
             .ToDictionary(x => x.Attribute.TypeName, x => x.Type);
 
-    public override bool CanConvert(Type objectType) => objectType.IsInterface || objectType.IsArray;
+    public override bool CanConvert(global::System.Type objectType) => objectType.IsInterface || objectType.IsArray;
 
-    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    public override object ReadJson(JsonReader reader, global::System.Type objectType, object existingValue, JsonSerializer serializer)
     {
         while (reader.TokenType == JsonToken.Comment)
             reader.Read();
@@ -115,10 +115,10 @@ public class GraphQlInterfaceJsonConverter : global::Newtonsoft.Json.JsonConvert
         return new JsonReaderException(message);
     }
 
-    private static Type GetElementType(Type arrayOrGenericContainer) =>
+    private static global::System.Type GetElementType(global::System.Type arrayOrGenericContainer) =>
         arrayOrGenericContainer.IsArray ? arrayOrGenericContainer.GetElementType() : arrayOrGenericContainer.GenericTypeArguments.FirstOrDefault();
 
-    private IList ReadArray(JsonReader reader, Type targetType, Type elementType, JsonSerializer serializer)
+    private IList ReadArray(JsonReader reader, global::System.Type targetType, global::System.Type elementType, JsonSerializer serializer)
     {
         var list = CreateCompatibleList(targetType, elementType);
         while (reader.Read() && reader.TokenType != JsonToken.EndArray)
@@ -132,7 +132,7 @@ public class GraphQlInterfaceJsonConverter : global::Newtonsoft.Json.JsonConvert
         return array;
     }
 
-    private static IList CreateCompatibleList(Type targetContainerType, Type elementType) =>
+    private static IList CreateCompatibleList(global::System.Type targetContainerType, global::System.Type elementType) =>
         (IList)Activator.CreateInstance(targetContainerType.IsArray || targetContainerType.IsAbstract ? typeof(List<>).MakeGenericType(elementType) : targetContainerType);
 }
 #endif
@@ -532,7 +532,7 @@ public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
     {
     }
 
-    private static string GetGraphQlTypeName(Type valueType, bool isNullable)
+    private static string GetGraphQlTypeName(global::System.Type valueType, bool isNullable)
     {
         var graphQlTypeName = GetGraphQlTypeName(valueType);
         if (!isNullable)
@@ -541,7 +541,7 @@ public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
         return graphQlTypeName;
     }
 
-    private static string GetGraphQlTypeName(Type valueType)
+    private static string GetGraphQlTypeName(global::System.Type valueType)
     {
         var nullableUnderlyingType = Nullable.GetUnderlyingType(valueType);
         valueType = nullableUnderlyingType ?? valueType;
@@ -573,7 +573,7 @@ public class GraphQlQueryParameter<T> : QueryBuilderParameter<T>
         return graphQlTypeName == null ? null : graphQlTypeName + nullableSuffix;
     }
 
-    private static string GetValueTypeGraphQlTypeName(Type valueType)
+    private static string GetValueTypeGraphQlTypeName(global::System.Type valueType)
     {
         if (valueType == typeof(bool))
             return "Boolean";
@@ -788,12 +788,12 @@ public abstract partial class GraphQlQueryBuilder : IGraphQlQueryBuilder
 
     protected void IncludeFields(IEnumerable<GraphQlFieldMetadata> fields)
     {
-        IncludeFields(fields, 0, new Dictionary<Type, int>());
+        IncludeFields(fields, 0, new Dictionary<global::System.Type, int>());
     }
 
-    private void IncludeFields(IEnumerable<GraphQlFieldMetadata> fields, int level, Dictionary<Type, int> parentTypeLevel)
+    private void IncludeFields(IEnumerable<GraphQlFieldMetadata> fields, int level, Dictionary<global::System.Type, int> parentTypeLevel)
     {
-        Type builderType = null;
+        global::System.Type builderType = null;
 
         foreach (var field in fields)
         {
@@ -827,7 +827,7 @@ public abstract partial class GraphQlQueryBuilder : IGraphQlQueryBuilder
         }
     }
 
-    private static GraphQlQueryBuilder InitializeChildQueryBuilder(Type parentQueryBuilderType, Type queryBuilderType, int level, Dictionary<Type, int> parentTypeLevel)
+    private static GraphQlQueryBuilder InitializeChildQueryBuilder(global::System.Type parentQueryBuilderType, global::System.Type queryBuilderType, int level, Dictionary<global::System.Type, int> parentTypeLevel)
     {
         var queryBuilder = (GraphQlQueryBuilder)Activator.CreateInstance(queryBuilderType);
         queryBuilder.IncludeFields(

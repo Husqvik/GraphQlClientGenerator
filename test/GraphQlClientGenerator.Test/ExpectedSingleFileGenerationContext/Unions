@@ -20,6 +20,7 @@ public static class GraphQlTypes
     public const string Mutation = "Mutation";
     public const string Query = "Query";
     public const string SimpleObjectType = "SimpleObjectType";
+    public const string Type = "Type";
     public const string TypeWithOnlyDeprecatedFields = "TypeWithOnlyDeprecatedFields";
     public const string UnderscoreNamedClass = "underscore_named_class";
     public const string ValueAccessorObject = "ValueAccessorObject";
@@ -37,8 +38,8 @@ public static class GraphQlTypes
     public const string WithOnlyDeprecatedFields = "WithOnlyDeprecatedFields";
     public const string WithValueAccessor = "WithValueAccessor";
 
-    public static readonly IReadOnlyDictionary<Type, string> ReverseMapping =
-        new Dictionary<Type, string>
+    public static readonly IReadOnlyDictionary<global::System.Type, string> ReverseMapping =
+        new Dictionary<global::System.Type, string>
         {
             { typeof(string), "String" },
             { typeof(Guid), "ID" },
@@ -88,6 +89,22 @@ public class CustomDirectiveDirective : GraphQlDirective
 #endregion
 
 #region builder classes
+public partial class TypeQueryBuilder : GraphQlQueryBuilder<TypeQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+    {
+        new GraphQlFieldMetadata { Name = "id", DefaultAlias = "Id", IsComplex = true }
+    };
+
+    protected override string TypeName { get; } = "Type";
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public TypeQueryBuilder WithId(string? alias = "Id", IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithScalarField("id", alias, new GraphQlDirective?[] { include, skip, customDirective });
+
+    public TypeQueryBuilder ExceptId() => ExceptField("id");
+}
+
 public partial class SimpleObjectTypeQueryBuilder : GraphQlQueryBuilder<SimpleObjectTypeQueryBuilder>
 {
     private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
@@ -814,6 +831,11 @@ public partial class Collision3 : IGraphQlInputObject
 #endregion
 
 #region data classes
+public partial class Type
+{
+    public object? Id { get; set; }
+}
+
 public partial class SimpleObjectType
 {
     public Guid? Id { get; set; }

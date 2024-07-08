@@ -216,9 +216,9 @@ public class GraphQlGenerator
 
         writer.WriteLine();
         writer.Write(indentation);
-        writer.WriteLine("    public static readonly IReadOnlyDictionary<Type, string> ReverseMapping =");
+        writer.WriteLine("    public static readonly IReadOnlyDictionary<global::System.Type, string> ReverseMapping =");
         writer.Write(indentation);
-        writer.WriteLine("        new Dictionary<Type, string>");
+        writer.WriteLine("        new Dictionary<global::System.Type, string>");
         writer.Write(indentation);
         writer.WriteLine("        {");
 
