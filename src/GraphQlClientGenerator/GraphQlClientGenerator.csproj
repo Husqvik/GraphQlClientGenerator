@@ -10,7 +10,7 @@
     <PackageTags>GraphQL Client Generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-      Fixed missing GraphQlObjectType attribute generation when UNION subtype does not implement any GraphQL interface
+      Use global:: identifier for System.Type to avoid conflict with GraphQL type named "Type"
       ]]>
     </PackageReleaseNotes>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
