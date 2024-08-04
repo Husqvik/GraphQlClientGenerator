@@ -113,12 +113,10 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
                         ? CSharpVersion.Newest
                         : CSharpVersion.NewestWithNullableReferences;
 
-            var currentParameterName = "IncludeDeprecatedFields";
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(currentParameterName), out var includeDeprecatedFieldsRaw);
+            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("IncludeDeprecatedFields"), out var includeDeprecatedFieldsRaw);
             configuration.IncludeDeprecatedFields = !String.IsNullOrWhiteSpace(includeDeprecatedFieldsRaw) && Convert.ToBoolean(includeDeprecatedFieldsRaw);
 
-            currentParameterName = "HttpMethod";
-            if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(currentParameterName), out var httpMethod))
+            if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("HttpMethod"), out var httpMethod))
                 httpMethod = "POST";
 
             SetConfigurationEnumValue(context, "CodeDocumentationType", CodeDocumentationType.XmlSummary, v => configuration.CodeDocumentationType = v);
@@ -132,8 +130,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
             var outputType = OutputType.SingleFile;
             SetConfigurationEnumValue(context, "OutputType", OutputType.SingleFile, v => outputType = v);
 
-            currentParameterName = "CustomClassMapping";
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(currentParameterName), out var customClassMappingRaw);
+            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("CustomClassMapping"), out var customClassMappingRaw);
             if (!KeyValueParameterParser.TryGetCustomClassMapping(
                     customClassMappingRaw?.Split(['|', ';', ' '], StringSplitOptions.RemoveEmptyEntries),
                     out var customMapping,
@@ -146,8 +143,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
             foreach (var kvp in customMapping)
                 configuration.CustomClassNameMapping.Add(kvp);
 
-            currentParameterName = "Headers";
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(currentParameterName), out var headersRaw);
+            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("Headers"), out var headersRaw);
             if (!KeyValueParameterParser.TryGetCustomHeaders(
                     headersRaw?.Split(['|'], StringSplitOptions.RemoveEmptyEntries),
                     out var headers,
@@ -157,8 +153,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
                 return;
             }
 
-            currentParameterName = "ScalarFieldTypeMappingProvider";
-            if (context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(currentParameterName), out var scalarFieldTypeMappingProviderName))
+            if (context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("ScalarFieldTypeMappingProvider"), out var scalarFieldTypeMappingProviderName))
             {
                 if (regexScalarFieldTypeMappingProviderRules is not null)
                 {
@@ -197,9 +192,8 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
             else
             {
                 using var httpClientHandler = GraphQlGenerator.CreateDefaultHttpClientHandler();
-                currentParameterName = "IgnoreServiceUrlCertificateErrors";
                 var ignoreServiceUrlCertificateErrors =
-                    context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(currentParameterName), out var ignoreServiceUrlCertificateErrorsRaw) &&
+                    context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("IgnoreServiceUrlCertificateErrors"), out var ignoreServiceUrlCertificateErrorsRaw) &&
                     !String.IsNullOrWhiteSpace(ignoreServiceUrlCertificateErrorsRaw) && Convert.ToBoolean(ignoreServiceUrlCertificateErrorsRaw);
 
                 if (ignoreServiceUrlCertificateErrors)
@@ -214,8 +208,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
                         $"GraphQl schema fetched successfully from {serviceUrl}"));
             }
 
-            currentParameterName = "FileScopedNamespaces";
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(currentParameterName), out var fileScopedNamespacesRaw);
+            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("FileScopedNamespaces"), out var fileScopedNamespacesRaw);
             configuration.FileScopedNamespaces = !String.IsNullOrWhiteSpace(fileScopedNamespacesRaw) && Convert.ToBoolean(fileScopedNamespacesRaw);
 
             var generator = new GraphQlGenerator(configuration);
