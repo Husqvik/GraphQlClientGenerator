@@ -163,6 +163,13 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
                     ? EnumValueNamingOption.CSharp
                     : (EnumValueNamingOption)Enum.Parse(typeof(EnumValueNamingOption), enumValueNamingRaw, true);
 
+            currentParameterName = "DataClassMemberNullability";
+            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(currentParameterName), out var dataClassMemberNullabilityRaw);
+            configuration.DataClassMemberNullability =
+                String.IsNullOrWhiteSpace(dataClassMemberNullabilityRaw)
+                    ? DataClassMemberNullability.AlwaysNullable
+                    : (DataClassMemberNullability)Enum.Parse(typeof(DataClassMemberNullability), dataClassMemberNullabilityRaw, true);
+
             currentParameterName = "CustomClassMapping";
             context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(currentParameterName), out var customClassMappingRaw);
             if (!KeyValueParameterParser.TryGetCustomClassMapping(

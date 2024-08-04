@@ -2540,11 +2540,11 @@ namespace SourceGeneratorTestAssembly
 
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("reading")]
-        [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+        [JsonConverter(typeof(QueryBuilderParameterConverter<int>))]
         #endif
-        public QueryBuilderParameter<int?> Reading
+        public QueryBuilderParameter<int> Reading
         {
-            get => (QueryBuilderParameter<int?>)_reading.Value;
+            get => (QueryBuilderParameter<int>)_reading.Value;
             set => _reading = new InputPropertyInfo { Name = "reading", Value = value };
         }
 
@@ -3258,7 +3258,7 @@ namespace SourceGeneratorTestAssembly
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("count")]
         #endif
-        public int? Count { get; set; }
+        public int Count { get; set; }
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("precision")]
         #endif
@@ -3408,7 +3408,7 @@ namespace SourceGeneratorTestAssembly
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("filtered")]
         #endif
-        public int? Filtered { get; set; }
+        public int Filtered { get; set; }
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("unimplementedField")]
         #endif
@@ -3568,7 +3568,7 @@ namespace SourceGeneratorTestAssembly
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("filtered")]
         #endif
-        public int? Filtered { get; set; }
+        public int Filtered { get; set; }
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("unimplementedField")]
         #endif
@@ -3686,7 +3686,7 @@ namespace SourceGeneratorTestAssembly
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("reading")]
         #endif
-        public int? Reading { get; set; }
+        public int Reading { get; set; }
     }
 
     public partial class SourceGeneratedPushNotificationResponseV2
@@ -3694,11 +3694,11 @@ namespace SourceGeneratorTestAssembly
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("successful")]
         #endif
-        public bool? Successful { get; set; }
+        public bool Successful { get; set; }
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("pushedToNumberOfDevices")]
         #endif
-        public int? PushedToNumberOfDevices { get; set; }
+        public int PushedToNumberOfDevices { get; set; }
     }
 
     public partial class SourceGeneratedRootSubscriptionV2
@@ -3727,7 +3727,7 @@ namespace SourceGeneratorTestAssembly
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("power")]
         #endif
-        public double? Power { get; set; }
+        public double Power { get; set; }
         /// <summary>
         /// Last meter active import register state (kWh)
         /// </summary>
@@ -3741,14 +3741,14 @@ namespace SourceGeneratorTestAssembly
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("accumulatedConsumption")]
         #endif
-        public double? AccumulatedConsumption { get; set; }
+        public double AccumulatedConsumption { get; set; }
         /// <summary>
         /// net kWh produced since midnight
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("accumulatedProduction")]
         #endif
-        public double? AccumulatedProduction { get; set; }
+        public double AccumulatedProduction { get; set; }
         /// <summary>
         /// Accumulated cost since midnight; requires active Tibber power deal
         /// </summary>
@@ -3776,21 +3776,21 @@ namespace SourceGeneratorTestAssembly
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("minPower")]
         #endif
-        public double? MinPower { get; set; }
+        public double MinPower { get; set; }
         /// <summary>
         /// Average consumption since midnight (Watt)
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("averagePower")]
         #endif
-        public double? AveragePower { get; set; }
+        public double AveragePower { get; set; }
         /// <summary>
         /// Peak consumption since midnight  (Watt)
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("maxPower")]
         #endif
-        public double? MaxPower { get; set; }
+        public double MaxPower { get; set; }
         /// <summary>
         /// Net production at the moment (Watt)
         /// </summary>

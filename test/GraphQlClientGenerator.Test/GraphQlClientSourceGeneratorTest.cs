@@ -52,7 +52,10 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
     [Fact]
     public Task SourceGenerationWithRegexCustomScalarFieldTypeMappingProvider()
     {
-        var generatedSource = GenerateSource(SetupGeneratorOptions(OutputType.SingleFile, false, null), _fileMappingRules);
+        var options = SetupGeneratorOptions(OutputType.SingleFile, false, null);
+        options.Add("build_property.GraphQlClientGenerator_DataClassMemberNullability", nameof(DataClassMemberNullability.DefinedBySchema));
+
+        var generatedSource = GenerateSource(options, _fileMappingRules);
         var sourceCode = generatedSource.ToString();
 
         return Verify(sourceCode);
