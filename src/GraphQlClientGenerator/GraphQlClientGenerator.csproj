@@ -10,7 +10,7 @@
     <PackageTags>GraphQL Client Generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-      Use global:: identifier for System.Type to avoid conflict with GraphQL type named "Type"
+      Source generator DataClassMemberNullability support
       ]]>
     </PackageReleaseNotes>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
