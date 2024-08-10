@@ -239,7 +239,7 @@ public class GraphQlGenerator
                     var fieldType = member.Type.UnwrapIfNonNull();
                     if (fieldType.Kind is GraphQlTypeKind.List)
                     {
-                        var itemType = UnwrapListItemType(fieldType, false, false, out _, out _);
+                        var itemType = UnwrapListItemType(fieldType, false, false, out _);
                         fieldType = itemType?.UnwrapIfNonNull();
                         if (fieldType is null)
                             continue;
@@ -745,7 +745,7 @@ public class GraphQlGenerator
         var isGraphQlInterfaceJsonConverterRequired =
             !requiresExplicitInterfaceImplementation &&
             (fieldType.Kind is GraphQlTypeKind.Interface or GraphQlTypeKind.Union ||
-             fieldType.Kind is GraphQlTypeKind.List && UnwrapListItemType(fieldType, false, false, out _, out _).UnwrapIfNonNull().Kind is GraphQlTypeKind.Interface or GraphQlTypeKind.Union);
+             fieldType.Kind is GraphQlTypeKind.List && UnwrapListItemType(fieldType, false, false, out _).UnwrapIfNonNull().Kind is GraphQlTypeKind.Interface or GraphQlTypeKind.Union);
 
         var isBaseTypeInputObject = baseType.Kind == GraphQlTypeKind.InputObject;
         var isPreprocessorDirectiveDisableNewtonsoftJsonRequired = !isInterfaceMember && decorateWithJsonPropertyAttribute || isGraphQlInterfaceJsonConverterRequired || isBaseTypeInputObject;
@@ -823,24 +823,16 @@ public class GraphQlGenerator
 
             writer.Write(" set");
             writer.Write(useCompatibleSyntax ? " { " : " => ");
-            WriteAccessorException("setter");
-            writer.Write(';');
+            writer.Write("throw new NotSupportedException(\"Use \\\"");
+            writer.Write(objectContext.CSharpTypeName);
+            writer.Write('.');
+            writer.Write(propertyContext.PropertyName);
+            writer.Write("\\\" property setter\");");
 
             if (useCompatibleSyntax)
                 writer.Write(" }");
 
             writer.Write(" }");
-
-            void WriteAccessorException(string accessor)
-            {
-                writer.Write("throw new NotSupportedException(\"Use \\\"");
-                writer.Write(objectContext.CSharpTypeName);
-                writer.Write('.');
-                writer.Write(propertyContext.PropertyName);
-                writer.Write("\\\" property ");
-                writer.Write(accessor);
-                writer.Write("\")");
-            }
         }
         else
             writeBody(propertyTypeDescription with { NetTypeName = propertyTypeName }, GetBackingFieldName(member.Name, propertyContext.RequiresRawName));
@@ -949,7 +941,7 @@ public class GraphQlGenerator
 
                     if (isList)
                     {
-                        var itemType = UnwrapListItemType(fieldType, false, false, out _, out _)?.UnwrapIfNonNull();
+                        var itemType = UnwrapListItemType(fieldType, false, false, out _)?.UnwrapIfNonNull();
                         fieldType = itemType ?? throw ListItemTypeResolutionFailedException(graphQlType.Name, field.Name);
                     }
 
@@ -1336,14 +1328,14 @@ public class GraphQlGenerator
     {
         var fieldType = type.UnwrapIfNonNull();
         if (fieldType.Kind is GraphQlTypeKind.List)
-            fieldType = UnwrapListItemType(fieldType, false, false, out _, out _);
+            fieldType = UnwrapListItemType(fieldType, false, false, out _);
 
         return fieldType.UnwrapIfNonNull();
     }
 
-    internal static GraphQlFieldType UnwrapListItemType(GraphQlFieldType type, bool nullableReferencesEnabled, bool isCovarianceRequired, out string netCollectionOpenType, out int levels)
+    internal static GraphQlFieldType UnwrapListItemType(GraphQlFieldType type, bool nullableReferencesEnabled, bool isCovarianceRequired, out string netCollectionOpenType)
     {
-        levels = 0;
+        var levels = 0;
 
         var nullableSymbols = new List<string> { String.Empty };
 

@@ -143,7 +143,7 @@ public abstract class GenerationContext
     protected internal IEnumerable<GraphQlField> GetFragments(GraphQlType type)
     {
         if (type.Kind != GraphQlTypeKind.Union && type.Kind != GraphQlTypeKind.Interface)
-            return Enumerable.Empty<GraphQlField>();
+            return [];
 
         var fragments = new Dictionary<string, GraphQlField>();
         foreach (var possibleType in type.PossibleTypes)
@@ -183,7 +183,7 @@ public abstract class GenerationContext
 
             case GraphQlTypeKind.List:
                 var isCovarianceRequired = _typeFieldCovarianceRequired.Contains((baseType.Name, member.Name));
-                var itemType = GraphQlGenerator.UnwrapListItemType(fieldType, Configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences, isCovarianceRequired, out var netCollectionOpenType, out _);
+                var itemType = GraphQlGenerator.UnwrapListItemType(fieldType, Configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences, isCovarianceRequired, out var netCollectionOpenType);
                 var unwrappedItemType = itemType?.UnwrapIfNonNull() ?? throw GraphQlGenerator.ListItemTypeResolutionFailedException(baseType.Name, fieldType.Name);
                 var itemTypeName = GetCSharpClassName(unwrappedItemType.Name);
                 var netItemType =
@@ -447,14 +447,15 @@ public abstract class GenerationContext
                 .SelectMany(
                     u =>
                         u.PossibleTypes
-                            .Where(t =>
-                            {
-                                if (duplicateCheck.Add(t.Name))
-                                    return true;
+                            .Where(
+                                t =>
+                                {
+                                    if (duplicateCheck.Add(t.Name))
+                                        return true;
 
-                                Warn($"duplicate union \"{u.Name}\" possible type \"{t.Name}\"");
-                                return false;
-                            })
+                                    Warn($"duplicate union \"{u.Name}\" possible type \"{t.Name}\"");
+                                    return false;
+                                })
                             .Select(t => (UnionName: u.Name, PossibleTypeName: t.Name)))
                 .ToLookup(x => x.PossibleTypeName, x => x.UnionName);
     }
@@ -480,10 +481,4 @@ public record struct ObjectGenerationContext
 {
     public GraphQlType GraphQlType { get; set; }
     public string CSharpTypeName { get; set; }
-}
-
-public record struct LogMessage
-{
-    public DateTimeOffset Timestamp { get; set; }
-    public string Message { get; set; }
 }
