@@ -35,7 +35,7 @@ public class GraphQlGenerator
 
         """;
 
-    private delegate void WriteDataClassPropertyBodyDelegate(ScalarFieldTypeDescription netType, string backingFieldName);
+    private delegate void WriteDataClassPropertyBodyDelegate(ScalarFieldTypeDescription netType, PropertyGenerationContext propertyGenerationContext);
 
     public static HttpClientHandler CreateDefaultHttpClientHandler() =>
         new() { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
@@ -517,14 +517,30 @@ public class GraphQlGenerator
                     DecorateWithJsonPropertyAttribute = true,
                     RequiresRawName = requiresRawName
                 },
-                (_, backingFieldName) =>
-                    writer.Write(
-                        generateBackingFields
-                            ? _configuration.PropertyAccessorBodyWriter(backingFieldName, context.GetDataPropertyType(type, fieldInfo.Field))
-                            : " { get; set; }"),
+                (t, propertyGenerationContext) =>
+                {
+                    if (generateBackingFields)
+                        writer.Write(_configuration.PropertyAccessorBodyWriter(propertyGenerationContext.PropertyBackingFieldName, t));
+                    else
+                    {
+                        writer.Write(" { get; ");
+                        writer.Write(SetterAccessibilityPrefix(propertyGenerationContext.SetterAccessibility));
+                        writer.Write("set; }");
+                    }
+                },
                 context);
         }
     }
+
+    private static string SetterAccessibilityPrefix(PropertyAccessibility accessibility) =>
+        accessibility switch
+        {
+            PropertyAccessibility.Public => null,
+            PropertyAccessibility.Protected => "protected ",
+            PropertyAccessibility.Internal => "internal ",
+            PropertyAccessibility.Private => "private ",
+            _ => throw new NotSupportedException()
+        };
 
     private void GenerateInputDataClassBody(ObjectGenerationContext objectContext, IEnumerable<IGraphQlMember> members, GenerationContext context)
     {
@@ -572,7 +588,7 @@ public class GraphQlGenerator
             GenerateDataProperty(
                 objectContext,
                 kvp.Value,
-                (t, _) =>
+                (t, propertyGenerationContext) =>
                 {
                     writer.WriteLine();
                     writer.Write(indentation);
@@ -592,7 +608,9 @@ public class GraphQlGenerator
                     writer.WriteLine();
 
                     writer.Write(indentation);
-                    writer.Write("        set");
+                    writer.Write("        ");
+                    writer.Write(SetterAccessibilityPrefix(propertyGenerationContext.SetterAccessibility));
+                    writer.Write("set");
                     writer.Write(useCompatibleSyntax ? " { " : " => ");
                     writer.Write(kvp.Key);
                     writer.Write(" = new InputPropertyInfo { Name = \"");
@@ -710,10 +728,19 @@ public class GraphQlGenerator
         WriteDataClassPropertyBodyDelegate writeBody,
         GenerationContext context)
     {
-        var baseType = objectContext.GraphQlType;
+        var ownerGraphQlType = objectContext.GraphQlType;
         var member = propertyContext.Member;
         var propertyTypeDescription = context.GetDataPropertyType(propertyContext.OwnerType, member);
         var propertyTypeName = propertyTypeDescription.NetTypeName;
+
+        var propertyGenerationContext =
+            new PropertyGenerationContext(
+                objectContext,
+                propertyTypeDescription.NetTypeName,
+                propertyContext.PropertyName,
+                GetBackingFieldName(member.Name, propertyContext.RequiresRawName));
+
+        context.BeforeDataPropertyGeneration(propertyGenerationContext);
 
         var writer = context.Writer;
 
@@ -738,8 +765,8 @@ public class GraphQlGenerator
                 decorateWithJsonPropertyAttribute = false;
         }
 
-        var isInterface = baseType.Kind is GraphQlTypeKind.Interface;
-        var requiresExplicitInterfaceImplementation = baseType != propertyContext.OwnerType && !isInterface;
+        var isInterface = ownerGraphQlType.Kind is GraphQlTypeKind.Interface;
+        var requiresExplicitInterfaceImplementation = ownerGraphQlType != propertyContext.OwnerType && !isInterface;
         var isInterfaceMember = isInterface || requiresExplicitInterfaceImplementation;
         var fieldType = member.Type.UnwrapIfNonNull();
         var isGraphQlInterfaceJsonConverterRequired =
@@ -747,8 +774,8 @@ public class GraphQlGenerator
             (fieldType.Kind is GraphQlTypeKind.Interface or GraphQlTypeKind.Union ||
              fieldType.Kind is GraphQlTypeKind.List && UnwrapListItemType(fieldType, false, false, out _).UnwrapIfNonNull().Kind is GraphQlTypeKind.Interface or GraphQlTypeKind.Union);
 
-        var isBaseTypeInputObject = baseType.Kind == GraphQlTypeKind.InputObject;
-        var isPreprocessorDirectiveDisableNewtonsoftJsonRequired = !isInterfaceMember && decorateWithJsonPropertyAttribute || isGraphQlInterfaceJsonConverterRequired || isBaseTypeInputObject;
+        var isOwnerTypeInputObject = ownerGraphQlType.Kind == GraphQlTypeKind.InputObject;
+        var isPreprocessorDirectiveDisableNewtonsoftJsonRequired = !isInterfaceMember && decorateWithJsonPropertyAttribute || isGraphQlInterfaceJsonConverterRequired || isOwnerTypeInputObject;
         if (isPreprocessorDirectiveDisableNewtonsoftJsonRequired)
         {
             writer.Write(indentation);
@@ -769,7 +796,7 @@ public class GraphQlGenerator
             writer.Write(indentation);
             writer.WriteLine("    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]");
         }
-        else if (isBaseTypeInputObject)
+        else if (isOwnerTypeInputObject)
         {
             writer.Write(indentation);
             writer.Write("    [JsonConverter(typeof(QueryBuilderParameterConverter<");
@@ -835,9 +862,11 @@ public class GraphQlGenerator
             writer.Write(" }");
         }
         else
-            writeBody(propertyTypeDescription with { NetTypeName = propertyTypeName }, GetBackingFieldName(member.Name, propertyContext.RequiresRawName));
+            writeBody(propertyTypeDescription with { NetTypeName = propertyTypeName }, propertyGenerationContext);
 
         writer.WriteLine();
+
+        context.AfterDataPropertyGeneration(propertyGenerationContext);
     }
 
     internal static InvalidOperationException ListItemTypeResolutionFailedException(string typeName, string fieldName) =>

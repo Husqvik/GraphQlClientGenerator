@@ -130,6 +130,14 @@ public class MultipleFileGenerationContext : GenerationContext
     {
     }
 
+    public override void BeforeDataPropertyGeneration(PropertyGenerationContext context)
+    {
+    }
+
+    public override void AfterDataPropertyGeneration(PropertyGenerationContext context)
+    {
+    }
+
     public override void AfterGeneration()
     {
         CollectCurrentFile();

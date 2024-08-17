@@ -117,6 +117,10 @@ public abstract class GenerationContext
 
     public abstract void AfterDataClassesGeneration();
 
+    public abstract void BeforeDataPropertyGeneration(PropertyGenerationContext context);
+
+    public abstract void AfterDataPropertyGeneration(PropertyGenerationContext context);
+
     public abstract void AfterGeneration();
 
     protected internal List<GraphQlField> GetFieldsToGenerate(GraphQlType type) =>
@@ -481,4 +485,30 @@ public record struct ObjectGenerationContext
 {
     public GraphQlType GraphQlType { get; set; }
     public string CSharpTypeName { get; set; }
+}
+
+public record PropertyGenerationContext
+{
+    public ObjectGenerationContext ObjectContext { get; }
+    public string PropertyName { get; }
+    public string PropertyBackingFieldName { get; }
+    public string PropertyCSharpTypeName { get; }
+
+    public PropertyAccessibility SetterAccessibility { get; set; }
+
+    internal PropertyGenerationContext(ObjectGenerationContext objectContext, string csharpTypeName, string propertyName, string propertyBackingFieldName)
+    {
+        ObjectContext = objectContext;
+        PropertyCSharpTypeName = csharpTypeName;
+        PropertyName = propertyName;
+        PropertyBackingFieldName = propertyBackingFieldName;
+    }
+}
+
+public enum PropertyAccessibility
+{
+    Public,
+    Internal,
+    Protected,
+    Private
 }

@@ -125,6 +125,14 @@ public class SingleFileGenerationContext : GenerationContext
 
     public override void AfterDataClassesGeneration() => WriteLine("#endregion");
 
+    public override void BeforeDataPropertyGeneration(PropertyGenerationContext context)
+    {
+    }
+
+    public override void AfterDataPropertyGeneration(PropertyGenerationContext context)
+    {
+    }
+
     public override void AfterGeneration() => ExitNullableReferenceScope();
 
     private void EnterNullableReferenceScope()
