@@ -124,6 +124,10 @@ public class MultipleFileGenerationContext : GenerationContext
 
     public override void BeforeDataClassGeneration(ObjectGenerationContext context) => InitializeNewSourceCodeFile(context.CSharpTypeName);
 
+    public override void OnDataClassConstructorGeneration(ObjectGenerationContext context)
+    {
+    }
+
     public override void AfterDataClassGeneration(ObjectGenerationContext context) => WriteNamespaceEnd();
 
     public override void AfterDataClassesGeneration()

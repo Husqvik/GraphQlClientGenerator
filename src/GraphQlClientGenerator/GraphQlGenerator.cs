@@ -705,6 +705,8 @@ public class GraphQlGenerator
         writer.Write(indentation);
         writer.WriteLine('{');
 
+        context.OnDataClassConstructorGeneration(objectGenerationContext);
+
         generateFileMemberBody(objectGenerationContext);
 
         writer.Write(indentation);

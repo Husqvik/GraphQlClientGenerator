@@ -113,6 +113,8 @@ public abstract class GenerationContext
 
     public abstract void BeforeDataClassGeneration(ObjectGenerationContext context);
 
+    public abstract void OnDataClassConstructorGeneration(ObjectGenerationContext context);
+
     public abstract void AfterDataClassGeneration(ObjectGenerationContext context);
 
     public abstract void AfterDataClassesGeneration();

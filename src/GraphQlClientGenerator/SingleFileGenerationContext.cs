@@ -121,6 +121,10 @@ public class SingleFileGenerationContext : GenerationContext
             Writer.WriteLine();
     }
 
+    public override void OnDataClassConstructorGeneration(ObjectGenerationContext context)
+    {
+    }
+
     public override void AfterDataClassGeneration(ObjectGenerationContext context) => _dataClasses++;
 
     public override void AfterDataClassesGeneration() => WriteLine("#endregion");
