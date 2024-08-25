@@ -121,6 +121,39 @@ public abstract class GenerationContext
 
     public abstract void BeforeDataPropertyGeneration(PropertyGenerationContext context);
 
+    public virtual void OnDataPropertyGeneration(PropertyGenerationContext context)
+    {
+        var generateBackingFields = _configuration.PropertyGeneration == PropertyGenerationOption.BackingField;
+        if (generateBackingFields)
+        {
+            var useCompatibleVersion = Configuration.CSharpVersion == CSharpVersion.Compatible;
+            Writer.Write(" { get");
+            Writer.Write(useCompatibleVersion ? " { return " : " => ");
+            Writer.Write(context.PropertyBackingFieldName);
+            Writer.Write(";");
+
+            if (useCompatibleVersion)
+                Writer.Write(" }");
+
+            Writer.Write(context.SetterAccessibility.ToSetterAccessibilityPrefix());
+            Writer.Write(" set");
+            Writer.Write(useCompatibleVersion ? " { " : " => ");
+            Writer.Write(context.PropertyBackingFieldName);
+            Writer.Write(" = value;");
+
+            if (useCompatibleVersion)
+                Writer.Write(" }");
+
+            Writer.Write(" }");
+        }
+        else
+        {
+            Writer.Write(" { get; ");
+            Writer.Write(context.SetterAccessibility.ToSetterAccessibilityPrefix());
+            Writer.Write("set; }");
+        }
+    }
+
     public abstract void AfterDataPropertyGeneration(PropertyGenerationContext context);
 
     public abstract void AfterGeneration();
@@ -512,5 +545,6 @@ public enum PropertyAccessibility
     Public,
     Internal,
     Protected,
+    ProtectedInternal,
     Private
 }

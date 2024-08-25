@@ -517,30 +517,10 @@ public class GraphQlGenerator
                     DecorateWithJsonPropertyAttribute = true,
                     RequiresRawName = requiresRawName
                 },
-                (t, propertyGenerationContext) =>
-                {
-                    if (generateBackingFields)
-                        writer.Write(_configuration.PropertyAccessorBodyWriter(propertyGenerationContext.PropertyBackingFieldName, t));
-                    else
-                    {
-                        writer.Write(" { get; ");
-                        writer.Write(SetterAccessibilityPrefix(propertyGenerationContext.SetterAccessibility));
-                        writer.Write("set; }");
-                    }
-                },
+                (_, propertyGenerationContext) => context.OnDataPropertyGeneration(propertyGenerationContext),
                 context);
         }
     }
-
-    private static string SetterAccessibilityPrefix(PropertyAccessibility accessibility) =>
-        accessibility switch
-        {
-            PropertyAccessibility.Public => null,
-            PropertyAccessibility.Protected => "protected ",
-            PropertyAccessibility.Internal => "internal ",
-            PropertyAccessibility.Private => "private ",
-            _ => throw new NotSupportedException()
-        };
 
     private void GenerateInputDataClassBody(ObjectGenerationContext objectContext, IEnumerable<IGraphQlMember> members, GenerationContext context)
     {
@@ -609,7 +589,7 @@ public class GraphQlGenerator
 
                     writer.Write(indentation);
                     writer.Write("        ");
-                    writer.Write(SetterAccessibilityPrefix(propertyGenerationContext.SetterAccessibility));
+                    writer.Write(propertyGenerationContext.SetterAccessibility.ToSetterAccessibilityPrefix());
                     writer.Write("set");
                     writer.Write(useCompatibleSyntax ? " { " : " => ");
                     writer.Write(kvp.Key);

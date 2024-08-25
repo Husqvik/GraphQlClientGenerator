@@ -1,8 +1,4 @@
-﻿using System.Text;
-
-namespace GraphQlClientGenerator;
-
-public delegate string GetDataPropertyAccessorBodiesDelegate(string backingFieldName, ScalarFieldTypeDescription backingFieldType);
+﻿namespace GraphQlClientGenerator;
 
 public class GraphQlGeneratorConfiguration
 {
@@ -68,11 +64,6 @@ public class GraphQlGeneratorConfiguration
     /// </summary>
     public IScalarFieldTypeMappingProvider ScalarFieldTypeMappingProvider { get; set; }
 
-    /// <summary>
-    /// Used for custom data property accessor bodies generation; applicable only when <code>PropertyGeneration = PropertyGenerationOption.BackingField</code>.
-    /// </summary>
-    public GetDataPropertyAccessorBodiesDelegate PropertyAccessorBodyWriter { get; set; }
-
     public bool FileScopedNamespaces { get; set; }
 
     public DataClassMemberNullability DataClassMemberNullability { get; set; }
@@ -86,7 +77,6 @@ public class GraphQlGeneratorConfiguration
         CustomClassNameMapping.Clear();
         CSharpVersion = CSharpVersion.Compatible;
         ScalarFieldTypeMappingProvider = DefaultScalarFieldTypeMappingProvider.Instance;
-        PropertyAccessorBodyWriter = GeneratePropertyAccessors;
         CodeDocumentationType = CodeDocumentationType.Disabled;
         IncludeDeprecatedFields = false;
         FloatTypeMapping = FloatTypeMapping.Decimal;
@@ -101,31 +91,6 @@ public class GraphQlGeneratorConfiguration
         EnumValueNaming = EnumValueNamingOption.CSharp;
         FileScopedNamespaces = false;
         DataClassMemberNullability = DataClassMemberNullability.AlwaysNullable;
-    }
-
-    public string GeneratePropertyAccessors(string backingFieldName, ScalarFieldTypeDescription backingFieldType)
-    {
-        var useCompatibleVersion = CSharpVersion == CSharpVersion.Compatible;
-        var builder = new StringBuilder();
-        builder.Append(" { get");
-        builder.Append(useCompatibleVersion ? " { return " : " => ");
-        builder.Append(backingFieldName);
-        builder.Append(";");
-
-        if (useCompatibleVersion)
-            builder.Append(" }");
-
-        builder.Append(" set");
-        builder.Append(useCompatibleVersion ? " { " : " => ");
-        builder.Append(backingFieldName);
-        builder.Append(" = value;");
-
-        if (useCompatibleVersion)
-            builder.Append(" }");
-
-        builder.Append(" }");
-
-        return builder.ToString();
     }
 }
 
