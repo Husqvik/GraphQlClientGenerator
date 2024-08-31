@@ -129,7 +129,7 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
     private class AdditionalFile(string path) : AdditionalText
     {
         public override SourceText GetText(CancellationToken cancellationToken = default) =>
-            SourceText.From(File.ReadAllText(Path));
+            SourceText.From(File.ReadAllText(Path), Encoding.UTF8);
 
         public override string Path { get; } = path;
     }
