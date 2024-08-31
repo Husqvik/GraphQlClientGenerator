@@ -901,7 +901,6 @@ public class GraphQlGenerator
             writer.Write(' ');
             writer.Write(useCompatibleSyntax ? "new GraphQlFieldMetadata[0]" : "Array.Empty<GraphQlFieldMetadata>()");
             writer.WriteLine(';');
-            writer.WriteLine();
         }
         else
         {
@@ -975,8 +974,9 @@ public class GraphQlGenerator
 
             writer.Write(fieldMetadataIndentation);
             writer.WriteLine("    };");
-            writer.WriteLine();
         }
+
+        writer.WriteLine();
 
         var directiveLocation = GetDirectiveLocation(context.Schema, graphQlType.Name);
 
@@ -1293,10 +1293,16 @@ public class GraphQlGenerator
 
     private static void WriteObsoleteAttribute(TextWriter writer, string deprecationReason, string indentation)
     {
-        deprecationReason = String.IsNullOrWhiteSpace(deprecationReason) ? null : $"(@\"{deprecationReason.Replace("\"", "\"\"")}\")";
         writer.Write(indentation);
         writer.Write("    [Obsolete");
-        writer.Write(deprecationReason);
+
+        if (!String.IsNullOrWhiteSpace(deprecationReason))
+        {
+            writer.Write("(@\"");
+            writer.Write(deprecationReason.Replace("\"", "\"\""));
+            writer.Write("\")");
+        }
+
         writer.WriteLine("]");
     }
 
