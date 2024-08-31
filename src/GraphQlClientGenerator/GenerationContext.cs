@@ -485,17 +485,20 @@ public abstract class GenerationContext
                 .Where(t => t.Kind is GraphQlTypeKind.Union)
                 .SelectMany(
                     u =>
-                        u.PossibleTypes
+                    {
+                        duplicateCheck.Clear();
+                        return u.PossibleTypes
                             .Where(
-                                t =>
+                                pt =>
                                 {
-                                    if (duplicateCheck.Add(t.Name))
+                                    if (duplicateCheck.Add(pt.Name))
                                         return true;
 
-                                    Warn($"duplicate union \"{u.Name}\" possible type \"{t.Name}\"");
+                                    Warn($"duplicate union \"{u.Name}\" possible type \"{pt.Name}\"");
                                     return false;
                                 })
-                            .Select(t => (UnionName: u.Name, PossibleTypeName: t.Name)))
+                            .Select(t => (UnionName: u.Name, PossibleTypeName: t.Name));
+                    })
                 .ToLookup(x => x.PossibleTypeName, x => x.UnionName);
     }
 
