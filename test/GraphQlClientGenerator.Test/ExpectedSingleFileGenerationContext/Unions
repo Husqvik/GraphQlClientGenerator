@@ -54,10 +54,8 @@ public static class GraphQlTypes
 #region enums
 public enum UnderscoreNamedEnum
 {
-    // ReSharper disable InconsistentNaming
     an_enum_value_1,
     an_enum_value_2
-    // ReSharper restore InconsistentNaming
 }
 #endregion
 
