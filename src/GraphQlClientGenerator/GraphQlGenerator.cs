@@ -1488,7 +1488,7 @@ public class GraphQlGenerator
 
         var argumentTypeDescription =
             unwrappedType.Kind is GraphQlTypeKind.Enum
-                ? ScalarFieldTypeDescription.FromNetTypeName($"{context.GetFullyQualifiedNetTypeName(NamingHelper.ToPascalCase(unwrappedType.Name), unwrappedType.Kind)}{(isTypeNotNull ? "?" : null)}")
+                ? ScalarFieldTypeDescription.FromNetTypeName($"{context.GetFullyQualifiedNetTypeName(NamingHelper.ToPascalCase(unwrappedType.Name), unwrappedType.Kind)}{(isTypeNotNull ? null : "?")}")
                 : context.ResolveScalarNetType(baseType, argument.Name, argumentType, false);
 
         var argumentNetType = argumentTypeDescription.NetTypeName;

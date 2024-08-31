@@ -1383,7 +1383,7 @@ public partial class SourceGeneratedHomeQueryBuilderV2 : GraphQlQueryBuilder<Sou
 
     public SourceGeneratedHomeQueryBuilderV2 ExceptSubscriptions() => ExceptField("subscriptions");
 
-    public SourceGeneratedHomeQueryBuilderV2 WithConsumption(SourceGeneratedHomeConsumptionConnectionQueryBuilderV2 homeConsumptionConnectionQueryBuilder, QueryBuilderParameter<SourceGeneratedEnergyResolutionV2?> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<string> before = null, QueryBuilderParameter<string> after = null, QueryBuilderParameter<bool?> filterEmptyNodes = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
+    public SourceGeneratedHomeQueryBuilderV2 WithConsumption(SourceGeneratedHomeConsumptionConnectionQueryBuilderV2 homeConsumptionConnectionQueryBuilder, QueryBuilderParameter<SourceGeneratedEnergyResolutionV2> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<string> before = null, QueryBuilderParameter<string> after = null, QueryBuilderParameter<bool?> filterEmptyNodes = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "resolution", ArgumentValue = resolution} );
@@ -1407,7 +1407,7 @@ public partial class SourceGeneratedHomeQueryBuilderV2 : GraphQlQueryBuilder<Sou
 
     public SourceGeneratedHomeQueryBuilderV2 ExceptConsumption() => ExceptField("consumption");
 
-    public SourceGeneratedHomeQueryBuilderV2 WithProduction(SourceGeneratedHomeProductionConnectionQueryBuilderV2 homeProductionConnectionQueryBuilder, QueryBuilderParameter<SourceGeneratedEnergyResolutionV2?> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<string> before = null, QueryBuilderParameter<string> after = null, QueryBuilderParameter<bool?> filterEmptyNodes = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
+    public SourceGeneratedHomeQueryBuilderV2 WithProduction(SourceGeneratedHomeProductionConnectionQueryBuilderV2 homeProductionConnectionQueryBuilder, QueryBuilderParameter<SourceGeneratedEnergyResolutionV2> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<string> before = null, QueryBuilderParameter<string> after = null, QueryBuilderParameter<bool?> filterEmptyNodes = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "resolution", ArgumentValue = resolution} );
@@ -1693,7 +1693,7 @@ public partial class SourceGeneratedPriceInfoQueryBuilderV2 : GraphQlQueryBuilde
 
     public SourceGeneratedPriceInfoQueryBuilderV2 ExceptTomorrow() => ExceptField("tomorrow");
 
-    public SourceGeneratedPriceInfoQueryBuilderV2 WithRange(SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 subscriptionPriceConnectionQueryBuilder, QueryBuilderParameter<SourceGeneratedPriceResolutionV2?> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<string> before = null, QueryBuilderParameter<string> after = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
+    public SourceGeneratedPriceInfoQueryBuilderV2 WithRange(SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 subscriptionPriceConnectionQueryBuilder, QueryBuilderParameter<SourceGeneratedPriceResolutionV2> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<string> before = null, QueryBuilderParameter<string> after = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         args.Add(new QueryBuilderArgumentInfo { ArgumentName = "resolution", ArgumentValue = resolution} );
