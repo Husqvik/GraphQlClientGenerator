@@ -35,15 +35,20 @@ Code example for class generation:
 ```csharp
 var schema = await GraphQlGenerator.RetrieveSchema(url);
 var generator = new GraphQlGenerator();
-var generatedClasses = generator.Generate(schema);
+var generatedClasses = generator.GenerateFullClientCSharpFile(schema, "MyGqlApiClient");
 ```
 
-or
+or using full blown setup:
 
 ```csharp
 var schema = await GraphQlGenerator.RetrieveSchema(url);
-var csharpCode = new GraphQlGenerator().GenerateFullClientCSharpFile(schema, "MyGqlApiClient");
-await File.WriteAllTextAsync("MyGqlApiClient.cs", csharpCode);
+var builder = new StringBuilder();
+using var writer = new StringWriter(builder);
+var generationContext = new SingleFileGenerationContext(schema, writer, "MyGqlApiClient") { LogMessage = Console.WriteLine };
+var configuration = new GraphQlGeneratorConfiguration { ... };
+var generator = new GraphQlGenerator(configuration);
+generator.Generate(generationContext);
+var csharpCode = builder.ToString();
 ```
 
 C# 9 source generator

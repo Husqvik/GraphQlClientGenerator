@@ -1,6 +1,7 @@
 ﻿namespace GraphQlClientGenerator;
 
-public class SingleFileGenerationContext : GenerationContext
+public class SingleFileGenerationContext(GraphQlSchema schema, TextWriter writer, string @namespace, GeneratedObjectType objectTypes = GeneratedObjectType.All)
+    : GenerationContext(schema, @namespace, objectTypes)
 {
     private bool _isNullableReferenceScopeEnabled;
     private int _enums;
@@ -10,13 +11,7 @@ public class SingleFileGenerationContext : GenerationContext
 
     public override byte IndentationSize => (byte)(Configuration.FileScopedNamespaces ? 0 : 4);
 
-    protected internal override TextWriter Writer { get; }
-
-    public SingleFileGenerationContext(GraphQlSchema schema, TextWriter writer, string @namespace, GeneratedObjectType objectTypes = GeneratedObjectType.All)
-        : base(schema, @namespace, objectTypes)
-    {
-        Writer = writer ?? throw new ArgumentNullException(nameof(writer));
-    }
+    protected internal override TextWriter Writer { get; } = writer ?? throw new ArgumentNullException(nameof(writer));
 
     public override void BeforeGeneration()
     {

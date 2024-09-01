@@ -37,7 +37,8 @@ public class MultipleFileGenerationContext : GenerationContext
 
     private CodeFile _currentFile;
 
-    protected internal override TextWriter Writer => _currentFile.Writer;
+    protected internal override TextWriter Writer =>
+        (_currentFile ?? throw new InvalidOperationException($"\"{nameof(Writer)}\" not initialized")).Writer;
 
     public override byte IndentationSize => (byte)(Configuration.FileScopedNamespaces ? 0 : 4);
 
