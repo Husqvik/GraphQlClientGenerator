@@ -35,17 +35,23 @@ public abstract class GenerationContext
 
     public GraphQlSchema Schema { get; }
 
+    public string Namespace { get; }
+
     public GeneratedObjectType ObjectTypes { get; }
 
     public Action<string> LogMessage { private get; set; }
 
-    protected GenerationContext(GraphQlSchema schema, GeneratedObjectType objectTypes)
+    protected GenerationContext(GraphQlSchema schema, string @namespace, GeneratedObjectType objectTypes)
     {
+        if (!CSharpHelper.IsValidNamespace(@namespace))
+            throw new ArgumentException($"invalid namespace \"{@namespace}\"", nameof(@namespace));
+
         var optionsInteger = (int)objectTypes;
         if (optionsInteger is < 1 or > 7)
             throw new ArgumentOutOfRangeException(nameof(objectTypes), objectTypes, "invalid value");
 
         Schema = schema ?? throw new ArgumentNullException(nameof(schema));
+        Namespace = @namespace;
         ObjectTypes = objectTypes;
     }
 

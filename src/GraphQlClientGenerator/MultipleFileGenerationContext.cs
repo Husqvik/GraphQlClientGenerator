@@ -33,7 +33,6 @@ public class MultipleFileGenerationContext : GenerationContext
         """;
 
     private readonly ICodeFileEmitter _codeFileEmitter;
-    private readonly string _namespace;
     private readonly string _projectFileName;
 
     private CodeFile _currentFile;
@@ -48,13 +47,9 @@ public class MultipleFileGenerationContext : GenerationContext
         string @namespace,
         string projectFileName = null,
         GeneratedObjectType objectTypes = GeneratedObjectType.All)
-        : base(schema, objectTypes)
+        : base(schema, @namespace, objectTypes)
     {
-        if (String.IsNullOrWhiteSpace(@namespace))
-            throw new ArgumentException("namespace required", nameof(@namespace));
-
         _codeFileEmitter = codeFileEmitter ?? throw new ArgumentNullException(nameof(codeFileEmitter));
-        _namespace = @namespace;
 
         if (projectFileName is not null && !projectFileName.EndsWith(".csproj", StringComparison.OrdinalIgnoreCase))
             throw new ArgumentException("Project file name must end with .csproj.", nameof(projectFileName));
@@ -165,7 +160,7 @@ public class MultipleFileGenerationContext : GenerationContext
         writer.WriteLine();
         writer.WriteLine(requiredNamespaces);
         writer.Write("namespace ");
-        writer.Write(_namespace);
+        writer.Write(Namespace);
 
         if (Configuration.FileScopedNamespaces)
         {

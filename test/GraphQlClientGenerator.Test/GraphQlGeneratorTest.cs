@@ -15,7 +15,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
     private static GraphQlSchema DeserializeTestSchema(string resourceName) =>
         GraphQlGenerator.DeserializeGraphQlSchema(GetTestResource("TestSchemas." + resourceName));
 
-    private static SingleFileGenerationContext CreateGenerationContext(
+    private static TestSingleFileGenerationContext CreateGenerationContext(
         StringBuilder builder,
         GraphQlSchema schema,
         GeneratedObjectType objectTypes = GeneratedObjectType.All,
@@ -896,6 +896,24 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
     private static string StripBaseClasses(string sourceCode)
     {
         using var reader = new StreamReader(typeof(GraphQlGenerator).Assembly.GetManifestResourceStream("GraphQlClientGenerator.BaseClasses.cs").ShouldNotBeNull());
-        return sourceCode.Replace("#region base classes" + Environment.NewLine + reader.ReadToEnd() + Environment.NewLine + "#endregion", null).Trim();
+        return sourceCode.Replace($"#region base classes{Environment.NewLine}{reader.ReadToEnd()}{Environment.NewLine}#endregion", null).Trim();
+    }
+
+    private class TestSingleFileGenerationContext(GraphQlSchema schema, TextWriter writer, GeneratedObjectType objectTypes = GeneratedObjectType.All)
+        : SingleFileGenerationContext(schema, writer, "TestNamespace", objectTypes)
+    {
+        protected override void Initialize()
+        {
+        }
+
+        public override void BeforeGeneration()
+        {
+        }
+
+        public override void AfterGeneration() =>
+            typeof(SingleFileGenerationContext)
+                .GetMethod("ExitNullableReferenceScope", BindingFlags.NonPublic | BindingFlags.Instance)
+                .ShouldNotBeNull()
+                .Invoke(this, null);
     }
 }
