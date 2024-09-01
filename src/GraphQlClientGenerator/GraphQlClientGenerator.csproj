@@ -10,7 +10,7 @@
     <PackageTags>GraphQL Client Generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-      Source generator DataClassMemberNullability support
+      New GenerationContext extension points for improved customization
       ]]>
     </PackageReleaseNotes>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
