@@ -7,9 +7,8 @@ public class SingleFileGenerationContext : GenerationContext
     private int _directives;
     private int _queryBuilders;
     private int _dataClasses;
-    private string _indentation = String.Empty;
 
-    public override byte IndentationSize => (byte)_indentation.Length;
+    public override byte IndentationSize => (byte)(Configuration.FileScopedNamespaces ? 0 : 4);
 
     protected internal override TextWriter Writer { get; }
 
@@ -17,12 +16,6 @@ public class SingleFileGenerationContext : GenerationContext
         : base(schema, @namespace, objectTypes)
     {
         Writer = writer ?? throw new ArgumentNullException(nameof(writer));
-    }
-
-    protected override void Initialize()
-    {
-        var indentationSize = Configuration.FileScopedNamespaces ? 0 : 4;
-        _indentation = GraphQlGenerator.GetIndentation(indentationSize);
     }
 
     public override void BeforeGeneration()
@@ -182,13 +175,13 @@ public class SingleFileGenerationContext : GenerationContext
         if (!_isNullableReferenceScopeEnabled)
             return;
 
-        Writer.WriteLine("#nullable restore");
+        WriteLine("#nullable restore");
         _isNullableReferenceScopeEnabled = false;
     }
 
     private void WriteLine(string text)
     {
-        Writer.Write(_indentation);
+        Writer.Write(GraphQlGenerator.GetIndentation(IndentationSize));
         Writer.WriteLine(text);
     }
 }

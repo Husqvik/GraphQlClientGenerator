@@ -902,9 +902,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
     private class TestSingleFileGenerationContext(GraphQlSchema schema, TextWriter writer, GeneratedObjectType objectTypes = GeneratedObjectType.All)
         : SingleFileGenerationContext(schema, writer, "TestNamespace", objectTypes)
     {
-        protected override void Initialize()
-        {
-        }
+        public override byte IndentationSize => 0;
 
         public override void BeforeGeneration()
         {
