@@ -45,10 +45,9 @@ public class MultipleFileGenerationContext : GenerationContext
     public MultipleFileGenerationContext(
         GraphQlSchema schema,
         ICodeFileEmitter codeFileEmitter,
-        string @namespace,
         string projectFileName = null,
         GeneratedObjectType objectTypes = GeneratedObjectType.All)
-        : base(schema, @namespace, objectTypes)
+        : base(schema, objectTypes)
     {
         _codeFileEmitter = codeFileEmitter ?? throw new ArgumentNullException(nameof(codeFileEmitter));
 
@@ -161,7 +160,7 @@ public class MultipleFileGenerationContext : GenerationContext
         writer.WriteLine();
         writer.WriteLine(requiredNamespaces);
         writer.Write("namespace ");
-        writer.Write(Namespace);
+        writer.Write(Configuration.TargetNamespace);
 
         if (Configuration.FileScopedNamespaces)
         {

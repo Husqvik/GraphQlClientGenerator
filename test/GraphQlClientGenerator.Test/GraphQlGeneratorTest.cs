@@ -36,6 +36,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         var configuration =
             new GraphQlGeneratorConfiguration
             {
+                TargetNamespace = "GraphQlGeneratorTest",
                 CodeDocumentationType = CodeDocumentationType.XmlSummary | CodeDocumentationType.DescriptionAttribute,
                 CSharpVersion = CSharpVersion.Newest,
                 FileScopedNamespaces = fileScopedNamespaces
@@ -55,7 +56,6 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
                 new MultipleFileGenerationContext(
                     DeserializeTestSchema("TestSchema2"),
                     new FileSystemEmitter(directoryInfo.FullName),
-                    "GraphQlGeneratorTest",
                     "GraphQlGeneratorTest.csproj");
 
             generator.Generate(context);
@@ -243,11 +243,12 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         var configuration =
             new GraphQlGeneratorConfiguration
             {
+                TargetNamespace = "GraphQlGenerator.Test",
                 CodeDocumentationType = CodeDocumentationType.XmlSummary | CodeDocumentationType.DescriptionAttribute
             };
             
         var generator = new GraphQlGenerator(configuration);
-        var generatedSourceCode = generator.GenerateFullClientCSharpFile(TestSchema, "GraphQlGenerator.Test");
+        var generatedSourceCode = generator.GenerateFullClientCSharpFile(TestSchema);
         return Verify(generatedSourceCode);
     }
 
@@ -262,6 +263,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
 
         var expectedQueryBuilders = GetTestResource("ExpectedSingleFileGenerationContext.QueryBuilders");
         var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+        File.WriteAllText(@"D:\QueryBuilders", generatedSourceCode);
         generatedSourceCode.ShouldBe(expectedQueryBuilders);
     }
 
@@ -294,6 +296,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
 
         var stringBuilder = new StringBuilder();
         new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GeneratedObjectType.DataClasses));
+        File.WriteAllText(@"D:\DataClassesWithTypeConfiguration", stringBuilder.ToString());
         var expectedDataClasses = GetTestResource("ExpectedSingleFileGenerationContext.DataClassesWithTypeConfiguration");
         stringBuilder.ToString().ShouldBe(expectedDataClasses);
     }
@@ -323,6 +326,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
 
         var expectedDataClasses = GetTestResource("ExpectedSingleFileGenerationContext.FormatMasks");
         var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+        File.WriteAllText(@"D:\FormatMasks", generatedSourceCode);
         generatedSourceCode.ShouldBe(expectedDataClasses);
     }
 
@@ -366,6 +370,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
 
         var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
         var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.NewCSharpSyntaxWithClassPrefixAndSuffix");
+        File.WriteAllText(@"D:\NewCSharpSyntaxWithClassPrefixAndSuffix", generatedSourceCode);
         generatedSourceCode.ShouldBe(expectedOutput);
 
         CompileIntoAssembly(stringBuilder.ToString(), "GraphQLTestAssembly");
@@ -391,6 +396,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
 
         var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.NullableReferences");
         var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+        File.WriteAllText(@"D:\NullableReferences", generatedSourceCode);
         generatedSourceCode.ShouldBe(expectedOutput);
     }
 
@@ -417,6 +423,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
 
         var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.Unions");
         var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+        File.WriteAllText(@"D:\Unions", generatedSourceCode);
         generatedSourceCode.ShouldBe(expectedOutput);
 
         logMessages.Count.ShouldBe(2);
@@ -900,7 +907,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
     }
 
     private class TestSingleFileGenerationContext(GraphQlSchema schema, TextWriter writer, GeneratedObjectType objectTypes = GeneratedObjectType.All)
-        : SingleFileGenerationContext(schema, writer, "TestNamespace", objectTypes)
+        : SingleFileGenerationContext(schema, writer, objectTypes)
     {
         public override byte IndentationSize => 0;
 

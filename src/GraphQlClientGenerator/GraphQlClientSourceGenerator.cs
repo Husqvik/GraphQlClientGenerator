@@ -79,7 +79,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
             {
                 var root = (CompilationUnitSyntax)compilation.SyntaxTrees.FirstOrDefault()?.GetRoot();
                 var namespaceIdentifier = (IdentifierNameSyntax)root?.Members.OfType<NamespaceDeclarationSyntax>().FirstOrDefault()?.Name;
-                if (namespaceIdentifier == null)
+                if (namespaceIdentifier is null)
                 {
                     context.ReportDiagnostic(
                         Diagnostic.Create(
@@ -99,7 +99,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
                         $"\"GraphQlClientGenerator_Namespace\" not specified; using \"{@namespace}\""));
             }
 
-            var configuration = new GraphQlGeneratorConfiguration { TreatUnknownObjectAsScalar = true };
+            var configuration = new GraphQlGeneratorConfiguration { TreatUnknownObjectAsScalar = true, TargetNamespace = @namespace };
 
             context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("ClassPrefix"), out var classPrefix);
             configuration.ClassPrefix = classPrefix;
@@ -219,13 +219,13 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
                 {
                     var builder = new StringBuilder();
                     using (var writer = new StringWriter(builder))
-                        generator.WriteFullClientCSharpFile(schema, @namespace, writer);
+                        generator.WriteFullClientCSharpFile(schema, writer);
 
                     context.AddSource(targetFileName, SourceText.From(builder.ToString(), Encoding.UTF8));
                 }
                 else
                 {
-                    var multipleFileGenerationContext = new MultipleFileGenerationContext(schema, new SourceGeneratorFileEmitter(context), @namespace);
+                    var multipleFileGenerationContext = new MultipleFileGenerationContext(schema, new SourceGeneratorFileEmitter(context));
                     generator.Generate(multipleFileGenerationContext);
                 }
             }

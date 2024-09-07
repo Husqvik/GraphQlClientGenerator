@@ -45,6 +45,7 @@ internal static class GraphQlCSharpFileHelper
         var generatorConfiguration =
             new GraphQlGeneratorConfiguration
             {
+                TargetNamespace = options.Namespace,
                 CSharpVersion = options.CSharpVersion,
                 ClassPrefix = options.ClassPrefix,
                 ClassSuffix = options.ClassSuffix,
@@ -81,7 +82,7 @@ internal static class GraphQlCSharpFileHelper
 
         if (options.OutputType is OutputType.SingleFile)
         {
-            await File.WriteAllTextAsync(options.OutputPath, generator.GenerateFullClientCSharpFile(schema, options.Namespace, console.WriteLine));
+            await File.WriteAllTextAsync(options.OutputPath, generator.GenerateFullClientCSharpFile(schema, console.WriteLine));
             console.WriteLine($"File {options.OutputPath} generated successfully ({new FileInfo(options.OutputPath).Length:N0} B). ");
         }
         else
@@ -93,7 +94,7 @@ internal static class GraphQlCSharpFileHelper
 
             var codeFileEmitter = new FileSystemEmitter(projectFileInfo?.DirectoryName ?? options.OutputPath);
             var multipleFileGenerationContext =
-                new MultipleFileGenerationContext(schema, codeFileEmitter, options.Namespace, projectFileInfo?.Name)
+                new MultipleFileGenerationContext(schema, codeFileEmitter, projectFileInfo?.Name)
                 {
                     LogMessage = console.WriteLine
                 };

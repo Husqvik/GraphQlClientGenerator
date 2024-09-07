@@ -1,7 +1,7 @@
 ﻿namespace GraphQlClientGenerator;
 
-public class SingleFileGenerationContext(GraphQlSchema schema, TextWriter writer, string @namespace, GeneratedObjectType objectTypes = GeneratedObjectType.All)
-    : GenerationContext(schema, @namespace, objectTypes)
+public class SingleFileGenerationContext(GraphQlSchema schema, TextWriter writer, GeneratedObjectType objectTypes = GeneratedObjectType.All)
+    : GenerationContext(schema, objectTypes)
 {
     private bool _isNullableReferenceScopeEnabled;
     private int _enums;
@@ -21,7 +21,7 @@ public class SingleFileGenerationContext(GraphQlSchema schema, TextWriter writer
         Writer.WriteLine();
         Writer.WriteLine(GraphQlGenerator.RequiredNamespaces);
         Writer.Write("namespace ");
-        Writer.Write(Namespace);
+        Writer.Write(Configuration.TargetNamespace);
 
         if (Configuration.FileScopedNamespaces)
         {

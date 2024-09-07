@@ -117,17 +117,17 @@ public class GraphQlGenerator
         }
     }
 
-    public string GenerateFullClientCSharpFile(GraphQlSchema schema, string @namespace, Action<string> logMessage = null)
+    public string GenerateFullClientCSharpFile(GraphQlSchema schema, Action<string> logMessage = null)
     {
         var builder = new StringBuilder();
         using var writer = new StringWriter(builder);
-        WriteFullClientCSharpFile(schema, @namespace, writer, logMessage);
+        WriteFullClientCSharpFile(schema, writer, logMessage);
         return builder.ToString();
     }
 
-    public void WriteFullClientCSharpFile(GraphQlSchema schema, string @namespace, TextWriter writer, Action<string> logMessage = null)
+    public void WriteFullClientCSharpFile(GraphQlSchema schema, TextWriter writer, Action<string> logMessage = null)
     {
-        Generate(new SingleFileGenerationContext(schema, writer, @namespace) { LogMessage = logMessage });
+        Generate(new SingleFileGenerationContext(schema, writer) { LogMessage = logMessage });
         writer.Flush();
     }
 

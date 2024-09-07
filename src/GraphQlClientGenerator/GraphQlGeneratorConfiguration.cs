@@ -2,11 +2,26 @@
 
 public class GraphQlGeneratorConfiguration
 {
+    private string _targetNamespace = "GraphQlApi";
+
     public CSharpVersion CSharpVersion { get; set; }
 
     public string ClassPrefix { get; set; }
 
     public string ClassSuffix { get; set; }
+
+    public string TargetNamespace
+
+    {
+        get => _targetNamespace;
+        set
+        {
+            if (!CSharpHelper.IsValidNamespace(value))
+                throw new ArgumentException($"namespace \"{value}\" is not valid. ");
+
+            _targetNamespace = value;
+        }
+    }
 
     /// <summary>
     /// Allows to define custom class names for specific GraphQL types.
