@@ -10,7 +10,7 @@
     <PackageTags>GraphQL Client Generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-      New GenerationContext extension points for improved customization
+      Move target namespace parameter to GraphQlGeneratorConfiguration
       ]]>
     </PackageReleaseNotes>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>

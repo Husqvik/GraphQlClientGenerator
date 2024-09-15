@@ -103,17 +103,19 @@ public class GraphQlGenerator
 
     public static GraphQlSchema DeserializeGraphQlSchema(string content)
     {
+        const string notGraphqlSchemaMessage = "not a GraphQL schema";
+
         try
         {
             var schema =
                 JsonConvert.DeserializeObject<GraphQlResult>(content, SerializerSettings)?.Data?.Schema
                 ?? JsonConvert.DeserializeObject<GraphQlData>(content, SerializerSettings)?.Schema;
 
-            return schema ?? throw new ArgumentException("not a GraphQL schema", nameof(content));
+            return schema ?? throw new ArgumentException(notGraphqlSchemaMessage, nameof(content));
         }
         catch (JsonReaderException exception)
         {
-            throw new ArgumentException("not a GraphQL schema", nameof(content), exception);
+            throw new ArgumentException(notGraphqlSchemaMessage, nameof(content), exception);
         }
     }
 

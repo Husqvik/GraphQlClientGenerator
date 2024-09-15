@@ -13,7 +13,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
     private static readonly GraphQlSchema TestSchema = DeserializeTestSchema("TestSchema");
 
     private static GraphQlSchema DeserializeTestSchema(string resourceName) =>
-        GraphQlGenerator.DeserializeGraphQlSchema(GetTestResource("TestSchemas." + resourceName));
+        GraphQlGenerator.DeserializeGraphQlSchema(GetTestResource($"TestSchemas.{resourceName}"));
 
     private static TestSingleFileGenerationContext CreateGenerationContext(
         StringBuilder builder,
