@@ -42,13 +42,8 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
                 FileScopedNamespaces = fileScopedNamespaces
             };
 
-        var generator = new GraphQlGenerator(configuration);
-
-        var tempPath = Path.GetTempPath();
-
-        outputHelper.WriteLine($"temp path: {tempPath}");
-
-        var directoryInfo = Directory.CreateDirectory(Path.Combine(tempPath, "GraphQlGeneratorTest"));
+        var directoryInfo = Directory.CreateDirectory(Path.Combine(Path.GetTempPath(), "GraphQlGeneratorTest"));
+        outputHelper.WriteLine($"Temp path: {directoryInfo.FullName}");
 
         try
         {
@@ -56,8 +51,12 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
                 new MultipleFileGenerationContext(
                     DeserializeTestSchema("TestSchema2"),
                     new FileSystemEmitter(directoryInfo.FullName),
-                    "GraphQlGeneratorTest.csproj");
+                    "GraphQlGeneratorTest.csproj")
+                {
+                    LogMessage = outputHelper.WriteLine
+                };
 
+            var generator = new GraphQlGenerator(configuration);
             generator.Generate(context);
 
             var files = directoryInfo.GetFiles().OrderBy(f => f.Name).ToArray();
@@ -567,8 +566,8 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
                 {
                     new []
                     {
-                        JsonConvert.DeserializeObject("{ \"rootProperty1\": \"root value 1\", \"rootProperty2\": 123.456, \"rootProperty3\": true, \"rootProperty4\": null, \"rootProperty5\": { \"nestedProperty1\": 987, \"nestedProperty2\": \"a \\\"quoted\\\" value\\\\t\\\\r\\\\n\" } }"),
-                        JsonConvert.DeserializeObject("[{ \"rootProperty1\": \"root value 2\" }, { \"rootProperty1\": false }]")
+                        JsonConvert.DeserializeObject("""{ "rootProperty1": "root value 1", "rootProperty2": 123.456, "rootProperty3": true, "rootProperty4": null, "rootProperty5": { "nestedProperty1": 987, "nestedProperty2": "a \"quoted\" value\\t\\r\\n" } }"""),
+                        JsonConvert.DeserializeObject("""[{ "rootProperty1": "root value 2" }, { "rootProperty1": false }]""")
                     }
                 }.Select(p => CreateParameter(assemblyName, p)).ToArray());
 
@@ -770,7 +769,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
             	public QueryBuilderParameter<DateTimeOffset?> Timestamp
             	{
             		get => (QueryBuilderParameter<DateTimeOffset?>)_timestampProperty.Value;
-            		set => _timestampProperty = new InputPropertyInfo { Name = "timestamp", Value = value, FormatMask = "yy-MM-dd HH:mmzzz" };
+            		set => _timestampProperty = new InputPropertyInfo { Name = "timestamp", Value = value, FormatMask = "yy-MM-dd HH:mm zzz" };
             	}
         
             	IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
@@ -833,7 +832,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
                 .ShouldNotBeNull()
                 .Invoke(builderInstance, [Enum.Parse(formattingType, "None"), (byte)2]);
 
-        mutation.ShouldBe("mutation($stringParameter:String=\"Test Value\",$objectParameter:[TestInput!]={testProperty:\"Input Object Parameter Value\",timestamp:\"19-06-30 02:27+02:00\"}){testAction(objectParameter:{inputObject1:{testProperty:\"Nested Value\"},inputObject2:$objectParameter,testProperty:$stringParameter,testNullValueProperty:null})}");
+        mutation.ShouldBe("mutation($stringParameter:String=\"Test Value\",$objectParameter:[TestInput!]={testProperty:\"Input Object Parameter Value\",timestamp:\"19-06-30 02:27 +02:00\"}){testAction(objectParameter:{inputObject1:{testProperty:\"Nested Value\"},inputObject2:$objectParameter,testProperty:$stringParameter,testNullValueProperty:null})}");
 
         var inputObjectJson = JsonConvert.SerializeObject(inputObject);
         inputObjectJson.ShouldBe("{\"InputObject1\":{\"InputObject1\":null,\"InputObject2\":null,\"TestProperty\":\"Nested Value\",\"TestNullValueProperty\":null,\"Timestamp\":null},\"InputObject2\":{\"InputObject1\":null,\"InputObject2\":null,\"TestProperty\":\"Input Object Parameter Value\",\"TestNullValueProperty\":null,\"Timestamp\":\"2019-06-30T02:27:47.1234567+02:00\"},\"TestProperty\":\"Test Value\",\"TestNullValueProperty\":null,\"Timestamp\":null}");
