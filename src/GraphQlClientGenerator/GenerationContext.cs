@@ -51,7 +51,6 @@ public abstract class GenerationContext
 
     protected internal void Initialize(GraphQlGeneratorConfiguration configuration)
     {
-        _complexTypes = null;
         _directives.Clear();
         _nameCollisionMapping.Clear();
         _referencedObjectTypes.Clear();

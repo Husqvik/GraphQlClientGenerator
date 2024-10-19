@@ -8,7 +8,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace GraphQlClientGenerator;
 
-public class GraphQlGenerator
+public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null)
 {
     private const string InputObjectInterfaceTypeName = "IGraphQlInputObject";
 
@@ -35,7 +35,7 @@ public class GraphQlGenerator
 
         """;
 
-    private delegate void WriteDataClassPropertyBodyDelegate(ScalarFieldTypeDescription netType, PropertyGenerationContext propertyGenerationContext);
+    private readonly GraphQlGeneratorConfiguration _configuration = configuration ?? new GraphQlGeneratorConfiguration();
 
     public static HttpClientHandler CreateDefaultHttpClientHandler() =>
         new() { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
@@ -66,11 +66,6 @@ public class GraphQlGenerator
                 Name = "String"
             }
         };
-
-    private readonly GraphQlGeneratorConfiguration _configuration;
-
-    public GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null) =>
-        _configuration = configuration ?? new GraphQlGeneratorConfiguration();
 
     public static async Task<GraphQlSchema> RetrieveSchema(HttpMethod method, string url, IEnumerable<KeyValuePair<string, string>> headers = null, HttpMessageHandler messageHandler = null)
     {
@@ -1746,4 +1741,6 @@ public class GraphQlGenerator
         bool RequiresRawName);
 
     private record struct FieldGenerationInfo(GraphQlField Field, GraphQlType OwnerType, bool RequiresNew);
+
+    private delegate void WriteDataClassPropertyBodyDelegate(ScalarFieldTypeDescription netType, PropertyGenerationContext propertyGenerationContext);
 }
