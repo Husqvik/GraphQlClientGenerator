@@ -224,6 +224,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         writer.WriteLine();
         writer.Write(indentation);
         writer.WriteLine("        };");
+        writer.Write(indentation);
         writer.WriteLine("}");
 
         context.AfterGraphQlTypeNameGeneration();

@@ -1099,7 +1099,7 @@ namespace GraphQlGenerator.Test
                 { typeof(decimal), "Float" },
                 { typeof(Guid), "ID" }
             };
-}
+    }
     #endregion
 
     #region enums
