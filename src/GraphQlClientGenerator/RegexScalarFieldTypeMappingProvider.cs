@@ -26,11 +26,11 @@ public class RegexScalarFieldTypeMappingProvider : IScalarFieldTypeMappingProvid
 
             if (Regex.IsMatch(valueName, rule.PatternValueName) &&
                 Regex.IsMatch(baseType.Name, rule.PatternBaseType) &&
-                Regex.IsMatch((expectNonNullType ? $"{unwrappedValueType.Name}!" : valueType.Name) ?? String.Empty, rule.PatternValueType))
+                Regex.IsMatch((expectNonNullType ? $"{unwrappedValueType.Name}!" : unwrappedValueType.Name) ?? String.Empty, rule.PatternValueType))
                 return new ScalarFieldTypeDescription { NetTypeName = rule.NetTypeName, FormatMask = rule.FormatMask };
         }
 
-        return DefaultScalarFieldTypeMappingProvider.GetFallbackFieldType(configuration, valueType);
+        return DefaultScalarFieldTypeMappingProvider.GetFallbackFieldType(configuration, unwrappedValueType);
     }
 }
 
