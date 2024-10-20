@@ -10,7 +10,7 @@
     <PackageTags>GraphQL Client Generator Tool Console</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-      Introduced --generationOrder parameter
+       Support for NonNull GraphQL types RegexScalarFieldTypeMappingProvider
       ]]>
     </PackageReleaseNotes>
     <PackAsTool>true</PackAsTool>

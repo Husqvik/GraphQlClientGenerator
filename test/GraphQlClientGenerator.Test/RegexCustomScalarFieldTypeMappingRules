@@ -5,5 +5,17 @@
     "patternValueName": "^((timestamp)|(.*(f|F)rom)|(.*(t|T)o))$",
     "netTypeName": "DateTime?",
     "formatMask": "O"
+  },
+  {
+    "patternBaseType": ".+",
+    "patternValueType": "Long!",
+    "patternValueName": ".+",
+    "netTypeName": "long"
+  },
+  {
+    "patternBaseType": ".+",
+    "patternValueType": "Long",
+    "patternValueName": ".+",
+    "netTypeName": "long?"
   }
 ]
