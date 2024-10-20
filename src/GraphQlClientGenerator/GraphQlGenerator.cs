@@ -251,7 +251,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
 
     private void GenerateEnums(GenerationContext context)
     {
-        var enumTypes = context.Schema.Types.Where(t => t.Kind == GraphQlTypeKind.Enum && !t.IsBuiltIn()).ToList();
+        var enumTypes = OrderIfEnabled(context.Schema.Types.Where(t => t.Kind == GraphQlTypeKind.Enum && !t.IsBuiltIn())).ToList();
         if (!enumTypes.Any())
             return;
 
@@ -269,7 +269,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
 
         context.BeforeQueryBuildersGeneration();
 
-        var complexTypes = context.Schema.GetComplexTypes().ToList();
+        var complexTypes = OrderIfEnabled(context.Schema.GetComplexTypes()).ToList();
         complexTypes.ForEach(t => GenerateQueryBuilder(context, t));
 
         context.AfterQueryBuildersGeneration();
@@ -299,6 +299,11 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         context.AfterBaseClassGeneration();
     }
 
+    private IEnumerable<T> OrderIfEnabled<T>(IEnumerable<T> source) where T : GraphQlType =>
+        _configuration.GenerationOrder is GenerationOrder.Alphabetical
+            ? source.OrderBy(t => t.Name)
+            : source;
+
     private static bool IsQueryBuilderGenerationDisabled(GeneratedObjectType objectTypes) => !objectTypes.HasFlag(GeneratedObjectType.QueryBuilders);
 
     private static bool IsDataClassGenerationDisabled(GeneratedObjectType objectTypes) => !objectTypes.HasFlag(GeneratedObjectType.DataClasses);
@@ -308,7 +313,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         if (IsDataClassGenerationDisabled(context.ObjectTypes))
             return;
 
-        var inputObjectTypes = context.Schema.GetInputObjectTypes().ToArray();
+        var inputObjectTypes = OrderIfEnabled(context.Schema.GetInputObjectTypes()).ToArray();
         if (!inputObjectTypes.Any())
             return;
 
@@ -329,7 +334,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         if (IsDataClassGenerationDisabled(context.ObjectTypes))
             return;
 
-        var complexTypes = context.Schema.GetComplexTypes().ToDictionary(t => t.Name);
+        var complexTypes = OrderIfEnabled(context.Schema.GetComplexTypes()).ToDictionary(t => t.Name);
         if (!complexTypes.Any())
             return;
 
@@ -1629,7 +1634,12 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         if (IsQueryBuilderGenerationDisabled(context.ObjectTypes))
             return;
 
-        var directives = context.Directives.Where(t => SupportedDirectiveLocations.Overlaps(t.Locations)).ToList();
+        var directives =
+            OrderIfEnabled(
+                context.Directives
+                    .Where(d => SupportedDirectiveLocations.Overlaps(d.Locations))
+                    .Select(d => new GraphQlType { Name = d.Name, Description = d.Description, InputFields = d.Args } /* TODO: make some common ancestor */)).ToList();
+
         if (!directives.Any())
             return;
 
@@ -1640,7 +1650,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         context.AfterDirectivesGeneration();
     }
 
-    private void GenerateDirective(GenerationContext context, GraphQlDirective directive)
+    private void GenerateDirective(GenerationContext context, GraphQlType directive)
     {
         var directiveName = $"{NamingHelper.ToPascalCase(directive.Name)}Directive";
 
@@ -1653,8 +1663,8 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         var orderedArgumentDefinitions =
             ResolveParameterDefinitions(
                 context,
-                new GraphQlType { Name = directive.Name, Description = directive.Description, InputFields = directive.Args } /* TODO: make some common ancestor */,
-                directive.Args.OrderByDescending(a => a.Type.Kind is GraphQlTypeKind.NonNull));
+                directive,
+                directive.InputFields.OrderByDescending(a => a.Type.Kind is GraphQlTypeKind.NonNull));
 
         var argumentList = String.Join(", ", orderedArgumentDefinitions.Select(d => d.NetParameterDefinitionClause));
 

@@ -26,5 +26,6 @@ public class ProgramOptions
     public JsonPropertyGenerationOption JsonPropertyAttribute { get; set; }
     public EnumValueNamingOption EnumValueNaming { get; set; }
     public DataClassMemberNullability DataClassMemberNullability { get; set; }
+    public GenerationOrder GenerationOrder { get; set; }
     public bool IncludeDeprecatedFields { get; set; }
 }

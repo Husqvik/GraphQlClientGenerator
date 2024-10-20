@@ -59,6 +59,7 @@ internal static class GraphQlCSharpFileHelper
                 JsonPropertyGeneration = options.JsonPropertyAttribute,
                 EnumValueNaming = options.EnumValueNaming,
                 DataClassMemberNullability = options.DataClassMemberNullability,
+                GenerationOrder = options.GenerationOrder,
                 IncludeDeprecatedFields = options.IncludeDeprecatedFields,
                 FileScopedNamespaces = options.FileScopedNamespaces
             };

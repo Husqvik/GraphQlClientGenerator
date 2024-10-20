@@ -1120,6 +1120,40 @@ namespace SourceGeneratorTestAssembly
     #endregion
 
     #region enums
+    public enum SourceGeneratedAppScreenV2
+    {
+        [EnumMember(Value = "HOME")] Home,
+        [EnumMember(Value = "REPORTS")] Reports,
+        [EnumMember(Value = "CONSUMPTION")] Consumption,
+        [EnumMember(Value = "COMPARISON")] Comparison,
+        [EnumMember(Value = "DISAGGREGATION")] Disaggregation,
+        [EnumMember(Value = "HOME_PROFILE")] HomeProfile,
+        [EnumMember(Value = "CUSTOMER_PROFILE")] CustomerProfile,
+        [EnumMember(Value = "METER_READING")] MeterReading,
+        [EnumMember(Value = "NOTIFICATIONS")] Notifications,
+        [EnumMember(Value = "INVOICES")] Invoices
+    }
+
+    public enum SourceGeneratedEnergyResolutionV2
+    {
+        [EnumMember(Value = "HOURLY")] Hourly,
+        [EnumMember(Value = "DAILY")] Daily,
+        [EnumMember(Value = "WEEKLY")] Weekly,
+        [EnumMember(Value = "MONTHLY")] Monthly,
+        [EnumMember(Value = "ANNUAL")] Annual
+    }
+
+    public enum SourceGeneratedHeatingSourceV2
+    {
+        [EnumMember(Value = "AIR2AIR_HEATPUMP")] Air2AirHeatpump,
+        [EnumMember(Value = "ELECTRICITY")] Electricity,
+        [EnumMember(Value = "GROUND")] Ground,
+        [EnumMember(Value = "DISTRICT_HEATING")] DistrictHeating,
+        [EnumMember(Value = "ELECTRIC_BOILER")] ElectricBoiler,
+        [EnumMember(Value = "AIR2WATER_HEATPUMP")] Air2WaterHeatpump,
+        [EnumMember(Value = "OTHER")] Other
+    }
+
     public enum SourceGeneratedHomeAvatarV2
     {
         [EnumMember(Value = "APARTMENT")] Apartment,
@@ -1137,17 +1171,6 @@ namespace SourceGeneratorTestAssembly
         [EnumMember(Value = "ROWHOUSE")] Rowhouse,
         [EnumMember(Value = "HOUSE")] House,
         [EnumMember(Value = "COTTAGE")] Cottage
-    }
-
-    public enum SourceGeneratedHeatingSourceV2
-    {
-        [EnumMember(Value = "AIR2AIR_HEATPUMP")] Air2AirHeatpump,
-        [EnumMember(Value = "ELECTRICITY")] Electricity,
-        [EnumMember(Value = "GROUND")] Ground,
-        [EnumMember(Value = "DISTRICT_HEATING")] DistrictHeating,
-        [EnumMember(Value = "ELECTRIC_BOILER")] ElectricBoiler,
-        [EnumMember(Value = "AIR2WATER_HEATPUMP")] Air2WaterHeatpump,
-        [EnumMember(Value = "OTHER")] Other
     }
 
     /// <summary>
@@ -1182,43 +1205,9 @@ namespace SourceGeneratorTestAssembly
         [EnumMember(Value = "HOURLY")] Hourly,
         [EnumMember(Value = "DAILY")] Daily
     }
-
-    public enum SourceGeneratedEnergyResolutionV2
-    {
-        [EnumMember(Value = "HOURLY")] Hourly,
-        [EnumMember(Value = "DAILY")] Daily,
-        [EnumMember(Value = "WEEKLY")] Weekly,
-        [EnumMember(Value = "MONTHLY")] Monthly,
-        [EnumMember(Value = "ANNUAL")] Annual
-    }
-
-    public enum SourceGeneratedAppScreenV2
-    {
-        [EnumMember(Value = "HOME")] Home,
-        [EnumMember(Value = "REPORTS")] Reports,
-        [EnumMember(Value = "CONSUMPTION")] Consumption,
-        [EnumMember(Value = "COMPARISON")] Comparison,
-        [EnumMember(Value = "DISAGGREGATION")] Disaggregation,
-        [EnumMember(Value = "HOME_PROFILE")] HomeProfile,
-        [EnumMember(Value = "CUSTOMER_PROFILE")] CustomerProfile,
-        [EnumMember(Value = "METER_READING")] MeterReading,
-        [EnumMember(Value = "NOTIFICATIONS")] Notifications,
-        [EnumMember(Value = "INVOICES")] Invoices
-    }
     #endregion
 
     #region directives
-    /// <summary>
-    /// Directs the executor to skip this field or fragment when the `if` argument is true.
-    /// </summary>
-    public class SkipDirective : GraphQlDirective
-    {
-        public SkipDirective(QueryBuilderParameter<bool> @if) : base("skip")
-        {
-            AddArgument("if", @if);
-        }
-    }
-
     /// <summary>
     /// Directs the executor to include this field or fragment only when the `if` argument is true.
     /// </summary>
@@ -1229,70 +1218,153 @@ namespace SourceGeneratorTestAssembly
             AddArgument("if", @if);
         }
     }
+
+    /// <summary>
+    /// Directs the executor to skip this field or fragment when the `if` argument is true.
+    /// </summary>
+    public class SkipDirective : GraphQlDirective
+    {
+        public SkipDirective(QueryBuilderParameter<bool> @if) : base("skip")
+        {
+            AddArgument("if", @if);
+        }
+    }
     #endregion
 
     #region builder classes
-    public partial class SourceGeneratedTibberQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedTibberQueryBuilderV2>
+    public partial class SourceGeneratedAddressQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedAddressQueryBuilderV2>
     {
         private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new GraphQlFieldMetadata { Name = "viewer", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedViewerQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "address1" },
+            new GraphQlFieldMetadata { Name = "address2" },
+            new GraphQlFieldMetadata { Name = "address3" },
+            new GraphQlFieldMetadata { Name = "city" },
+            new GraphQlFieldMetadata { Name = "postalCode" },
+            new GraphQlFieldMetadata { Name = "country" },
+            new GraphQlFieldMetadata { Name = "latitude" },
+            new GraphQlFieldMetadata { Name = "longitude" }
         };
 
-        protected override string TypeName { get; } = "Query";
+        protected override string TypeName { get; } = "Address";
 
         public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-        public SourceGeneratedTibberQueryBuilderV2(string operationName = null) : base("query", operationName)
-        {
-        }
+        public SourceGeneratedAddressQueryBuilderV2 WithAddress1(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("address1", alias, new GraphQlDirective[] { skip, include });
 
-        public SourceGeneratedTibberQueryBuilderV2 WithParameter<T>(GraphQlQueryParameter<T> parameter) => WithParameterInternal(parameter);
+        public SourceGeneratedAddressQueryBuilderV2 ExceptAddress1() => ExceptField("address1");
 
-        public SourceGeneratedTibberQueryBuilderV2 WithViewer(SourceGeneratedViewerQueryBuilderV2 viewerQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("viewer", alias, viewerQueryBuilder, new GraphQlDirective[] { skip, include });
+        public SourceGeneratedAddressQueryBuilderV2 WithAddress2(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("address2", alias, new GraphQlDirective[] { skip, include });
 
-        public SourceGeneratedTibberQueryBuilderV2 ExceptViewer() => ExceptField("viewer");
+        public SourceGeneratedAddressQueryBuilderV2 ExceptAddress2() => ExceptField("address2");
+
+        public SourceGeneratedAddressQueryBuilderV2 WithAddress3(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("address3", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedAddressQueryBuilderV2 ExceptAddress3() => ExceptField("address3");
+
+        public SourceGeneratedAddressQueryBuilderV2 WithCity(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("city", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedAddressQueryBuilderV2 ExceptCity() => ExceptField("city");
+
+        public SourceGeneratedAddressQueryBuilderV2 WithPostalCode(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("postalCode", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedAddressQueryBuilderV2 ExceptPostalCode() => ExceptField("postalCode");
+
+        public SourceGeneratedAddressQueryBuilderV2 WithCountry(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("country", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedAddressQueryBuilderV2 ExceptCountry() => ExceptField("country");
+
+        public SourceGeneratedAddressQueryBuilderV2 WithLatitude(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("latitude", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedAddressQueryBuilderV2 ExceptLatitude() => ExceptField("latitude");
+
+        public SourceGeneratedAddressQueryBuilderV2 WithLongitude(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("longitude", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedAddressQueryBuilderV2 ExceptLongitude() => ExceptField("longitude");
     }
 
-    public partial class SourceGeneratedViewerQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedViewerQueryBuilderV2>
+    public partial class SourceGeneratedConsumptionEntryQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedConsumptionEntryQueryBuilderV2>
     {
         private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new GraphQlFieldMetadata { Name = "login" },
-            new GraphQlFieldMetadata { Name = "name" },
-            new GraphQlFieldMetadata { Name = "accountType", IsComplex = true },
-            new GraphQlFieldMetadata { Name = "homes", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeQueryBuilderV2) },
-            new GraphQlFieldMetadata { Name = "home", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeQueryBuilderV2) }
+            new GraphQlFieldMetadata { Name = "from" },
+            new GraphQlFieldMetadata { Name = "to" },
+            new GraphQlFieldMetadata { Name = "unitPrice" },
+            new GraphQlFieldMetadata { Name = "unitPriceVAT" },
+            new GraphQlFieldMetadata { Name = "consumption" },
+            new GraphQlFieldMetadata { Name = "consumptionUnit" },
+            new GraphQlFieldMetadata { Name = "totalCost" },
+            new GraphQlFieldMetadata { Name = "unitCost" },
+            new GraphQlFieldMetadata { Name = "cost" },
+            new GraphQlFieldMetadata { Name = "currency" }
         };
 
-        protected override string TypeName { get; } = "Viewer";
+        protected override string TypeName { get; } = "Consumption";
 
         public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-        public SourceGeneratedViewerQueryBuilderV2 WithLogin(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("login", alias, new GraphQlDirective[] { skip, include });
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithFrom(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("from", alias, new GraphQlDirective[] { skip, include });
 
-        public SourceGeneratedViewerQueryBuilderV2 ExceptLogin() => ExceptField("login");
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptFrom() => ExceptField("from");
 
-        public SourceGeneratedViewerQueryBuilderV2 WithName(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("name", alias, new GraphQlDirective[] { skip, include });
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithTo(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("to", alias, new GraphQlDirective[] { skip, include });
 
-        public SourceGeneratedViewerQueryBuilderV2 ExceptName() => ExceptField("name");
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptTo() => ExceptField("to");
 
-        public SourceGeneratedViewerQueryBuilderV2 WithAccountType(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("accountType", alias, new GraphQlDirective[] { skip, include });
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithUnitPrice(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("unitPrice", alias, new GraphQlDirective[] { skip, include });
 
-        public SourceGeneratedViewerQueryBuilderV2 ExceptAccountType() => ExceptField("accountType");
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptUnitPrice() => ExceptField("unitPrice");
 
-        public SourceGeneratedViewerQueryBuilderV2 WithHomes(SourceGeneratedHomeQueryBuilderV2 homeQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("homes", alias, homeQueryBuilder, new GraphQlDirective[] { skip, include });
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithUnitPriceVat(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("unitPriceVAT", alias, new GraphQlDirective[] { skip, include });
 
-        public SourceGeneratedViewerQueryBuilderV2 ExceptHomes() => ExceptField("homes");
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptUnitPriceVat() => ExceptField("unitPriceVAT");
 
-        public SourceGeneratedViewerQueryBuilderV2 WithHome(SourceGeneratedHomeQueryBuilderV2 homeQueryBuilder, QueryBuilderParameter<string> id, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithConsumption(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("consumption", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptConsumption() => ExceptField("consumption");
+
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithConsumptionUnit(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("consumptionUnit", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptConsumptionUnit() => ExceptField("consumptionUnit");
+
+        [Obsolete(@"use cost instead.")]
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithTotalCost(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("totalCost", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptTotalCost() => ExceptField("totalCost");
+
+        [Obsolete(@"use cost instead")]
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithUnitCost(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("unitCost", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptUnitCost() => ExceptField("unitCost");
+
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithCost(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("cost", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptCost() => ExceptField("cost");
+
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithCurrency(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("currency", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptCurrency() => ExceptField("currency");
+    }
+
+    public partial class SourceGeneratedContactInfoQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedContactInfoQueryBuilderV2>
+    {
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            var args = new List<QueryBuilderArgumentInfo>();
-            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "id", ArgumentValue = id} );
-            return WithObjectField("home", alias, homeQueryBuilder, new GraphQlDirective[] { skip, include }, args);
-        }
+            new GraphQlFieldMetadata { Name = "email" },
+            new GraphQlFieldMetadata { Name = "mobile" }
+        };
 
-        public SourceGeneratedViewerQueryBuilderV2 ExceptHome() => ExceptField("home");
+        protected override string TypeName { get; } = "ContactInfo";
+
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+        public SourceGeneratedContactInfoQueryBuilderV2 WithEmail(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("email", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedContactInfoQueryBuilderV2 ExceptEmail() => ExceptField("email");
+
+        public SourceGeneratedContactInfoQueryBuilderV2 WithMobile(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("mobile", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedContactInfoQueryBuilderV2 ExceptMobile() => ExceptField("mobile");
     }
 
     public partial class SourceGeneratedHomeQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedHomeQueryBuilderV2>
@@ -1436,494 +1508,6 @@ namespace SourceGeneratorTestAssembly
         public SourceGeneratedHomeQueryBuilderV2 ExceptFeatures() => ExceptField("features");
     }
 
-    public partial class SourceGeneratedAddressQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedAddressQueryBuilderV2>
-    {
-        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
-        {
-            new GraphQlFieldMetadata { Name = "address1" },
-            new GraphQlFieldMetadata { Name = "address2" },
-            new GraphQlFieldMetadata { Name = "address3" },
-            new GraphQlFieldMetadata { Name = "city" },
-            new GraphQlFieldMetadata { Name = "postalCode" },
-            new GraphQlFieldMetadata { Name = "country" },
-            new GraphQlFieldMetadata { Name = "latitude" },
-            new GraphQlFieldMetadata { Name = "longitude" }
-        };
-
-        protected override string TypeName { get; } = "Address";
-
-        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-        public SourceGeneratedAddressQueryBuilderV2 WithAddress1(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("address1", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedAddressQueryBuilderV2 ExceptAddress1() => ExceptField("address1");
-
-        public SourceGeneratedAddressQueryBuilderV2 WithAddress2(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("address2", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedAddressQueryBuilderV2 ExceptAddress2() => ExceptField("address2");
-
-        public SourceGeneratedAddressQueryBuilderV2 WithAddress3(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("address3", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedAddressQueryBuilderV2 ExceptAddress3() => ExceptField("address3");
-
-        public SourceGeneratedAddressQueryBuilderV2 WithCity(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("city", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedAddressQueryBuilderV2 ExceptCity() => ExceptField("city");
-
-        public SourceGeneratedAddressQueryBuilderV2 WithPostalCode(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("postalCode", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedAddressQueryBuilderV2 ExceptPostalCode() => ExceptField("postalCode");
-
-        public SourceGeneratedAddressQueryBuilderV2 WithCountry(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("country", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedAddressQueryBuilderV2 ExceptCountry() => ExceptField("country");
-
-        public SourceGeneratedAddressQueryBuilderV2 WithLatitude(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("latitude", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedAddressQueryBuilderV2 ExceptLatitude() => ExceptField("latitude");
-
-        public SourceGeneratedAddressQueryBuilderV2 WithLongitude(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("longitude", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedAddressQueryBuilderV2 ExceptLongitude() => ExceptField("longitude");
-    }
-
-    public partial class SourceGeneratedLegalEntityQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedLegalEntityQueryBuilderV2>
-    {
-        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
-        {
-            new GraphQlFieldMetadata { Name = "id" },
-            new GraphQlFieldMetadata { Name = "firstName" },
-            new GraphQlFieldMetadata { Name = "isCompany" },
-            new GraphQlFieldMetadata { Name = "name" },
-            new GraphQlFieldMetadata { Name = "middleName" },
-            new GraphQlFieldMetadata { Name = "lastName" },
-            new GraphQlFieldMetadata { Name = "organizationNo" },
-            new GraphQlFieldMetadata { Name = "language" },
-            new GraphQlFieldMetadata { Name = "contactInfo", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedContactInfoQueryBuilderV2) },
-            new GraphQlFieldMetadata { Name = "address", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedAddressQueryBuilderV2) }
-        };
-
-        protected override string TypeName { get; } = "LegalEntity";
-
-        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 WithId(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("id", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptId() => ExceptField("id");
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 WithFirstName(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("firstName", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptFirstName() => ExceptField("firstName");
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 WithIsCompany(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("isCompany", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptIsCompany() => ExceptField("isCompany");
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 WithName(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("name", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptName() => ExceptField("name");
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 WithMiddleName(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("middleName", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptMiddleName() => ExceptField("middleName");
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 WithLastName(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("lastName", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptLastName() => ExceptField("lastName");
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 WithOrganizationNo(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("organizationNo", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptOrganizationNo() => ExceptField("organizationNo");
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 WithLanguage(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("language", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptLanguage() => ExceptField("language");
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 WithContactInfo(SourceGeneratedContactInfoQueryBuilderV2 contactInfoQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("contactInfo", alias, contactInfoQueryBuilder, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptContactInfo() => ExceptField("contactInfo");
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 WithAddress(SourceGeneratedAddressQueryBuilderV2 addressQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("address", alias, addressQueryBuilder, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptAddress() => ExceptField("address");
-    }
-
-    public partial class SourceGeneratedContactInfoQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedContactInfoQueryBuilderV2>
-    {
-        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
-        {
-            new GraphQlFieldMetadata { Name = "email" },
-            new GraphQlFieldMetadata { Name = "mobile" }
-        };
-
-        protected override string TypeName { get; } = "ContactInfo";
-
-        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-        public SourceGeneratedContactInfoQueryBuilderV2 WithEmail(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("email", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedContactInfoQueryBuilderV2 ExceptEmail() => ExceptField("email");
-
-        public SourceGeneratedContactInfoQueryBuilderV2 WithMobile(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("mobile", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedContactInfoQueryBuilderV2 ExceptMobile() => ExceptField("mobile");
-    }
-
-    public partial class SourceGeneratedMeteringPointDataQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedMeteringPointDataQueryBuilderV2>
-    {
-        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
-        {
-            new GraphQlFieldMetadata { Name = "consumptionEan" },
-            new GraphQlFieldMetadata { Name = "gridCompany" },
-            new GraphQlFieldMetadata { Name = "gridAreaCode" },
-            new GraphQlFieldMetadata { Name = "priceAreaCode" },
-            new GraphQlFieldMetadata { Name = "productionEan" },
-            new GraphQlFieldMetadata { Name = "energyTaxType" },
-            new GraphQlFieldMetadata { Name = "vatType" },
-            new GraphQlFieldMetadata { Name = "estimatedAnnualConsumption" }
-        };
-
-        protected override string TypeName { get; } = "MeteringPointData";
-
-        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-        public SourceGeneratedMeteringPointDataQueryBuilderV2 WithConsumptionEan(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("consumptionEan", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedMeteringPointDataQueryBuilderV2 ExceptConsumptionEan() => ExceptField("consumptionEan");
-
-        public SourceGeneratedMeteringPointDataQueryBuilderV2 WithGridCompany(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("gridCompany", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedMeteringPointDataQueryBuilderV2 ExceptGridCompany() => ExceptField("gridCompany");
-
-        public SourceGeneratedMeteringPointDataQueryBuilderV2 WithGridAreaCode(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("gridAreaCode", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedMeteringPointDataQueryBuilderV2 ExceptGridAreaCode() => ExceptField("gridAreaCode");
-
-        public SourceGeneratedMeteringPointDataQueryBuilderV2 WithPriceAreaCode(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("priceAreaCode", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedMeteringPointDataQueryBuilderV2 ExceptPriceAreaCode() => ExceptField("priceAreaCode");
-
-        public SourceGeneratedMeteringPointDataQueryBuilderV2 WithProductionEan(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("productionEan", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedMeteringPointDataQueryBuilderV2 ExceptProductionEan() => ExceptField("productionEan");
-
-        public SourceGeneratedMeteringPointDataQueryBuilderV2 WithEnergyTaxType(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("energyTaxType", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedMeteringPointDataQueryBuilderV2 ExceptEnergyTaxType() => ExceptField("energyTaxType");
-
-        public SourceGeneratedMeteringPointDataQueryBuilderV2 WithVatType(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("vatType", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedMeteringPointDataQueryBuilderV2 ExceptVatType() => ExceptField("vatType");
-
-        public SourceGeneratedMeteringPointDataQueryBuilderV2 WithEstimatedAnnualConsumption(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("estimatedAnnualConsumption", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedMeteringPointDataQueryBuilderV2 ExceptEstimatedAnnualConsumption() => ExceptField("estimatedAnnualConsumption");
-    }
-
-    public partial class SourceGeneratedSubscriptionQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedSubscriptionQueryBuilderV2>
-    {
-        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
-        {
-            new GraphQlFieldMetadata { Name = "id" },
-            new GraphQlFieldMetadata { Name = "subscriber", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedLegalEntityQueryBuilderV2) },
-            new GraphQlFieldMetadata { Name = "validFrom" },
-            new GraphQlFieldMetadata { Name = "validTo" },
-            new GraphQlFieldMetadata { Name = "status" },
-            new GraphQlFieldMetadata { Name = "statusReason" },
-            new GraphQlFieldMetadata { Name = "priceInfo", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceInfoQueryBuilderV2) }
-        };
-
-        protected override string TypeName { get; } = "Subscription";
-
-        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-        public SourceGeneratedSubscriptionQueryBuilderV2 WithId(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("id", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionQueryBuilderV2 ExceptId() => ExceptField("id");
-
-        public SourceGeneratedSubscriptionQueryBuilderV2 WithSubscriber(SourceGeneratedLegalEntityQueryBuilderV2 legalEntityQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("subscriber", alias, legalEntityQueryBuilder, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionQueryBuilderV2 ExceptSubscriber() => ExceptField("subscriber");
-
-        public SourceGeneratedSubscriptionQueryBuilderV2 WithValidFrom(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("validFrom", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionQueryBuilderV2 ExceptValidFrom() => ExceptField("validFrom");
-
-        public SourceGeneratedSubscriptionQueryBuilderV2 WithValidTo(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("validTo", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionQueryBuilderV2 ExceptValidTo() => ExceptField("validTo");
-
-        public SourceGeneratedSubscriptionQueryBuilderV2 WithStatus(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("status", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionQueryBuilderV2 ExceptStatus() => ExceptField("status");
-
-        [Obsolete(@"no longer available.")]
-        public SourceGeneratedSubscriptionQueryBuilderV2 WithStatusReason(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("statusReason", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionQueryBuilderV2 ExceptStatusReason() => ExceptField("statusReason");
-
-        public SourceGeneratedSubscriptionQueryBuilderV2 WithPriceInfo(SourceGeneratedPriceInfoQueryBuilderV2 priceInfoQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("priceInfo", alias, priceInfoQueryBuilder, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionQueryBuilderV2 ExceptPriceInfo() => ExceptField("priceInfo");
-    }
-
-    public partial class SourceGeneratedPriceInfoQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedPriceInfoQueryBuilderV2>
-    {
-        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
-        {
-            new GraphQlFieldMetadata { Name = "current", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) },
-            new GraphQlFieldMetadata { Name = "today", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) },
-            new GraphQlFieldMetadata { Name = "tomorrow", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) },
-            new GraphQlFieldMetadata { Name = "range", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2) }
-        };
-
-        protected override string TypeName { get; } = "PriceInfo";
-
-        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-        public SourceGeneratedPriceInfoQueryBuilderV2 WithCurrent(SourceGeneratedPriceQueryBuilderV2 priceQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("current", alias, priceQueryBuilder, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedPriceInfoQueryBuilderV2 ExceptCurrent() => ExceptField("current");
-
-        public SourceGeneratedPriceInfoQueryBuilderV2 WithToday(SourceGeneratedPriceQueryBuilderV2 priceQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("today", alias, priceQueryBuilder, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedPriceInfoQueryBuilderV2 ExceptToday() => ExceptField("today");
-
-        public SourceGeneratedPriceInfoQueryBuilderV2 WithTomorrow(SourceGeneratedPriceQueryBuilderV2 priceQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("tomorrow", alias, priceQueryBuilder, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedPriceInfoQueryBuilderV2 ExceptTomorrow() => ExceptField("tomorrow");
-
-        public SourceGeneratedPriceInfoQueryBuilderV2 WithRange(SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 subscriptionPriceConnectionQueryBuilder, QueryBuilderParameter<SourceGeneratedPriceResolutionV2> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<string> before = null, QueryBuilderParameter<string> after = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
-        {
-            var args = new List<QueryBuilderArgumentInfo>();
-            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "resolution", ArgumentValue = resolution} );
-            if (first != null)
-                args.Add(new QueryBuilderArgumentInfo { ArgumentName = "first", ArgumentValue = first} );
-
-            if (last != null)
-                args.Add(new QueryBuilderArgumentInfo { ArgumentName = "last", ArgumentValue = last} );
-
-            if (before != null)
-                args.Add(new QueryBuilderArgumentInfo { ArgumentName = "before", ArgumentValue = before} );
-
-            if (after != null)
-                args.Add(new QueryBuilderArgumentInfo { ArgumentName = "after", ArgumentValue = after} );
-
-            return WithObjectField("range", alias, subscriptionPriceConnectionQueryBuilder, new GraphQlDirective[] { skip, include }, args);
-        }
-
-        public SourceGeneratedPriceInfoQueryBuilderV2 ExceptRange() => ExceptField("range");
-    }
-
-    public partial class SourceGeneratedPriceQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedPriceQueryBuilderV2>
-    {
-        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
-        {
-            new GraphQlFieldMetadata { Name = "total" },
-            new GraphQlFieldMetadata { Name = "energy" },
-            new GraphQlFieldMetadata { Name = "tax" },
-            new GraphQlFieldMetadata { Name = "startsAt" },
-            new GraphQlFieldMetadata { Name = "currency" },
-            new GraphQlFieldMetadata { Name = "level" }
-        };
-
-        protected override string TypeName { get; } = "Price";
-
-        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-        public SourceGeneratedPriceQueryBuilderV2 WithTotal(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("total", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedPriceQueryBuilderV2 ExceptTotal() => ExceptField("total");
-
-        public SourceGeneratedPriceQueryBuilderV2 WithEnergy(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("energy", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedPriceQueryBuilderV2 ExceptEnergy() => ExceptField("energy");
-
-        public SourceGeneratedPriceQueryBuilderV2 WithTax(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("tax", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedPriceQueryBuilderV2 ExceptTax() => ExceptField("tax");
-
-        public SourceGeneratedPriceQueryBuilderV2 WithStartsAt(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("startsAt", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedPriceQueryBuilderV2 ExceptStartsAt() => ExceptField("startsAt");
-
-        public SourceGeneratedPriceQueryBuilderV2 WithCurrency(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("currency", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedPriceQueryBuilderV2 ExceptCurrency() => ExceptField("currency");
-
-        public SourceGeneratedPriceQueryBuilderV2 WithLevel(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("level", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedPriceQueryBuilderV2 ExceptLevel() => ExceptField("level");
-    }
-
-    public partial class SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2>
-    {
-        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
-        {
-            new GraphQlFieldMetadata { Name = "pageInfo", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2) },
-            new GraphQlFieldMetadata { Name = "edges", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2) },
-            new GraphQlFieldMetadata { Name = "nodes", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) }
-        };
-
-        protected override string TypeName { get; } = "SubscriptionPriceConnection";
-
-        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-        public SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 WithPageInfo(SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 subscriptionPriceConnectionPageInfoQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("pageInfo", alias, subscriptionPriceConnectionPageInfoQueryBuilder, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 ExceptPageInfo() => ExceptField("pageInfo");
-
-        public SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 WithEdges(SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2 subscriptionPriceEdgeQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("edges", alias, subscriptionPriceEdgeQueryBuilder, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 ExceptEdges() => ExceptField("edges");
-
-        public SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 WithNodes(SourceGeneratedPriceQueryBuilderV2 priceQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("nodes", alias, priceQueryBuilder, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 ExceptNodes() => ExceptField("nodes");
-    }
-
-    public partial class SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2>
-    {
-        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
-        {
-            new GraphQlFieldMetadata { Name = "endCursor" },
-            new GraphQlFieldMetadata { Name = "hasNextPage" },
-            new GraphQlFieldMetadata { Name = "hasPreviousPage" },
-            new GraphQlFieldMetadata { Name = "startCursor" },
-            new GraphQlFieldMetadata { Name = "resolution" },
-            new GraphQlFieldMetadata { Name = "currency" },
-            new GraphQlFieldMetadata { Name = "count" },
-            new GraphQlFieldMetadata { Name = "precision" },
-            new GraphQlFieldMetadata { Name = "minEnergy" },
-            new GraphQlFieldMetadata { Name = "minTotal" },
-            new GraphQlFieldMetadata { Name = "maxEnergy" },
-            new GraphQlFieldMetadata { Name = "maxTotal" }
-        };
-
-        protected override string TypeName { get; } = "SubscriptionPriceConnectionPageInfo";
-
-        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithEndCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("endCursor", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptEndCursor() => ExceptField("endCursor");
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithHasNextPage(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("hasNextPage", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptHasNextPage() => ExceptField("hasNextPage");
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithHasPreviousPage(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("hasPreviousPage", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptHasPreviousPage() => ExceptField("hasPreviousPage");
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithStartCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("startCursor", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptStartCursor() => ExceptField("startCursor");
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithResolution(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("resolution", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptResolution() => ExceptField("resolution");
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithCurrency(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("currency", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptCurrency() => ExceptField("currency");
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithCount(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("count", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptCount() => ExceptField("count");
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithPrecision(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("precision", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptPrecision() => ExceptField("precision");
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithMinEnergy(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("minEnergy", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptMinEnergy() => ExceptField("minEnergy");
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithMinTotal(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("minTotal", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptMinTotal() => ExceptField("minTotal");
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithMaxEnergy(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("maxEnergy", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptMaxEnergy() => ExceptField("maxEnergy");
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithMaxTotal(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("maxTotal", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptMaxTotal() => ExceptField("maxTotal");
-    }
-
-    public partial class SourceGeneratedPageInfoQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedPageInfoQueryBuilderV2>
-    {
-        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
-        {
-            new GraphQlFieldMetadata { Name = "unimplementedField" },
-            new GraphQlFieldMetadata { Name = "unimplementedDeprecatedField" },
-            new GraphQlFieldMetadata { Name = "endCursor" },
-            new GraphQlFieldMetadata { Name = "hasNextPage" },
-            new GraphQlFieldMetadata { Name = "hasPreviousPage" },
-            new GraphQlFieldMetadata { Name = "startCursor" }
-        };
-
-        public SourceGeneratedPageInfoQueryBuilderV2() => WithTypeName();
-
-        protected override string TypeName { get; } = "PageInfo";
-
-        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-        public SourceGeneratedPageInfoQueryBuilderV2 WithUnimplementedField(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("unimplementedField", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedPageInfoQueryBuilderV2 ExceptUnimplementedField() => ExceptField("unimplementedField");
-
-        [Obsolete(@"should not be generated")]
-        public SourceGeneratedPageInfoQueryBuilderV2 WithUnimplementedDeprecatedField(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("unimplementedDeprecatedField", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedPageInfoQueryBuilderV2 ExceptUnimplementedDeprecatedField() => ExceptField("unimplementedDeprecatedField");
-
-        public SourceGeneratedPageInfoQueryBuilderV2 WithEndCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("endCursor", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedPageInfoQueryBuilderV2 ExceptEndCursor() => ExceptField("endCursor");
-
-        public SourceGeneratedPageInfoQueryBuilderV2 WithHasNextPage(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("hasNextPage", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedPageInfoQueryBuilderV2 ExceptHasNextPage() => ExceptField("hasNextPage");
-
-        public SourceGeneratedPageInfoQueryBuilderV2 WithHasPreviousPage(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("hasPreviousPage", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedPageInfoQueryBuilderV2 ExceptHasPreviousPage() => ExceptField("hasPreviousPage");
-
-        public SourceGeneratedPageInfoQueryBuilderV2 WithStartCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("startCursor", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedPageInfoQueryBuilderV2 ExceptStartCursor() => ExceptField("startCursor");
-
-        public SourceGeneratedPageInfoQueryBuilderV2 WithSubscriptionPriceConnectionPageInfoFragment(SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 subscriptionPriceConnectionPageInfoQueryBuilder, SkipDirective skip = null, IncludeDirective include = null) => WithFragment(subscriptionPriceConnectionPageInfoQueryBuilder, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedPageInfoQueryBuilderV2 WithHomeConsumptionPageInfoFragment(SourceGeneratedHomeConsumptionPageInfoQueryBuilderV2 homeConsumptionPageInfoQueryBuilder, SkipDirective skip = null, IncludeDirective include = null) => WithFragment(homeConsumptionPageInfoQueryBuilder, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedPageInfoQueryBuilderV2 WithHomeProductionPageInfoFragment(SourceGeneratedHomeProductionPageInfoQueryBuilderV2 homeProductionPageInfoQueryBuilder, SkipDirective skip = null, IncludeDirective include = null) => WithFragment(homeProductionPageInfoQueryBuilder, new GraphQlDirective[] { skip, include });
-    }
-
-    public partial class SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2>
-    {
-        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
-        {
-            new GraphQlFieldMetadata { Name = "cursor" },
-            new GraphQlFieldMetadata { Name = "node", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) }
-        };
-
-        protected override string TypeName { get; } = "SubscriptionPriceEdge";
-
-        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-        public SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2 WithCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("cursor", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2 ExceptCursor() => ExceptField("cursor");
-
-        public SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2 WithNode(SourceGeneratedPriceQueryBuilderV2 priceQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("node", alias, priceQueryBuilder, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2 ExceptNode() => ExceptField("node");
-    }
-
     public partial class SourceGeneratedHomeConsumptionConnectionQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedHomeConsumptionConnectionQueryBuilderV2>
     {
         private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
@@ -1948,6 +1532,27 @@ namespace SourceGeneratorTestAssembly
         public SourceGeneratedHomeConsumptionConnectionQueryBuilderV2 WithEdges(SourceGeneratedHomeConsumptionEdgeQueryBuilderV2 homeConsumptionEdgeQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("edges", alias, homeConsumptionEdgeQueryBuilder, new GraphQlDirective[] { skip, include });
 
         public SourceGeneratedHomeConsumptionConnectionQueryBuilderV2 ExceptEdges() => ExceptField("edges");
+    }
+
+    public partial class SourceGeneratedHomeConsumptionEdgeQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedHomeConsumptionEdgeQueryBuilderV2>
+    {
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        {
+            new GraphQlFieldMetadata { Name = "cursor" },
+            new GraphQlFieldMetadata { Name = "node", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedConsumptionEntryQueryBuilderV2) }
+        };
+
+        protected override string TypeName { get; } = "HomeConsumptionEdge";
+
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+        public SourceGeneratedHomeConsumptionEdgeQueryBuilderV2 WithCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("cursor", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedHomeConsumptionEdgeQueryBuilderV2 ExceptCursor() => ExceptField("cursor");
+
+        public SourceGeneratedHomeConsumptionEdgeQueryBuilderV2 WithNode(SourceGeneratedConsumptionEntryQueryBuilderV2 consumptionEntryQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("node", alias, consumptionEntryQueryBuilder, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedHomeConsumptionEdgeQueryBuilderV2 ExceptNode() => ExceptField("node");
     }
 
     public partial class SourceGeneratedHomeConsumptionPageInfoQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedHomeConsumptionPageInfoQueryBuilderV2>
@@ -2012,88 +1617,20 @@ namespace SourceGeneratorTestAssembly
         public SourceGeneratedHomeConsumptionPageInfoQueryBuilderV2 ExceptFiltered() => ExceptField("filtered");
     }
 
-    public partial class SourceGeneratedConsumptionEntryQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedConsumptionEntryQueryBuilderV2>
+    public partial class SourceGeneratedHomeFeaturesQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedHomeFeaturesQueryBuilderV2>
     {
         private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new GraphQlFieldMetadata { Name = "from" },
-            new GraphQlFieldMetadata { Name = "to" },
-            new GraphQlFieldMetadata { Name = "unitPrice" },
-            new GraphQlFieldMetadata { Name = "unitPriceVAT" },
-            new GraphQlFieldMetadata { Name = "consumption" },
-            new GraphQlFieldMetadata { Name = "consumptionUnit" },
-            new GraphQlFieldMetadata { Name = "totalCost" },
-            new GraphQlFieldMetadata { Name = "unitCost" },
-            new GraphQlFieldMetadata { Name = "cost" },
-            new GraphQlFieldMetadata { Name = "currency" }
+            new GraphQlFieldMetadata { Name = "realTimeConsumptionEnabled" }
         };
 
-        protected override string TypeName { get; } = "Consumption";
+        protected override string TypeName { get; } = "HomeFeatures";
 
         public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithFrom(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("from", alias, new GraphQlDirective[] { skip, include });
+        public SourceGeneratedHomeFeaturesQueryBuilderV2 WithRealTimeConsumptionEnabled(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("realTimeConsumptionEnabled", alias, new GraphQlDirective[] { skip, include });
 
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptFrom() => ExceptField("from");
-
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithTo(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("to", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptTo() => ExceptField("to");
-
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithUnitPrice(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("unitPrice", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptUnitPrice() => ExceptField("unitPrice");
-
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithUnitPriceVat(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("unitPriceVAT", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptUnitPriceVat() => ExceptField("unitPriceVAT");
-
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithConsumption(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("consumption", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptConsumption() => ExceptField("consumption");
-
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithConsumptionUnit(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("consumptionUnit", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptConsumptionUnit() => ExceptField("consumptionUnit");
-
-        [Obsolete(@"use cost instead.")]
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithTotalCost(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("totalCost", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptTotalCost() => ExceptField("totalCost");
-
-        [Obsolete(@"use cost instead")]
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithUnitCost(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("unitCost", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptUnitCost() => ExceptField("unitCost");
-
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithCost(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("cost", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptCost() => ExceptField("cost");
-
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 WithCurrency(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("currency", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedConsumptionEntryQueryBuilderV2 ExceptCurrency() => ExceptField("currency");
-    }
-
-    public partial class SourceGeneratedHomeConsumptionEdgeQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedHomeConsumptionEdgeQueryBuilderV2>
-    {
-        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
-        {
-            new GraphQlFieldMetadata { Name = "cursor" },
-            new GraphQlFieldMetadata { Name = "node", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedConsumptionEntryQueryBuilderV2) }
-        };
-
-        protected override string TypeName { get; } = "HomeConsumptionEdge";
-
-        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-        public SourceGeneratedHomeConsumptionEdgeQueryBuilderV2 WithCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("cursor", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedHomeConsumptionEdgeQueryBuilderV2 ExceptCursor() => ExceptField("cursor");
-
-        public SourceGeneratedHomeConsumptionEdgeQueryBuilderV2 WithNode(SourceGeneratedConsumptionEntryQueryBuilderV2 consumptionEntryQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("node", alias, consumptionEntryQueryBuilder, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedHomeConsumptionEdgeQueryBuilderV2 ExceptNode() => ExceptField("node");
+        public SourceGeneratedHomeFeaturesQueryBuilderV2 ExceptRealTimeConsumptionEnabled() => ExceptField("realTimeConsumptionEnabled");
     }
 
     public partial class SourceGeneratedHomeProductionConnectionQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedHomeProductionConnectionQueryBuilderV2>
@@ -2120,6 +1657,27 @@ namespace SourceGeneratorTestAssembly
         public SourceGeneratedHomeProductionConnectionQueryBuilderV2 WithEdges(SourceGeneratedHomeProductionEdgeQueryBuilderV2 homeProductionEdgeQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("edges", alias, homeProductionEdgeQueryBuilder, new GraphQlDirective[] { skip, include });
 
         public SourceGeneratedHomeProductionConnectionQueryBuilderV2 ExceptEdges() => ExceptField("edges");
+    }
+
+    public partial class SourceGeneratedHomeProductionEdgeQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedHomeProductionEdgeQueryBuilderV2>
+    {
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        {
+            new GraphQlFieldMetadata { Name = "cursor" },
+            new GraphQlFieldMetadata { Name = "node", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedProductionEntryQueryBuilderV2) }
+        };
+
+        protected override string TypeName { get; } = "HomeProductionEdge";
+
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+        public SourceGeneratedHomeProductionEdgeQueryBuilderV2 WithCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("cursor", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedHomeProductionEdgeQueryBuilderV2 ExceptCursor() => ExceptField("cursor");
+
+        public SourceGeneratedHomeProductionEdgeQueryBuilderV2 WithNode(SourceGeneratedProductionEntryQueryBuilderV2 productionEntryQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("node", alias, productionEntryQueryBuilder, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedHomeProductionEdgeQueryBuilderV2 ExceptNode() => ExceptField("node");
     }
 
     public partial class SourceGeneratedHomeProductionPageInfoQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedHomeProductionPageInfoQueryBuilderV2>
@@ -2178,220 +1736,65 @@ namespace SourceGeneratorTestAssembly
         public SourceGeneratedHomeProductionPageInfoQueryBuilderV2 ExceptFiltered() => ExceptField("filtered");
     }
 
-    public partial class SourceGeneratedProductionEntryQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedProductionEntryQueryBuilderV2>
+    public partial class SourceGeneratedLegalEntityQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedLegalEntityQueryBuilderV2>
     {
         private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
-            new GraphQlFieldMetadata { Name = "from" },
-            new GraphQlFieldMetadata { Name = "to" },
-            new GraphQlFieldMetadata { Name = "unitPrice" },
-            new GraphQlFieldMetadata { Name = "unitPriceVAT" },
-            new GraphQlFieldMetadata { Name = "production" },
-            new GraphQlFieldMetadata { Name = "productionUnit" },
-            new GraphQlFieldMetadata { Name = "profit" },
-            new GraphQlFieldMetadata { Name = "currency" }
+            new GraphQlFieldMetadata { Name = "id" },
+            new GraphQlFieldMetadata { Name = "firstName" },
+            new GraphQlFieldMetadata { Name = "isCompany" },
+            new GraphQlFieldMetadata { Name = "name" },
+            new GraphQlFieldMetadata { Name = "middleName" },
+            new GraphQlFieldMetadata { Name = "lastName" },
+            new GraphQlFieldMetadata { Name = "organizationNo" },
+            new GraphQlFieldMetadata { Name = "language" },
+            new GraphQlFieldMetadata { Name = "contactInfo", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedContactInfoQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "address", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedAddressQueryBuilderV2) }
         };
 
-        protected override string TypeName { get; } = "Production";
+        protected override string TypeName { get; } = "LegalEntity";
 
         public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
 
-        public SourceGeneratedProductionEntryQueryBuilderV2 WithFrom(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("from", alias, new GraphQlDirective[] { skip, include });
+        public SourceGeneratedLegalEntityQueryBuilderV2 WithId(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("id", alias, new GraphQlDirective[] { skip, include });
 
-        public SourceGeneratedProductionEntryQueryBuilderV2 ExceptFrom() => ExceptField("from");
+        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptId() => ExceptField("id");
 
-        public SourceGeneratedProductionEntryQueryBuilderV2 WithTo(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("to", alias, new GraphQlDirective[] { skip, include });
+        public SourceGeneratedLegalEntityQueryBuilderV2 WithFirstName(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("firstName", alias, new GraphQlDirective[] { skip, include });
 
-        public SourceGeneratedProductionEntryQueryBuilderV2 ExceptTo() => ExceptField("to");
+        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptFirstName() => ExceptField("firstName");
 
-        public SourceGeneratedProductionEntryQueryBuilderV2 WithUnitPrice(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("unitPrice", alias, new GraphQlDirective[] { skip, include });
+        public SourceGeneratedLegalEntityQueryBuilderV2 WithIsCompany(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("isCompany", alias, new GraphQlDirective[] { skip, include });
 
-        public SourceGeneratedProductionEntryQueryBuilderV2 ExceptUnitPrice() => ExceptField("unitPrice");
+        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptIsCompany() => ExceptField("isCompany");
 
-        public SourceGeneratedProductionEntryQueryBuilderV2 WithUnitPriceVat(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("unitPriceVAT", alias, new GraphQlDirective[] { skip, include });
+        public SourceGeneratedLegalEntityQueryBuilderV2 WithName(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("name", alias, new GraphQlDirective[] { skip, include });
 
-        public SourceGeneratedProductionEntryQueryBuilderV2 ExceptUnitPriceVat() => ExceptField("unitPriceVAT");
+        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptName() => ExceptField("name");
 
-        public SourceGeneratedProductionEntryQueryBuilderV2 WithProduction(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("production", alias, new GraphQlDirective[] { skip, include });
+        public SourceGeneratedLegalEntityQueryBuilderV2 WithMiddleName(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("middleName", alias, new GraphQlDirective[] { skip, include });
 
-        public SourceGeneratedProductionEntryQueryBuilderV2 ExceptProduction() => ExceptField("production");
+        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptMiddleName() => ExceptField("middleName");
 
-        public SourceGeneratedProductionEntryQueryBuilderV2 WithProductionUnit(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("productionUnit", alias, new GraphQlDirective[] { skip, include });
+        public SourceGeneratedLegalEntityQueryBuilderV2 WithLastName(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("lastName", alias, new GraphQlDirective[] { skip, include });
 
-        public SourceGeneratedProductionEntryQueryBuilderV2 ExceptProductionUnit() => ExceptField("productionUnit");
+        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptLastName() => ExceptField("lastName");
 
-        public SourceGeneratedProductionEntryQueryBuilderV2 WithProfit(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("profit", alias, new GraphQlDirective[] { skip, include });
+        public SourceGeneratedLegalEntityQueryBuilderV2 WithOrganizationNo(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("organizationNo", alias, new GraphQlDirective[] { skip, include });
 
-        public SourceGeneratedProductionEntryQueryBuilderV2 ExceptProfit() => ExceptField("profit");
+        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptOrganizationNo() => ExceptField("organizationNo");
 
-        public SourceGeneratedProductionEntryQueryBuilderV2 WithCurrency(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("currency", alias, new GraphQlDirective[] { skip, include });
+        public SourceGeneratedLegalEntityQueryBuilderV2 WithLanguage(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("language", alias, new GraphQlDirective[] { skip, include });
 
-        public SourceGeneratedProductionEntryQueryBuilderV2 ExceptCurrency() => ExceptField("currency");
-    }
+        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptLanguage() => ExceptField("language");
 
-    public partial class SourceGeneratedHomeProductionEdgeQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedHomeProductionEdgeQueryBuilderV2>
-    {
-        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
-        {
-            new GraphQlFieldMetadata { Name = "cursor" },
-            new GraphQlFieldMetadata { Name = "node", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedProductionEntryQueryBuilderV2) }
-        };
+        public SourceGeneratedLegalEntityQueryBuilderV2 WithContactInfo(SourceGeneratedContactInfoQueryBuilderV2 contactInfoQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("contactInfo", alias, contactInfoQueryBuilder, new GraphQlDirective[] { skip, include });
 
-        protected override string TypeName { get; } = "HomeProductionEdge";
+        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptContactInfo() => ExceptField("contactInfo");
 
-        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+        public SourceGeneratedLegalEntityQueryBuilderV2 WithAddress(SourceGeneratedAddressQueryBuilderV2 addressQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("address", alias, addressQueryBuilder, new GraphQlDirective[] { skip, include });
 
-        public SourceGeneratedHomeProductionEdgeQueryBuilderV2 WithCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("cursor", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedHomeProductionEdgeQueryBuilderV2 ExceptCursor() => ExceptField("cursor");
-
-        public SourceGeneratedHomeProductionEdgeQueryBuilderV2 WithNode(SourceGeneratedProductionEntryQueryBuilderV2 productionEntryQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("node", alias, productionEntryQueryBuilder, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedHomeProductionEdgeQueryBuilderV2 ExceptNode() => ExceptField("node");
-    }
-
-    public partial class SourceGeneratedHomeFeaturesQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedHomeFeaturesQueryBuilderV2>
-    {
-        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
-        {
-            new GraphQlFieldMetadata { Name = "realTimeConsumptionEnabled" }
-        };
-
-        protected override string TypeName { get; } = "HomeFeatures";
-
-        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-        public SourceGeneratedHomeFeaturesQueryBuilderV2 WithRealTimeConsumptionEnabled(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("realTimeConsumptionEnabled", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedHomeFeaturesQueryBuilderV2 ExceptRealTimeConsumptionEnabled() => ExceptField("realTimeConsumptionEnabled");
-    }
-
-    public partial class SourceGeneratedTibberMutationQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedTibberMutationQueryBuilderV2>
-    {
-        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
-        {
-            new GraphQlFieldMetadata { Name = "sendMeterReading", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedMeterReadingResponseQueryBuilderV2) },
-            new GraphQlFieldMetadata { Name = "updateHome", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeQueryBuilderV2) },
-            new GraphQlFieldMetadata { Name = "sendPushNotification", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPushNotificationResponseQueryBuilderV2) }
-        };
-
-        protected override string TypeName { get; } = "RootMutation";
-
-        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-        public SourceGeneratedTibberMutationQueryBuilderV2(string operationName = null) : base("mutation", operationName)
-        {
-        }
-
-        public SourceGeneratedTibberMutationQueryBuilderV2 WithParameter<T>(GraphQlQueryParameter<T> parameter) => WithParameterInternal(parameter);
-
-        public SourceGeneratedTibberMutationQueryBuilderV2 WithSendMeterReading(SourceGeneratedMeterReadingResponseQueryBuilderV2 meterReadingResponseQueryBuilder, QueryBuilderParameter<SourceGeneratedMeterReadingInputV2> input, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
-        {
-            var args = new List<QueryBuilderArgumentInfo>();
-            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "input", ArgumentValue = input} );
-            return WithObjectField("sendMeterReading", alias, meterReadingResponseQueryBuilder, new GraphQlDirective[] { skip, include }, args);
-        }
-
-        public SourceGeneratedTibberMutationQueryBuilderV2 ExceptSendMeterReading() => ExceptField("sendMeterReading");
-
-        public SourceGeneratedTibberMutationQueryBuilderV2 WithUpdateHome(SourceGeneratedHomeQueryBuilderV2 homeQueryBuilder, QueryBuilderParameter<SourceGeneratedUpdateHomeInputV2> input, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
-        {
-            var args = new List<QueryBuilderArgumentInfo>();
-            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "input", ArgumentValue = input} );
-            return WithObjectField("updateHome", alias, homeQueryBuilder, new GraphQlDirective[] { skip, include }, args);
-        }
-
-        public SourceGeneratedTibberMutationQueryBuilderV2 ExceptUpdateHome() => ExceptField("updateHome");
-
-        public SourceGeneratedTibberMutationQueryBuilderV2 WithSendPushNotification(SourceGeneratedPushNotificationResponseQueryBuilderV2 pushNotificationResponseQueryBuilder, QueryBuilderParameter<SourceGeneratedPushNotificationInputV2> input, QueryBuilderParameter<IEnumerable<bool>> flags, QueryBuilderParameter<IEnumerable<string>> tags = null, QueryBuilderParameter<IEnumerable<int?>> references = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
-        {
-            var args = new List<QueryBuilderArgumentInfo>();
-            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "input", ArgumentValue = input} );
-            if (tags != null)
-                args.Add(new QueryBuilderArgumentInfo { ArgumentName = "tags", ArgumentValue = tags} );
-
-            if (references != null)
-                args.Add(new QueryBuilderArgumentInfo { ArgumentName = "references", ArgumentValue = references} );
-
-            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "flags", ArgumentValue = flags} );
-            return WithObjectField("sendPushNotification", alias, pushNotificationResponseQueryBuilder, new GraphQlDirective[] { skip, include }, args);
-        }
-
-        public SourceGeneratedTibberMutationQueryBuilderV2 ExceptSendPushNotification() => ExceptField("sendPushNotification");
-    }
-
-    public partial class SourceGeneratedMeterReadingResponseQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedMeterReadingResponseQueryBuilderV2>
-    {
-        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
-        {
-            new GraphQlFieldMetadata { Name = "homeId" },
-            new GraphQlFieldMetadata { Name = "time" },
-            new GraphQlFieldMetadata { Name = "reading" }
-        };
-
-        protected override string TypeName { get; } = "MeterReadingResponse";
-
-        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-        public SourceGeneratedMeterReadingResponseQueryBuilderV2 WithHomeId(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("homeId", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedMeterReadingResponseQueryBuilderV2 ExceptHomeId() => ExceptField("homeId");
-
-        public SourceGeneratedMeterReadingResponseQueryBuilderV2 WithTime(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("time", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedMeterReadingResponseQueryBuilderV2 ExceptTime() => ExceptField("time");
-
-        public SourceGeneratedMeterReadingResponseQueryBuilderV2 WithReading(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("reading", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedMeterReadingResponseQueryBuilderV2 ExceptReading() => ExceptField("reading");
-    }
-
-    public partial class SourceGeneratedPushNotificationResponseQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedPushNotificationResponseQueryBuilderV2>
-    {
-        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
-        {
-            new GraphQlFieldMetadata { Name = "successful" },
-            new GraphQlFieldMetadata { Name = "pushedToNumberOfDevices" }
-        };
-
-        protected override string TypeName { get; } = "PushNotificationResponse";
-
-        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-        public SourceGeneratedPushNotificationResponseQueryBuilderV2 WithSuccessful(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("successful", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedPushNotificationResponseQueryBuilderV2 ExceptSuccessful() => ExceptField("successful");
-
-        public SourceGeneratedPushNotificationResponseQueryBuilderV2 WithPushedToNumberOfDevices(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("pushedToNumberOfDevices", alias, new GraphQlDirective[] { skip, include });
-
-        public SourceGeneratedPushNotificationResponseQueryBuilderV2 ExceptPushedToNumberOfDevices() => ExceptField("pushedToNumberOfDevices");
-    }
-
-    public partial class SourceGeneratedRootSubscriptionQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedRootSubscriptionQueryBuilderV2>
-    {
-        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
-        {
-            new GraphQlFieldMetadata { Name = "liveMeasurement", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedLiveMeasurementQueryBuilderV2) }
-        };
-
-        protected override string TypeName { get; } = "RootSubscription";
-
-        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
-
-        public SourceGeneratedRootSubscriptionQueryBuilderV2(string operationName = null) : base("subscription", operationName)
-        {
-        }
-
-        public SourceGeneratedRootSubscriptionQueryBuilderV2 WithParameter<T>(GraphQlQueryParameter<T> parameter) => WithParameterInternal(parameter);
-
-        public SourceGeneratedRootSubscriptionQueryBuilderV2 WithLiveMeasurement(SourceGeneratedLiveMeasurementQueryBuilderV2 liveMeasurementQueryBuilder, QueryBuilderParameter<string> homeId, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
-        {
-            var args = new List<QueryBuilderArgumentInfo>();
-            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "homeId", ArgumentValue = homeId} );
-            return WithObjectField("liveMeasurement", alias, liveMeasurementQueryBuilder, new GraphQlDirective[] { skip, include }, args);
-        }
-
-        public SourceGeneratedRootSubscriptionQueryBuilderV2 ExceptLiveMeasurement() => ExceptField("liveMeasurement");
+        public SourceGeneratedLegalEntityQueryBuilderV2 ExceptAddress() => ExceptField("address");
     }
 
     public partial class SourceGeneratedLiveMeasurementQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedLiveMeasurementQueryBuilderV2>
@@ -2509,6 +1912,603 @@ namespace SourceGeneratorTestAssembly
 
         public SourceGeneratedLiveMeasurementQueryBuilderV2 ExceptCurrentPhase3() => ExceptField("currentPhase3");
     }
+
+    public partial class SourceGeneratedMeteringPointDataQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedMeteringPointDataQueryBuilderV2>
+    {
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        {
+            new GraphQlFieldMetadata { Name = "consumptionEan" },
+            new GraphQlFieldMetadata { Name = "gridCompany" },
+            new GraphQlFieldMetadata { Name = "gridAreaCode" },
+            new GraphQlFieldMetadata { Name = "priceAreaCode" },
+            new GraphQlFieldMetadata { Name = "productionEan" },
+            new GraphQlFieldMetadata { Name = "energyTaxType" },
+            new GraphQlFieldMetadata { Name = "vatType" },
+            new GraphQlFieldMetadata { Name = "estimatedAnnualConsumption" }
+        };
+
+        protected override string TypeName { get; } = "MeteringPointData";
+
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+        public SourceGeneratedMeteringPointDataQueryBuilderV2 WithConsumptionEan(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("consumptionEan", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedMeteringPointDataQueryBuilderV2 ExceptConsumptionEan() => ExceptField("consumptionEan");
+
+        public SourceGeneratedMeteringPointDataQueryBuilderV2 WithGridCompany(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("gridCompany", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedMeteringPointDataQueryBuilderV2 ExceptGridCompany() => ExceptField("gridCompany");
+
+        public SourceGeneratedMeteringPointDataQueryBuilderV2 WithGridAreaCode(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("gridAreaCode", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedMeteringPointDataQueryBuilderV2 ExceptGridAreaCode() => ExceptField("gridAreaCode");
+
+        public SourceGeneratedMeteringPointDataQueryBuilderV2 WithPriceAreaCode(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("priceAreaCode", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedMeteringPointDataQueryBuilderV2 ExceptPriceAreaCode() => ExceptField("priceAreaCode");
+
+        public SourceGeneratedMeteringPointDataQueryBuilderV2 WithProductionEan(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("productionEan", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedMeteringPointDataQueryBuilderV2 ExceptProductionEan() => ExceptField("productionEan");
+
+        public SourceGeneratedMeteringPointDataQueryBuilderV2 WithEnergyTaxType(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("energyTaxType", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedMeteringPointDataQueryBuilderV2 ExceptEnergyTaxType() => ExceptField("energyTaxType");
+
+        public SourceGeneratedMeteringPointDataQueryBuilderV2 WithVatType(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("vatType", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedMeteringPointDataQueryBuilderV2 ExceptVatType() => ExceptField("vatType");
+
+        public SourceGeneratedMeteringPointDataQueryBuilderV2 WithEstimatedAnnualConsumption(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("estimatedAnnualConsumption", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedMeteringPointDataQueryBuilderV2 ExceptEstimatedAnnualConsumption() => ExceptField("estimatedAnnualConsumption");
+    }
+
+    public partial class SourceGeneratedMeterReadingResponseQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedMeterReadingResponseQueryBuilderV2>
+    {
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        {
+            new GraphQlFieldMetadata { Name = "homeId" },
+            new GraphQlFieldMetadata { Name = "time" },
+            new GraphQlFieldMetadata { Name = "reading" }
+        };
+
+        protected override string TypeName { get; } = "MeterReadingResponse";
+
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+        public SourceGeneratedMeterReadingResponseQueryBuilderV2 WithHomeId(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("homeId", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedMeterReadingResponseQueryBuilderV2 ExceptHomeId() => ExceptField("homeId");
+
+        public SourceGeneratedMeterReadingResponseQueryBuilderV2 WithTime(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("time", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedMeterReadingResponseQueryBuilderV2 ExceptTime() => ExceptField("time");
+
+        public SourceGeneratedMeterReadingResponseQueryBuilderV2 WithReading(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("reading", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedMeterReadingResponseQueryBuilderV2 ExceptReading() => ExceptField("reading");
+    }
+
+    public partial class SourceGeneratedPageInfoQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedPageInfoQueryBuilderV2>
+    {
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        {
+            new GraphQlFieldMetadata { Name = "unimplementedField" },
+            new GraphQlFieldMetadata { Name = "unimplementedDeprecatedField" },
+            new GraphQlFieldMetadata { Name = "endCursor" },
+            new GraphQlFieldMetadata { Name = "hasNextPage" },
+            new GraphQlFieldMetadata { Name = "hasPreviousPage" },
+            new GraphQlFieldMetadata { Name = "startCursor" }
+        };
+
+        public SourceGeneratedPageInfoQueryBuilderV2() => WithTypeName();
+
+        protected override string TypeName { get; } = "PageInfo";
+
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+        public SourceGeneratedPageInfoQueryBuilderV2 WithUnimplementedField(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("unimplementedField", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedPageInfoQueryBuilderV2 ExceptUnimplementedField() => ExceptField("unimplementedField");
+
+        [Obsolete(@"should not be generated")]
+        public SourceGeneratedPageInfoQueryBuilderV2 WithUnimplementedDeprecatedField(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("unimplementedDeprecatedField", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedPageInfoQueryBuilderV2 ExceptUnimplementedDeprecatedField() => ExceptField("unimplementedDeprecatedField");
+
+        public SourceGeneratedPageInfoQueryBuilderV2 WithEndCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("endCursor", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedPageInfoQueryBuilderV2 ExceptEndCursor() => ExceptField("endCursor");
+
+        public SourceGeneratedPageInfoQueryBuilderV2 WithHasNextPage(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("hasNextPage", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedPageInfoQueryBuilderV2 ExceptHasNextPage() => ExceptField("hasNextPage");
+
+        public SourceGeneratedPageInfoQueryBuilderV2 WithHasPreviousPage(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("hasPreviousPage", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedPageInfoQueryBuilderV2 ExceptHasPreviousPage() => ExceptField("hasPreviousPage");
+
+        public SourceGeneratedPageInfoQueryBuilderV2 WithStartCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("startCursor", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedPageInfoQueryBuilderV2 ExceptStartCursor() => ExceptField("startCursor");
+
+        public SourceGeneratedPageInfoQueryBuilderV2 WithSubscriptionPriceConnectionPageInfoFragment(SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 subscriptionPriceConnectionPageInfoQueryBuilder, SkipDirective skip = null, IncludeDirective include = null) => WithFragment(subscriptionPriceConnectionPageInfoQueryBuilder, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedPageInfoQueryBuilderV2 WithHomeConsumptionPageInfoFragment(SourceGeneratedHomeConsumptionPageInfoQueryBuilderV2 homeConsumptionPageInfoQueryBuilder, SkipDirective skip = null, IncludeDirective include = null) => WithFragment(homeConsumptionPageInfoQueryBuilder, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedPageInfoQueryBuilderV2 WithHomeProductionPageInfoFragment(SourceGeneratedHomeProductionPageInfoQueryBuilderV2 homeProductionPageInfoQueryBuilder, SkipDirective skip = null, IncludeDirective include = null) => WithFragment(homeProductionPageInfoQueryBuilder, new GraphQlDirective[] { skip, include });
+    }
+
+    public partial class SourceGeneratedPriceQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedPriceQueryBuilderV2>
+    {
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        {
+            new GraphQlFieldMetadata { Name = "total" },
+            new GraphQlFieldMetadata { Name = "energy" },
+            new GraphQlFieldMetadata { Name = "tax" },
+            new GraphQlFieldMetadata { Name = "startsAt" },
+            new GraphQlFieldMetadata { Name = "currency" },
+            new GraphQlFieldMetadata { Name = "level" }
+        };
+
+        protected override string TypeName { get; } = "Price";
+
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+        public SourceGeneratedPriceQueryBuilderV2 WithTotal(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("total", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedPriceQueryBuilderV2 ExceptTotal() => ExceptField("total");
+
+        public SourceGeneratedPriceQueryBuilderV2 WithEnergy(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("energy", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedPriceQueryBuilderV2 ExceptEnergy() => ExceptField("energy");
+
+        public SourceGeneratedPriceQueryBuilderV2 WithTax(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("tax", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedPriceQueryBuilderV2 ExceptTax() => ExceptField("tax");
+
+        public SourceGeneratedPriceQueryBuilderV2 WithStartsAt(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("startsAt", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedPriceQueryBuilderV2 ExceptStartsAt() => ExceptField("startsAt");
+
+        public SourceGeneratedPriceQueryBuilderV2 WithCurrency(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("currency", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedPriceQueryBuilderV2 ExceptCurrency() => ExceptField("currency");
+
+        public SourceGeneratedPriceQueryBuilderV2 WithLevel(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("level", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedPriceQueryBuilderV2 ExceptLevel() => ExceptField("level");
+    }
+
+    public partial class SourceGeneratedPriceInfoQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedPriceInfoQueryBuilderV2>
+    {
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        {
+            new GraphQlFieldMetadata { Name = "current", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "today", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "tomorrow", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "range", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2) }
+        };
+
+        protected override string TypeName { get; } = "PriceInfo";
+
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+        public SourceGeneratedPriceInfoQueryBuilderV2 WithCurrent(SourceGeneratedPriceQueryBuilderV2 priceQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("current", alias, priceQueryBuilder, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedPriceInfoQueryBuilderV2 ExceptCurrent() => ExceptField("current");
+
+        public SourceGeneratedPriceInfoQueryBuilderV2 WithToday(SourceGeneratedPriceQueryBuilderV2 priceQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("today", alias, priceQueryBuilder, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedPriceInfoQueryBuilderV2 ExceptToday() => ExceptField("today");
+
+        public SourceGeneratedPriceInfoQueryBuilderV2 WithTomorrow(SourceGeneratedPriceQueryBuilderV2 priceQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("tomorrow", alias, priceQueryBuilder, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedPriceInfoQueryBuilderV2 ExceptTomorrow() => ExceptField("tomorrow");
+
+        public SourceGeneratedPriceInfoQueryBuilderV2 WithRange(SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 subscriptionPriceConnectionQueryBuilder, QueryBuilderParameter<SourceGeneratedPriceResolutionV2> resolution, QueryBuilderParameter<int?> first = null, QueryBuilderParameter<int?> last = null, QueryBuilderParameter<string> before = null, QueryBuilderParameter<string> after = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
+        {
+            var args = new List<QueryBuilderArgumentInfo>();
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "resolution", ArgumentValue = resolution} );
+            if (first != null)
+                args.Add(new QueryBuilderArgumentInfo { ArgumentName = "first", ArgumentValue = first} );
+
+            if (last != null)
+                args.Add(new QueryBuilderArgumentInfo { ArgumentName = "last", ArgumentValue = last} );
+
+            if (before != null)
+                args.Add(new QueryBuilderArgumentInfo { ArgumentName = "before", ArgumentValue = before} );
+
+            if (after != null)
+                args.Add(new QueryBuilderArgumentInfo { ArgumentName = "after", ArgumentValue = after} );
+
+            return WithObjectField("range", alias, subscriptionPriceConnectionQueryBuilder, new GraphQlDirective[] { skip, include }, args);
+        }
+
+        public SourceGeneratedPriceInfoQueryBuilderV2 ExceptRange() => ExceptField("range");
+    }
+
+    public partial class SourceGeneratedProductionEntryQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedProductionEntryQueryBuilderV2>
+    {
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        {
+            new GraphQlFieldMetadata { Name = "from" },
+            new GraphQlFieldMetadata { Name = "to" },
+            new GraphQlFieldMetadata { Name = "unitPrice" },
+            new GraphQlFieldMetadata { Name = "unitPriceVAT" },
+            new GraphQlFieldMetadata { Name = "production" },
+            new GraphQlFieldMetadata { Name = "productionUnit" },
+            new GraphQlFieldMetadata { Name = "profit" },
+            new GraphQlFieldMetadata { Name = "currency" }
+        };
+
+        protected override string TypeName { get; } = "Production";
+
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+        public SourceGeneratedProductionEntryQueryBuilderV2 WithFrom(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("from", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedProductionEntryQueryBuilderV2 ExceptFrom() => ExceptField("from");
+
+        public SourceGeneratedProductionEntryQueryBuilderV2 WithTo(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("to", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedProductionEntryQueryBuilderV2 ExceptTo() => ExceptField("to");
+
+        public SourceGeneratedProductionEntryQueryBuilderV2 WithUnitPrice(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("unitPrice", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedProductionEntryQueryBuilderV2 ExceptUnitPrice() => ExceptField("unitPrice");
+
+        public SourceGeneratedProductionEntryQueryBuilderV2 WithUnitPriceVat(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("unitPriceVAT", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedProductionEntryQueryBuilderV2 ExceptUnitPriceVat() => ExceptField("unitPriceVAT");
+
+        public SourceGeneratedProductionEntryQueryBuilderV2 WithProduction(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("production", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedProductionEntryQueryBuilderV2 ExceptProduction() => ExceptField("production");
+
+        public SourceGeneratedProductionEntryQueryBuilderV2 WithProductionUnit(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("productionUnit", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedProductionEntryQueryBuilderV2 ExceptProductionUnit() => ExceptField("productionUnit");
+
+        public SourceGeneratedProductionEntryQueryBuilderV2 WithProfit(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("profit", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedProductionEntryQueryBuilderV2 ExceptProfit() => ExceptField("profit");
+
+        public SourceGeneratedProductionEntryQueryBuilderV2 WithCurrency(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("currency", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedProductionEntryQueryBuilderV2 ExceptCurrency() => ExceptField("currency");
+    }
+
+    public partial class SourceGeneratedPushNotificationResponseQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedPushNotificationResponseQueryBuilderV2>
+    {
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        {
+            new GraphQlFieldMetadata { Name = "successful" },
+            new GraphQlFieldMetadata { Name = "pushedToNumberOfDevices" }
+        };
+
+        protected override string TypeName { get; } = "PushNotificationResponse";
+
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+        public SourceGeneratedPushNotificationResponseQueryBuilderV2 WithSuccessful(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("successful", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedPushNotificationResponseQueryBuilderV2 ExceptSuccessful() => ExceptField("successful");
+
+        public SourceGeneratedPushNotificationResponseQueryBuilderV2 WithPushedToNumberOfDevices(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("pushedToNumberOfDevices", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedPushNotificationResponseQueryBuilderV2 ExceptPushedToNumberOfDevices() => ExceptField("pushedToNumberOfDevices");
+    }
+
+    public partial class SourceGeneratedTibberQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedTibberQueryBuilderV2>
+    {
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        {
+            new GraphQlFieldMetadata { Name = "viewer", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedViewerQueryBuilderV2) }
+        };
+
+        protected override string TypeName { get; } = "Query";
+
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+        public SourceGeneratedTibberQueryBuilderV2(string operationName = null) : base("query", operationName)
+        {
+        }
+
+        public SourceGeneratedTibberQueryBuilderV2 WithParameter<T>(GraphQlQueryParameter<T> parameter) => WithParameterInternal(parameter);
+
+        public SourceGeneratedTibberQueryBuilderV2 WithViewer(SourceGeneratedViewerQueryBuilderV2 viewerQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("viewer", alias, viewerQueryBuilder, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedTibberQueryBuilderV2 ExceptViewer() => ExceptField("viewer");
+    }
+
+    public partial class SourceGeneratedTibberMutationQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedTibberMutationQueryBuilderV2>
+    {
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        {
+            new GraphQlFieldMetadata { Name = "sendMeterReading", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedMeterReadingResponseQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "updateHome", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "sendPushNotification", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPushNotificationResponseQueryBuilderV2) }
+        };
+
+        protected override string TypeName { get; } = "RootMutation";
+
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+        public SourceGeneratedTibberMutationQueryBuilderV2(string operationName = null) : base("mutation", operationName)
+        {
+        }
+
+        public SourceGeneratedTibberMutationQueryBuilderV2 WithParameter<T>(GraphQlQueryParameter<T> parameter) => WithParameterInternal(parameter);
+
+        public SourceGeneratedTibberMutationQueryBuilderV2 WithSendMeterReading(SourceGeneratedMeterReadingResponseQueryBuilderV2 meterReadingResponseQueryBuilder, QueryBuilderParameter<SourceGeneratedMeterReadingInputV2> input, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
+        {
+            var args = new List<QueryBuilderArgumentInfo>();
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "input", ArgumentValue = input} );
+            return WithObjectField("sendMeterReading", alias, meterReadingResponseQueryBuilder, new GraphQlDirective[] { skip, include }, args);
+        }
+
+        public SourceGeneratedTibberMutationQueryBuilderV2 ExceptSendMeterReading() => ExceptField("sendMeterReading");
+
+        public SourceGeneratedTibberMutationQueryBuilderV2 WithUpdateHome(SourceGeneratedHomeQueryBuilderV2 homeQueryBuilder, QueryBuilderParameter<SourceGeneratedUpdateHomeInputV2> input, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
+        {
+            var args = new List<QueryBuilderArgumentInfo>();
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "input", ArgumentValue = input} );
+            return WithObjectField("updateHome", alias, homeQueryBuilder, new GraphQlDirective[] { skip, include }, args);
+        }
+
+        public SourceGeneratedTibberMutationQueryBuilderV2 ExceptUpdateHome() => ExceptField("updateHome");
+
+        public SourceGeneratedTibberMutationQueryBuilderV2 WithSendPushNotification(SourceGeneratedPushNotificationResponseQueryBuilderV2 pushNotificationResponseQueryBuilder, QueryBuilderParameter<SourceGeneratedPushNotificationInputV2> input, QueryBuilderParameter<IEnumerable<bool>> flags, QueryBuilderParameter<IEnumerable<string>> tags = null, QueryBuilderParameter<IEnumerable<int?>> references = null, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
+        {
+            var args = new List<QueryBuilderArgumentInfo>();
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "input", ArgumentValue = input} );
+            if (tags != null)
+                args.Add(new QueryBuilderArgumentInfo { ArgumentName = "tags", ArgumentValue = tags} );
+
+            if (references != null)
+                args.Add(new QueryBuilderArgumentInfo { ArgumentName = "references", ArgumentValue = references} );
+
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "flags", ArgumentValue = flags} );
+            return WithObjectField("sendPushNotification", alias, pushNotificationResponseQueryBuilder, new GraphQlDirective[] { skip, include }, args);
+        }
+
+        public SourceGeneratedTibberMutationQueryBuilderV2 ExceptSendPushNotification() => ExceptField("sendPushNotification");
+    }
+
+    public partial class SourceGeneratedRootSubscriptionQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedRootSubscriptionQueryBuilderV2>
+    {
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        {
+            new GraphQlFieldMetadata { Name = "liveMeasurement", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedLiveMeasurementQueryBuilderV2) }
+        };
+
+        protected override string TypeName { get; } = "RootSubscription";
+
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+        public SourceGeneratedRootSubscriptionQueryBuilderV2(string operationName = null) : base("subscription", operationName)
+        {
+        }
+
+        public SourceGeneratedRootSubscriptionQueryBuilderV2 WithParameter<T>(GraphQlQueryParameter<T> parameter) => WithParameterInternal(parameter);
+
+        public SourceGeneratedRootSubscriptionQueryBuilderV2 WithLiveMeasurement(SourceGeneratedLiveMeasurementQueryBuilderV2 liveMeasurementQueryBuilder, QueryBuilderParameter<string> homeId, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
+        {
+            var args = new List<QueryBuilderArgumentInfo>();
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "homeId", ArgumentValue = homeId} );
+            return WithObjectField("liveMeasurement", alias, liveMeasurementQueryBuilder, new GraphQlDirective[] { skip, include }, args);
+        }
+
+        public SourceGeneratedRootSubscriptionQueryBuilderV2 ExceptLiveMeasurement() => ExceptField("liveMeasurement");
+    }
+
+    public partial class SourceGeneratedSubscriptionQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedSubscriptionQueryBuilderV2>
+    {
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        {
+            new GraphQlFieldMetadata { Name = "id" },
+            new GraphQlFieldMetadata { Name = "subscriber", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedLegalEntityQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "validFrom" },
+            new GraphQlFieldMetadata { Name = "validTo" },
+            new GraphQlFieldMetadata { Name = "status" },
+            new GraphQlFieldMetadata { Name = "statusReason" },
+            new GraphQlFieldMetadata { Name = "priceInfo", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceInfoQueryBuilderV2) }
+        };
+
+        protected override string TypeName { get; } = "Subscription";
+
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+        public SourceGeneratedSubscriptionQueryBuilderV2 WithId(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("id", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionQueryBuilderV2 ExceptId() => ExceptField("id");
+
+        public SourceGeneratedSubscriptionQueryBuilderV2 WithSubscriber(SourceGeneratedLegalEntityQueryBuilderV2 legalEntityQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("subscriber", alias, legalEntityQueryBuilder, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionQueryBuilderV2 ExceptSubscriber() => ExceptField("subscriber");
+
+        public SourceGeneratedSubscriptionQueryBuilderV2 WithValidFrom(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("validFrom", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionQueryBuilderV2 ExceptValidFrom() => ExceptField("validFrom");
+
+        public SourceGeneratedSubscriptionQueryBuilderV2 WithValidTo(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("validTo", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionQueryBuilderV2 ExceptValidTo() => ExceptField("validTo");
+
+        public SourceGeneratedSubscriptionQueryBuilderV2 WithStatus(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("status", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionQueryBuilderV2 ExceptStatus() => ExceptField("status");
+
+        [Obsolete(@"no longer available.")]
+        public SourceGeneratedSubscriptionQueryBuilderV2 WithStatusReason(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("statusReason", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionQueryBuilderV2 ExceptStatusReason() => ExceptField("statusReason");
+
+        public SourceGeneratedSubscriptionQueryBuilderV2 WithPriceInfo(SourceGeneratedPriceInfoQueryBuilderV2 priceInfoQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("priceInfo", alias, priceInfoQueryBuilder, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionQueryBuilderV2 ExceptPriceInfo() => ExceptField("priceInfo");
+    }
+
+    public partial class SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2>
+    {
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        {
+            new GraphQlFieldMetadata { Name = "pageInfo", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "edges", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "nodes", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) }
+        };
+
+        protected override string TypeName { get; } = "SubscriptionPriceConnection";
+
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+        public SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 WithPageInfo(SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 subscriptionPriceConnectionPageInfoQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("pageInfo", alias, subscriptionPriceConnectionPageInfoQueryBuilder, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 ExceptPageInfo() => ExceptField("pageInfo");
+
+        public SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 WithEdges(SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2 subscriptionPriceEdgeQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("edges", alias, subscriptionPriceEdgeQueryBuilder, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 ExceptEdges() => ExceptField("edges");
+
+        public SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 WithNodes(SourceGeneratedPriceQueryBuilderV2 priceQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("nodes", alias, priceQueryBuilder, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionPriceConnectionQueryBuilderV2 ExceptNodes() => ExceptField("nodes");
+    }
+
+    public partial class SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2>
+    {
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        {
+            new GraphQlFieldMetadata { Name = "endCursor" },
+            new GraphQlFieldMetadata { Name = "hasNextPage" },
+            new GraphQlFieldMetadata { Name = "hasPreviousPage" },
+            new GraphQlFieldMetadata { Name = "startCursor" },
+            new GraphQlFieldMetadata { Name = "resolution" },
+            new GraphQlFieldMetadata { Name = "currency" },
+            new GraphQlFieldMetadata { Name = "count" },
+            new GraphQlFieldMetadata { Name = "precision" },
+            new GraphQlFieldMetadata { Name = "minEnergy" },
+            new GraphQlFieldMetadata { Name = "minTotal" },
+            new GraphQlFieldMetadata { Name = "maxEnergy" },
+            new GraphQlFieldMetadata { Name = "maxTotal" }
+        };
+
+        protected override string TypeName { get; } = "SubscriptionPriceConnectionPageInfo";
+
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithEndCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("endCursor", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptEndCursor() => ExceptField("endCursor");
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithHasNextPage(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("hasNextPage", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptHasNextPage() => ExceptField("hasNextPage");
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithHasPreviousPage(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("hasPreviousPage", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptHasPreviousPage() => ExceptField("hasPreviousPage");
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithStartCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("startCursor", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptStartCursor() => ExceptField("startCursor");
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithResolution(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("resolution", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptResolution() => ExceptField("resolution");
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithCurrency(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("currency", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptCurrency() => ExceptField("currency");
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithCount(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("count", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptCount() => ExceptField("count");
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithPrecision(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("precision", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptPrecision() => ExceptField("precision");
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithMinEnergy(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("minEnergy", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptMinEnergy() => ExceptField("minEnergy");
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithMinTotal(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("minTotal", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptMinTotal() => ExceptField("minTotal");
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithMaxEnergy(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("maxEnergy", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptMaxEnergy() => ExceptField("maxEnergy");
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 WithMaxTotal(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("maxTotal", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoQueryBuilderV2 ExceptMaxTotal() => ExceptField("maxTotal");
+    }
+
+    public partial class SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2>
+    {
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        {
+            new GraphQlFieldMetadata { Name = "cursor" },
+            new GraphQlFieldMetadata { Name = "node", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceQueryBuilderV2) }
+        };
+
+        protected override string TypeName { get; } = "SubscriptionPriceEdge";
+
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+        public SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2 WithCursor(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("cursor", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2 ExceptCursor() => ExceptField("cursor");
+
+        public SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2 WithNode(SourceGeneratedPriceQueryBuilderV2 priceQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("node", alias, priceQueryBuilder, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedSubscriptionPriceEdgeQueryBuilderV2 ExceptNode() => ExceptField("node");
+    }
+
+    public partial class SourceGeneratedViewerQueryBuilderV2 : GraphQlQueryBuilder<SourceGeneratedViewerQueryBuilderV2>
+    {
+        private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        {
+            new GraphQlFieldMetadata { Name = "login" },
+            new GraphQlFieldMetadata { Name = "name" },
+            new GraphQlFieldMetadata { Name = "accountType", IsComplex = true },
+            new GraphQlFieldMetadata { Name = "homes", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeQueryBuilderV2) },
+            new GraphQlFieldMetadata { Name = "home", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(SourceGeneratedHomeQueryBuilderV2) }
+        };
+
+        protected override string TypeName { get; } = "Viewer";
+
+        public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+        public SourceGeneratedViewerQueryBuilderV2 WithLogin(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("login", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedViewerQueryBuilderV2 ExceptLogin() => ExceptField("login");
+
+        public SourceGeneratedViewerQueryBuilderV2 WithName(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("name", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedViewerQueryBuilderV2 ExceptName() => ExceptField("name");
+
+        public SourceGeneratedViewerQueryBuilderV2 WithAccountType(string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithScalarField("accountType", alias, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedViewerQueryBuilderV2 ExceptAccountType() => ExceptField("accountType");
+
+        public SourceGeneratedViewerQueryBuilderV2 WithHomes(SourceGeneratedHomeQueryBuilderV2 homeQueryBuilder, string alias = null, SkipDirective skip = null, IncludeDirective include = null) => WithObjectField("homes", alias, homeQueryBuilder, new GraphQlDirective[] { skip, include });
+
+        public SourceGeneratedViewerQueryBuilderV2 ExceptHomes() => ExceptField("homes");
+
+        public SourceGeneratedViewerQueryBuilderV2 WithHome(SourceGeneratedHomeQueryBuilderV2 homeQueryBuilder, QueryBuilderParameter<string> id, string alias = null, SkipDirective skip = null, IncludeDirective include = null)
+        {
+            var args = new List<QueryBuilderArgumentInfo>();
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "id", ArgumentValue = id} );
+            return WithObjectField("home", alias, homeQueryBuilder, new GraphQlDirective[] { skip, include }, args);
+        }
+
+        public SourceGeneratedViewerQueryBuilderV2 ExceptHome() => ExceptField("home");
+    }
     #endregion
 
     #region input classes
@@ -2553,6 +2553,50 @@ namespace SourceGeneratorTestAssembly
             if (_homeId.Name != null) yield return _homeId;
             if (_time.Name != null) yield return _time;
             if (_reading.Name != null) yield return _reading;
+        }
+    }
+
+    public partial class SourceGeneratedPushNotificationInputV2 : IGraphQlInputObject
+    {
+        private InputPropertyInfo _title;
+        private InputPropertyInfo _message;
+        private InputPropertyInfo _screenToOpen;
+
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("title")]
+        [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+        #endif
+        public QueryBuilderParameter<string> Title
+        {
+            get => (QueryBuilderParameter<string>)_title.Value;
+            set => _title = new InputPropertyInfo { Name = "title", Value = value };
+        }
+
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("message")]
+        [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+        #endif
+        public QueryBuilderParameter<string> Message
+        {
+            get => (QueryBuilderParameter<string>)_message.Value;
+            set => _message = new InputPropertyInfo { Name = "message", Value = value };
+        }
+
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("screenToOpen")]
+        [JsonConverter(typeof(QueryBuilderParameterConverter<SourceGeneratedAppScreenV2?>))]
+        #endif
+        public QueryBuilderParameter<SourceGeneratedAppScreenV2?> ScreenToOpen
+        {
+            get => (QueryBuilderParameter<SourceGeneratedAppScreenV2?>)_screenToOpen.Value;
+            set => _screenToOpen = new InputPropertyInfo { Name = "screenToOpen", Value = value };
+        }
+
+        IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
+        {
+            if (_title.Name != null) yield return _title;
+            if (_message.Name != null) yield return _message;
+            if (_screenToOpen.Name != null) yield return _screenToOpen;
         }
     }
 
@@ -2692,95 +2736,119 @@ namespace SourceGeneratorTestAssembly
             if (_mainFuseSize.Name != null) yield return _mainFuseSize;
         }
     }
-
-    public partial class SourceGeneratedPushNotificationInputV2 : IGraphQlInputObject
-    {
-        private InputPropertyInfo _title;
-        private InputPropertyInfo _message;
-        private InputPropertyInfo _screenToOpen;
-
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("title")]
-        [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
-        #endif
-        public QueryBuilderParameter<string> Title
-        {
-            get => (QueryBuilderParameter<string>)_title.Value;
-            set => _title = new InputPropertyInfo { Name = "title", Value = value };
-        }
-
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("message")]
-        [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
-        #endif
-        public QueryBuilderParameter<string> Message
-        {
-            get => (QueryBuilderParameter<string>)_message.Value;
-            set => _message = new InputPropertyInfo { Name = "message", Value = value };
-        }
-
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("screenToOpen")]
-        [JsonConverter(typeof(QueryBuilderParameterConverter<SourceGeneratedAppScreenV2?>))]
-        #endif
-        public QueryBuilderParameter<SourceGeneratedAppScreenV2?> ScreenToOpen
-        {
-            get => (QueryBuilderParameter<SourceGeneratedAppScreenV2?>)_screenToOpen.Value;
-            set => _screenToOpen = new InputPropertyInfo { Name = "screenToOpen", Value = value };
-        }
-
-        IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
-        {
-            if (_title.Name != null) yield return _title;
-            if (_message.Name != null) yield return _message;
-            if (_screenToOpen.Name != null) yield return _screenToOpen;
-        }
-    }
     #endregion
 
     #region data classes
-    public partial class SourceGeneratedTibberV2
+    /// <summary>
+    /// Address information
+    /// </summary>
+    public partial class SourceGeneratedAddressV2
     {
-        /// <summary>
-        /// This contains data about the logged-in user
-        /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("viewer")]
+        [JsonProperty("address1")]
         #endif
-        public SourceGeneratedViewerV2 Viewer { get; set; }
+        public string Address1 { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("address2")]
+        #endif
+        public string Address2 { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("address3")]
+        #endif
+        public string Address3 { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("city")]
+        #endif
+        public string City { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("postalCode")]
+        #endif
+        public string PostalCode { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("country")]
+        #endif
+        public string Country { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("latitude")]
+        #endif
+        public string Latitude { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("longitude")]
+        #endif
+        public string Longitude { get; set; }
     }
 
-    public partial class SourceGeneratedViewerV2
+    public partial class SourceGeneratedConsumptionEntryV2
     {
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("login")]
+        [JsonProperty("from")]
         #endif
-        public string Login { get; set; }
+        public DateTime? From { get; set; }
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("name")]
+        [JsonProperty("to")]
         #endif
-        public string Name { get; set; }
+        public DateTime? To { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("unitPrice")]
+        #endif
+        public double? UnitPrice { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("unitPriceVAT")]
+        #endif
+        public double? UnitPriceVat { get; set; }
         /// <summary>
-        /// The type of account for the logged-in user.
+        /// kWh consumed
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("accountType")]
+        [JsonProperty("consumption")]
         #endif
-        public ICollection<string> AccountType { get; set; }
+        public double? Consumption { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("consumptionUnit")]
+        #endif
+        public string ConsumptionUnit { get; set; }
         /// <summary>
-        /// All homes visible to the logged-in user
+        /// Total cost of the consumption
+        /// </summary>
+        [Obsolete(@"use cost instead.")]
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("totalCost")]
+        #endif
+        public double? TotalCost { get; set; }
+        [Obsolete(@"use cost instead")]
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("unitCost")]
+        #endif
+        public double? UnitCost { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("cost")]
+        #endif
+        public double? Cost { get; set; }
+        /// <summary>
+        /// The cost currency
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("homes")]
+        [JsonProperty("currency")]
         #endif
-        public ICollection<SourceGeneratedHomeV2> Homes { get; set; }
+        public string Currency { get; set; }
+    }
+
+    public partial class SourceGeneratedContactInfoV2
+    {
         /// <summary>
-        /// Single home by its ID
+        /// The email of the corresponding entity
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("home")]
+        [JsonProperty("email")]
         #endif
-        public SourceGeneratedHomeV2 Home { get; set; }
+        public string Email { get; set; }
+        /// <summary>
+        /// The mobile phone no of the corresponding entity
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("mobile")]
+        #endif
+        public string Mobile { get; set; }
     }
 
     public partial class SourceGeneratedHomeV2
@@ -2898,427 +2966,6 @@ namespace SourceGeneratorTestAssembly
         public SourceGeneratedHomeFeaturesV2 Features { get; set; }
     }
 
-    /// <summary>
-    /// Address information
-    /// </summary>
-    public partial class SourceGeneratedAddressV2
-    {
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("address1")]
-        #endif
-        public string Address1 { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("address2")]
-        #endif
-        public string Address2 { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("address3")]
-        #endif
-        public string Address3 { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("city")]
-        #endif
-        public string City { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("postalCode")]
-        #endif
-        public string PostalCode { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("country")]
-        #endif
-        public string Country { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("latitude")]
-        #endif
-        public string Latitude { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("longitude")]
-        #endif
-        public string Longitude { get; set; }
-    }
-
-    public partial class SourceGeneratedLegalEntityV2
-    {
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("id")]
-        #endif
-        public string Id { get; set; }
-        /// <summary>
-        /// First/Christian name of the entity
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("firstName")]
-        #endif
-        public string FirstName { get; set; }
-        /// <summary>
-        /// 'true' if the entity is a company
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("isCompany")]
-        #endif
-        public bool? IsCompany { get; set; }
-        /// <summary>
-        /// Full name of the entity
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("name")]
-        #endif
-        public string Name { get; set; }
-        /// <summary>
-        /// Middle name of the entity
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("middleName")]
-        #endif
-        public string MiddleName { get; set; }
-        /// <summary>
-        /// Last name of the entity
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("lastName")]
-        #endif
-        public string LastName { get; set; }
-        /// <summary>
-        /// Organization number - only populated if entity is a company (isCompany=true)
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("organizationNo")]
-        #endif
-        public string OrganizationNo { get; set; }
-        /// <summary>
-        /// The primary language of the entity
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("language")]
-        #endif
-        public string Language { get; set; }
-        /// <summary>
-        /// Contact information of the entity
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("contactInfo")]
-        #endif
-        public SourceGeneratedContactInfoV2 ContactInfo { get; set; }
-        /// <summary>
-        /// Address information for the entity
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("address")]
-        #endif
-        public SourceGeneratedAddressV2 Address { get; set; }
-    }
-
-    public partial class SourceGeneratedContactInfoV2
-    {
-        /// <summary>
-        /// The email of the corresponding entity
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("email")]
-        #endif
-        public string Email { get; set; }
-        /// <summary>
-        /// The mobile phone no of the corresponding entity
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("mobile")]
-        #endif
-        public string Mobile { get; set; }
-    }
-
-    public partial class SourceGeneratedMeteringPointDataV2
-    {
-        /// <summary>
-        /// The metering point ID of the home
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("consumptionEan")]
-        #endif
-        public string ConsumptionEan { get; set; }
-        /// <summary>
-        /// The grid provider of the home
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("gridCompany")]
-        #endif
-        public string GridCompany { get; set; }
-        /// <summary>
-        /// The grid area the home/metering point belongs to
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("gridAreaCode")]
-        #endif
-        public string GridAreaCode { get; set; }
-        /// <summary>
-        /// The price area the home/metering point belongs to
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("priceAreaCode")]
-        #endif
-        public string PriceAreaCode { get; set; }
-        /// <summary>
-        /// The metering point ID of the production
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("productionEan")]
-        #endif
-        public string ProductionEan { get; set; }
-        /// <summary>
-        /// The eltax type of the home (only relevant for Swedish homes)
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("energyTaxType")]
-        #endif
-        public string EnergyTaxType { get; set; }
-        /// <summary>
-        /// The VAT type of the home (only relevant for Norwegian homes)
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("vatType")]
-        #endif
-        public string VatType { get; set; }
-        /// <summary>
-        /// The estimated annual consumption as reported by grid company
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("estimatedAnnualConsumption")]
-        #endif
-        public int? EstimatedAnnualConsumption { get; set; }
-    }
-
-    public partial class SourceGeneratedSubscriptionV2
-    {
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("id")]
-        #endif
-        public string Id { get; set; }
-        /// <summary>
-        /// The owner of the subscription
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("subscriber")]
-        #endif
-        public SourceGeneratedLegalEntityV2 Subscriber { get; set; }
-        /// <summary>
-        /// The time the subscription started
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("validFrom")]
-        #endif
-        public DateTime? ValidFrom { get; set; }
-        /// <summary>
-        /// The time the subscription ended
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("validTo")]
-        #endif
-        public DateTime? ValidTo { get; set; }
-        /// <summary>
-        /// The current status of the subscription
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("status")]
-        #endif
-        public string Status { get; set; }
-        [Obsolete(@"no longer available.")]
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("statusReason")]
-        #endif
-        public string StatusReason { get; set; }
-        /// <summary>
-        /// Price information related to the subscription
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("priceInfo")]
-        #endif
-        public SourceGeneratedPriceInfoV2 PriceInfo { get; set; }
-    }
-
-    public partial class SourceGeneratedPriceInfoV2
-    {
-        /// <summary>
-        /// The energy price right now
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("current")]
-        #endif
-        public SourceGeneratedPriceV2 Current { get; set; }
-        /// <summary>
-        /// The hourly prices of the current day
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("today")]
-        #endif
-        public ICollection<SourceGeneratedPriceV2> Today { get; set; }
-        /// <summary>
-        /// The hourly prices of the upcoming day
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("tomorrow")]
-        #endif
-        public ICollection<SourceGeneratedPriceV2> Tomorrow { get; set; }
-        /// <summary>
-        /// Range of prices relative to before/after arguments
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("range")]
-        #endif
-        public SourceGeneratedSubscriptionPriceConnectionV2 Range { get; set; }
-    }
-
-    public partial class SourceGeneratedPriceV2
-    {
-        /// <summary>
-        /// The total price (energy + taxes)
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("total")]
-        #endif
-        public double? Total { get; set; }
-        /// <summary>
-        /// The energy part of the price
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("energy")]
-        #endif
-        public double? Energy { get; set; }
-        /// <summary>
-        /// The tax part of the price (guarantee of origin certificate, energy tax (Sweden only) and VAT)
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("tax")]
-        #endif
-        public double? Tax { get; set; }
-        /// <summary>
-        /// The start time of the price
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("startsAt")]
-        #endif
-        public string StartsAt { get; set; }
-        /// <summary>
-        /// The price currency
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("currency")]
-        #endif
-        public string Currency { get; set; }
-        /// <summary>
-        /// The price level compared to recent price values
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("level")]
-        #endif
-        public SourceGeneratedPriceLevelV2? Level { get; set; }
-    }
-
-    public partial class SourceGeneratedSubscriptionPriceConnectionV2
-    {
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("pageInfo")]
-        #endif
-        public SourceGeneratedSubscriptionPriceConnectionPageInfoV2 PageInfo { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("edges")]
-        #endif
-        public ICollection<SourceGeneratedSubscriptionPriceEdgeV2> Edges { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("nodes")]
-        #endif
-        public ICollection<SourceGeneratedPriceV2> Nodes { get; set; }
-    }
-
-    [GraphQlObjectType("SubscriptionPriceConnectionPageInfo")]
-    public partial class SourceGeneratedSubscriptionPriceConnectionPageInfoV2 : ISourceGeneratedPageInfoV2
-    {
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("endCursor")]
-        #endif
-        public string EndCursor { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("hasNextPage")]
-        #endif
-        public bool? HasNextPage { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("hasPreviousPage")]
-        #endif
-        public bool? HasPreviousPage { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("startCursor")]
-        #endif
-        public string StartCursor { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("resolution")]
-        #endif
-        public string Resolution { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("currency")]
-        #endif
-        public string Currency { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("count")]
-        #endif
-        public int Count { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("precision")]
-        #endif
-        public string Precision { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("minEnergy")]
-        #endif
-        public double? MinEnergy { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("minTotal")]
-        #endif
-        public double? MinTotal { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("maxEnergy")]
-        #endif
-        public double? MaxEnergy { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("maxTotal")]
-        #endif
-        public double? MaxTotal { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("unimplementedField")]
-        #endif
-        public string UnimplementedField { get; set; }
-        [Obsolete(@"should not be generated")]
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("unimplementedDeprecatedField")]
-        #endif
-        public string UnimplementedDeprecatedField { get; set; }
-    }
-
-    public partial interface ISourceGeneratedPageInfoV2
-    {
-        string UnimplementedField { get; set; }
-        [Obsolete(@"should not be generated")]
-        string UnimplementedDeprecatedField { get; set; }
-        string EndCursor { get; set; }
-        bool? HasNextPage { get; set; }
-        bool? HasPreviousPage { get; set; }
-        string StartCursor { get; set; }
-    }
-
-    public partial class SourceGeneratedSubscriptionPriceEdgeV2
-    {
-        /// <summary>
-        /// The global ID of the element
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("cursor")]
-        #endif
-        public string Cursor { get; set; }
-        /// <summary>
-        /// A single price node
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("node")]
-        #endif
-        public SourceGeneratedPriceV2 Node { get; set; }
-    }
-
     public partial class SourceGeneratedHomeConsumptionConnectionV2
     {
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
@@ -3333,6 +2980,18 @@ namespace SourceGeneratorTestAssembly
         [JsonProperty("edges")]
         #endif
         public ICollection<SourceGeneratedHomeConsumptionEdgeV2> Edges { get; set; }
+    }
+
+    public partial class SourceGeneratedHomeConsumptionEdgeV2
+    {
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("cursor")]
+        #endif
+        public string Cursor { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("node")]
+        #endif
+        public SourceGeneratedConsumptionEntryV2 Node { get; set; }
     }
 
     [GraphQlObjectType("HomeConsumptionPageInfo")]
@@ -3420,71 +3079,15 @@ namespace SourceGeneratorTestAssembly
         public string UnimplementedDeprecatedField { get; set; }
     }
 
-    public partial class SourceGeneratedConsumptionEntryV2
+    public partial class SourceGeneratedHomeFeaturesV2
     {
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("from")]
-        #endif
-        public DateTime? From { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("to")]
-        #endif
-        public DateTime? To { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("unitPrice")]
-        #endif
-        public double? UnitPrice { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("unitPriceVAT")]
-        #endif
-        public double? UnitPriceVat { get; set; }
         /// <summary>
-        /// kWh consumed
+        /// 'true' if Tibber Pulse or Watty device is paired at home
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("consumption")]
+        [JsonProperty("realTimeConsumptionEnabled")]
         #endif
-        public double? Consumption { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("consumptionUnit")]
-        #endif
-        public string ConsumptionUnit { get; set; }
-        /// <summary>
-        /// Total cost of the consumption
-        /// </summary>
-        [Obsolete(@"use cost instead.")]
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("totalCost")]
-        #endif
-        public double? TotalCost { get; set; }
-        [Obsolete(@"use cost instead")]
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("unitCost")]
-        #endif
-        public double? UnitCost { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("cost")]
-        #endif
-        public double? Cost { get; set; }
-        /// <summary>
-        /// The cost currency
-        /// </summary>
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("currency")]
-        #endif
-        public string Currency { get; set; }
-    }
-
-    public partial class SourceGeneratedHomeConsumptionEdgeV2
-    {
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("cursor")]
-        #endif
-        public string Cursor { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("node")]
-        #endif
-        public SourceGeneratedConsumptionEntryV2 Node { get; set; }
+        public bool? RealTimeConsumptionEnabled { get; set; }
     }
 
     public partial class SourceGeneratedHomeProductionConnectionV2
@@ -3501,6 +3104,18 @@ namespace SourceGeneratorTestAssembly
         [JsonProperty("edges")]
         #endif
         public ICollection<SourceGeneratedHomeProductionEdgeV2> Edges { get; set; }
+    }
+
+    public partial class SourceGeneratedHomeProductionEdgeV2
+    {
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("cursor")]
+        #endif
+        public string Cursor { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("node")]
+        #endif
+        public SourceGeneratedProductionEntryV2 Node { get; set; }
     }
 
     [GraphQlObjectType("HomeProductionPageInfo")]
@@ -3580,136 +3195,75 @@ namespace SourceGeneratorTestAssembly
         public string UnimplementedDeprecatedField { get; set; }
     }
 
-    public partial class SourceGeneratedProductionEntryV2
+    public partial class SourceGeneratedLegalEntityV2
     {
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("from")]
+        [JsonProperty("id")]
         #endif
-        public DateTime? From { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("to")]
-        #endif
-        public DateTime? To { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("unitPrice")]
-        #endif
-        public double? UnitPrice { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("unitPriceVAT")]
-        #endif
-        public double? UnitPriceVat { get; set; }
+        public string Id { get; set; }
         /// <summary>
-        /// kWh consumed
+        /// First/Christian name of the entity
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("production")]
+        [JsonProperty("firstName")]
         #endif
-        public double? Production { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("productionUnit")]
-        #endif
-        public string ProductionUnit { get; set; }
+        public string FirstName { get; set; }
         /// <summary>
-        /// Total profit of the production
+        /// 'true' if the entity is a company
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("profit")]
+        [JsonProperty("isCompany")]
         #endif
-        public double? Profit { get; set; }
+        public bool? IsCompany { get; set; }
         /// <summary>
-        /// The cost currency
+        /// Full name of the entity
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("currency")]
+        [JsonProperty("name")]
         #endif
-        public string Currency { get; set; }
-    }
-
-    public partial class SourceGeneratedHomeProductionEdgeV2
-    {
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("cursor")]
-        #endif
-        public string Cursor { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("node")]
-        #endif
-        public SourceGeneratedProductionEntryV2 Node { get; set; }
-    }
-
-    public partial class SourceGeneratedHomeFeaturesV2
-    {
+        public string Name { get; set; }
         /// <summary>
-        /// 'true' if Tibber Pulse or Watty device is paired at home
+        /// Middle name of the entity
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("realTimeConsumptionEnabled")]
+        [JsonProperty("middleName")]
         #endif
-        public bool? RealTimeConsumptionEnabled { get; set; }
-    }
-
-    public partial class SourceGeneratedTibberMutationV2
-    {
+        public string MiddleName { get; set; }
         /// <summary>
-        /// Send meter reading for home (only available for Norwegian users)
+        /// Last name of the entity
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("sendMeterReading")]
+        [JsonProperty("lastName")]
         #endif
-        public SourceGeneratedMeterReadingResponseV2 SendMeterReading { get; set; }
+        public string LastName { get; set; }
         /// <summary>
-        /// Update home information
+        /// Organization number - only populated if entity is a company (isCompany=true)
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("updateHome")]
+        [JsonProperty("organizationNo")]
         #endif
-        public SourceGeneratedHomeV2 UpdateHome { get; set; }
+        public string OrganizationNo { get; set; }
         /// <summary>
-        /// Send notification to Tibber app on registered devices
+        /// The primary language of the entity
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("sendPushNotification")]
+        [JsonProperty("language")]
         #endif
-        public SourceGeneratedPushNotificationResponseV2 SendPushNotification { get; set; }
-    }
-
-    public partial class SourceGeneratedMeterReadingResponseV2
-    {
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("homeId")]
-        #endif
-        public string HomeId { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("time")]
-        #endif
-        public string Time { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("reading")]
-        #endif
-        public int Reading { get; set; }
-    }
-
-    public partial class SourceGeneratedPushNotificationResponseV2
-    {
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("successful")]
-        #endif
-        public bool Successful { get; set; }
-        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("pushedToNumberOfDevices")]
-        #endif
-        public int PushedToNumberOfDevices { get; set; }
-    }
-
-    public partial class SourceGeneratedRootSubscriptionV2
-    {
+        public string Language { get; set; }
         /// <summary>
-        /// Subscribe to real-time measurement stream from Pulse or Watty device
+        /// Contact information of the entity
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        [JsonProperty("liveMeasurement")]
+        [JsonProperty("contactInfo")]
         #endif
-        public SourceGeneratedLiveMeasurementV2 LiveMeasurement { get; set; }
+        public SourceGeneratedContactInfoV2 ContactInfo { get; set; }
+        /// <summary>
+        /// Address information for the entity
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("address")]
+        #endif
+        public SourceGeneratedAddressV2 Address { get; set; }
     }
 
     public partial class SourceGeneratedLiveMeasurementV2
@@ -3861,6 +3415,452 @@ namespace SourceGeneratorTestAssembly
         [JsonProperty("currentPhase3")]
         #endif
         public double? CurrentPhase3 { get; set; }
+    }
+
+    public partial class SourceGeneratedMeteringPointDataV2
+    {
+        /// <summary>
+        /// The metering point ID of the home
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("consumptionEan")]
+        #endif
+        public string ConsumptionEan { get; set; }
+        /// <summary>
+        /// The grid provider of the home
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("gridCompany")]
+        #endif
+        public string GridCompany { get; set; }
+        /// <summary>
+        /// The grid area the home/metering point belongs to
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("gridAreaCode")]
+        #endif
+        public string GridAreaCode { get; set; }
+        /// <summary>
+        /// The price area the home/metering point belongs to
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("priceAreaCode")]
+        #endif
+        public string PriceAreaCode { get; set; }
+        /// <summary>
+        /// The metering point ID of the production
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("productionEan")]
+        #endif
+        public string ProductionEan { get; set; }
+        /// <summary>
+        /// The eltax type of the home (only relevant for Swedish homes)
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("energyTaxType")]
+        #endif
+        public string EnergyTaxType { get; set; }
+        /// <summary>
+        /// The VAT type of the home (only relevant for Norwegian homes)
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("vatType")]
+        #endif
+        public string VatType { get; set; }
+        /// <summary>
+        /// The estimated annual consumption as reported by grid company
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("estimatedAnnualConsumption")]
+        #endif
+        public int? EstimatedAnnualConsumption { get; set; }
+    }
+
+    public partial class SourceGeneratedMeterReadingResponseV2
+    {
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("homeId")]
+        #endif
+        public string HomeId { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("time")]
+        #endif
+        public string Time { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("reading")]
+        #endif
+        public int Reading { get; set; }
+    }
+
+    public partial interface ISourceGeneratedPageInfoV2
+    {
+        string UnimplementedField { get; set; }
+        [Obsolete(@"should not be generated")]
+        string UnimplementedDeprecatedField { get; set; }
+        string EndCursor { get; set; }
+        bool? HasNextPage { get; set; }
+        bool? HasPreviousPage { get; set; }
+        string StartCursor { get; set; }
+    }
+
+    public partial class SourceGeneratedPriceV2
+    {
+        /// <summary>
+        /// The total price (energy + taxes)
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("total")]
+        #endif
+        public double? Total { get; set; }
+        /// <summary>
+        /// The energy part of the price
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("energy")]
+        #endif
+        public double? Energy { get; set; }
+        /// <summary>
+        /// The tax part of the price (guarantee of origin certificate, energy tax (Sweden only) and VAT)
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("tax")]
+        #endif
+        public double? Tax { get; set; }
+        /// <summary>
+        /// The start time of the price
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("startsAt")]
+        #endif
+        public string StartsAt { get; set; }
+        /// <summary>
+        /// The price currency
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("currency")]
+        #endif
+        public string Currency { get; set; }
+        /// <summary>
+        /// The price level compared to recent price values
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("level")]
+        #endif
+        public SourceGeneratedPriceLevelV2? Level { get; set; }
+    }
+
+    public partial class SourceGeneratedPriceInfoV2
+    {
+        /// <summary>
+        /// The energy price right now
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("current")]
+        #endif
+        public SourceGeneratedPriceV2 Current { get; set; }
+        /// <summary>
+        /// The hourly prices of the current day
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("today")]
+        #endif
+        public ICollection<SourceGeneratedPriceV2> Today { get; set; }
+        /// <summary>
+        /// The hourly prices of the upcoming day
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("tomorrow")]
+        #endif
+        public ICollection<SourceGeneratedPriceV2> Tomorrow { get; set; }
+        /// <summary>
+        /// Range of prices relative to before/after arguments
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("range")]
+        #endif
+        public SourceGeneratedSubscriptionPriceConnectionV2 Range { get; set; }
+    }
+
+    public partial class SourceGeneratedProductionEntryV2
+    {
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("from")]
+        #endif
+        public DateTime? From { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("to")]
+        #endif
+        public DateTime? To { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("unitPrice")]
+        #endif
+        public double? UnitPrice { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("unitPriceVAT")]
+        #endif
+        public double? UnitPriceVat { get; set; }
+        /// <summary>
+        /// kWh consumed
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("production")]
+        #endif
+        public double? Production { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("productionUnit")]
+        #endif
+        public string ProductionUnit { get; set; }
+        /// <summary>
+        /// Total profit of the production
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("profit")]
+        #endif
+        public double? Profit { get; set; }
+        /// <summary>
+        /// The cost currency
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("currency")]
+        #endif
+        public string Currency { get; set; }
+    }
+
+    public partial class SourceGeneratedPushNotificationResponseV2
+    {
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("successful")]
+        #endif
+        public bool Successful { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("pushedToNumberOfDevices")]
+        #endif
+        public int PushedToNumberOfDevices { get; set; }
+    }
+
+    public partial class SourceGeneratedTibberV2
+    {
+        /// <summary>
+        /// This contains data about the logged-in user
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("viewer")]
+        #endif
+        public SourceGeneratedViewerV2 Viewer { get; set; }
+    }
+
+    public partial class SourceGeneratedTibberMutationV2
+    {
+        /// <summary>
+        /// Send meter reading for home (only available for Norwegian users)
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("sendMeterReading")]
+        #endif
+        public SourceGeneratedMeterReadingResponseV2 SendMeterReading { get; set; }
+        /// <summary>
+        /// Update home information
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("updateHome")]
+        #endif
+        public SourceGeneratedHomeV2 UpdateHome { get; set; }
+        /// <summary>
+        /// Send notification to Tibber app on registered devices
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("sendPushNotification")]
+        #endif
+        public SourceGeneratedPushNotificationResponseV2 SendPushNotification { get; set; }
+    }
+
+    public partial class SourceGeneratedRootSubscriptionV2
+    {
+        /// <summary>
+        /// Subscribe to real-time measurement stream from Pulse or Watty device
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("liveMeasurement")]
+        #endif
+        public SourceGeneratedLiveMeasurementV2 LiveMeasurement { get; set; }
+    }
+
+    public partial class SourceGeneratedSubscriptionV2
+    {
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("id")]
+        #endif
+        public string Id { get; set; }
+        /// <summary>
+        /// The owner of the subscription
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("subscriber")]
+        #endif
+        public SourceGeneratedLegalEntityV2 Subscriber { get; set; }
+        /// <summary>
+        /// The time the subscription started
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("validFrom")]
+        #endif
+        public DateTime? ValidFrom { get; set; }
+        /// <summary>
+        /// The time the subscription ended
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("validTo")]
+        #endif
+        public DateTime? ValidTo { get; set; }
+        /// <summary>
+        /// The current status of the subscription
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("status")]
+        #endif
+        public string Status { get; set; }
+        [Obsolete(@"no longer available.")]
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("statusReason")]
+        #endif
+        public string StatusReason { get; set; }
+        /// <summary>
+        /// Price information related to the subscription
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("priceInfo")]
+        #endif
+        public SourceGeneratedPriceInfoV2 PriceInfo { get; set; }
+    }
+
+    public partial class SourceGeneratedSubscriptionPriceConnectionV2
+    {
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("pageInfo")]
+        #endif
+        public SourceGeneratedSubscriptionPriceConnectionPageInfoV2 PageInfo { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("edges")]
+        #endif
+        public ICollection<SourceGeneratedSubscriptionPriceEdgeV2> Edges { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("nodes")]
+        #endif
+        public ICollection<SourceGeneratedPriceV2> Nodes { get; set; }
+    }
+
+    [GraphQlObjectType("SubscriptionPriceConnectionPageInfo")]
+    public partial class SourceGeneratedSubscriptionPriceConnectionPageInfoV2 : ISourceGeneratedPageInfoV2
+    {
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("endCursor")]
+        #endif
+        public string EndCursor { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("hasNextPage")]
+        #endif
+        public bool? HasNextPage { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("hasPreviousPage")]
+        #endif
+        public bool? HasPreviousPage { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("startCursor")]
+        #endif
+        public string StartCursor { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("resolution")]
+        #endif
+        public string Resolution { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("currency")]
+        #endif
+        public string Currency { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("count")]
+        #endif
+        public int Count { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("precision")]
+        #endif
+        public string Precision { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("minEnergy")]
+        #endif
+        public double? MinEnergy { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("minTotal")]
+        #endif
+        public double? MinTotal { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("maxEnergy")]
+        #endif
+        public double? MaxEnergy { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("maxTotal")]
+        #endif
+        public double? MaxTotal { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("unimplementedField")]
+        #endif
+        public string UnimplementedField { get; set; }
+        [Obsolete(@"should not be generated")]
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("unimplementedDeprecatedField")]
+        #endif
+        public string UnimplementedDeprecatedField { get; set; }
+    }
+
+    public partial class SourceGeneratedSubscriptionPriceEdgeV2
+    {
+        /// <summary>
+        /// The global ID of the element
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("cursor")]
+        #endif
+        public string Cursor { get; set; }
+        /// <summary>
+        /// A single price node
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("node")]
+        #endif
+        public SourceGeneratedPriceV2 Node { get; set; }
+    }
+
+    public partial class SourceGeneratedViewerV2
+    {
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("login")]
+        #endif
+        public string Login { get; set; }
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("name")]
+        #endif
+        public string Name { get; set; }
+        /// <summary>
+        /// The type of account for the logged-in user.
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("accountType")]
+        #endif
+        public ICollection<string> AccountType { get; set; }
+        /// <summary>
+        /// All homes visible to the logged-in user
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("homes")]
+        #endif
+        public ICollection<SourceGeneratedHomeV2> Homes { get; set; }
+        /// <summary>
+        /// Single home by its ID
+        /// </summary>
+        #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+        [JsonProperty("home")]
+        #endif
+        public SourceGeneratedHomeV2 Home { get; set; }
     }
     #endregion
 }

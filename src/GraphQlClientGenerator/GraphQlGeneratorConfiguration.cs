@@ -83,6 +83,8 @@ public class GraphQlGeneratorConfiguration
 
     public DataClassMemberNullability DataClassMemberNullability { get; set; }
 
+    public GenerationOrder GenerationOrder { get; set; }
+
     public GraphQlGeneratorConfiguration() => Reset();
 
     public void Reset()
@@ -106,6 +108,7 @@ public class GraphQlGeneratorConfiguration
         EnumValueNaming = EnumValueNamingOption.CSharp;
         FileScopedNamespaces = false;
         DataClassMemberNullability = DataClassMemberNullability.AlwaysNullable;
+        GenerationOrder = GenerationOrder.DefinedBySchema;
     }
 }
 
@@ -185,4 +188,10 @@ public enum DataClassMemberNullability
 {
     AlwaysNullable,
     DefinedBySchema
+}
+
+public enum GenerationOrder
+{
+    DefinedBySchema,
+    Alphabetical
 }

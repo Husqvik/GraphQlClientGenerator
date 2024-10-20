@@ -10,7 +10,7 @@
     <PackageTags>GraphQL Client Generator Tool Console</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-      Use global:: identifier for System.Type to avoid conflict with GraphQL type named "Type"
+      Introduced --generationOrder parameter
       ]]>
     </PackageReleaseNotes>
     <PackAsTool>true</PackAsTool>

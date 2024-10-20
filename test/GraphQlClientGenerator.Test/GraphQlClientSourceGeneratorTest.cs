@@ -54,6 +54,7 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
     {
         var options = SetupGeneratorOptions(OutputType.SingleFile, false, null);
         options.Add("build_property.GraphQlClientGenerator_DataClassMemberNullability", nameof(DataClassMemberNullability.DefinedBySchema));
+        options.Add("build_property.GraphQlClientGenerator_GenerationOrder", nameof(GenerationOrder.Alphabetical));
 
         var generatedSource = GenerateSource(options, _fileMappingRules);
         var sourceCode = generatedSource.ToString();
