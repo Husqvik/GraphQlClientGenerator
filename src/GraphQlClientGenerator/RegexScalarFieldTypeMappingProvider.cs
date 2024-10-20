@@ -21,10 +21,14 @@ public class RegexScalarFieldTypeMappingProvider : IScalarFieldTypeMappingProvid
         valueType = (valueType as GraphQlFieldType)?.UnwrapIfNonNull() ?? valueType;
 
         foreach (var rule in _rules)
+        {
+            var expectNonNullType = rule.PatternValueType.EndsWith("!");
+
             if (Regex.IsMatch(valueName, rule.PatternValueName) &&
                 Regex.IsMatch(baseType.Name, rule.PatternBaseType) &&
-                Regex.IsMatch(valueType.Name ?? String.Empty, rule.PatternValueType))
+                Regex.IsMatch((expectNonNullType ? $"{valueType.Name}!" : valueType.Name) ?? String.Empty, rule.PatternValueType))
                 return new ScalarFieldTypeDescription { NetTypeName = rule.NetTypeName, FormatMask = rule.FormatMask };
+        }
 
         return DefaultScalarFieldTypeMappingProvider.GetFallbackFieldType(configuration, valueType);
     }
