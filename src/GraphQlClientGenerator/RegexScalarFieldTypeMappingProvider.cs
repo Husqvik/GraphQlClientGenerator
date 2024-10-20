@@ -18,15 +18,15 @@ public class RegexScalarFieldTypeMappingProvider : IScalarFieldTypeMappingProvid
 
     public ScalarFieldTypeDescription GetCustomScalarFieldType(GraphQlGeneratorConfiguration configuration, GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
     {
-        valueType = (valueType as GraphQlFieldType)?.UnwrapIfNonNull() ?? valueType;
+        var unwrappedValueType = (valueType as GraphQlFieldType)?.UnwrapIfNonNull() ?? valueType;
 
         foreach (var rule in _rules)
         {
-            var expectNonNullType = rule.PatternValueType.EndsWith("!");
+            var expectNonNullType = unwrappedValueType != valueType && rule.PatternValueType.EndsWith("!");
 
             if (Regex.IsMatch(valueName, rule.PatternValueName) &&
                 Regex.IsMatch(baseType.Name, rule.PatternBaseType) &&
-                Regex.IsMatch((expectNonNullType ? $"{valueType.Name}!" : valueType.Name) ?? String.Empty, rule.PatternValueType))
+                Regex.IsMatch((expectNonNullType ? $"{unwrappedValueType.Name}!" : valueType.Name) ?? String.Empty, rule.PatternValueType))
                 return new ScalarFieldTypeDescription { NetTypeName = rule.NetTypeName, FormatMask = rule.FormatMask };
         }
 
