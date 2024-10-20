@@ -35,7 +35,7 @@ Code example for class generation:
 ```csharp
 var schema = await GraphQlGenerator.RetrieveSchema(url);
 var generator = new GraphQlGenerator();
-var generatedClasses = generator.GenerateFullClientCSharpFile(schema, "MyGqlApiClient");
+var generatedClasses = generator.GenerateFullClientCSharpFile(schema);
 ```
 
 or using full blown setup:
@@ -44,8 +44,8 @@ or using full blown setup:
 var schema = await GraphQlGenerator.RetrieveSchema(url);
 var builder = new StringBuilder();
 using var writer = new StringWriter(builder);
-var generationContext = new SingleFileGenerationContext(schema, writer, "MyGqlApiClient") { LogMessage = Console.WriteLine };
-var configuration = new GraphQlGeneratorConfiguration { ... };
+var generationContext = new SingleFileGenerationContext(schema, writer) { LogMessage = Console.WriteLine };
+var configuration = new GraphQlGeneratorConfiguration { TargetNamespace = "MyGqlApiClient", ... };
 var generator = new GraphQlGenerator(configuration);
 generator.Generate(generationContext);
 var csharpCode = builder.ToString();
