@@ -3,18 +3,15 @@ using System.Text.RegularExpressions;
 
 namespace GraphQlClientGenerator;
 
-public class RegexScalarFieldTypeMappingProvider : IScalarFieldTypeMappingProvider
+public class RegexScalarFieldTypeMappingProvider(IReadOnlyCollection<RegexScalarFieldTypeMappingRule> rules) : IScalarFieldTypeMappingProvider
 {
-    private readonly IReadOnlyCollection<RegexScalarFieldTypeMappingRule> _rules;
+    private readonly IReadOnlyCollection<RegexScalarFieldTypeMappingRule> _rules = rules ?? throw new ArgumentNullException(nameof(rules));
 
     public static IReadOnlyCollection<RegexScalarFieldTypeMappingRule> ParseRulesFromJson(string json)
     {
         var rules = JsonConvert.DeserializeObject<IReadOnlyCollection<RegexScalarFieldTypeMappingRule>>(json);
         return rules ?? [];
     }
-
-    public RegexScalarFieldTypeMappingProvider(IReadOnlyCollection<RegexScalarFieldTypeMappingRule> rules) =>
-        _rules = rules ?? throw new ArgumentNullException(nameof(rules));
 
     public ScalarFieldTypeDescription GetCustomScalarFieldType(GraphQlGeneratorConfiguration configuration, GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
     {

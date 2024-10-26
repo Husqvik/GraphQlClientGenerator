@@ -71,7 +71,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
     {
         StringContent requestContent = null;
         if (method == HttpMethod.Get)
-            url += $"?&query={IntrospectionQuery.Text}";
+            url = $"{url}?&query={IntrospectionQuery.Text}";
         else
             requestContent = new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json");
 
