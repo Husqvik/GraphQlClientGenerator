@@ -35,11 +35,6 @@ public class GraphQlGeneratorConfiguration
     public bool GeneratePartialClasses { get; set; } = true;
 
     /// <summary>
-    /// Determines whether unknown type scalar fields will be automatically requested when <code>WithAllScalarFields</code> issued.
-    /// </summary>
-    public bool TreatUnknownObjectAsScalar { get; set; }
-
-    /// <summary>
     /// Determines the .NET type generated for GraphQL Integer data type.
     /// </summary>
     /// <remarks>For using custom .NET data type <code>Custom</code> option must be used. </remarks>
@@ -100,7 +95,6 @@ public class GraphQlGeneratorConfiguration
         BooleanTypeMapping = BooleanTypeMapping.Boolean;
         IntegerTypeMapping = IntegerTypeMapping.Int32;
         IdTypeMapping = IdTypeMapping.Guid;
-        TreatUnknownObjectAsScalar = false;
         GeneratePartialClasses = true;
         MemberAccessibility = MemberAccessibility.Public;
         JsonPropertyGeneration = JsonPropertyGenerationOption.CaseInsensitive;

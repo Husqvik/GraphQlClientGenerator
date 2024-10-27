@@ -304,9 +304,9 @@ public partial class HomeQueryBuilder : GraphQlQueryBuilder<HomeQueryBuilder>
             new GraphQlFieldMetadata { Name = "preLiveComparison", IsComplex = true, QueryBuilderType = typeof(PreLiveComparisonQueryBuilder) },
             new GraphQlFieldMetadata { Name = "comparisons", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilder) },
             new GraphQlFieldMetadata { Name = "comparison_current_month", IsComplex = true, QueryBuilderType = typeof(ComparisonQueryBuilder) },
-            new GraphQlFieldMetadata { Name = "profile", IsComplex = true },
-            new GraphQlFieldMetadata { Name = "profileQuestions", IsComplex = true },
-            new GraphQlFieldMetadata { Name = "thermostat", IsComplex = true },
+            new GraphQlFieldMetadata { Name = "profile" },
+            new GraphQlFieldMetadata { Name = "profileQuestions" },
+            new GraphQlFieldMetadata { Name = "thermostat" },
             new GraphQlFieldMetadata { Name = "temperatures", IsComplex = true },
             new GraphQlFieldMetadata { Name = "signupStatus", IsComplex = true, QueryBuilderType = typeof(SignupStatusQueryBuilder) },
             new GraphQlFieldMetadata { Name = "disaggregation", IsComplex = true, QueryBuilderType = typeof(DisaggregationQueryBuilder) },
@@ -826,11 +826,11 @@ public partial class ConsumptionQueryBuilder : GraphQlQueryBuilder<ConsumptionQu
     private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         new []
         {
-            new GraphQlFieldMetadata { Name = "annualValues", IsComplex = true },
-            new GraphQlFieldMetadata { Name = "monthlyValues", IsComplex = true },
-            new GraphQlFieldMetadata { Name = "weeklyValues", IsComplex = true },
-            new GraphQlFieldMetadata { Name = "dailyValues", IsComplex = true },
-            new GraphQlFieldMetadata { Name = "hourlyValues", IsComplex = true },
+            new GraphQlFieldMetadata { Name = "annualValues" },
+            new GraphQlFieldMetadata { Name = "monthlyValues" },
+            new GraphQlFieldMetadata { Name = "weeklyValues" },
+            new GraphQlFieldMetadata { Name = "dailyValues" },
+            new GraphQlFieldMetadata { Name = "hourlyValues" },
             new GraphQlFieldMetadata { Name = "totalConsumption" },
             new GraphQlFieldMetadata { Name = "energyCost" },
             new GraphQlFieldMetadata { Name = "totalCost" },
@@ -1414,7 +1414,7 @@ public partial class DeviceQueryBuilder : GraphQlQueryBuilder<DeviceQueryBuilder
             new GraphQlFieldMetadata { Name = "isSignalLow" },
             new GraphQlFieldMetadata { Name = "isAlive" },
             new GraphQlFieldMetadata { Name = "capabilities", IsComplex = true },
-            new GraphQlFieldMetadata { Name = "properties", IsComplex = true }
+            new GraphQlFieldMetadata { Name = "properties" }
         };
 
     protected override string TypeName { get { return "Device"; } } 

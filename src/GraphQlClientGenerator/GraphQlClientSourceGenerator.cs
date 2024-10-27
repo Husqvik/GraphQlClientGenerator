@@ -99,7 +99,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
                         $"\"GraphQlClientGenerator_Namespace\" not specified; using \"{@namespace}\""));
             }
 
-            var configuration = new GraphQlGeneratorConfiguration { TreatUnknownObjectAsScalar = true, TargetNamespace = @namespace };
+            var configuration = new GraphQlGeneratorConfiguration { TargetNamespace = @namespace };
 
             context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("ClassPrefix"), out var classPrefix);
             configuration.ClassPrefix = classPrefix;

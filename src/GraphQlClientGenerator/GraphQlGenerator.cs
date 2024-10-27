@@ -893,8 +893,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                 var field = fields[i];
                 var fieldType = field.Type.UnwrapIfNonNull();
                 var isList = fieldType.Kind == GraphQlTypeKind.List;
-                var treatUnknownObjectAsComplex = context.IsUnknownObjectScalar(graphQlType, field.Name, fieldType) && !_configuration.TreatUnknownObjectAsScalar;
-                var isComplex = isList || treatUnknownObjectAsComplex || fieldType.Kind.IsComplex();
+                var isComplex = isList || fieldType.Kind.IsComplex();
 
                 writer.Write(fieldMetadataIndentation);
                 writer.Write("        new GraphQlFieldMetadata { Name = \"");

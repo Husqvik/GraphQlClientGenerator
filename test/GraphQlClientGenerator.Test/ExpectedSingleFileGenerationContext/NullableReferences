@@ -1236,11 +1236,11 @@ public partial class ConsumptionQueryBuilder : GraphQlQueryBuilder<ConsumptionQu
 {
     private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new GraphQlFieldMetadata { Name = "annualValues", IsComplex = true },
-        new GraphQlFieldMetadata { Name = "monthlyValues", IsComplex = true },
-        new GraphQlFieldMetadata { Name = "weeklyValues", IsComplex = true },
-        new GraphQlFieldMetadata { Name = "dailyValues", IsComplex = true },
-        new GraphQlFieldMetadata { Name = "hourlyValues", IsComplex = true },
+        new GraphQlFieldMetadata { Name = "annualValues" },
+        new GraphQlFieldMetadata { Name = "monthlyValues" },
+        new GraphQlFieldMetadata { Name = "weeklyValues" },
+        new GraphQlFieldMetadata { Name = "dailyValues" },
+        new GraphQlFieldMetadata { Name = "hourlyValues" },
         new GraphQlFieldMetadata { Name = "totalConsumption" },
         new GraphQlFieldMetadata { Name = "energyCost" },
         new GraphQlFieldMetadata { Name = "totalCost" },
@@ -1412,7 +1412,7 @@ public partial class HomeProfileQuestionQueryBuilder : GraphQlQueryBuilder<HomeP
         new GraphQlFieldMetadata { Name = "isAnswered" },
         new GraphQlFieldMetadata { Name = "propertyName" },
         new GraphQlFieldMetadata { Name = "valueType" },
-        new GraphQlFieldMetadata { Name = "currentValue", IsComplex = true },
+        new GraphQlFieldMetadata { Name = "currentValue" },
         new GraphQlFieldMetadata { Name = "currentValueText" },
         new GraphQlFieldMetadata { Name = "input", IsComplex = true, QueryBuilderType = typeof(HomeProfileQuestionInputQueryBuilder) }
     };
@@ -1467,7 +1467,7 @@ public partial class HomeProfileQuestionInputQueryBuilder : GraphQlQueryBuilder<
     private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
         new GraphQlFieldMetadata { Name = "type" },
-        new GraphQlFieldMetadata { Name = "options", IsComplex = true }
+        new GraphQlFieldMetadata { Name = "options" }
     };
 
     protected override string TypeName { get; } = "HomeProfileQuestionInput";
@@ -1870,7 +1870,7 @@ public partial class ReportCellQueryBuilder : GraphQlQueryBuilder<ReportCellQuer
         new GraphQlFieldMetadata { Name = "description" },
         new GraphQlFieldMetadata { Name = "unitText" },
         new GraphQlFieldMetadata { Name = "link" },
-        new GraphQlFieldMetadata { Name = "properties", IsComplex = true }
+        new GraphQlFieldMetadata { Name = "properties" }
     };
 
     protected override string TypeName { get; } = "ReportCell";
@@ -2095,7 +2095,7 @@ public partial class ThermostatCapabilityQueryBuilder : GraphQlQueryBuilder<Ther
     {
         new GraphQlFieldMetadata { Name = "name" },
         new GraphQlFieldMetadata { Name = "type" },
-        new GraphQlFieldMetadata { Name = "values", IsComplex = true }
+        new GraphQlFieldMetadata { Name = "values" }
     };
 
     protected override string TypeName { get; } = "ThermostatCapability";
@@ -2584,7 +2584,7 @@ public partial class PaymentMethodQueryBuilder : GraphQlQueryBuilder<PaymentMeth
     {
         new GraphQlFieldMetadata { Name = "method" },
         new GraphQlFieldMetadata { Name = "status" },
-        new GraphQlFieldMetadata { Name = "properties", IsComplex = true }
+        new GraphQlFieldMetadata { Name = "properties" }
     };
 
     protected override string TypeName { get; } = "PaymentMethod";

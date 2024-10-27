@@ -91,7 +91,7 @@ public partial class TypeQueryBuilder : GraphQlQueryBuilder<TypeQueryBuilder>
 {
     private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
     {
-        new GraphQlFieldMetadata { Name = "id", DefaultAlias = "Id", IsComplex = true }
+        new GraphQlFieldMetadata { Name = "id", DefaultAlias = "Id" }
     };
 
     protected override string TypeName { get; } = "Type";
