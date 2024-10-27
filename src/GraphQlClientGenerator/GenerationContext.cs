@@ -246,9 +246,10 @@ public abstract class GenerationContext
                 var itemDescription =
                     unwrappedItemType.Kind is GraphQlTypeKind.Enum
                         ? GetEnumNetType(scalarFieldContext)
-                        : IsUnknownObjectScalar(scalarFieldContext)
-                            ? GetReferenceNetType(scalarFieldContext, "object")
-                            : GetReferenceNetType(scalarFieldContext, GetFullyQualifiedNetTypeName(itemTypeName, unwrappedItemType.Kind));
+                        : NullableNetTypeDescription(
+                            scalarFieldContext,
+                            IsUnknownObjectScalar(scalarFieldContext) ? "object" : GetFullyQualifiedNetTypeName(itemTypeName, unwrappedItemType.Kind),
+                            true);
 
                 var netItemType = itemDescription.NetTypeName;
                 var suggestedScalarNetType = ResolveScalarNetType(scalarFieldContext).NetTypeName;
@@ -335,20 +336,17 @@ public abstract class GenerationContext
             : ScalarFieldTypeProvider.GetCustomScalarFieldType(context);
 
     internal static ScalarFieldTypeDescription GetDefaultEnumNetType(ScalarFieldTypeProviderContext context) =>
-        NullableScalarNetTypeName(
+        NullableNetTypeDescription(
             context,
             GetFullyQualifiedNetTypeName(context.Configuration, NamingHelper.ToPascalCase(context.FieldType.UnwrapIfNonNull().Name), GraphQlTypeKind.Enum));
 
     private ScalarFieldTypeDescription GetStringNetType(ScalarFieldTypeProviderContext context) =>
-        Configuration.ScalarFieldTypeMappingProvider is null ? GetReferenceNetType(context, "string") : GetCustomScalarNetType(context);
-
-    internal static ScalarFieldTypeDescription GetReferenceNetType(ScalarFieldTypeProviderContext context, string netType) =>
-        NullableScalarNetTypeName(context, netType, true);
+        Configuration.ScalarFieldTypeMappingProvider is null ? NullableNetTypeDescription(context, "string", true) : GetCustomScalarNetType(context);
 
     private ScalarFieldTypeDescription GetBooleanNetType(ScalarFieldTypeProviderContext context) =>
         Configuration.BooleanTypeMapping switch
         {
-            BooleanTypeMapping.Boolean => NullableScalarNetTypeName(context, "bool"),
+            BooleanTypeMapping.Boolean => NullableNetTypeDescription(context, "bool"),
             BooleanTypeMapping.Custom => ScalarFieldTypeProvider.GetCustomScalarFieldType(context),
             _ => throw new InvalidOperationException($"boolean mapping \"{Configuration.BooleanTypeMapping}\" not supported")
         };
@@ -356,9 +354,9 @@ public abstract class GenerationContext
     private ScalarFieldTypeDescription GetFloatNetType(ScalarFieldTypeProviderContext context) =>
         Configuration.FloatTypeMapping switch
         {
-            FloatTypeMapping.Decimal => NullableScalarNetTypeName(context, "decimal"),
-            FloatTypeMapping.Float => NullableScalarNetTypeName(context, "float"),
-            FloatTypeMapping.Double => NullableScalarNetTypeName(context, "double"),
+            FloatTypeMapping.Decimal => NullableNetTypeDescription(context, "decimal"),
+            FloatTypeMapping.Float => NullableNetTypeDescription(context, "float"),
+            FloatTypeMapping.Double => NullableNetTypeDescription(context, "double"),
             FloatTypeMapping.Custom => ScalarFieldTypeProvider.GetCustomScalarFieldType(context),
             _ => throw new InvalidOperationException($"float mapping \"{Configuration.FloatTypeMapping}\" not supported")
         };
@@ -366,9 +364,9 @@ public abstract class GenerationContext
     private ScalarFieldTypeDescription GetIntegerNetType(ScalarFieldTypeProviderContext context) =>
         Configuration.IntegerTypeMapping switch
         {
-            IntegerTypeMapping.Int32 => NullableScalarNetTypeName(context, "int"),
-            IntegerTypeMapping.Int16 => NullableScalarNetTypeName(context, "short"),
-            IntegerTypeMapping.Int64 => NullableScalarNetTypeName(context, "long"),
+            IntegerTypeMapping.Int32 => NullableNetTypeDescription(context, "int"),
+            IntegerTypeMapping.Int16 => NullableNetTypeDescription(context, "short"),
+            IntegerTypeMapping.Int64 => NullableNetTypeDescription(context, "long"),
             IntegerTypeMapping.Custom => ScalarFieldTypeProvider.GetCustomScalarFieldType(context),
             _ => throw new InvalidOperationException($"integer mapping \"{Configuration.IntegerTypeMapping}\" not supported")
         };
@@ -376,9 +374,9 @@ public abstract class GenerationContext
     private ScalarFieldTypeDescription GetIdNetType(ScalarFieldTypeProviderContext context) =>
         Configuration.IdTypeMapping switch
         {
-            IdTypeMapping.String => NullableScalarNetTypeName(context, "string", true),
-            IdTypeMapping.Guid => NullableScalarNetTypeName(context, "Guid"),
-            IdTypeMapping.Object => NullableScalarNetTypeName(context, "object", true),
+            IdTypeMapping.String => NullableNetTypeDescription(context, "string", true),
+            IdTypeMapping.Guid => NullableNetTypeDescription(context, "Guid"),
+            IdTypeMapping.Object => NullableNetTypeDescription(context, "object", true),
             IdTypeMapping.Custom => ScalarFieldTypeProvider.GetCustomScalarFieldType(context),
             _ => throw new InvalidOperationException($"id mapping \"{Configuration.IdTypeMapping}\" not supported")
         };
@@ -397,7 +395,10 @@ public abstract class GenerationContext
         return typeDescription with { NetTypeName = typeDescription.NetTypeName.Replace(" ", null).Replace("\t", null) };
     }
 
-    private static ScalarFieldTypeDescription NullableScalarNetTypeName(ScalarFieldTypeProviderContext context, string netType, bool isReferenceType = false)
+    private static ScalarFieldTypeDescription NullableNetTypeDescription(ScalarFieldTypeProviderContext context, string netType, bool isReferenceType = false) =>
+        ScalarFieldTypeDescription.FromNetTypeName(GetNullableNetTypeName(context, netType, isReferenceType));
+
+    public static string GetNullableNetTypeName(ScalarFieldTypeProviderContext context, string netType, bool isReferenceType)
     {
         var alwaysNullable =
             context.Configuration.DataClassMemberNullability is DataClassMemberNullability.AlwaysNullable &&
@@ -405,8 +406,7 @@ public abstract class GenerationContext
 
         var isNotNull = !alwaysNullable && context.FieldType.Kind is GraphQlTypeKind.NonNull;
         var areNullableReferencesDisabled = context.Configuration.CSharpVersion != CSharpVersion.NewestWithNullableReferences && isReferenceType;
-        var netTypeName = isNotNull || areNullableReferencesDisabled ? netType : $"{netType}?";
-        return ScalarFieldTypeDescription.FromNetTypeName(netTypeName);
+        return isNotNull || areNullableReferencesDisabled ? netType : $"{netType}?";
     }
 
     private void ResolveReferencedObjectTypes()

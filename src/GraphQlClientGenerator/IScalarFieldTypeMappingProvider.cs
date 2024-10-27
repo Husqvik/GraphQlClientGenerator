@@ -14,7 +14,7 @@ public sealed class DefaultScalarFieldTypeMappingProvider : IScalarFieldTypeMapp
         var propertyName = NamingHelper.ToPascalCase(context.FieldName);
 
         if (propertyName is "From" or "ValidFrom" or "To" or "ValidTo" or "CreatedAt" or "UpdatedAt" or "ModifiedAt" or "DeletedAt" || propertyName.EndsWith("Timestamp"))
-            return new ScalarFieldTypeDescription { NetTypeName = "DateTimeOffset?" };
+            return ScalarFieldTypeDescription.FromNetTypeName(GenerationContext.GetNullableNetTypeName(context, nameof(DateTimeOffset), false));
 
         return GetFallbackFieldType(context);
     }
@@ -22,10 +22,10 @@ public sealed class DefaultScalarFieldTypeMappingProvider : IScalarFieldTypeMapp
     public static ScalarFieldTypeDescription GetFallbackFieldType(ScalarFieldTypeProviderContext context)
     {
         var fieldType = context.FieldType.UnwrapIfNonNull();
-        if (fieldType.Kind == GraphQlTypeKind.Enum)
+        if (fieldType.Kind is GraphQlTypeKind.Enum)
             return GenerationContext.GetDefaultEnumNetType(context);
 
-        var dataType = fieldType.Name == GraphQlTypeBase.GraphQlTypeScalarString ? "string" : "object";
-        return GenerationContext.GetReferenceNetType(context, dataType);
+        var dataType = fieldType.Name is GraphQlTypeBase.GraphQlTypeScalarString ? "string" : "object";
+        return ScalarFieldTypeDescription.FromNetTypeName(GenerationContext.GetNullableNetTypeName(context, dataType, true));
     }
 }
