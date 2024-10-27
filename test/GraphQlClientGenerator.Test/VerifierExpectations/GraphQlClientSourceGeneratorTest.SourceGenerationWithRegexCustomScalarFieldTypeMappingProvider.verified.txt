@@ -2783,11 +2783,11 @@ namespace SourceGeneratorTestAssembly
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("from")]
         #endif
-        public DateTime? From { get; set; }
+        public DateTime From { get; set; }
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("to")]
         #endif
-        public DateTime? To { get; set; }
+        public DateTime To { get; set; }
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("unitPrice")]
         #endif
@@ -3274,7 +3274,7 @@ namespace SourceGeneratorTestAssembly
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("timestamp")]
         #endif
-        public DateTime? Timestamp { get; set; }
+        public DateTime Timestamp { get; set; }
         /// <summary>
         /// Consumption at the moment (Watt)
         /// </summary>
@@ -3587,11 +3587,11 @@ namespace SourceGeneratorTestAssembly
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("from")]
         #endif
-        public DateTime? From { get; set; }
+        public DateTime From { get; set; }
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("to")]
         #endif
-        public DateTime? To { get; set; }
+        public DateTime To { get; set; }
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("unitPrice")]
         #endif
