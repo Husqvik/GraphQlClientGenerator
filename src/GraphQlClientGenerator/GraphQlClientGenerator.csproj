@@ -10,8 +10,7 @@
     <PackageTags>GraphQL Client Generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-      Move target namespace parameter to GraphQlGeneratorConfiguration
-      Added GenerationOrder option
+      re-worked IScalarFieldTypeMappingProvider for better customisation support
       ]]>
     </PackageReleaseNotes>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>

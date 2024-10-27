@@ -23,7 +23,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         new(schema, new StringWriter(builder), objectTypes) { LogMessage = logMessage };
 
     private static readonly IReadOnlyList<int> ExpectedFileSizes = [
-        447, 476, 1400, 1180, 979, 4292, 520, 570, 2133, 1943, 456, 1115, 1174, 1686, 1780, 757, 495, 1612, 499, 1439, 793, 492, 1470, 4153, 964, 763, 3704, 4984, 479, 1417, 567, 2231, 614, 2415, 1226, 7008, 448,
+        447, 476, 1400, 1180, 979, 4292, 520, 570, 2133, 1943, 456, 1115, 1174, 1686, 1780, 757, 495, 1612, 499, 1439, 793, 492, 1470, 4153, 964, 763, 3704, 4984, 479, 1417, 567, 2231, 615, 2415, 1226, 7008, 448,
         1251, 572, 677, 2839, 2588, 490, 1494, 462, 1313, 368, 6096, 595, 2251, 1958, 922, 7945, 880, 1531, 494, 1520, 4769, 17356, 808, 1627, 628, 2713, 10002, 973, 5275, 1102, 553, 3333, 7245, 435, 1437, 544, 502,
         1550, 2002, 576, 2287, 532, 1827, 622, 2620, 768, 572, 2033, 582, 2204, 3656, 756, 3899, 589, 2199, 677, 538, 1861, 2970, 1073, 796, 4018, 5759, 899, 4541, 521, 1794, 424, 1381, 665, 752, 3580, 2914, 451,
         1203, 481, 590, 560, 2014, 549, 1877, 2328, 560, 2255, 783, 854, 4478, 939, 531, 1850, 873, 4594, 585, 2117, 502, 1493, 490, 2695, 5110, 587, 2243, 559, 1986, 562, 1231, 3653, 1986];
@@ -274,7 +274,8 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         var stringBuilder = new StringBuilder();
         new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GeneratedObjectType.DataClasses));
         var expectedDataClasses = GetTestResource("ExpectedSingleFileGenerationContext.DataClasses");
-        stringBuilder.ToString().ShouldBe(expectedDataClasses);
+        var generatedSourceCode = stringBuilder.ToString();
+        generatedSourceCode.ShouldBe(expectedDataClasses);
     }
 
     [Fact]
@@ -295,15 +296,16 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         var stringBuilder = new StringBuilder();
         new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GeneratedObjectType.DataClasses));
         var expectedDataClasses = GetTestResource("ExpectedSingleFileGenerationContext.DataClassesWithTypeConfiguration");
-        stringBuilder.ToString().ShouldBe(expectedDataClasses);
+        var generatedSourceCode = stringBuilder.ToString();
+        generatedSourceCode.ShouldBe(expectedDataClasses);
     }
 
     private class TestCustomBooleanTypeMappingProvider : IScalarFieldTypeMappingProvider
     {
-        public ScalarFieldTypeDescription GetCustomScalarFieldType(GraphQlGeneratorConfiguration configuration, GraphQlType baseType, GraphQlTypeBase valueType, string valueName) =>
-            valueType.Name == "Boolean"
+        public ScalarFieldTypeDescription GetCustomScalarFieldType(ScalarFieldTypeProviderContext context) =>
+            context.FieldType.Name == "Boolean"
                 ? new ScalarFieldTypeDescription { NetTypeName = "bool" }
-                : DefaultScalarFieldTypeMappingProvider.Instance.GetCustomScalarFieldType(configuration, baseType, valueType, valueName);
+                : DefaultScalarFieldTypeMappingProvider.Instance.GetCustomScalarFieldType(context);
     }
 
     [Fact]
@@ -330,19 +332,19 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
     {
         public static readonly TestFormatMaskScalarFieldTypeMappingProvider Instance = new();
 
-        public ScalarFieldTypeDescription GetCustomScalarFieldType(GraphQlGeneratorConfiguration configuration, GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
+        public ScalarFieldTypeDescription GetCustomScalarFieldType(ScalarFieldTypeProviderContext context)
         {
-            var isNotNull = valueType.Kind == GraphQlTypeKind.NonNull;
-            var unwrappedType = valueType is GraphQlFieldType fieldType ? fieldType.UnwrapIfNonNull() : valueType;
+            var isNotNull = context.FieldType.Kind == GraphQlTypeKind.NonNull;
+            var unwrappedType = context.FieldType.UnwrapIfNonNull();
             var nullablePostfix = isNotNull ? null : "?";
 
             if (unwrappedType.Name == "ID")
                 return new ScalarFieldTypeDescription { NetTypeName = $"Guid{nullablePostfix}", FormatMask = "N" };
 
-            if (valueName is "before" or "after" || unwrappedType.Name == "DateTimeOffset")
+            if (context.FieldName is "before" or "after" || unwrappedType.Name == "DateTimeOffset")
                 return new ScalarFieldTypeDescription { NetTypeName = $"DateTimeOffset{nullablePostfix}", FormatMask = "yyyy-MM-dd\"T\"HH:mm" };
 
-            return DefaultScalarFieldTypeMappingProvider.Instance.GetCustomScalarFieldType(configuration, baseType, valueType, valueName);
+            return DefaultScalarFieldTypeMappingProvider.Instance.GetCustomScalarFieldType(context);
         }
     }
 
@@ -374,7 +376,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
     }
 
     [Fact]
-    public void WithNullableReferences()
+    public void WithNullableReferencesAndPropertyNullabilityBySchema()
     {
         var configuration =
             new GraphQlGeneratorConfiguration

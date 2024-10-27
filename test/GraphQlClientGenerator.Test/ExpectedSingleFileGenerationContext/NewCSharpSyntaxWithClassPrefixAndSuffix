@@ -3423,7 +3423,7 @@ internal partial class TestDayNightScheduleSettingsV1
     public bool? IsEnabled { get; set; }
     public string LocalTimeFrom { get; set; }
     public string LocalTimeTo { get; set; }
-    public ICollection<int> RecurringDays { get; set; }
+    public ICollection<int?> RecurringDays { get; set; }
 }
 
 internal partial class TestReportRootV1

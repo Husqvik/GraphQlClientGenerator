@@ -212,7 +212,17 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                     if (fieldType.Kind != GraphQlTypeKind.Scalar)
                         continue;
 
-                    var netType = context.ResolveScalarNetType(type, member.Name, member.Type, false).NetTypeName.TrimEnd('?');
+                    var scalarFieldContext =
+                        new ScalarFieldTypeProviderContext
+                        {
+                            Configuration = _configuration,
+                            ComponentType = ClientComponentType.QueryBuilderParameter,
+                            OwnerType = type,
+                            FieldType = member.Type,
+                            FieldName = member.Name
+                        };
+
+                    var netType = context.ResolveScalarNetType(scalarFieldContext).NetTypeName.TrimEnd('?');
                     if (netType.EndsWith("object") || netType.EndsWith("System.Object"))
                         continue;
 
@@ -726,8 +736,8 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             (fieldType.Kind is GraphQlTypeKind.Interface or GraphQlTypeKind.Union ||
              fieldType.Kind is GraphQlTypeKind.List && UnwrapListItemType(fieldType, false, false, out _).UnwrapIfNonNull().Kind is GraphQlTypeKind.Interface or GraphQlTypeKind.Union);
 
-        var isOwnerTypeInputObject = ownerGraphQlType.Kind == GraphQlTypeKind.InputObject;
-        var isPreprocessorDirectiveDisableNewtonsoftJsonRequired = !isInterfaceMember && decorateWithJsonPropertyAttribute || isGraphQlInterfaceJsonConverterRequired || isOwnerTypeInputObject;
+        var isOwnerInputObject = ownerGraphQlType.Kind == GraphQlTypeKind.InputObject;
+        var isPreprocessorDirectiveDisableNewtonsoftJsonRequired = !isInterfaceMember && decorateWithJsonPropertyAttribute || isGraphQlInterfaceJsonConverterRequired || isOwnerInputObject;
         if (isPreprocessorDirectiveDisableNewtonsoftJsonRequired)
         {
             writer.Write(indentation);
@@ -748,7 +758,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             writer.Write(indentation);
             writer.WriteLine("    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]");
         }
-        else if (isOwnerTypeInputObject)
+        else if (isOwnerInputObject)
         {
             writer.Write(indentation);
             writer.Write("    [JsonConverter(typeof(QueryBuilderParameterConverter<");
@@ -1446,7 +1456,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         writer.WriteLine();
     }
 
-    private QueryBuilderParameterDefinition BuildMethodParameterDefinition(GenerationContext context, GraphQlType baseType, GraphQlArgument argument, string netParameterName)
+    private QueryBuilderParameterDefinition BuildMethodParameterDefinition(GenerationContext context, GraphQlType ownerType, GraphQlArgument argument, string netParameterName)
     {
         var argumentType = argument.Type;
         var isArgumentNotNull = argumentType.Kind is GraphQlTypeKind.NonNull;
@@ -1460,10 +1470,20 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             unwrappedType = argumentType.UnwrapIfNonNull();
         }
 
+        var scalarFieldContext =
+            new ScalarFieldTypeProviderContext
+            {
+                Configuration = _configuration,
+                ComponentType = ClientComponentType.QueryBuilderParameter,
+                OwnerType = ownerType,
+                FieldType = argumentType,
+                FieldName = argument.Name
+            };
+
         var argumentTypeDescription =
             unwrappedType.Kind is GraphQlTypeKind.Enum
                 ? ScalarFieldTypeDescription.FromNetTypeName($"{context.GetFullyQualifiedNetTypeName(NamingHelper.ToPascalCase(unwrappedType.Name), unwrappedType.Kind)}{(isTypeNotNull ? null : "?")}")
-                : context.ResolveScalarNetType(baseType, argument.Name, argumentType, false);
+                : context.ResolveScalarNetType(scalarFieldContext);
 
         var argumentNetType = argumentTypeDescription.NetTypeName;
 

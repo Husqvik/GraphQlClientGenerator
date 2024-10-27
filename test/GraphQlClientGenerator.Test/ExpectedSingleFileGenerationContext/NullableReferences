@@ -3134,9 +3134,9 @@ public partial class Address
     public string? Address1 { get; set; }
     public string? Address2 { get; set; }
     public string? Address3 { get; set; }
-    public string? City { get; set; }
-    public string? PostalCode { get; set; }
-    public string? Country { get; set; }
+    public string City { get; set; }
+    public string PostalCode { get; set; }
+    public string Country { get; set; }
     public decimal? Latitude { get; set; }
     public decimal? Longitude { get; set; }
     public int? Elevation { get; set; }
@@ -3149,7 +3149,7 @@ public partial class Subscription
     public Guid? WalletId { get; set; }
     public DateTimeOffset? ValidFrom { get; set; }
     public DateTimeOffset? ValidTo { get; set; }
-    public string? Status { get; set; }
+    public string Status { get; set; }
     public int? BillingRegionId { get; set; }
     public PriceRatingRoot? PriceRating { get; set; }
     public ICollection<Invoice?>? Invoices { get; set; }
@@ -3390,7 +3390,7 @@ public partial class Weather
 
 public partial class WeatherEntry
 {
-    public string? Time { get; set; }
+    public string Time { get; set; }
     public decimal? Temperature { get; set; }
     public string? Type { get; set; }
     public decimal? Fog { get; set; }
@@ -3613,15 +3613,15 @@ public partial class PushNotification
 
 public partial class Wallet
 {
-    public string? Id { get; set; }
+    public string Id { get; set; }
     public ICollection<PaymentMethod?>? PaymentMethods { get; set; }
     public string? DirectDebitToPromote { get; set; }
 }
 
 public partial class PaymentMethod
 {
-    public string? Method { get; set; }
-    public string? Status { get; set; }
+    public string Method { get; set; }
+    public string Status { get; set; }
     public object? Properties { get; set; }
 }
 

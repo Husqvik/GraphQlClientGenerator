@@ -2877,7 +2877,7 @@ namespace SourceGeneratorTestAssembly
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("appAvatar")]
         #endif
-        public SourceGeneratedHomeAvatarV2? AppAvatar { get; set; }
+        public SourceGeneratedHomeAvatarV2 AppAvatar { get; set; }
         /// <summary>
         /// The size of the home in square meters
         /// </summary>
@@ -2891,7 +2891,7 @@ namespace SourceGeneratorTestAssembly
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("type")]
         #endif
-        public SourceGeneratedHomeTypeV2? Type { get; set; }
+        public SourceGeneratedHomeTypeV2 Type { get; set; }
         /// <summary>
         /// The number of people living in the home
         /// </summary>

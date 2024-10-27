@@ -13,17 +13,17 @@ public class RegexScalarFieldTypeMappingProvider(IReadOnlyCollection<RegexScalar
         return rules ?? [];
     }
 
-    public ScalarFieldTypeDescription GetCustomScalarFieldType(GraphQlGeneratorConfiguration configuration, GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
+    public ScalarFieldTypeDescription GetCustomScalarFieldType(ScalarFieldTypeProviderContext context)
     {
-        valueType = (valueType as GraphQlFieldType)?.UnwrapIfNonNull() ?? valueType;
+        var valueType = context.FieldType.UnwrapIfNonNull();
 
         foreach (var rule in _rules)
-            if (Regex.IsMatch(valueName, rule.PatternValueName) &&
-                Regex.IsMatch(baseType.Name, rule.PatternBaseType) &&
+            if (Regex.IsMatch(context.FieldName, rule.PatternValueName) &&
+                Regex.IsMatch(context.OwnerType.Name, rule.PatternBaseType) &&
                 Regex.IsMatch(valueType.Name ?? String.Empty, rule.PatternValueType))
                 return new ScalarFieldTypeDescription { NetTypeName = rule.NetTypeName, FormatMask = rule.FormatMask };
 
-        return DefaultScalarFieldTypeMappingProvider.GetFallbackFieldType(configuration, valueType);
+        return DefaultScalarFieldTypeMappingProvider.GetFallbackFieldType(context);
     }
 }
 
