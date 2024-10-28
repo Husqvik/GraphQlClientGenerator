@@ -263,7 +263,7 @@ public abstract class GenerationContext
                 return ResolveScalarNetType(memberTypeContext);
 
             default:
-                throw new InvalidOperationException($"Unexpected GraphQL type kind: {fieldType.Kind}");
+                throw new InvalidOperationException($"unexpected GraphQL type kind: {fieldType.Kind}");
         }
     }
 
@@ -337,7 +337,7 @@ public abstract class GenerationContext
         {
             BooleanTypeMapping.Boolean => NullableNetTypeDescription(context, "bool"),
             BooleanTypeMapping.Custom => ScalarFieldTypeProvider.GetCustomScalarFieldType(context),
-            _ => throw new InvalidOperationException($"boolean mapping \"{Configuration.BooleanTypeMapping}\" not supported")
+            _ => throw new InvalidOperationException($"unexpected {nameof(BooleanTypeMapping)}: \"{Configuration.BooleanTypeMapping}\"")
         };
 
     private ScalarFieldTypeDescription GetFloatNetType(ScalarFieldTypeProviderContext context) =>
@@ -347,7 +347,7 @@ public abstract class GenerationContext
             FloatTypeMapping.Float => NullableNetTypeDescription(context, "float"),
             FloatTypeMapping.Double => NullableNetTypeDescription(context, "double"),
             FloatTypeMapping.Custom => ScalarFieldTypeProvider.GetCustomScalarFieldType(context),
-            _ => throw new InvalidOperationException($"float mapping \"{Configuration.FloatTypeMapping}\" not supported")
+            _ => throw new InvalidOperationException($"unexpected {nameof(FloatTypeMapping)}: \"{Configuration.FloatTypeMapping}\"")
         };
 
     private ScalarFieldTypeDescription GetIntegerNetType(ScalarFieldTypeProviderContext context) =>
@@ -357,7 +357,7 @@ public abstract class GenerationContext
             IntegerTypeMapping.Int16 => NullableNetTypeDescription(context, "short"),
             IntegerTypeMapping.Int64 => NullableNetTypeDescription(context, "long"),
             IntegerTypeMapping.Custom => ScalarFieldTypeProvider.GetCustomScalarFieldType(context),
-            _ => throw new InvalidOperationException($"integer mapping \"{Configuration.IntegerTypeMapping}\" not supported")
+            _ => throw new InvalidOperationException($"unexpected {nameof(IntegerTypeMapping)}: \"{Configuration.IntegerTypeMapping}\"")
         };
 
     private ScalarFieldTypeDescription GetIdNetType(ScalarFieldTypeProviderContext context) =>
@@ -367,7 +367,7 @@ public abstract class GenerationContext
             IdTypeMapping.Guid => NullableNetTypeDescription(context, "Guid"),
             IdTypeMapping.Object => NullableNetTypeDescription(context, "object", true),
             IdTypeMapping.Custom => ScalarFieldTypeProvider.GetCustomScalarFieldType(context),
-            _ => throw new InvalidOperationException($"id mapping \"{Configuration.IdTypeMapping}\" not supported")
+            _ => throw new InvalidOperationException($"unexpected {nameof(IdTypeMapping)}: \"{Configuration.IdTypeMapping}\"")
         };
 
     private IScalarFieldTypeMappingProvider ScalarFieldTypeProvider =>
