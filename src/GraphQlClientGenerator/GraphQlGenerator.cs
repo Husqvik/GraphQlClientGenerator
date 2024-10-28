@@ -676,10 +676,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
     }
 
     private string AddQuestionMarkIfNullableReferencesEnabled(string dataTypeIdentifier) =>
-        AddQuestionMarkIfNullableReferencesEnabled(_configuration.CSharpVersion, dataTypeIdentifier);
-
-    internal static string AddQuestionMarkIfNullableReferencesEnabled(CSharpVersion cSharpVersion, string dataTypeIdentifier) =>
-        cSharpVersion is CSharpVersion.NewestWithNullableReferences ? $"{dataTypeIdentifier}?" : dataTypeIdentifier;
+        _configuration.CSharpVersion is CSharpVersion.NewestWithNullableReferences ? $"{dataTypeIdentifier}?" : dataTypeIdentifier;
 
     private string GetMemberAccessibility() =>
         _configuration.MemberAccessibility is MemberAccessibility.Internal ? "internal" : "public";

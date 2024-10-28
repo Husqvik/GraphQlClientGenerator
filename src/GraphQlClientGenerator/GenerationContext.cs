@@ -205,6 +205,15 @@ public abstract class GenerationContext
     protected internal ScalarFieldTypeDescription GetDataPropertyType(GraphQlType ownerType, IGraphQlMember member)
     {
         var fieldType = member.Type.UnwrapIfNonNull();
+        var memberTypeContext =
+            new ScalarFieldTypeProviderContext
+            {
+                Configuration = Configuration,
+                ComponentType = ClientComponentType.DataClassProperty,
+                OwnerType = ownerType,
+                FieldType = member.Type,
+                FieldName = member.Name
+            };
 
         switch (fieldType.Kind)
         {
@@ -214,26 +223,17 @@ public abstract class GenerationContext
             case GraphQlTypeKind.InputObject:
                 var fieldTypeName = GetCSharpClassName(fieldType.Name);
                 var propertyType = GetFullyQualifiedNetTypeName(fieldTypeName, fieldType.Kind);
-                return ScalarFieldTypeDescription.FromNetTypeName(AddQuestionMarkIfNullableReferencesEnabled(propertyType));
+                return NullableNetTypeDescription(memberTypeContext, propertyType, true);
 
             case GraphQlTypeKind.Enum:
-                return
-                    GetEnumNetType(
-                        new ScalarFieldTypeProviderContext
-                        {
-                            Configuration = Configuration,
-                            ComponentType = ClientComponentType.DataClassProperty,
-                            OwnerType = ownerType,
-                            FieldType = member.Type,
-                            FieldName = member.Name
-                        });
+                return GetEnumNetType(memberTypeContext);
 
             case GraphQlTypeKind.List:
                 var isCovarianceRequired = _typeFieldCovarianceRequired.Contains((ownerType.Name, member.Name));
                 var itemType = GraphQlGenerator.UnwrapListItemType(fieldType, Configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences, isCovarianceRequired, out var netCollectionOpenType);
                 var unwrappedItemType = itemType?.UnwrapIfNonNull() ?? throw GraphQlGenerator.ListItemTypeResolutionFailedException(ownerType.Name, fieldType.Name);
                 var itemTypeName = GetCSharpClassName(unwrappedItemType.Name);
-                var scalarFieldContext =
+                var listItemTypeContext =
                     new ScalarFieldTypeProviderContext
                     {
                         Configuration = Configuration,
@@ -245,38 +245,27 @@ public abstract class GenerationContext
 
                 var itemDescription =
                     unwrappedItemType.Kind is GraphQlTypeKind.Enum
-                        ? GetEnumNetType(scalarFieldContext)
+                        ? GetEnumNetType(listItemTypeContext)
                         : NullableNetTypeDescription(
-                            scalarFieldContext,
-                            IsUnknownObjectScalar(scalarFieldContext) ? "object" : GetFullyQualifiedNetTypeName(itemTypeName, unwrappedItemType.Kind),
+                            listItemTypeContext,
+                            IsUnknownObjectScalar(listItemTypeContext) ? "object" : GetFullyQualifiedNetTypeName(itemTypeName, unwrappedItemType.Kind),
                             true);
 
                 var netItemType = itemDescription.NetTypeName;
-                var suggestedScalarNetType = ResolveScalarNetType(scalarFieldContext).NetTypeName;
+                var suggestedScalarNetType = ResolveScalarNetType(listItemTypeContext).NetTypeName;
                 if (!ScalarFieldTypeDescription.IsNetObject(suggestedScalarNetType))
                     netItemType = suggestedScalarNetType;
 
                 var netCollectionType = String.Format(netCollectionOpenType, netItemType);
-                return ScalarFieldTypeDescription.FromNetTypeName(AddQuestionMarkIfNullableReferencesEnabled(netCollectionType));
+                return NullableNetTypeDescription(memberTypeContext, netCollectionType, true);
 
             case GraphQlTypeKind.Scalar:
-                return ResolveScalarNetType(
-                    new ScalarFieldTypeProviderContext
-                    {
-                        Configuration = Configuration,
-                        ComponentType = ClientComponentType.DataClassProperty,
-                        OwnerType = ownerType,
-                        FieldType = member.Type,
-                        FieldName = member.Name
-                    });
+                return ResolveScalarNetType(memberTypeContext);
 
             default:
-                return ScalarFieldTypeDescription.FromNetTypeName(AddQuestionMarkIfNullableReferencesEnabled("string"));
+                throw new InvalidOperationException($"Unexpected GraphQL type kind: {fieldType.Kind}");
         }
     }
-
-    private string AddQuestionMarkIfNullableReferencesEnabled(string dataTypeIdentifier) =>
-        GraphQlGenerator.AddQuestionMarkIfNullableReferencesEnabled(Configuration.CSharpVersion, dataTypeIdentifier);
 
     private bool IsUnknownObjectScalar(ScalarFieldTypeProviderContext context)
     {

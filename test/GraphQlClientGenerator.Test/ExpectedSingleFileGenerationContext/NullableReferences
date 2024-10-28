@@ -3614,7 +3614,7 @@ public partial class PushNotification
 public partial class Wallet
 {
     public string Id { get; set; }
-    public ICollection<PaymentMethod?>? PaymentMethods { get; set; }
+    public ICollection<PaymentMethod?> PaymentMethods { get; set; }
     public string? DirectDebitToPromote { get; set; }
 }
 
