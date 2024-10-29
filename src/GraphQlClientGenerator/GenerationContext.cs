@@ -1,4 +1,6 @@
-﻿namespace GraphQlClientGenerator;
+﻿using System.Runtime.CompilerServices;
+
+namespace GraphQlClientGenerator;
 
 [Flags]
 public enum GeneratedObjectType
@@ -15,12 +17,12 @@ public abstract class GenerationContext
     private readonly Dictionary<string, GraphQlDirective> _directives = [];
     private readonly Dictionary<string, string> _nameCollisionMapping = [];
     private readonly HashSet<(string GraphQlTypeName, string FieldName)> _typeFieldCovarianceRequired = [];
+
     private GraphQlGeneratorConfiguration _configuration;
     private IReadOnlyDictionary<string, GraphQlType> _complexTypes;
     private ILookup<string, string> _typeUnionMembership;
 
-    protected GraphQlGeneratorConfiguration Configuration =>
-        _configuration ?? throw NotInitializedException(nameof(Configuration));
+    protected GraphQlGeneratorConfiguration Configuration => _configuration ?? throw NotInitializedException();
 
     protected internal abstract TextWriter Writer { get; }
 
@@ -28,8 +30,7 @@ public abstract class GenerationContext
 
     internal IReadOnlyCollection<GraphQlDirective> Directives => _directives.Values;
 
-    internal ILookup<string, string> TypeUnionMembership =>
-        _typeUnionMembership ?? throw NotInitializedException(nameof(TypeUnionMembership));
+    internal ILookup<string, string> TypeUnionMembership => _typeUnionMembership ?? throw NotInitializedException();
 
     public virtual byte IndentationSize => 0;
 
@@ -122,7 +123,7 @@ public abstract class GenerationContext
 
     public virtual void OnDataPropertyGeneration(PropertyGenerationContext context)
     {
-        var generateBackingFields = _configuration.PropertyGeneration == PropertyGenerationOption.BackingField;
+        var generateBackingFields = Configuration.PropertyGeneration == PropertyGenerationOption.BackingField;
         if (generateBackingFields)
         {
             var useCompatibleVersion = Configuration.CSharpVersion == CSharpVersion.Compatible;
@@ -553,7 +554,7 @@ public abstract class GenerationContext
 
     protected void Log(string message) => LogMessage?.Invoke(message);
 
-    private static InvalidOperationException NotInitializedException(string propertyName) =>
+    private static InvalidOperationException NotInitializedException([CallerMemberName] string propertyName = null) =>
         new($"\"{propertyName}\" not initialized; call \"{nameof(Initialize)}\" method first. ");
 }
 
