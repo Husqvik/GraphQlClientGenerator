@@ -530,10 +530,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         const string assemblyName = "GeneratedQueryTestAssembly";
         CompileIntoAssembly(stringBuilder.ToString(), assemblyName);
 
-        var builderType = Type.GetType($"{assemblyName}.TestQueryBuilder, {assemblyName}");
-        builderType.ShouldNotBeNull();
-        var formattingType = Type.GetType($"{assemblyName}.Formatting, {assemblyName}");
-        formattingType.ShouldNotBeNull();
+        var builderType = Type.GetType($"{assemblyName}.TestQueryBuilder, {assemblyName}").ShouldNotBeNull();
 
         var builderInstance = Activator.CreateInstance(builderType);
         builderType
@@ -573,33 +570,17 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
                     }
                 }.Select(p => CreateParameter(assemblyName, p)).ToArray());
 
-        var query =
-            builderType
-                .GetMethod("Build", [formattingType, typeof(byte)])
-                .ShouldNotBeNull()
-                .Invoke(builderInstance, [Enum.Parse(formattingType, "None"), (byte)2]);
-
+        var query = BuildQuery(builderInstance);
         query.ShouldBe("{testField(valueInt16:1,valueUInt16:2,valueByte:3,valueInt32:4,valueUInt32:5,valueInt64:6,valueUInt64:7,valueSingle:8.123,valueDouble:9.456,valueDecimal:10.789,valueDateTime:\"19-06-30 00:27Z\",valueDateTimeOffset:\"2019-06-30T02:27:47.1234567+02:00\",valueGuid:\"00000000-0000-0000-0000-000000000000\",valueString:\"\\\"string\\\" value\"),fieldAlias:objectParameter(objectParameter:[{rootProperty1:\"root value 1\",rootProperty2:123.456,rootProperty3:true,rootProperty4:null,rootProperty5:{nestedProperty1:987,nestedProperty2:\"a \\\"quoted\\\" value\\\\t\\\\r\\\\n\"}},[{rootProperty1:\"root value 2\"},{rootProperty1:false}]])@include(if:$direct)@skip(if:false)}");
-        query =
-            builderType
-                .GetMethod("Build", [formattingType, typeof(byte)])
-                .ShouldNotBeNull()
-                .Invoke(builderInstance, [Enum.Parse(formattingType, "Indented"), (byte)2]);
 
+        query = BuildQuery(builderInstance, "Indented");
         query.ShouldBe($"{{{Environment.NewLine}  testField(valueInt16: 1, valueUInt16: 2, valueByte: 3, valueInt32: 4, valueUInt32: 5, valueInt64: 6, valueUInt64: 7, valueSingle: 8.123, valueDouble: 9.456, valueDecimal: 10.789, valueDateTime: \"19-06-30 00:27Z\", valueDateTimeOffset: \"2019-06-30T02:27:47.1234567+02:00\", valueGuid: \"00000000-0000-0000-0000-000000000000\", valueString: \"\\\"string\\\" value\"){Environment.NewLine}  fieldAlias: objectParameter(objectParameter: [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 1\",{Environment.NewLine}      rootProperty2: 123.456,{Environment.NewLine}      rootProperty3: true,{Environment.NewLine}      rootProperty4: null,{Environment.NewLine}      rootProperty5: {{{Environment.NewLine}        nestedProperty1: 987,{Environment.NewLine}        nestedProperty2: \"a \\\"quoted\\\" value\\\\t\\\\r\\\\n\"}}}},{Environment.NewLine}    [{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: \"root value 2\"}},{Environment.NewLine}    {{{Environment.NewLine}      rootProperty1: false}}]]) @include(if: $direct) @skip(if: false){Environment.NewLine}}}");
 
         var rootQueryBuilderType = Type.GetType($"{assemblyName}.QueryQueryBuilder, {assemblyName}");
         rootQueryBuilderType.ShouldNotBeNull();
         var rootQueryBuilderInstance = rootQueryBuilderType.GetConstructor([typeof(string)]).ShouldNotBeNull().Invoke(new object[1]);
-        rootQueryBuilderType
-            .GetMethod("WithAllFields", BindingFlags.Instance | BindingFlags.Public)
-            .ShouldNotBeNull()
-            .Invoke(rootQueryBuilderInstance, null);
-
-        rootQueryBuilderType
-            .GetMethod("Build", [formattingType, typeof(byte)])
-            .ShouldNotBeNull()
-            .Invoke(rootQueryBuilderInstance, [Enum.Parse(formattingType, "None"), (byte)2]);
+        WithAllFields(rootQueryBuilderInstance);
+        BuildQuery(rootQueryBuilderInstance);
 
         builderType
             .GetMethod("Clear", BindingFlags.Instance | BindingFlags.Public)
@@ -608,23 +589,60 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
 
         var meBuilderType = Type.GetType($"{assemblyName}.MeQueryBuilder, {assemblyName}").ShouldNotBeNull();
         var childFragmentBuilderInstance = Activator.CreateInstance(meBuilderType);
-        meBuilderType
-            .GetMethod("WithAllScalarFields", BindingFlags.Instance | BindingFlags.Public)
-            .ShouldNotBeNull()
-            .Invoke(childFragmentBuilderInstance, null);
+        WithAllFields(childFragmentBuilderInstance, true);
 
         builderType
             .GetMethod("WithTestFragment", BindingFlags.Instance | BindingFlags.Public)
             .ShouldNotBeNull()
             .Invoke(builderInstance, [childFragmentBuilderInstance]);
 
-        query =
-            builderType
+        query = BuildQuery(builderInstance);
+        query.ShouldBe("{...on Me{id,firstName,lastName,fullName,ssn,email,language,tone,mobile}}");
+    }
+
+    private static void WithAllFields(object queryBuilder, bool scalarOnly = false) =>
+        queryBuilder
+            .GetType()
+            .GetMethod(scalarOnly ? "WithAllScalarFields" : "WithAllFields", BindingFlags.Instance | BindingFlags.Public)
+            .ShouldNotBeNull()
+            .Invoke(queryBuilder, null);
+
+    private static string BuildQuery(object queryBuilder, string formatting = "None")
+    {
+        var builderType = queryBuilder.GetType();
+        var assemblyName = builderType.Assembly.GetName().Name;
+        var formattingType = Type.GetType($"{assemblyName}.Formatting, {assemblyName}").ShouldNotBeNull();
+
+        return
+            (string)builderType
                 .GetMethod("Build", [formattingType, typeof(byte)])
                 .ShouldNotBeNull()
-                .Invoke(builderInstance, [Enum.Parse(formattingType, "None"), (byte)2]);
+                .Invoke(queryBuilder, [Enum.Parse(formattingType, formatting), (byte)2]);
+    }
 
-        query.ShouldBe("{...on Me{id,firstName,lastName,fullName,ssn,email,language,tone,mobile}}");
+    [Fact]
+    public void GeneratedQueryWithAllFragments()
+    {
+        var configuration = new GraphQlGeneratorConfiguration { JsonPropertyGeneration = JsonPropertyGenerationOption.Always };
+
+        var schema = DeserializeTestSchema("TestSchemaWithUnions");
+        var stringBuilder = new StringBuilder();
+        var generator = new GraphQlGenerator(configuration);
+        generator.Generate(CreateGenerationContext(stringBuilder, schema));
+
+        const string assemblyName = "GeneratedQueryWithFragmentsTestAssembly";
+        CompileIntoAssembly(stringBuilder.ToString(), assemblyName);
+
+        var rootQueryBuilderType = Type.GetType($"{assemblyName}.QueryQueryBuilder, {assemblyName}");
+        rootQueryBuilderType.ShouldNotBeNull();
+        var rootQueryBuilderInstance = rootQueryBuilderType.GetConstructor([typeof(string)]).ShouldNotBeNull().Invoke(new object[1]);
+        WithAllFields(rootQueryBuilderInstance);
+
+        var formattingType = Type.GetType($"{assemblyName}.Formatting, {assemblyName}");
+        formattingType.ShouldNotBeNull();
+
+        var query = BuildQuery(rootQueryBuilderInstance);
+        query.ShouldBe("query{scalarValue,simpleObject{id,stringValueNullable,stringValue,stringArrayValue,nestedList{id,stringValueNullable,stringValue,stringArrayValue}},union{__typename,...on ConcreteType1{TypeName,name,concreteType1Field,value,deprecated_field,accessor{value},accessors{value},nestedAccessors{value}},...on ConcreteType2{name,concreteType2Field,value},...on ConcreteType3{name,concreteType3Field,VALUE},...on ConcreteType4{concreteType4Field}},underscore_named_field{underscore_named_field_enum,underscore_named_field_enum_collection},nestedLists,_,COLLISIONS,collisions}");
     }
 
     [Fact]
@@ -656,19 +674,25 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         if (value is object[])
             genericType = typeof(object);
 
-        object parameter;
-        if (name == null)
+        var bindingFlags = BindingFlags.Instance;
+        string parameterTypeName;
+        object[] constructorArguments;
+        if (name is null)
         {
-            var queryBuilderParameterType = Type.GetType($"{sourceAssembly}.QueryBuilderParameter`1, {sourceAssembly}").ShouldNotBeNull().MakeGenericType(genericType);
-            parameter = Activator.CreateInstance(queryBuilderParameterType, BindingFlags.Instance | BindingFlags.NonPublic, null, [value], CultureInfo.InvariantCulture);
+            parameterTypeName = "QueryBuilderParameter";
+            bindingFlags |= BindingFlags.NonPublic;
+            constructorArguments = [value];
         }
         else
         {
-            var queryParameterType = Type.GetType($"{sourceAssembly}.GraphQlQueryParameter`1, {sourceAssembly}").ShouldNotBeNull().MakeGenericType(genericType);
-            parameter = Activator.CreateInstance(queryParameterType, BindingFlags.Instance | BindingFlags.Public, null, [name, graphQlType, value], CultureInfo.InvariantCulture);
+            parameterTypeName = "GraphQlQueryParameter";
+            bindingFlags |= BindingFlags.Public;
+            constructorArguments = [name, graphQlType, value];
         }
 
-        return parameter;
+
+        var parameterType = Type.GetType($"{sourceAssembly}.{parameterTypeName}`1, {sourceAssembly}").ShouldNotBeNull().MakeGenericType(genericType);
+        return Activator.CreateInstance(parameterType, bindingFlags, null, constructorArguments, CultureInfo.InvariantCulture);
     }
 
     private static string GetTestResource(string name)
@@ -817,27 +841,18 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         builderType
             .GetMethod("WithTestAction", BindingFlags.Instance | BindingFlags.Public)
             .ShouldNotBeNull()
-            .Invoke(
-                builderInstance,
-                new []
-                {
-                    inputObject
-                }.Select(p => CreateParameter(assemblyName, p)).ToArray());
+            .Invoke(builderInstance, [CreateParameter(assemblyName, inputObject)]);
 
         var withParameterMethod = builderType.GetMethod("WithParameter", BindingFlags.Instance | BindingFlags.Public).ShouldNotBeNull();
         withParameterMethod.MakeGenericMethod(typeof(String)).Invoke(builderInstance, [queryParameter1]);
         withParameterMethod.MakeGenericMethod(queryParameter2Value.GetType()).Invoke(builderInstance, [queryParameter2]);
 
-        var mutation =
-            builderType
-                .GetMethod("Build", [formattingType, typeof(byte)])
-                .ShouldNotBeNull()
-                .Invoke(builderInstance, [Enum.Parse(formattingType, "None"), (byte)2]);
+        var mutation = BuildQuery(builderInstance);
 
-        mutation.ShouldBe("mutation($stringParameter:String=\"Test Value\",$objectParameter:[TestInput!]={testProperty:\"Input Object Parameter Value\",timestamp:\"19-06-30 02:27 +02:00\"}){testAction(objectParameter:{inputObject1:{testProperty:\"Nested Value\"},inputObject2:$objectParameter,testProperty:$stringParameter,testNullValueProperty:null})}");
+        mutation.ShouldBe("""mutation($stringParameter:String="Test Value",$objectParameter:[TestInput!]={testProperty:"Input Object Parameter Value",timestamp:"19-06-30 02:27 +02:00"}){testAction(objectParameter:{inputObject1:{testProperty:"Nested Value"},inputObject2:$objectParameter,testProperty:$stringParameter,testNullValueProperty:null})}""");
 
         var inputObjectJson = JsonConvert.SerializeObject(inputObject);
-        inputObjectJson.ShouldBe("{\"InputObject1\":{\"InputObject1\":null,\"InputObject2\":null,\"TestProperty\":\"Nested Value\",\"TestNullValueProperty\":null,\"Timestamp\":null},\"InputObject2\":{\"InputObject1\":null,\"InputObject2\":null,\"TestProperty\":\"Input Object Parameter Value\",\"TestNullValueProperty\":null,\"Timestamp\":\"2019-06-30T02:27:47.1234567+02:00\"},\"TestProperty\":\"Test Value\",\"TestNullValueProperty\":null,\"Timestamp\":null}");
+        inputObjectJson.ShouldBe("""{"InputObject1":{"InputObject1":null,"InputObject2":null,"TestProperty":"Nested Value","TestNullValueProperty":null,"Timestamp":null},"InputObject2":{"InputObject1":null,"InputObject2":null,"TestProperty":"Input Object Parameter Value","TestNullValueProperty":null,"Timestamp":"2019-06-30T02:27:47.1234567+02:00"},"TestProperty":"Test Value","TestNullValueProperty":null,"Timestamp":null}""");
 
         var deserializedInputObject = JsonConvert.DeserializeObject(inputObjectJson, inputObjectType);
         var testPropertyValue = testPropertyInfo.GetValue(deserializedInputObject).ShouldNotBeNull();
@@ -865,14 +880,14 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         GetQueryParameterGraphQlType(typeof(String), false).ShouldBe("String!");
         return;
 
-        string GetQueryParameterGraphQlType(Type valueType, bool nullable)
+        static string GetQueryParameterGraphQlType(Type valueType, bool nullable)
         {
             var queryParameterType = GetGeneratedType("GraphQlQueryParameter`1");
             var queryParameter = Activator.CreateInstance(queryParameterType.MakeGenericType(valueType), "parameter_name", null, nullable);
             return (string)queryParameterType.GetProperty("GraphQlTypeName", BindingFlags.Instance | BindingFlags.NonPublic).ShouldNotBeNull().GetValue(queryParameter);
         }
 
-        Type GetGeneratedType(string typeName)
+        static Type GetGeneratedType(string typeName)
         {
             typeName = $"{assemblyName}.{typeName}, {assemblyName}";
             return Type.GetType(typeName) ?? throw new InvalidOperationException($"value type \"{typeName}\" not found");
