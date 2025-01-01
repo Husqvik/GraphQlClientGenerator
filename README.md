@@ -59,7 +59,7 @@ Project file example:
 ```xml
 <PropertyGroup>
   <OutputType>Exe</OutputType>
-  <TargetFramework>net5.0</TargetFramework>
+  <TargetFramework>net9.0</TargetFramework>
 
   <!-- GraphQL generator properties -->
   <GraphQlClientGenerator_ServiceUrl>https://api.tibber.com/v1-beta/gql</GraphQlClientGenerator_ServiceUrl>
@@ -401,19 +401,18 @@ configuration.ScalarFieldTypeMappingProvider = new MyCustomScalarFieldTypeMappin
 
 public class MyCustomScalarFieldTypeMappingProvider : IScalarFieldTypeMappingProvider
 {
-    public ScalarFieldTypeDescription GetCustomScalarFieldType(GraphQlGeneratorConfiguration configuration, GraphQlType baseType, GraphQlTypeBase valueType, string valueName)
+    public ScalarFieldTypeDescription GetCustomScalarFieldType(ScalarFieldTypeProviderContext context)
     {
-        valueType = valueType is GraphQlFieldType fieldType ? fieldType.UnwrapIfNonNull() : valueType;
+        var unwrappedType = fieldType.UnwrapIfNonNull();
 
         // DateTime and Byte
-        switch (valueType.Name)
-        {
-            case "Byte": return new ScalarFieldTypeDescription { NetTypeName = "byte?", FormatMask = null };
-            case "DateTime": return new ScalarFieldTypeDescription { NetTypeName = "DateTime?", FormatMask = null };
-        }
-
-        // fallback - not needed if all fields and arguments are resolved or the expected type is of "object" type
-        return DefaultScalarFieldTypeMappingProvider.GetFallbackFieldType(configuration, valueType);
+        return
+            unwrappedType.Name switch
+            {
+                "Byte" => new ScalarFieldTypeDescription { NetTypeName = GenerationContext.GetNullableNetTypeName(context, "byte", false), FormatMask = null },
+                "DateTime" => new ScalarFieldTypeDescription { NetTypeName = GenerationContext.GetNullableNetTypeName(context, "DateTime", false), FormatMask = null },
+                _ => DefaultScalarFieldTypeMappingProvider.GetFallbackFieldType(context)
+            };
     }
 }
 ```
@@ -446,6 +445,7 @@ Source generator supports `RegexScalarFieldTypeMappingProvider` rules using JSON
     "patternValueType": ".+",
     "patternValueName": "^((timestamp)|(.*(f|F)rom)|(.*(t|T)o))$",
     "netTypeName": "DateTimeOffset?",
+    "isReferenceType": false,
     "formatMask": "O"
   }
 ]
