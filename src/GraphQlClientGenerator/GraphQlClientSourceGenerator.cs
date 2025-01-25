@@ -280,8 +280,7 @@ public class SourceGeneratorFileEmitter(GeneratorExecutionContext sourceGenerato
             throw new ArgumentException($"File was not created by {nameof(SourceGeneratorFileEmitter)}.", nameof(codeFile));
 
         codeFile.Writer.Flush();
-        memoryStream.Position = 0;
-        sourceGeneratorContext.AddSource(codeFile.FileName, SourceText.From(codeFile.Stream, Encoding.UTF8, throwIfBinaryDetected: true));
+        sourceGeneratorContext.AddSource(codeFile.FileName, SourceText.From(Encoding.UTF8.GetString(memoryStream.ToArray()), Encoding.UTF8));
         var fileSize = (int)codeFile.Stream.Length;
         codeFile.Dispose();
         return new CodeFileInfo { FileName = codeFile.FileName, Length = fileSize };
