@@ -10,7 +10,7 @@
     <PackageTags>GraphQL Client Generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-      fixed OneClassPerFile source UTF-8 encoding
+      pin Microsoft.CodeAnalysis.CSharp to 4.11 to avoid warning CS9057 in .NET 8
       ]]>
     </PackageReleaseNotes>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
@@ -20,8 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.*" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.*" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.*" PrivateAssets="All" />
     <PackageReference Include="System.Net.Http" Version="4.*" />
     <PackageReference Include="Newtonsoft.Json" Version="13.*" GeneratePathProperty="true" />

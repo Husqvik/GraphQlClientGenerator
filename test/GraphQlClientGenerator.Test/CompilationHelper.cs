@@ -12,12 +12,14 @@ internal static class CompilationHelper
     {
         var syntaxTree =
             SyntaxFactory.ParseSyntaxTree(
-                $@"{GraphQlGenerator.RequiredNamespaces}
+                $$"""
+                {{GraphQlGenerator.RequiredNamespaces}}
 
-namespace {assemblyName}
-{{
-{sourceCode}
-}}",
+                namespace {{assemblyName}}
+                {
+                {{sourceCode}}
+                }
+                """,
                 CSharpParseOptions.Default.WithLanguageVersion(Enum.GetValues(typeof(LanguageVersion)).Cast<LanguageVersion>().Max()));
 
         var compilationOptions =
@@ -51,9 +53,8 @@ namespace {assemblyName}
         return
             CSharpCompilation.Create(
                 assemblyName,
-                new[] { syntaxTree },
-                new[]
-                {
+                [syntaxTree],
+                [
                     systemReference,
                     systemIoReference,
                     systemDynamicRuntimeReference,
@@ -70,7 +71,7 @@ namespace {assemblyName}
                     linqReference,
                     linqExpressionsReference,
                     netStandardReference
-                },
+                ],
                 compilationOptions);
 
     }
