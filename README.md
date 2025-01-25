@@ -335,12 +335,10 @@ var builder =
   new RootQueryBuilder("InlineFragments")
     .WithUnion(
       new UnionTypeQueryBuilder()
-        .WithTypeName()
         .WithConcreteType1Fragment(new ConcreteType1QueryBuilder().WithAllFields())
         .WithConcreteType2Fragment(new ConcreteType2QueryBuilder().WithAllFields())
         .WithConcreteType3Fragment(
           new ConcreteType3QueryBuilder()
-            .WithTypeName()
             .WithName()
             .WithConcreteType3Field("alias")
             .WithFunction("my value", "myResult1")
@@ -351,7 +349,6 @@ var builder =
         .WithName()
         .WithConcreteType3Fragment(
           new ConcreteType3QueryBuilder()
-            .WithTypeName()
             .WithName()
             .WithConcreteType3Field()
             .WithFunction("my value")
@@ -444,7 +441,7 @@ Source generator supports `RegexScalarFieldTypeMappingProvider` rules using JSON
     "patternBaseType": ".+",
     "patternValueType": ".+",
     "patternValueName": "^((timestamp)|(.*(f|F)rom)|(.*(t|T)o))$",
-    "netTypeName": "DateTimeOffset?",
+    "netTypeName": "DateTimeOffset",
     "isReferenceType": false,
     "formatMask": "O"
   }

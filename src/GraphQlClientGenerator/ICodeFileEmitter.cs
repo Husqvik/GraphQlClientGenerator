@@ -1,4 +1,6 @@
-﻿namespace GraphQlClientGenerator;
+﻿using System.Text;
+
+namespace GraphQlClientGenerator;
 
 public interface ICodeFileEmitter
 {
@@ -14,12 +16,19 @@ public struct CodeFileInfo
     public long Length { get; set; }
 }
 
-public class CodeFile(string fileName, Stream stream) : IDisposable
+public class CodeFile : IDisposable
 {
-    private Stream _stream = stream ?? throw new ArgumentNullException();
-    private StreamWriter _writer = new(stream);
+    private Stream _stream;
+    private StreamWriter _writer;
 
-    public string FileName { get; } = fileName;
+    public CodeFile(string fileName, Stream stream)
+    {
+        _stream = stream ?? throw new ArgumentNullException();
+        _writer = new StreamWriter(_stream, Encoding.UTF8);
+        FileName = fileName;
+    }
+
+    public string FileName { get; }
 
     public Stream Stream => _stream ?? throw new ObjectDisposedException(nameof(CodeFile));
 

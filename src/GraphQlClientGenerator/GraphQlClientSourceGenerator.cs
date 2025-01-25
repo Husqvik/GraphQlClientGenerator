@@ -281,7 +281,7 @@ public class SourceGeneratorFileEmitter(GeneratorExecutionContext sourceGenerato
 
         codeFile.Writer.Flush();
         memoryStream.Position = 0;
-        sourceGeneratorContext.AddSource(codeFile.FileName, SourceText.From(codeFile.Stream, Encoding.UTF8));
+        sourceGeneratorContext.AddSource(codeFile.FileName, SourceText.From(codeFile.Stream, Encoding.UTF8, throwIfBinaryDetected: true));
         var fileSize = (int)codeFile.Stream.Length;
         codeFile.Dispose();
         return new CodeFileInfo { FileName = codeFile.FileName, Length = fileSize };
