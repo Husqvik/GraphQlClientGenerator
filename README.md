@@ -400,7 +400,7 @@ public class MyCustomScalarFieldTypeMappingProvider : IScalarFieldTypeMappingPro
 {
     public ScalarFieldTypeDescription GetCustomScalarFieldType(ScalarFieldTypeProviderContext context)
     {
-        var unwrappedType = fieldType.UnwrapIfNonNull();
+        var unwrappedType = context.FieldType.UnwrapIfNonNull();
 
         // DateTime and Byte
         return
