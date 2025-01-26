@@ -61,6 +61,7 @@ internal static class GraphQlCSharpFileHelper
                 DataClassMemberNullability = options.DataClassMemberNullability,
                 GenerationOrder = options.GenerationOrder,
                 IncludeDeprecatedFields = options.IncludeDeprecatedFields,
+                EnableNullableReferences = options.NullableReferences,
                 FileScopedNamespaces = options.FileScopedNamespaces
             };
 

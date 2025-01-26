@@ -32,6 +32,8 @@ public class GraphQlGeneratorConfiguration
 
     public bool IncludeDeprecatedFields { get; set; }
 
+    public bool EnableNullableReferences { get; set; }
+
     public bool GeneratePartialClasses { get; set; } = true;
 
     /// <summary>
@@ -91,6 +93,7 @@ public class GraphQlGeneratorConfiguration
         ScalarFieldTypeMappingProvider = DefaultScalarFieldTypeMappingProvider.Instance;
         CodeDocumentationType = CodeDocumentationType.Disabled;
         IncludeDeprecatedFields = false;
+        EnableNullableReferences = false;
         FloatTypeMapping = FloatTypeMapping.Decimal;
         BooleanTypeMapping = BooleanTypeMapping.Boolean;
         IntegerTypeMapping = IntegerTypeMapping.Int32;
@@ -115,8 +118,7 @@ public enum EnumValueNamingOption
 public enum CSharpVersion
 {
     Compatible,
-    Newest,
-    NewestWithNullableReferences
+    Newest
 }
 
 public enum FloatTypeMapping

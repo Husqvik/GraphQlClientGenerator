@@ -381,7 +381,8 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         var configuration =
             new GraphQlGeneratorConfiguration
             {
-                CSharpVersion = CSharpVersion.NewestWithNullableReferences,
+                CSharpVersion = CSharpVersion.Newest,
+                EnableNullableReferences = true,
                 DataClassMemberNullability = DataClassMemberNullability.DefinedBySchema
             };
 
@@ -402,7 +403,8 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         var configuration =
             new GraphQlGeneratorConfiguration
             {
-                CSharpVersion = CSharpVersion.NewestWithNullableReferences,
+                CSharpVersion = CSharpVersion.Newest,
+                EnableNullableReferences = true,
                 JsonPropertyGeneration = JsonPropertyGenerationOption.UseDefaultAlias,
                 EnumValueNaming = EnumValueNamingOption.Original,
                 ScalarFieldTypeMappingProvider = TestFormatMaskScalarFieldTypeMappingProvider.Instance

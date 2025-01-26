@@ -108,13 +108,16 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
             configuration.ClassSuffix = classSuffix;
 
             if (compilation.LanguageVersion >= LanguageVersion.CSharp6)
-                configuration.CSharpVersion =
-                    compilation.Options.NullableContextOptions == NullableContextOptions.Disable
-                        ? CSharpVersion.Newest
-                        : CSharpVersion.NewestWithNullableReferences;
+                configuration.CSharpVersion = CSharpVersion.Newest;
 
             context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("IncludeDeprecatedFields"), out var includeDeprecatedFieldsRaw);
-            configuration.IncludeDeprecatedFields = !String.IsNullOrWhiteSpace(includeDeprecatedFieldsRaw) && Convert.ToBoolean(includeDeprecatedFieldsRaw);
+            configuration.IncludeDeprecatedFields = Boolean.TryParse(includeDeprecatedFieldsRaw, out var includeDeprecatedFields) && includeDeprecatedFields;
+
+            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("EnableNullableReferences"), out var enableNullableReferencesRaw);
+            configuration.EnableNullableReferences =
+                compilation.Options.NullableContextOptions != NullableContextOptions.Disable &&
+                Boolean.TryParse(enableNullableReferencesRaw, out var enableNullableReferences) &&
+                enableNullableReferences;
 
             if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("HttpMethod"), out var httpMethod))
                 httpMethod = "POST";

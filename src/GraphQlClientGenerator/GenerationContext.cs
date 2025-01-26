@@ -231,7 +231,7 @@ public abstract class GenerationContext
 
             case GraphQlTypeKind.List:
                 var isCovarianceRequired = _typeFieldCovarianceRequired.Contains((ownerType.Name, member.Name));
-                var itemType = GraphQlGenerator.UnwrapListItemType(fieldType, Configuration.CSharpVersion == CSharpVersion.NewestWithNullableReferences, isCovarianceRequired, out var netCollectionOpenType);
+                var itemType = GraphQlGenerator.UnwrapListItemType(fieldType, Configuration.EnableNullableReferences, isCovarianceRequired, out var netCollectionOpenType);
                 var unwrappedItemType = itemType?.UnwrapIfNonNull() ?? throw GraphQlGenerator.ListItemTypeResolutionFailedException(ownerType.Name, fieldType.Name);
                 var itemTypeName = GetCSharpClassName(unwrappedItemType.Name);
                 var listItemTypeContext =
@@ -395,7 +395,7 @@ public abstract class GenerationContext
             context.ComponentType is ClientComponentType.DataClassProperty;
 
         var isNotNull = !alwaysNullable && context.FieldType.Kind is GraphQlTypeKind.NonNull;
-        var areNullableReferencesDisabled = context.Configuration.CSharpVersion != CSharpVersion.NewestWithNullableReferences && isReferenceType;
+        var areNullableReferencesDisabled = !context.Configuration.EnableNullableReferences && isReferenceType;
         return isNotNull || areNullableReferencesDisabled ? netType : $"{netType}?";
     }
 

@@ -10,7 +10,7 @@
     <PackageTags>GraphQL Client Generator</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-      pin Microsoft.CodeAnalysis.CSharp to 4.11 to avoid warning CS9057 in .NET 8
+      Nullable references as separate configuration property
       ]]>
     </PackageReleaseNotes>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>

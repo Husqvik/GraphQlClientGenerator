@@ -158,7 +158,7 @@ public class SingleFileGenerationContext(GraphQlSchema schema, TextWriter writer
 
     private void EnterNullableReferenceScope()
     {
-        if (_isNullableReferenceScopeEnabled || Configuration.CSharpVersion != CSharpVersion.NewestWithNullableReferences)
+        if (_isNullableReferenceScopeEnabled || !Configuration.EnableNullableReferences)
             return;
 
         WriteLine("#nullable enable");
