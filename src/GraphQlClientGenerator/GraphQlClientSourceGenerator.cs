@@ -26,12 +26,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
     {
         if (context.Compilation is not CSharpCompilation compilation)
         {
-            context.ReportDiagnostic(
-                Diagnostic.Create(
-                    DescriptorParameterError,
-                    Location.None,
-                    $"incompatible language: {context.Compilation.Language}"));
-
+            context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, $"incompatible language: {context.Compilation.Language}"));
             return;
         }
 
@@ -81,22 +76,13 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
                 var namespaceIdentifier = (IdentifierNameSyntax)root?.Members.OfType<NamespaceDeclarationSyntax>().FirstOrDefault()?.Name;
                 if (namespaceIdentifier is null)
                 {
-                    context.ReportDiagnostic(
-                        Diagnostic.Create(
-                            DescriptorParameterError,
-                            Location.None,
-                            "\"GraphQlClientGenerator_Namespace\" required"));
-
+                    context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, "\"GraphQlClientGenerator_Namespace\" required"));
                     return;
                 }
 
                 @namespace = namespaceIdentifier.Identifier.ValueText;
 
-                context.ReportDiagnostic(
-                    Diagnostic.Create(
-                        DescriptorInfo,
-                        Location.None,
-                        $"\"GraphQlClientGenerator_Namespace\" not specified; using \"{@namespace}\""));
+                context.ReportDiagnostic(Diagnostic.Create(DescriptorInfo, Location.None, $"\"GraphQlClientGenerator_Namespace\" not specified; using \"{@namespace}\""));
             }
 
             var configuration = new GraphQlGeneratorConfiguration { TargetNamespace = @namespace };
@@ -114,10 +100,13 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
             configuration.IncludeDeprecatedFields = Boolean.TryParse(includeDeprecatedFieldsRaw, out var includeDeprecatedFields) && includeDeprecatedFields;
 
             context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("EnableNullableReferences"), out var enableNullableReferencesRaw);
-            configuration.EnableNullableReferences =
-                compilation.Options.NullableContextOptions != NullableContextOptions.Disable &&
-                Boolean.TryParse(enableNullableReferencesRaw, out var enableNullableReferences) &&
-                enableNullableReferences;
+            configuration.EnableNullableReferences = Boolean.TryParse(enableNullableReferencesRaw, out var enableNullableReferences) && enableNullableReferences;
+
+            if (configuration.EnableNullableReferences && compilation.Options.NullableContextOptions is NullableContextOptions.Disable)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(DescriptorInfo, Location.None, "compilation nullable references disabled"));
+                configuration.EnableNullableReferences = false;
+            }
 
             if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("HttpMethod"), out var httpMethod))
                 httpMethod = "POST";
@@ -205,11 +194,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
 
                 var graphQlSchema = GraphQlGenerator.RetrieveSchema(new HttpMethod(httpMethod), serviceUrl, headers, httpClientHandler).GetAwaiter().GetResult();
                 graphQlSchemas.Add((FileNameGraphQlClientSource, graphQlSchema));
-                context.ReportDiagnostic(
-                    Diagnostic.Create(
-                        DescriptorInfo,
-                        Location.None,
-                        $"GraphQl schema fetched successfully from {serviceUrl}"));
+                context.ReportDiagnostic(Diagnostic.Create(DescriptorInfo, Location.None, $"GraphQl schema fetched successfully from {serviceUrl}"));
             }
 
             context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("FileScopedNamespaces"), out var fileScopedNamespacesRaw);
@@ -234,11 +219,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
                 }
             }
 
-            context.ReportDiagnostic(
-                Diagnostic.Create(
-                    DescriptorInfo,
-                    Location.None,
-                    "GraphQlClientGenerator task completed successfully. "));
+            context.ReportDiagnostic(Diagnostic.Create(DescriptorInfo, Location.None, "GraphQlClientGenerator task completed successfully. "));
         }
         catch (Exception exception)
         {
