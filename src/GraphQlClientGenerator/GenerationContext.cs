@@ -178,7 +178,6 @@ public abstract class GenerationContext
         return nestedTypeFields.Any(FilterIfDeprecated);
     }
 
-
     protected internal IEnumerable<GraphQlField> GetFragments(GraphQlType type)
     {
         if (type.Kind != GraphQlTypeKind.Union && type.Kind != GraphQlTypeKind.Interface)

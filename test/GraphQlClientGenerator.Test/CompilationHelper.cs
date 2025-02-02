@@ -8,7 +8,7 @@ namespace GraphQlClientGenerator.Test;
 
 internal static class CompilationHelper
 {
-    public static CSharpCompilation CreateCompilation(string sourceCode, string assemblyName)
+    public static CSharpCompilation CreateCompilation(string sourceCode, string assemblyName, NullableContextOptions nullableContextOptions = NullableContextOptions.Disable)
     {
         var syntaxTree =
             SyntaxFactory.ParseSyntaxTree(
@@ -23,7 +23,7 @@ internal static class CompilationHelper
                 CSharpParseOptions.Default.WithLanguageVersion(Enum.GetValues(typeof(LanguageVersion)).Cast<LanguageVersion>().Max()));
 
         var compilationOptions =
-            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+            new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: nullableContextOptions)
                 .WithPlatform(Platform.AnyCpu)
                 .WithOverflowChecks(true)
                 .WithOptimizationLevel(OptimizationLevel.Release)

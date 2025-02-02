@@ -56,4 +56,10 @@ public static class CSharpHelper
         if (!CSharpHelper.IsValidIdentifier(className))
             throw new InvalidOperationException($"Resulting class name \"{className}\" is not valid. ");
     }
+
+    public static bool UseTargetTypedNew(this CSharpVersion cSharpVersion) =>
+        cSharpVersion >= CSharpVersion.CSharp12;
+
+    public static bool UseCollectionExpression(this CSharpVersion cSharpVersion) =>
+        cSharpVersion >= CSharpVersion.CSharp12;
 }

@@ -55,8 +55,9 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
         var options = SetupGeneratorOptions(OutputType.SingleFile, false, null);
         options.Add("build_property.GraphQlClientGenerator_DataClassMemberNullability", nameof(DataClassMemberNullability.DefinedBySchema));
         options.Add("build_property.GraphQlClientGenerator_GenerationOrder", nameof(GenerationOrder.Alphabetical));
+        options.Add("build_property.GraphQlClientGenerator_EnableNullableReferences", "true");
 
-        var generatedSource = GenerateSource(options, _fileMappingRules);
+        var generatedSource = GenerateSource(options, _fileMappingRules, NullableContextOptions.Enable);
         var sourceCode = generatedSource.ToString();
 
         return Verify(sourceCode);
@@ -65,11 +66,11 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
     [Fact]
     public void SourceGenerationWithOneClassPerFile()
     {
-        var result = RunGenerator(SetupGeneratorOptions(OutputType.OneClassPerFile, true, null), null);
+        var result = RunGenerator(SetupGeneratorOptions(OutputType.OneClassPerFile, true, null), null, NullableContextOptions.Disable);
         result.GeneratedSources.Length.ShouldBe(70);
         var fileSizes = result.GeneratedSources.Where(s => s.HintName != "BaseClasses.cs").Select(s => s.SourceText.ToString().ReplaceLineEndings().Length).ToArray();
         fileSizes.ShouldBe(
-            [3581, 745, 579, 792, 1405, 486, 621, 927, 643, 660, 1506, 3111, 11683, 3743, 4953, 1482, 4168, 3843, 3927, 2900, 2654, 6105, 4393, 1701, 2624, 5019, 4798, 1731, 2603, 4552, 3905, 1720, 1215, 4295, 1940, 1683, 1922, 9665, 1925, 5904, 2054, 644, 1375, 4360, 1558, 2585, 854, 2374, 1893, 1399, 1766, 944, 2587, 704, 841, 939, 3169, 2099, 705, 935, 2928, 1744, 703, 685, 1235, 813, 726, 706, 6928]);
+            [3581, 745, 579, 792, 1405, 486, 621, 927, 643, 660, 1446, 2852, 10599, 3375, 4497, 1378, 3800, 3519, 3620, 2620, 2506, 5561, 4038, 1597, 2476, 4563, 4342, 1627, 2455, 4140, 3537, 1616, 1155, 4009, 1792, 1579, 1839, 8725, 1877, 5760, 2006, 644, 1375, 4360, 1558, 2585, 854, 2374, 1893, 1399, 1766, 944, 2587, 704, 841, 939, 3169, 2099, 705, 935, 2928, 1744, 703, 685, 1235, 813, 726, 706, 6928]);
     }
 
     private static Dictionary<string, string> SetupGeneratorOptions(OutputType outputType, bool useFileScopedNamespaces, string scalarFieldTypeMappingProviderTypeName)
@@ -101,18 +102,18 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
         return configurationOptions;
     }
 
-    private SourceText GenerateSource(Dictionary<string, string> options, AdditionalText additionalFile)
+    private SourceText GenerateSource(Dictionary<string, string> options, AdditionalText additionalFile, NullableContextOptions nullableContextOptions = NullableContextOptions.Disable)
     {
-        var result = RunGenerator(options, additionalFile);
+        var result = RunGenerator(options, additionalFile, nullableContextOptions);
         result.GeneratedSources.Length.ShouldBe(1);
         return result.GeneratedSources[0].SourceText;
     }
 
-    private GeneratorRunResult RunGenerator(Dictionary<string, string> options, AdditionalText additionalFile)
+    private GeneratorRunResult RunGenerator(Dictionary<string, string> options, AdditionalText additionalFile, NullableContextOptions nullableContextOptions)
     {
         var compilerAnalyzerConfigOptionsProvider = new CompilerAnalyzerConfigOptionsProvider(new CompilerAnalyzerConfigOptions(options));
 
-        var compilation = CompilationHelper.CreateCompilation(null, "SourceGeneratorTestAssembly");
+        var compilation = CompilationHelper.CreateCompilation(null, "SourceGeneratorTestAssembly", nullableContextOptions);
 
         var additionalFiles = new List<AdditionalText> { _fileGraphQlSchema };
 

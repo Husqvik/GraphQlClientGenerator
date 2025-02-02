@@ -573,7 +573,9 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                     writer.Write("set");
                     writer.Write(useCompatibleSyntax ? " { " : " => ");
                     writer.Write(kvp.Key);
-                    writer.Write(" = new InputPropertyInfo { Name = \"");
+                    writer.Write(" = new");
+                    writer.Write(_configuration.CSharpVersion.UseTargetTypedNew() ? "()" : " InputPropertyInfo");
+                    writer.Write(" { Name = \"");
                     writer.Write(kvp.Value.Member.Name);
                     writer.Write("\", Value = value");
 
@@ -875,7 +877,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         if (fields is null)
         {
             writer.Write(' ');
-            writer.Write(useCompatibleSyntax ? "new GraphQlFieldMetadata[0]" : "Array.Empty<GraphQlFieldMetadata>()");
+            writer.Write(useCompatibleSyntax ? "new GraphQlFieldMetadata[0]" : _configuration.CSharpVersion.UseCollectionExpression() ? "[]" : "Array.Empty<GraphQlFieldMetadata>()");
             writer.WriteLine(';');
         }
         else
@@ -903,7 +905,9 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                 var isComplex = isList || fieldType.Kind.IsComplex();
 
                 writer.Write(fieldMetadataIndentation);
-                writer.Write("        new GraphQlFieldMetadata { Name = \"");
+                writer.Write("        new");
+                writer.Write(_configuration.CSharpVersion.UseTargetTypedNew() ? "()" : " GraphQlFieldMetadata");
+                writer.Write(" { Name = \"");
                 writer.Write(field.Name);
                 writer.Write('"');
 
@@ -1400,10 +1404,14 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             writer.Write(" = null");
         }
 
+        if (directiveParameterNames.Count == 0)
+            return "null";
+
+        var directiveParameterList = String.Join(", ", directiveParameterNames);
         return
-            directiveParameterNames.Any()
-                ? $"new {AddQuestionMarkIfNullableReferencesEnabled("GraphQlDirective")}[] {{ {String.Join(", ", directiveParameterNames)} }}"
-                : "null";
+            _configuration.CSharpVersion.UseCollectionExpression()
+                ? $"[{directiveParameterList}]"
+                : $"new {AddQuestionMarkIfNullableReferencesEnabled("GraphQlDirective")}[] {{ {directiveParameterList} }}";
     }
 
     private static void WriteQueryBuilderMethodBody(bool requiresFullBody, string indentation, TextWriter writer, Action writeBody)
@@ -1435,19 +1443,26 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         writer.Write(propertyType);
         writer.Write(' ');
         writer.Write(propertyName);
-        writer.Write(" { get");
 
-        if (_configuration.CSharpVersion == CSharpVersion.Compatible)
+        switch (_configuration.CSharpVersion)
         {
-            writer.Write(" { return ");
-            writer.Write(propertyValue);
-            writer.WriteLine("; } } ");
-        }
-        else
-        {
-            writer.Write("; } = ");
-            writer.Write(propertyValue);
-            writer.WriteLine(";");
+            case CSharpVersion.Compatible:
+                writer.Write(" { get { return ");
+                writer.Write(propertyValue);
+                writer.WriteLine("; } } ");
+                break;
+
+            case CSharpVersion.CSharp6:
+                writer.Write(" { get; } = ");
+                writer.Write(propertyValue);
+                writer.WriteLine(";");
+                break;
+
+            default:
+                writer.Write(" => ");
+                writer.Write(propertyValue);
+                writer.WriteLine(";");
+                break;
         }
 
         writer.WriteLine();
@@ -1514,7 +1529,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             };
     }
 
-    private static void AppendArgumentDictionary(
+    private void AppendArgumentDictionary(
         string indentation,
         TextWriter writer,
         IReadOnlyCollection<QueryBuilderParameterDefinition> argumentDefinitions,
@@ -1528,6 +1543,8 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         writer.Write(argumentCollectionVariableName);
         writer.WriteLine(" = new List<QueryBuilderArgumentInfo>();");
 
+        var useTargetTypedNew = _configuration.CSharpVersion.UseTargetTypedNew();
+
         foreach (var argumentDefinition in argumentDefinitions)
         {
             writer.Write(indentation);
@@ -1535,7 +1552,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             if (argumentDefinition.Argument.Type.Kind == GraphQlTypeKind.NonNull)
             {
                 writer.Write("        ");
-                WriteAddKeyValuePair(writer, argumentDefinition, argumentCollectionVariableName);
+                WriteAddKeyValuePair(writer, argumentDefinition, argumentCollectionVariableName, useTargetTypedNew);
             }
             else
             {
@@ -1544,18 +1561,20 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                 writer.WriteLine(" != null)");
                 writer.Write(indentation);
                 writer.Write("            ");
-                WriteAddKeyValuePair(writer, argumentDefinition, argumentCollectionVariableName);
+                WriteAddKeyValuePair(writer, argumentDefinition, argumentCollectionVariableName, useTargetTypedNew);
                 writer.WriteLine();
             }
         }
 
         return;
 
-        static void WriteAddKeyValuePair(TextWriter writer, QueryBuilderParameterDefinition argumentDefinition, string variableName)
+        static void WriteAddKeyValuePair(TextWriter writer, QueryBuilderParameterDefinition argumentDefinition, string variableName, bool useTargetTypeNew)
         {
             var argument = argumentDefinition.Argument;
             writer.Write(variableName);
-            writer.Write(".Add(new QueryBuilderArgumentInfo { ArgumentName = \"");
+            writer.Write(".Add(new");
+            writer.Write(useTargetTypeNew ? "()" : " QueryBuilderArgumentInfo");
+            writer.Write(" { ArgumentName = \"");
             writer.Write(argument.Name);
             writer.Write("\", ArgumentValue = ");
             writer.Write(argumentDefinition.NetParameterName);

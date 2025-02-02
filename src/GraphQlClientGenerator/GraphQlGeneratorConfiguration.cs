@@ -118,7 +118,8 @@ public enum EnumValueNamingOption
 public enum CSharpVersion
 {
     Compatible,
-    Newest
+    CSharp6,
+    CSharp12
 }
 
 public enum FloatTypeMapping

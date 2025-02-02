@@ -93,8 +93,10 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
             context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("ClassSuffix"), out var classSuffix);
             configuration.ClassSuffix = classSuffix;
 
-            if (compilation.LanguageVersion >= LanguageVersion.CSharp6)
-                configuration.CSharpVersion = CSharpVersion.Newest;
+            if (compilation.LanguageVersion >= LanguageVersion.CSharp12)
+                configuration.CSharpVersion = CSharpVersion.CSharp12;
+            else if (compilation.LanguageVersion >= LanguageVersion.CSharp6)
+                configuration.CSharpVersion = CSharpVersion.CSharp6;
 
             context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("IncludeDeprecatedFields"), out var includeDeprecatedFieldsRaw);
             configuration.IncludeDeprecatedFields = Boolean.TryParse(includeDeprecatedFieldsRaw, out var includeDeprecatedFields) && includeDeprecatedFields;

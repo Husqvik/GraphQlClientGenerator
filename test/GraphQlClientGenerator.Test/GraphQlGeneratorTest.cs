@@ -38,7 +38,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
             {
                 TargetNamespace = "GraphQlGeneratorTest",
                 CodeDocumentationType = CodeDocumentationType.XmlSummary | CodeDocumentationType.DescriptionAttribute,
-                CSharpVersion = CSharpVersion.Newest,
+                CSharpVersion = CSharpVersion.CSharp6,
                 FileScopedNamespaces = fileScopedNamespaces
             };
 
@@ -354,7 +354,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         var configuration =
             new GraphQlGeneratorConfiguration
             {
-                CSharpVersion = CSharpVersion.Newest,
+                CSharpVersion = CSharpVersion.CSharp6,
                 ClassPrefix = "Test",
                 ClassSuffix = "V1",
                 MemberAccessibility = MemberAccessibility.Internal
@@ -381,7 +381,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         var configuration =
             new GraphQlGeneratorConfiguration
             {
-                CSharpVersion = CSharpVersion.Newest,
+                CSharpVersion = CSharpVersion.CSharp6,
                 EnableNullableReferences = true,
                 DataClassMemberNullability = DataClassMemberNullability.DefinedBySchema
             };
@@ -403,7 +403,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         var configuration =
             new GraphQlGeneratorConfiguration
             {
-                CSharpVersion = CSharpVersion.Newest,
+                CSharpVersion = CSharpVersion.CSharp6,
                 EnableNullableReferences = true,
                 JsonPropertyGeneration = JsonPropertyGenerationOption.UseDefaultAlias,
                 EnumValueNaming = EnumValueNamingOption.Original,
@@ -653,7 +653,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         var configuration =
             new GraphQlGeneratorConfiguration
             {
-                CSharpVersion = CSharpVersion.Newest,
+                CSharpVersion = CSharpVersion.CSharp6,
                 CodeDocumentationType = CodeDocumentationType.XmlSummary | CodeDocumentationType.DescriptionAttribute,
                 IncludeDeprecatedFields = true,
                 GeneratePartialClasses = false
