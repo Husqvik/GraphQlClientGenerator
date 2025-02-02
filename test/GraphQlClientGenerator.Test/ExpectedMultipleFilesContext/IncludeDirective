@@ -17,6 +17,7 @@ namespace GraphQlGeneratorTest
     [Description(@"Directs the executor to include this field or fragment only when the `if` argument is true.")]
     public class IncludeDirective : GraphQlDirective
     {
+        /// <param name="if">Included when true.</param>
         public IncludeDirective(QueryBuilderParameter<bool> @if) : base("include")
         {
             AddArgument("if", @if);

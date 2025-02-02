@@ -1711,6 +1711,18 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         writer.WriteLine(" : GraphQlDirective");
         writer.Write(indentation);
         writer.WriteLine("{");
+
+        if (_configuration.CodeDocumentationType.HasFlag(CodeDocumentationType.XmlSummary) && orderedArgumentDefinitions.Any(a => !String.IsNullOrWhiteSpace(a.Argument.Description)))
+            foreach (var argumentDefinition in orderedArgumentDefinitions)
+            {
+                writer.Write(indentation);
+                writer.Write("    /// <param name=\"");
+                writer.Write(argumentDefinition.NetParameterName.TrimStart('@'));
+                writer.Write("\">");
+                writer.Write(argumentDefinition.Argument.Description?.Replace("<", "&lt;").Replace(">", "&gt;"));
+                writer.WriteLine("</param>");
+            }
+
         writer.Write(indentation);
         writer.Write("    public ");
         writer.Write(directiveName);
@@ -1753,7 +1765,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             writer.WriteLine("/// <summary>");
             writer.Write(indentation);
             writer.Write("/// ");
-            writer.WriteLine(String.Join($"{Environment.NewLine}{indentation}/// ", description.Split('\n').Select(l => l.Trim())));
+            writer.WriteLine(String.Join($"{Environment.NewLine}{indentation}/// ", description.Split('\n').Select(l => l.Trim().Replace("<", "&lt;").Replace(">", "&gt;"))));
             writer.Write(indentation);
             writer.WriteLine("/// </summary>");
         }

@@ -1219,6 +1219,7 @@ public enum SourceGeneratedAppScreenV2
 /// </summary>
 public class SkipDirective : GraphQlDirective
 {
+    /// <param name="if">Skipped when true.</param>
     public SkipDirective(QueryBuilderParameter<bool> @if) : base("skip")
     {
         AddArgument("if", @if);
@@ -1230,6 +1231,7 @@ public class SkipDirective : GraphQlDirective
 /// </summary>
 public class IncludeDirective : GraphQlDirective
 {
+    /// <param name="if">Included when true.</param>
     public IncludeDirective(QueryBuilderParameter<bool> @if) : base("include")
     {
         AddArgument("if", @if);
