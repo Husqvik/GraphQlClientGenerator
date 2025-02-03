@@ -1471,6 +1471,7 @@ namespace GraphQlGenerator.Test
             return ExceptField("preLiveComparison");
         }
 
+        /// <param name="resolution">Temporal resolution &lt; &amp; &gt;</param>
         public HomeQueryBuilder WithComparisons(ComparisonQueryBuilder comparisonQueryBuilder, QueryBuilderParameter<DateTimeOffset?> from = null, QueryBuilderParameter<DateTimeOffset?> to = null, QueryBuilderParameter<Resolution?> resolution = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null)
         {
             var args = new List<QueryBuilderArgumentInfo>();

@@ -1053,18 +1053,18 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             var field = fields[i];
             var fieldType = UnwrapIfNotNullOrList(field.Type);
             var isFragment = i >= firstFragmentIndex;
-            var argumentDefinitions = ResolveParameterDefinitions(context, graphQlType, field.Args);
-            var argumentCollectionVariableName = "args";
+            var parameterDefinitions = ResolveParameterDefinitions(context, graphQlType, field.Args);
+            var parameterCollectionVariableName = "args";
             var counter = 0;
-            while (argumentDefinitions.Any(a => a.NetParameterName == argumentCollectionVariableName))
-                switch (argumentCollectionVariableName)
+            while (parameterDefinitions.Any(a => a.NetParameterName == parameterCollectionVariableName))
+                switch (parameterCollectionVariableName)
                 {
                     case "args":
-                        argumentCollectionVariableName = "inputArgs";
+                        parameterCollectionVariableName = "inputArgs";
                         break;
 
                     default:
-                        argumentCollectionVariableName = $"inputArgs{(counter is 0 ? null : counter)}";
+                        parameterCollectionVariableName = $"inputArgs{(counter is 0 ? null : counter)}";
                         counter++;
                         break;
                 }
@@ -1072,16 +1072,18 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             var methodParameters =
                 String.Join(
                     ", ",
-                    argumentDefinitions
+                    parameterDefinitions
                         .OrderByDescending(d => d.Argument.Type.Kind == GraphQlTypeKind.NonNull)
                         .Select(d => d.NetParameterDefinitionClause));
 
-            var requiresFullBody = useCompatibleSyntax || argumentDefinitions.Any();
+            var requiresFullBody = useCompatibleSyntax || parameterDefinitions.Any();
             var returnPrefix = ReturnPrefix(requiresFullBody);
             var csharpPropertyName = NamingHelper.ToPascalCase(field.Name);
             var requiresRawName = csharpNameLookup[csharpPropertyName].Count() > 1;
             if (requiresRawName)
                 csharpPropertyName = field.Name;
+
+            WriteMethodXmlDocumentation(writer, parameterDefinitions, context.IndentationSize + 4);
 
             if (field.IsDeprecated)
                 WriteObsoleteAttribute(writer, field.DeprecationReason, indentation);
@@ -1101,7 +1103,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
 
                 WriteAliasParameter();
 
-                var fieldDirectiveParameterNameList = WriteDirectiveParameterList(context, argumentDefinitions);
+                var fieldDirectiveParameterNameList = WriteDirectiveParameterList(context, parameterDefinitions);
 
                 writer.Write(")");
 
@@ -1111,7 +1113,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                     writer,
                     () =>
                     {
-                        AppendArgumentDictionary(indentation, writer, argumentDefinitions, argumentCollectionVariableName);
+                        AppendArgumentDictionary(indentation, writer, parameterDefinitions, parameterCollectionVariableName);
 
                         writer.Write(returnPrefix);
                         writer.Write("WithScalarField(\"");
@@ -1119,10 +1121,10 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                         writer.Write("\", alias, ");
                         writer.Write(fieldDirectiveParameterNameList);
 
-                        if (argumentDefinitions.Count > 0)
+                        if (parameterDefinitions.Count > 0)
                         {
                             writer.Write(", ");
-                            writer.Write(argumentCollectionVariableName);
+                            writer.Write(parameterCollectionVariableName);
                         }
 
                         writer.WriteLine(");");
@@ -1154,7 +1156,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                 writer.Write(builderParameterName);
                 writer.Write("QueryBuilder");
 
-                if (argumentDefinitions.Count > 0)
+                if (parameterDefinitions.Count > 0)
                 {
                     writer.Write(", ");
                     writer.Write(methodParameters);
@@ -1166,7 +1168,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                     WriteAliasParameter();
                 }
 
-                var fieldDirectiveParameterNameList = WriteDirectiveParameterList(context, argumentDefinitions);
+                var fieldDirectiveParameterNameList = WriteDirectiveParameterList(context, parameterDefinitions);
 
                 writer.Write(")");
 
@@ -1176,7 +1178,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                     writer,
                     () =>
                     {
-                        AppendArgumentDictionary(indentation, writer, argumentDefinitions, argumentCollectionVariableName);
+                        AppendArgumentDictionary(indentation, writer, parameterDefinitions, parameterCollectionVariableName);
 
                         writer.Write(returnPrefix);
                         writer.Write("With");
@@ -1196,10 +1198,10 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                         writer.Write(", ");
                         writer.Write(fieldDirectiveParameterNameList);
 
-                        if (argumentDefinitions.Count > 0)
+                        if (parameterDefinitions.Count > 0)
                         {
                             writer.Write(", ");
-                            writer.Write(argumentCollectionVariableName);
+                            writer.Write(parameterCollectionVariableName);
                         }
 
                         writer.WriteLine(");");
@@ -1533,14 +1535,14 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         string indentation,
         TextWriter writer,
         IReadOnlyCollection<QueryBuilderParameterDefinition> argumentDefinitions,
-        string argumentCollectionVariableName)
+        string parameterCollectionVariableName)
     {
         if (argumentDefinitions.Count == 0)
             return;
 
         writer.Write(indentation);
         writer.Write("        var ");
-        writer.Write(argumentCollectionVariableName);
+        writer.Write(parameterCollectionVariableName);
         writer.WriteLine(" = new List<QueryBuilderArgumentInfo>();");
 
         var useTargetTypedNew = _configuration.CSharpVersion.UseTargetTypedNew();
@@ -1552,7 +1554,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             if (argumentDefinition.Argument.Type.Kind == GraphQlTypeKind.NonNull)
             {
                 writer.Write("        ");
-                WriteAddKeyValuePair(writer, argumentDefinition, argumentCollectionVariableName, useTargetTypedNew);
+                WriteAddKeyValuePair(writer, argumentDefinition, parameterCollectionVariableName, useTargetTypedNew);
             }
             else
             {
@@ -1561,7 +1563,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                 writer.WriteLine(" != null)");
                 writer.Write(indentation);
                 writer.Write("            ");
-                WriteAddKeyValuePair(writer, argumentDefinition, argumentCollectionVariableName, useTargetTypedNew);
+                WriteAddKeyValuePair(writer, argumentDefinition, parameterCollectionVariableName, useTargetTypedNew);
                 writer.WriteLine();
             }
         }
@@ -1696,13 +1698,13 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
 
         GenerateCodeComments(writer, directive.Description, context.IndentationSize);
 
-        var orderedArgumentDefinitions =
+        var orderedParameterDefinitions =
             ResolveParameterDefinitions(
                 context,
                 directive,
                 directive.InputFields.OrderByDescending(a => a.Type.Kind is GraphQlTypeKind.NonNull));
 
-        var argumentList = String.Join(", ", orderedArgumentDefinitions.Select(d => d.NetParameterDefinitionClause));
+        var argumentList = String.Join(", ", orderedParameterDefinitions.Select(d => d.NetParameterDefinitionClause));
 
         var indentation = GetIndentation(context.IndentationSize);
         writer.Write(indentation);
@@ -1712,16 +1714,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         writer.Write(indentation);
         writer.WriteLine("{");
 
-        if (_configuration.CodeDocumentationType.HasFlag(CodeDocumentationType.XmlSummary) && orderedArgumentDefinitions.Any(a => !String.IsNullOrWhiteSpace(a.Argument.Description)))
-            foreach (var argumentDefinition in orderedArgumentDefinitions)
-            {
-                writer.Write(indentation);
-                writer.Write("    /// <param name=\"");
-                writer.Write(argumentDefinition.NetParameterName.TrimStart('@'));
-                writer.Write("\">");
-                writer.Write(argumentDefinition.Argument.Description?.Replace("<", "&lt;").Replace(">", "&gt;"));
-                writer.WriteLine("</param>");
-            }
+        WriteMethodXmlDocumentation(writer, orderedParameterDefinitions, context.IndentationSize + 4);
 
         writer.Write(indentation);
         writer.Write("    public ");
@@ -1734,7 +1727,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         writer.Write(indentation);
         writer.WriteLine("    {");
 
-        foreach (var definition in orderedArgumentDefinitions)
+        foreach (var definition in orderedParameterDefinitions)
         {
             writer.Write(indentation);
             writer.Write("        AddArgument(\"");
@@ -1752,6 +1745,24 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         context.AfterDirectiveGeneration(directiveName);
     }
 
+    private void WriteMethodXmlDocumentation(TextWriter writer, IReadOnlyList<QueryBuilderParameterDefinition> parameterDefinitions, int indentationSize)
+    {
+        if (!_configuration.CodeDocumentationType.HasFlag(CodeDocumentationType.XmlSummary))
+            return;
+
+        var indentation = GetIndentation(indentationSize);
+
+        foreach (var parameterDefinition in parameterDefinitions.Where(d => !String.IsNullOrWhiteSpace(d.Argument.Description)))
+        {
+            writer.Write(indentation);
+            writer.Write("/// <param name=\"");
+            writer.Write(parameterDefinition.NetParameterName.TrimStart('@'));
+            writer.Write("\">");
+            writer.Write(parameterDefinition.Argument.Description.EscapeXmlElementText());
+            writer.WriteLine("</param>");
+        }
+    }
+
     private void GenerateCodeComments(TextWriter writer, string description, int indentationSize)
     {
         if (String.IsNullOrWhiteSpace(description))
@@ -1763,9 +1774,14 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         {
             writer.Write(indentation);
             writer.WriteLine("/// <summary>");
-            writer.Write(indentation);
-            writer.Write("/// ");
-            writer.WriteLine(String.Join($"{Environment.NewLine}{indentation}/// ", description.Split('\n').Select(l => l.Trim().Replace("<", "&lt;").Replace(">", "&gt;"))));
+            
+            foreach (var line in description.Split('\n').Select(l => l.Trim().EscapeXmlElementText()))
+            {
+                writer.Write(indentation);
+                writer.Write("/// ");
+                writer.WriteLine(line);
+            }
+
             writer.Write(indentation);
             writer.WriteLine("/// </summary>");
         }

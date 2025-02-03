@@ -26,4 +26,6 @@ public static class Extensions
             PropertyAccessibility.Private => "private ",
             _ => throw new NotSupportedException()
         };
+
+    internal static string EscapeXmlElementText(this string text) => text?.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
 }

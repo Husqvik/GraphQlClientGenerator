@@ -416,7 +416,7 @@
                 },
                 {
                   "name": "resolution",
-                  "description": null,
+                  "description": "Temporal resolution < & >",
                   "type": {
                     "kind": "ENUM",
                     "name": "Resolution",
