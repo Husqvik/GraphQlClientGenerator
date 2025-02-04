@@ -4,6 +4,88 @@ namespace GraphQlClientGenerator;
 
 public static class CSharpHelper
 {
+    private static readonly HashSet<string> CSharpKeywords =
+    [
+        "abstract",
+        "as",
+        "base",
+        "bool",
+        "break",
+        "byte",
+        "case",
+        "catch",
+        "char",
+        "checked",
+        "class",
+        "const",
+        "continue",
+        "decimal",
+        "default",
+        "delegate",
+        "do",
+        "double",
+        "else",
+        "enum",
+        "event",
+        "explicit",
+        "extern",
+        "false",
+        "finally",
+        "fixed",
+        "float",
+        "for",
+        "foreach",
+        "goto",
+        "if",
+        "implicit",
+        "in",
+        "int",
+        "interface",
+        "internal",
+        "is",
+        "lock",
+        "long",
+        "namespace",
+        "new",
+        "null",
+        "object",
+        "operator",
+        "out",
+        "override",
+        "params",
+        "private",
+        "protected",
+        "public",
+        "readonly",
+        "ref",
+        "return",
+        "sbyte",
+        "sealed",
+        "short",
+        "sizeof",
+        "stackalloc",
+        "static",
+        "string",
+        "struct",
+        "switch",
+        "this",
+        "throw",
+        "true",
+        "try",
+        "typeof",
+        "uint",
+        "ulong",
+        "unchecked",
+        "unsafe",
+        "ushort",
+        "using",
+        "void",
+        "volatile",
+        "while"
+    ];
+
+    public static string EnsureCSharpQuoting(string name) => CSharpKeywords.Contains(name) ? $"@{name}" : name;
+
     public static bool IsValidIdentifier(string value)
     {
         var nextMustBeStartChar = true;
@@ -53,13 +135,13 @@ public static class CSharpHelper
 
     public static void ValidateClassName(string className)
     {
-        if (!CSharpHelper.IsValidIdentifier(className))
+        if (!IsValidIdentifier(className))
             throw new InvalidOperationException($"Resulting class name \"{className}\" is not valid. ");
     }
 
-    public static bool UseTargetTypedNew(this CSharpVersion cSharpVersion) =>
+    internal static bool UseTargetTypedNew(this CSharpVersion cSharpVersion) =>
         cSharpVersion >= CSharpVersion.CSharp12;
 
-    public static bool UseCollectionExpression(this CSharpVersion cSharpVersion) =>
+    internal static bool UseCollectionExpression(this CSharpVersion cSharpVersion) =>
         cSharpVersion >= CSharpVersion.CSharp12;
 }

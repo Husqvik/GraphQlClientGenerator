@@ -1296,7 +1296,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         var collidingNames = new Dictionary<string, int>();
         foreach (var argument in graphQlArguments.Where(a => IsCompatibleArgument(a.Type)))
         {
-            var netParameterName = NamingHelper.EnsureCSharpQuoting(NamingHelper.LowerFirst(NamingHelper.ToPascalCase(argument.Name)));
+            var netParameterName = CSharpHelper.EnsureCSharpQuoting(NamingHelper.LowerFirst(NamingHelper.ToPascalCase(argument.Name)));
             collidingNames[netParameterName] = collidingNames.TryGetValue(netParameterName, out var extendingIndex) ? extendingIndex + 1 : 1;
 
             if (extendingIndex > 0)
@@ -1619,7 +1619,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         var enumFieldsToGenerate = graphQlType.EnumValues.Where(context.FilterIfDeprecated).ToArray();
         var byIdentifierGroupedFieldsToGenerate =
             enumFieldsToGenerate
-                .GroupBy(v => useCSharpNaming ? NamingHelper.ToCSharpEnumName(v.Name) : NamingHelper.EnsureCSharpQuoting(v.Name))
+                .GroupBy(v => useCSharpNaming ? NamingHelper.ToCSharpEnumName(v.Name) : CSharpHelper.EnsureCSharpQuoting(v.Name))
                 .ToArray();
 
         var valueCounter = 0;
