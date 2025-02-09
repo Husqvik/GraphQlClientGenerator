@@ -25,9 +25,8 @@ public class GraphQlSchema
 }
 
 [DebuggerDisplay($"{nameof(GraphQlDirective)} ({nameof(Name)}={{{nameof(Name)},nq}}; {nameof(Description)}={{{nameof(Description)},nq}})")]
-public class GraphQlDirective
+public class GraphQlDirective : GraphQlTypeBase
 {
-    public string Name { get; set; }
     public string Description { get; set; }
     public ICollection<GraphQlDirectiveLocation> Locations { get; set; }
     public IList<GraphQlArgument> Args { get; set; }
@@ -114,16 +113,6 @@ public abstract class GraphQlTypeBase
     public const string GraphQlTypeScalarId = "ID";
     public const string GraphQlTypeScalarInteger = "Int";
     public const string GraphQlTypeScalarString = "String";
-
-    internal static readonly IReadOnlyCollection<string> AllBuiltInScalarTypeNames =
-        new HashSet<string>
-        {
-            GraphQlTypeScalarBoolean,
-            GraphQlTypeScalarFloat,
-            GraphQlTypeScalarId,
-            GraphQlTypeScalarInteger,
-            GraphQlTypeScalarString
-        };
 
     public GraphQlTypeKind Kind { get; set; }
     public string Name { get; set; }

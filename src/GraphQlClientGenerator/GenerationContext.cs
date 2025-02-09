@@ -594,7 +594,7 @@ public struct ScalarFieldTypeProviderContext
 {
     public GraphQlGeneratorConfiguration Configuration { get; set; }
     public ClientComponentType ComponentType { get; set; }
-    public GraphQlType OwnerType { get; set; }
+    public GraphQlTypeBase OwnerType { get; set; }
     public GraphQlFieldType FieldType { get; set; }
     public string FieldName { get; set; }
 }

@@ -310,7 +310,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         context.AfterBaseClassGeneration();
     }
 
-    private IEnumerable<T> OrderIfEnabled<T>(IEnumerable<T> source) where T : GraphQlType =>
+    private IEnumerable<T> OrderIfEnabled<T>(IEnumerable<T> source) where T : GraphQlTypeBase =>
         _configuration.GenerationOrder is GenerationOrder.Alphabetical
             ? source.OrderBy(t => t.Name)
             : source;
@@ -1287,7 +1287,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         writer.WriteLine("]");
     }
 
-    private IReadOnlyList<QueryBuilderParameterDefinition> ResolveParameterDefinitions(GenerationContext context, GraphQlType type, IEnumerable<GraphQlArgument> graphQlArguments)
+    private IReadOnlyList<QueryBuilderParameterDefinition> ResolveParameterDefinitions(GenerationContext context, GraphQlTypeBase type, IEnumerable<GraphQlArgument> graphQlArguments)
     {
         if (graphQlArguments is null)
             return [];
@@ -1470,7 +1470,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         writer.WriteLine();
     }
 
-    private QueryBuilderParameterDefinition BuildMethodParameterDefinition(GenerationContext context, GraphQlType ownerType, GraphQlArgument argument, string netParameterName)
+    private QueryBuilderParameterDefinition BuildMethodParameterDefinition(GenerationContext context, GraphQlTypeBase ownerType, GraphQlArgument argument, string netParameterName)
     {
         var argumentType = argument.Type;
         var isArgumentNotNull = argumentType.Kind is GraphQlTypeKind.NonNull;
@@ -1675,8 +1675,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         var directives =
             OrderIfEnabled(
                 context.Directives
-                    .Where(d => SupportedDirectiveLocations.Overlaps(d.Locations))
-                    .Select(d => new GraphQlType { Name = d.Name, Description = d.Description, InputFields = d.Args } /* TODO: make some common ancestor */)).ToList();
+                    .Where(d => SupportedDirectiveLocations.Overlaps(d.Locations))).ToList();
 
         if (!directives.Any())
             return;
@@ -1688,7 +1687,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         context.AfterDirectivesGeneration();
     }
 
-    private void GenerateDirective(GenerationContext context, GraphQlType directive)
+    private void GenerateDirective(GenerationContext context, GraphQlDirective directive)
     {
         var directiveName = $"{NamingHelper.ToPascalCase(directive.Name)}Directive";
 
@@ -1702,7 +1701,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             ResolveParameterDefinitions(
                 context,
                 directive,
-                directive.InputFields.OrderByDescending(a => a.Type.Kind is GraphQlTypeKind.NonNull));
+                directive.Args.OrderByDescending(a => a.Type.Kind is GraphQlTypeKind.NonNull));
 
         var argumentList = String.Join(", ", orderedParameterDefinitions.Select(d => d.NetParameterDefinitionClause));
 
