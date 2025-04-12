@@ -591,7 +591,10 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                         writer.WriteLine("    }");
                     }
                     else
-                        writer.WriteLine(" { get; set; }");
+                    {
+                        context.OnDataPropertyGeneration(propertyGenerationContext);
+                        writer.WriteLine();
+                    }
                 },
                 context);
 

@@ -123,7 +123,10 @@ public abstract class GenerationContext
 
     public virtual void OnDataPropertyGeneration(PropertyGenerationContext context)
     {
-        var generateBackingFields = Configuration.PropertyGeneration == PropertyGenerationOption.BackingField;
+        var generateBackingFields =
+            Configuration.PropertyGeneration is PropertyGenerationOption.BackingField &&
+            context.ObjectContext.GraphQlType.Kind is GraphQlTypeKind.Object;
+
         if (generateBackingFields)
         {
             var useCompatibleVersion = Configuration.CSharpVersion == CSharpVersion.Compatible;
