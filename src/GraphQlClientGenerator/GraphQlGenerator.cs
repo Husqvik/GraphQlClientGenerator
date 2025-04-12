@@ -453,7 +453,11 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         var type = objectContext.GraphQlType;
         var writer = context.Writer;
         var csharpNameLookup = fieldsToGenerate.Where(fi => fi.OwnerType == type).ToLookup(f => NamingHelper.ToPascalCase(f.Field.Name));
-        var generateBackingFields = _configuration.PropertyGeneration == PropertyGenerationOption.BackingField && !isInterfaceMember;
+        var generateBackingFields =
+            !isInterfaceMember &&
+            _configuration.PropertyGeneration is PropertyGenerationOption.BackingField &&
+            !_configuration.CSharpVersion.IsFieldKeywordSupported();
+
         if (generateBackingFields)
         {
             var indentation = GetIndentation(context.IndentationSize);
@@ -633,7 +637,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         void WriteNewInputPropertyInfo(DataPropertyContext propertyContext, ScalarFieldTypeDescription fieldTypeDescription, string value)
         {
             writer.Write("new");
-            writer.Write(_configuration.CSharpVersion.UseTargetTypedNew() ? "()" : " InputPropertyInfo");
+            writer.Write(_configuration.CSharpVersion.IsTargetTypedNewSupported() ? "()" : " InputPropertyInfo");
             writer.Write(" { Name = \"");
             writer.Write(propertyContext.Member.Name);
             writer.Write("\", Value = ");
@@ -807,7 +811,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             writer.WriteLine("    #endif");
         }
 
-        if (isJsonPropertyAttributeNeeded && _configuration.CSharpVersion.SupportsSystemTextJson())
+        if (isJsonPropertyAttributeNeeded && _configuration.CSharpVersion.IsSystemTextJsonSupported())
         {
             writer.Write(indentation);
             writer.Write("    [System.Text.Json.Serialization.JsonPropertyName(\"");
@@ -920,7 +924,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         if (fields is null)
         {
             writer.Write(' ');
-            writer.Write(useCompatibleSyntax ? "new GraphQlFieldMetadata[0]" : _configuration.CSharpVersion.UseCollectionExpression() ? "[]" : "Array.Empty<GraphQlFieldMetadata>()");
+            writer.Write(useCompatibleSyntax ? "new GraphQlFieldMetadata[0]" : _configuration.CSharpVersion.IsCollectionExpressionSupported() ? "[]" : "Array.Empty<GraphQlFieldMetadata>()");
             writer.WriteLine(';');
         }
         else
@@ -949,7 +953,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
 
                 writer.Write(fieldMetadataIndentation);
                 writer.Write("        new");
-                writer.Write(_configuration.CSharpVersion.UseTargetTypedNew() ? "()" : " GraphQlFieldMetadata");
+                writer.Write(_configuration.CSharpVersion.IsTargetTypedNewSupported() ? "()" : " GraphQlFieldMetadata");
                 writer.Write(" { Name = \"");
                 writer.Write(field.Name);
                 writer.Write('"');
@@ -1454,7 +1458,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
 
         var directiveParameterList = String.Join(", ", directiveParameterNames);
         return
-            _configuration.CSharpVersion.UseCollectionExpression()
+            _configuration.CSharpVersion.IsCollectionExpressionSupported()
                 ? $"[{directiveParameterList}]"
                 : $"new {AddQuestionMarkIfNullableReferencesEnabled("GraphQlDirective")}[] {{ {directiveParameterList} }}";
     }
@@ -1588,7 +1592,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         writer.Write(parameterCollectionVariableName);
         writer.WriteLine(" = new List<QueryBuilderArgumentInfo>();");
 
-        var useTargetTypedNew = _configuration.CSharpVersion.UseTargetTypedNew();
+        var useTargetTypedNew = _configuration.CSharpVersion.IsTargetTypedNewSupported();
 
         foreach (var argumentDefinition in argumentDefinitions)
         {

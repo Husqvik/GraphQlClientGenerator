@@ -1,0 +1,291 @@
+#region GraphQL type helpers
+public static class GraphQlTypes
+{
+    public const string Boolean = "Boolean";
+    public const string DynamicType = "DynamicType";
+    public const string Float = "Float";
+    public const string Id = "ID";
+    public const string Int = "Int";
+    public const string String = "String";
+
+    public const string Avatar = "Avatar";
+    public const string PriceLevel = "PriceLevel";
+    public const string Resolution = "Resolution";
+
+    public const string AwayMode = "AwayMode";
+    public const string AwayModeSettings = "AwayModeSettings";
+    public const string Comparison = "Comparison";
+    public const string ComparisonData = "ComparisonData";
+    public const string Consumption = "Consumption";
+    public const string ConsumptionMonth = "ConsumptionMonth";
+    public const string Device = "Device";
+    public const string Disaggregation = "Disaggregation";
+    public const string Feed = "Feed";
+    public const string FeedItem = "FeedItem";
+    public const string Home = "Home";
+    public const string Me = "Me";
+    public const string PreLiveComparison = "PreLiveComparison";
+    public const string PriceRating = "PriceRating";
+    public const string PriceRatingEntry = "PriceRatingEntry";
+    public const string ProcessStep = "ProcessStep";
+    public const string PushNotification = "PushNotification";
+    public const string Query = "Query";
+    public const string SignupStatus = "SignupStatus";
+    public const string Subscription = "Subscription";
+    public const string Weather = "Weather";
+
+    public static readonly IReadOnlyDictionary<global::System.Type, string> ReverseMapping =
+        new Dictionary<global::System.Type, string>
+        {
+            { typeof(bool), "Boolean" },
+            { typeof(DateTimeOffset), "String" },
+            { typeof(long), "Int" },
+            { typeof(string), "String" },
+            { typeof(double), "Float" }
+        };
+}
+#endregion
+
+#region enums
+public enum Avatar
+{
+    [EnumMember(Value = "floorhouse1")] Floorhouse1,
+    [EnumMember(Value = "floorhouse2")] Floorhouse2,
+    [EnumMember(Value = "floorhouse3")] Floorhouse3,
+    [EnumMember(Value = "castle")] Castle,
+    [EnumMember(Value = "apartment")] Apartment,
+    [EnumMember(Value = "cottage")] Cottage,
+    [EnumMember(Value = "rowhouse")] Rowhouse
+}
+
+public enum PriceLevel
+{
+    [EnumMember(Value = "low")] Low,
+    [EnumMember(Value = "normal")] Normal,
+    [EnumMember(Value = "high")] High
+}
+
+public enum Resolution
+{
+    [EnumMember(Value = "annual")] Annual,
+    [EnumMember(Value = "monthly")] Monthly
+}
+#endregion
+
+#region data classes
+public class Query
+{
+    public Me Me { get => field; set => field = value; }
+}
+
+public class Me
+{
+    public string Id { get => field; set => field = value; }
+    public string FirstName { get => field; set => field = value; }
+    public string LastName { get => field; set => field = value; }
+    public string FullName { get => field; set => field = value; }
+    public string Ssn { get => field; set => field = value; }
+    public string Email { get => field; set => field = value; }
+    public string Language { get => field; set => field = value; }
+    public string Tone { get => field; set => field = value; }
+    public ICollection<Avatar> Avatars { get => field; set => field = value; }
+    public Home Home { get => field; set => field = value; }
+    public ICollection<Home> Homes { get => field; set => field = value; }
+    public Feed Feed { get => field; set => field = value; }
+    public ICollection<object> EnergyStatements { get => field; set => field = value; }
+}
+
+public class Home
+{
+    public string Id { get => field; set => field = value; }
+    public Avatar? Avatar { get => field; set => field = value; }
+    public string TimeZone { get => field; set => field = value; }
+    public Subscription Subscription { get => field; set => field = value; }
+    public ICollection<ConsumptionMonth> ConsumptionMonths { get => field; set => field = value; }
+    public Consumption Consumption { get => field; set => field = value; }
+    public PreLiveComparison PreLiveComparison { get => field; set => field = value; }
+    public ICollection<Comparison> Comparisons { get => field; set => field = value; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("comparison_current_month")]
+    #endif
+    [System.Text.Json.Serialization.JsonPropertyName("comparison_current_month")]
+    public Comparison ComparisonCurrentMonth { get => field; set => field = value; }
+    public object Profile { get => field; set => field = value; }
+    public object ProfileQuestions { get => field; set => field = value; }
+    public object Thermostat { get => field; set => field = value; }
+    public ICollection<object> Temperatures { get => field; set => field = value; }
+    public SignupStatus SignupStatus { get => field; set => field = value; }
+    public ICollection<Disaggregation> Disaggregation { get => field; set => field = value; }
+    public ICollection<Device> Devices { get => field; set => field = value; }
+    public Weather Weather { get => field; set => field = value; }
+    public AwayMode AwayMode { get => field; set => field = value; }
+}
+
+public class Subscription
+{
+    public string Id { get => field; set => field = value; }
+    public DateTimeOffset? ValidFrom { get => field; set => field = value; }
+    public DateTimeOffset? ValidTo { get => field; set => field = value; }
+    public string Status { get => field; set => field = value; }
+    public long? BillingRegionId { get => field; set => field = value; }
+    public ICollection<object> EnergyStatements { get => field; set => field = value; }
+    public PriceRating PriceRating { get => field; set => field = value; }
+}
+
+public class PriceRating
+{
+    public double? MinPrice { get => field; set => field = value; }
+    public double? MaxPrice { get => field; set => field = value; }
+    public ICollection<PriceRatingEntry> Entries { get => field; set => field = value; }
+}
+
+public class PriceRatingEntry
+{
+    public string Time { get => field; set => field = value; }
+    public double? Price { get => field; set => field = value; }
+    public PriceLevel? Level { get => field; set => field = value; }
+    public double? Difference { get => field; set => field = value; }
+}
+
+public class ConsumptionMonth
+{
+    public long? Year { get => field; set => field = value; }
+    public long? Month { get => field; set => field = value; }
+    public double? Kwh { get => field; set => field = value; }
+    public double? Cost { get => field; set => field = value; }
+    public bool IsComplete { get => field; set => field = value; }
+    public double? KwhEstimate { get => field; set => field = value; }
+    public double? CostEstimate { get => field; set => field = value; }
+}
+
+public class Consumption
+{
+    public object AnnualValues { get => field; set => field = value; }
+    public object MonthlyValues { get => field; set => field = value; }
+    public object WeeklyValues { get => field; set => field = value; }
+    public object DailyValues { get => field; set => field = value; }
+    public object HourlyValues { get => field; set => field = value; }
+    public double? TotalConsumption { get => field; set => field = value; }
+    public double? EnergyCost { get => field; set => field = value; }
+    public double? TotalCost { get => field; set => field = value; }
+    public string Currency { get => field; set => field = value; }
+    public DateTimeOffset? LatestTransactionTimestamp { get => field; set => field = value; }
+    public string TimeZone { get => field; set => field = value; }
+}
+
+public class PreLiveComparison
+{
+    public string HomeId { get => field; set => field = value; }
+    public bool BasedOnActuals { get => field; set => field = value; }
+    public Comparison PreviousYear { get => field; set => field = value; }
+    public ICollection<Comparison> PreviousYearMonths { get => field; set => field = value; }
+}
+
+public class Comparison
+{
+    public long? Year { get => field; set => field = value; }
+    public long? Month { get => field; set => field = value; }
+    public string Resolution { get => field; set => field = value; }
+    public string HomeEfficency { get => field; set => field = value; }
+    public string HomeEfficencyDescription { get => field; set => field = value; }
+    public ComparisonData Home { get => field; set => field = value; }
+    public ComparisonData Average { get => field; set => field = value; }
+    public ComparisonData Efficient { get => field; set => field = value; }
+}
+
+public class ComparisonData
+{
+    public double? Cost { get => field; set => field = value; }
+    public double? Consumption { get => field; set => field = value; }
+}
+
+public class SignupStatus
+{
+    public ProcessStep FeedStep { get => field; set => field = value; }
+    public ProcessStep AvatarStep { get => field; set => field = value; }
+    public ICollection<ProcessStep> Steps { get => field; set => field = value; }
+}
+
+public class ProcessStep
+{
+    public DateTimeOffset? Timestamp { get => field; set => field = value; }
+    public bool IsComplete { get => field; set => field = value; }
+    public string Title { get => field; set => field = value; }
+    public string Description { get => field; set => field = value; }
+}
+
+public class Disaggregation
+{
+    public long? Year { get => field; set => field = value; }
+    public long? Month { get => field; set => field = value; }
+    public double? FixedConsumptionKwh { get => field; set => field = value; }
+    public long? FixedConsumptionKwhPercent { get => field; set => field = value; }
+    public double? FixedConsumptionCost { get => field; set => field = value; }
+    public double? HeatingConsumptionKwh { get => field; set => field = value; }
+    public long? HeatingConsumptionKwhPercent { get => field; set => field = value; }
+    public double? HeatingConsumptionCost { get => field; set => field = value; }
+    public double? BehaviorConsumptionKwh { get => field; set => field = value; }
+    public long? BehaviorConsumptionKwhPercent { get => field; set => field = value; }
+    public double? BehaviorConsumptionCost { get => field; set => field = value; }
+    public string Currency { get => field; set => field = value; }
+    public bool IsValid { get => field; set => field = value; }
+}
+
+public class Device
+{
+    public string DeviceId { get => field; set => field = value; }
+    public string Type { get => field; set => field = value; }
+    public bool IsControllable { get => field; set => field = value; }
+    public string ExternalId { get => field; set => field = value; }
+    public string Name { get => field; set => field = value; }
+    public bool IsBatteryLow { get => field; set => field = value; }
+    public bool IsSignalLow { get => field; set => field = value; }
+    public bool IsAlive { get => field; set => field = value; }
+    public ICollection<string> Capabilities { get => field; set => field = value; }
+    public object Properties { get => field; set => field = value; }
+}
+
+public class Weather
+{
+    public double? Temperature { get => field; set => field = value; }
+    public DateTimeOffset? Timestamp { get => field; set => field = value; }
+    public string Summary { get => field; set => field = value; }
+    public string Type { get => field; set => field = value; }
+}
+
+public class AwayMode
+{
+    public bool IsSupported { get => field; set => field = value; }
+    public AwayModeSettings Settings { get => field; set => field = value; }
+}
+
+public class AwayModeSettings
+{
+    public DateTimeOffset? From { get => field; set => field = value; }
+    public DateTimeOffset? To { get => field; set => field = value; }
+}
+
+public class Feed
+{
+    public long? NumberOfItems { get => field; set => field = value; }
+    public ICollection<FeedItem> Items { get => field; set => field = value; }
+    public ICollection<PushNotification> PushNotifications { get => field; set => field = value; }
+}
+
+public class FeedItem
+{
+    public long? Id { get => field; set => field = value; }
+    public string MessageTypeId { get => field; set => field = value; }
+    public string Link { get => field; set => field = value; }
+    public string Text { get => field; set => field = value; }
+    public DateTimeOffset? CreatedAt { get => field; set => field = value; }
+    public DateTimeOffset? ModifiedAt { get => field; set => field = value; }
+}
+
+public class PushNotification
+{
+    public long? Id { get => field; set => field = value; }
+    public string Link { get => field; set => field = value; }
+    public string Text { get => field; set => field = value; }
+}
+#endregion

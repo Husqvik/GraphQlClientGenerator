@@ -139,12 +139,15 @@ public static class CSharpHelper
             throw new InvalidOperationException($"Resulting class name \"{className}\" is not valid. ");
     }
 
-    internal static bool UseTargetTypedNew(this CSharpVersion cSharpVersion) =>
+    internal static bool IsTargetTypedNewSupported(this CSharpVersion cSharpVersion) =>
         cSharpVersion >= CSharpVersion.CSharp12;
 
-    internal static bool UseCollectionExpression(this CSharpVersion cSharpVersion) =>
+    internal static bool IsCollectionExpressionSupported(this CSharpVersion cSharpVersion) =>
         cSharpVersion >= CSharpVersion.CSharp12;
 
-    internal static bool SupportsSystemTextJson(this CSharpVersion cSharpVersion) =>
+    internal static bool IsSystemTextJsonSupported(this CSharpVersion cSharpVersion) =>
+        cSharpVersion >= CSharpVersion.CSharp12;
+
+    internal static bool IsFieldKeywordSupported(this CSharpVersion cSharpVersion) =>
         cSharpVersion >= CSharpVersion.CSharp12;
 }

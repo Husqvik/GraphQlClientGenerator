@@ -278,8 +278,10 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         generatedSourceCode.ShouldBe(expectedDataClasses);
     }
 
-    [Fact]
-    public void GenerateDataClassesWithTypeConfiguration()
+    [Theory]
+    [InlineData(CSharpVersion.Compatible)]
+    [InlineData(CSharpVersion.CSharp12)]
+    public void GenerateDataClassesWithTypeConfiguration(CSharpVersion csharpVersion)
     {
         var configuration =
             new GraphQlGeneratorConfiguration
@@ -290,12 +292,13 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
                 IdTypeMapping = IdTypeMapping.String,
                 GeneratePartialClasses = false,
                 PropertyGeneration = PropertyGenerationOption.BackingField,
+                CSharpVersion = csharpVersion,
                 ScalarFieldTypeMappingProvider = new TestCustomBooleanTypeMappingProvider()
             };
 
         var stringBuilder = new StringBuilder();
         new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GeneratedObjectType.DataClasses));
-        var expectedDataClasses = GetTestResource("ExpectedSingleFileGenerationContext.DataClassesWithTypeConfiguration");
+        var expectedDataClasses = GetTestResource($"ExpectedSingleFileGenerationContext.DataClassesWithTypeConfiguration.{csharpVersion}");
         var generatedSourceCode = stringBuilder.ToString();
         generatedSourceCode.ShouldBe(expectedDataClasses);
     }
