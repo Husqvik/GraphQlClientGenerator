@@ -14,7 +14,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
     <PackageReference Include="Shouldly" Version="4.*" />
-    <PackageReference Include="Verify.Xunit" Version="28.*" />
+    <PackageReference Include="Verify.Xunit" Version="29.*" />
     <PackageReference Include="xunit" Version="2.*" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.*">
       <PrivateAssets>all</PrivateAssets>
