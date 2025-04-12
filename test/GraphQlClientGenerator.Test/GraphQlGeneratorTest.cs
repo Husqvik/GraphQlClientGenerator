@@ -337,15 +337,16 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
 
         public ScalarFieldTypeDescription GetCustomScalarFieldType(ScalarFieldTypeProviderContext context)
         {
-            var isNotNull = context.FieldType.Kind == GraphQlTypeKind.NonNull;
             var unwrappedType = context.FieldType.UnwrapIfNonNull();
-            var nullablePostfix = isNotNull ? null : "?";
-
             if (unwrappedType.Name == "ID")
-                return new ScalarFieldTypeDescription { NetTypeName = $"Guid{nullablePostfix}", FormatMask = "N" };
+                return new ScalarFieldTypeDescription { NetTypeName = GenerationContext.GetNullableNetTypeName(context, nameof(Guid), false), FormatMask = "N" };
 
             if (context.FieldName is "before" or "after" || unwrappedType.Name == "DateTimeOffset")
-                return new ScalarFieldTypeDescription { NetTypeName = $"DateTimeOffset{nullablePostfix}", FormatMask = "yyyy-MM-dd\"T\"HH:mm" };
+                return new ScalarFieldTypeDescription
+                {
+                    NetTypeName = GenerationContext.GetNullableNetTypeName(context, nameof(DateTimeOffset), false),
+                    FormatMask = "yyyy-MM-dd\"T\"HH:mm"
+                };
 
             return DefaultScalarFieldTypeMappingProvider.Instance.GetCustomScalarFieldType(context);
         }

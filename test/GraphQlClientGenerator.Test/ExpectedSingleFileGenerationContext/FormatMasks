@@ -2426,11 +2426,11 @@ public partial class MeterReadingInput : IGraphQlInputObject
     private InputPropertyInfo _reading;
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<Guid>))]
+    [JsonConverter(typeof(QueryBuilderParameterConverter<Guid?>))]
     #endif
-    public QueryBuilderParameter<Guid> HomeId
+    public QueryBuilderParameter<Guid?> HomeId
     {
-        get { return (QueryBuilderParameter<Guid>)_homeId.Value; }
+        get { return (QueryBuilderParameter<Guid?>)_homeId.Value; }
         set { _homeId = new InputPropertyInfo { Name = "homeId", Value = value, FormatMask = "N" }; }
     }
 
@@ -2473,11 +2473,11 @@ public partial class UpdateHomeInput : IGraphQlInputObject
     private InputPropertyInfo _mainFuseSize;
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<Guid>))]
+    [JsonConverter(typeof(QueryBuilderParameterConverter<Guid?>))]
     #endif
-    public QueryBuilderParameter<Guid> HomeId
+    public QueryBuilderParameter<Guid?> HomeId
     {
-        get { return (QueryBuilderParameter<Guid>)_homeId.Value; }
+        get { return (QueryBuilderParameter<Guid?>)_homeId.Value; }
         set { _homeId = new InputPropertyInfo { Name = "homeId", Value = value, FormatMask = "N" }; }
     }
 
@@ -2626,7 +2626,7 @@ public partial class Viewer
 
 public partial class Home
 {
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
     public string TimeZone { get; set; }
     public string AppNickname { get; set; }
     public HomeAvatar? AppAvatar { get; set; }
@@ -2660,7 +2660,7 @@ public partial class Address
 
 public partial class LegalEntity
 {
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
     public string FirstName { get; set; }
     public bool? IsCompany { get; set; }
     public string Name { get; set; }
@@ -2692,7 +2692,7 @@ public partial class MeteringPointData
 
 public partial class Subscription
 {
-    public Guid Id { get; set; }
+    public Guid? Id { get; set; }
     public LegalEntity Subscriber { get; set; }
     public DateTimeOffset? ValidFrom { get; set; }
     public DateTimeOffset? ValidTo { get; set; }
@@ -2852,7 +2852,7 @@ public partial class RootMutation
 
 public partial class MeterReadingResponse
 {
-    public Guid HomeId { get; set; }
+    public Guid? HomeId { get; set; }
     public string Time { get; set; }
     public int? Reading { get; set; }
 }
