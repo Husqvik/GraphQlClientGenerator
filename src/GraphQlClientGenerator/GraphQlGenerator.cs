@@ -507,6 +507,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         var writer = context.Writer;
         var indentation = GetIndentation(context.IndentationSize);
         var propertyContexts = new Dictionary<string, DataPropertyContext>();
+        var isRichMode = _configuration.InputObjectMode is InputObjectMode.Rich;
 
         foreach (var member in members)
         {
@@ -534,13 +535,17 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                     RequiresRawName = false
                 });
 
-            writer.Write(indentation);
-            writer.Write("    private InputPropertyInfo ");
-            writer.Write(fieldName);
-            writer.WriteLine(";");
+            if (isRichMode)
+            {
+                writer.Write(indentation);
+                writer.Write("    private InputPropertyInfo ");
+                writer.Write(fieldName);
+                writer.WriteLine(";");
+            }
         }
 
-        writer.WriteLine();
+        if (isRichMode)
+            writer.WriteLine();
 
         var useCompatibleSyntax = _configuration.CSharpVersion is CSharpVersion.Compatible;
 
@@ -548,52 +553,45 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             GenerateDataProperty(
                 objectContext,
                 kvp.Value,
-                (t, propertyGenerationContext) =>
+                (fieldTypeDescription, propertyGenerationContext) =>
                 {
-                    writer.WriteLine();
-                    writer.Write(indentation);
-                    writer.WriteLine("    {");
-                    writer.Write(indentation);
-                    writer.Write("        get");
-                    writer.Write(useCompatibleSyntax ? " { return " : " => ");
-                    writer.Write("(");
-                    writer.Write(t.NetTypeName);
-                    writer.Write(")");
-                    writer.Write(kvp.Key);
-                    writer.Write(".Value;");
-
-                    if (useCompatibleSyntax)
-                        writer.Write(" }");
-
-                    writer.WriteLine();
-
-                    writer.Write(indentation);
-                    writer.Write("        ");
-                    writer.Write(propertyGenerationContext.SetterAccessibility.ToSetterAccessibilityPrefix());
-                    writer.Write("set");
-                    writer.Write(useCompatibleSyntax ? " { " : " => ");
-                    writer.Write(kvp.Key);
-                    writer.Write(" = new");
-                    writer.Write(_configuration.CSharpVersion.UseTargetTypedNew() ? "()" : " InputPropertyInfo");
-                    writer.Write(" { Name = \"");
-                    writer.Write(kvp.Value.Member.Name);
-                    writer.Write("\", Value = value");
-
-                    if (!String.IsNullOrEmpty(t.FormatMask))
+                    if (isRichMode)
                     {
-                        writer.Write(", FormatMask = \"");
-                        writer.Write(t.FormatMask.Replace("\"", "\\\""));
-                        writer.Write("\"");
+                        writer.WriteLine();
+                        writer.Write(indentation);
+                        writer.WriteLine("    {");
+                        writer.Write(indentation);
+                        writer.Write("        get");
+                        writer.Write(useCompatibleSyntax ? " { return " : " => ");
+                        writer.Write("(");
+                        writer.Write(fieldTypeDescription.NetTypeName);
+                        writer.Write(")");
+                        writer.Write(kvp.Key);
+                        writer.Write(".Value;");
+
+                        if (useCompatibleSyntax)
+                            writer.Write(" }");
+
+                        writer.WriteLine();
+
+                        writer.Write(indentation);
+                        writer.Write("        ");
+                        writer.Write(propertyGenerationContext.SetterAccessibility.ToSetterAccessibilityPrefix());
+                        writer.Write("set");
+                        writer.Write(useCompatibleSyntax ? " { " : " => ");
+                        writer.Write(kvp.Key);
+                        writer.Write(" = ");
+                        WriteNewInputPropertyInfo(kvp.Value, fieldTypeDescription, "value");
+
+                        if (useCompatibleSyntax)
+                            writer.Write(" }");
+
+                        writer.WriteLine();
+                        writer.Write(indentation);
+                        writer.WriteLine("    }");
                     }
-
-                    writer.Write(" };");
-
-                    if (useCompatibleSyntax)
-                        writer.Write(" }");
-
-                    writer.WriteLine();
-                    writer.Write(indentation);
-                    writer.WriteLine("    }");
+                    else
+                        writer.WriteLine(" { get; set; }");
                 },
                 context);
 
@@ -602,18 +600,51 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         writer.Write(indentation);
         writer.WriteLine("    {");
 
-        foreach (var fieldName in propertyContexts.Keys)
+        foreach (var kvp in propertyContexts)
         {
             writer.Write(indentation);
             writer.Write("        if (");
-            writer.Write(fieldName);
-            writer.Write(".Name != null) yield return ");
-            writer.Write(fieldName);
-            writer.WriteLine(";");
+            
+            if (isRichMode)
+            {
+                writer.Write(kvp.Key);
+                writer.Write(".Name != null) yield return ");
+                writer.Write(kvp.Key);
+                writer.WriteLine(";");
+            }
+            else
+            {
+                var propertyTypeDescription = context.GetDataPropertyType(kvp.Value.OwnerType, kvp.Value.Member);
+                writer.Write(kvp.Value.PropertyName);
+                writer.Write(" != null) yield return ");
+                WriteNewInputPropertyInfo(kvp.Value, propertyTypeDescription, kvp.Value.PropertyName);
+                writer.WriteLine();
+            }
         }
 
         writer.Write(indentation);
         writer.WriteLine("    }");
+
+        return;
+
+        void WriteNewInputPropertyInfo(DataPropertyContext propertyContext, ScalarFieldTypeDescription fieldTypeDescription, string value)
+        {
+            writer.Write("new");
+            writer.Write(_configuration.CSharpVersion.UseTargetTypedNew() ? "()" : " InputPropertyInfo");
+            writer.Write(" { Name = \"");
+            writer.Write(propertyContext.Member.Name);
+            writer.Write("\", Value = ");
+            writer.Write(value);
+
+            if (!String.IsNullOrEmpty(fieldTypeDescription.FormatMask))
+            {
+                writer.Write(", FormatMask = \"");
+                writer.Write(fieldTypeDescription.FormatMask.Replace("\"", "\\\""));
+                writer.Write("\"");
+            }
+
+            writer.Write(" };");
+        }
     }
 
     private void GenerateFileMember(GenerationContext context, GraphQlType graphQlType, IReadOnlyCollection<string> interfaces, Action<ObjectGenerationContext> generateFileMemberBody)
@@ -697,7 +728,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         var propertyGenerationContext =
             new PropertyGenerationContext(
                 objectContext,
-                propertyTypeDescription.NetTypeName,
+                propertyTypeName,
                 propertyContext.PropertyName,
                 GetBackingFieldName(member.Name, propertyContext.RequiresRawName));
 
@@ -735,8 +766,9 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             (fieldType.Kind is GraphQlTypeKind.Interface or GraphQlTypeKind.Union ||
              fieldType.Kind is GraphQlTypeKind.List && UnwrapListItemType(fieldType, false, false, out _).UnwrapIfNonNull().Kind is GraphQlTypeKind.Interface or GraphQlTypeKind.Union);
 
-        var isOwnerInputObject = ownerGraphQlType.Kind == GraphQlTypeKind.InputObject;
-        var isPreprocessorDirectiveDisableNewtonsoftJsonRequired = !isInterfaceMember && decorateWithJsonPropertyAttribute || isGraphQlInterfaceJsonConverterRequired || isOwnerInputObject;
+        var isOwnerInputObjectInRichMode = ownerGraphQlType.Kind is GraphQlTypeKind.InputObject && _configuration.InputObjectMode is InputObjectMode.Rich;
+        var isJsonPropertyAttributeNeeded = !isInterfaceMember && decorateWithJsonPropertyAttribute;
+        var isPreprocessorDirectiveDisableNewtonsoftJsonRequired = isJsonPropertyAttributeNeeded || isGraphQlInterfaceJsonConverterRequired || isOwnerInputObjectInRichMode;
         if (isPreprocessorDirectiveDisableNewtonsoftJsonRequired)
         {
             writer.Write(indentation);
@@ -744,7 +776,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             writer.WriteLine(PreprocessorDirectiveDisableNewtonsoftJson);
         }
 
-        if (!isInterfaceMember && decorateWithJsonPropertyAttribute)
+        if (isJsonPropertyAttributeNeeded)
         {
             writer.Write(indentation);
             writer.Write("    [JsonProperty(\"");
@@ -757,7 +789,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             writer.Write(indentation);
             writer.WriteLine("    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]");
         }
-        else if (isOwnerInputObject)
+        else if (isOwnerInputObjectInRichMode)
         {
             writer.Write(indentation);
             writer.Write("    [JsonConverter(typeof(QueryBuilderParameterConverter<");
@@ -772,7 +804,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             writer.WriteLine("    #endif");
         }
 
-        if (!isInterfaceMember && decorateWithJsonPropertyAttribute && _configuration.CSharpVersion.SupportsSystemTextJson())
+        if (isJsonPropertyAttributeNeeded && _configuration.CSharpVersion.SupportsSystemTextJson())
         {
             writer.Write(indentation);
             writer.Write("    [System.Text.Json.Serialization.JsonPropertyName(\"");
@@ -822,7 +854,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             writer.Write(objectContext.CSharpTypeName);
             writer.Write('.');
             writer.Write(propertyContext.PropertyName);
-            writer.Write("\\\" property setter\");");
+            writer.Write("""\" property setter");""");
 
             if (useCompatibleSyntax)
                 writer.Write(" }");

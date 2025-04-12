@@ -27,6 +27,7 @@ public class ProgramOptions
     public EnumValueNamingOption EnumValueNaming { get; set; }
     public DataClassMemberNullability DataClassMemberNullability { get; set; }
     public GenerationOrder GenerationOrder { get; set; }
+    public InputObjectMode InputObjectMode { get; set; }
     public bool IncludeDeprecatedFields { get; set; }
     public bool NullableReferences { get; set; }
 }

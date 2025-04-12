@@ -2523,241 +2523,148 @@ namespace SourceGeneratorTestAssembly
     #region input classes
     public partial class SourceGeneratedMeterReadingInputV2 : IGraphQlInputObject
     {
-        private InputPropertyInfo _homeId;
-        private InputPropertyInfo _time;
-        private InputPropertyInfo _reading;
-
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("homeId")]
-        [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("homeId")]
-        public QueryBuilderParameter<string>? HomeId
-        {
-            get => (QueryBuilderParameter<string>?)_homeId.Value;
-            set => _homeId = new() { Name = "homeId", Value = value };
-        }
+        public string HomeId { get; set; }
 
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("time")]
-        [JsonConverter(typeof(QueryBuilderParameterConverter<string?>))]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("time")]
-        public QueryBuilderParameter<string?>? Time
-        {
-            get => (QueryBuilderParameter<string?>?)_time.Value;
-            set => _time = new() { Name = "time", Value = value };
-        }
+        public string? Time { get; set; }
 
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("reading")]
-        [JsonConverter(typeof(QueryBuilderParameterConverter<int>))]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("reading")]
-        public QueryBuilderParameter<int>? Reading
-        {
-            get => (QueryBuilderParameter<int>?)_reading.Value;
-            set => _reading = new() { Name = "reading", Value = value };
-        }
+        public int Reading { get; set; }
 
         IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
         {
-            if (_homeId.Name != null) yield return _homeId;
-            if (_time.Name != null) yield return _time;
-            if (_reading.Name != null) yield return _reading;
+            if (HomeId != null) yield return new() { Name = "homeId", Value = HomeId };
+            if (Time != null) yield return new() { Name = "time", Value = Time };
+            if (Reading != null) yield return new() { Name = "reading", Value = Reading };
         }
     }
 
     public partial class SourceGeneratedPushNotificationInputV2 : IGraphQlInputObject
     {
-        private InputPropertyInfo _title;
-        private InputPropertyInfo _message;
-        private InputPropertyInfo _screenToOpen;
-
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("title")]
-        [JsonConverter(typeof(QueryBuilderParameterConverter<string?>))]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("title")]
-        public QueryBuilderParameter<string?>? Title
-        {
-            get => (QueryBuilderParameter<string?>?)_title.Value;
-            set => _title = new() { Name = "title", Value = value };
-        }
+        public string? Title { get; set; }
 
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("message")]
-        [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("message")]
-        public QueryBuilderParameter<string>? Message
-        {
-            get => (QueryBuilderParameter<string>?)_message.Value;
-            set => _message = new() { Name = "message", Value = value };
-        }
+        public string Message { get; set; }
 
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("screenToOpen")]
-        [JsonConverter(typeof(QueryBuilderParameterConverter<SourceGeneratedAppScreenV2?>))]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("screenToOpen")]
-        public QueryBuilderParameter<SourceGeneratedAppScreenV2?>? ScreenToOpen
-        {
-            get => (QueryBuilderParameter<SourceGeneratedAppScreenV2?>?)_screenToOpen.Value;
-            set => _screenToOpen = new() { Name = "screenToOpen", Value = value };
-        }
+        public SourceGeneratedAppScreenV2? ScreenToOpen { get; set; }
 
         IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
         {
-            if (_title.Name != null) yield return _title;
-            if (_message.Name != null) yield return _message;
-            if (_screenToOpen.Name != null) yield return _screenToOpen;
+            if (Title != null) yield return new() { Name = "title", Value = Title };
+            if (Message != null) yield return new() { Name = "message", Value = Message };
+            if (ScreenToOpen != null) yield return new() { Name = "screenToOpen", Value = ScreenToOpen };
         }
     }
 
     public partial class SourceGeneratedUpdateHomeInputV2 : IGraphQlInputObject
     {
-        private InputPropertyInfo _homeId;
-        private InputPropertyInfo _appNickname;
-        private InputPropertyInfo _appAvatar;
-        private InputPropertyInfo _size;
-        private InputPropertyInfo _type;
-        private InputPropertyInfo _numberOfResidents;
-        private InputPropertyInfo _primaryHeatingSource;
-        private InputPropertyInfo _hasVentilationSystem;
-        private InputPropertyInfo _mainFuseSize;
-
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("homeId")]
-        [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("homeId")]
-        public QueryBuilderParameter<string>? HomeId
-        {
-            get => (QueryBuilderParameter<string>?)_homeId.Value;
-            set => _homeId = new() { Name = "homeId", Value = value };
-        }
+        public string HomeId { get; set; }
 
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("appNickname")]
-        [JsonConverter(typeof(QueryBuilderParameterConverter<string?>))]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("appNickname")]
-        public QueryBuilderParameter<string?>? AppNickname
-        {
-            get => (QueryBuilderParameter<string?>?)_appNickname.Value;
-            set => _appNickname = new() { Name = "appNickname", Value = value };
-        }
+        public string? AppNickname { get; set; }
 
         /// <summary>
         /// The chosen avatar for the home
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("appAvatar")]
-        [JsonConverter(typeof(QueryBuilderParameterConverter<SourceGeneratedHomeAvatarV2?>))]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("appAvatar")]
-        public QueryBuilderParameter<SourceGeneratedHomeAvatarV2?>? AppAvatar
-        {
-            get => (QueryBuilderParameter<SourceGeneratedHomeAvatarV2?>?)_appAvatar.Value;
-            set => _appAvatar = new() { Name = "appAvatar", Value = value };
-        }
+        public SourceGeneratedHomeAvatarV2? AppAvatar { get; set; }
 
         /// <summary>
         /// The size of the home in square meters
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("size")]
-        [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("size")]
-        public QueryBuilderParameter<int?>? Size
-        {
-            get => (QueryBuilderParameter<int?>?)_size.Value;
-            set => _size = new() { Name = "size", Value = value };
-        }
+        public int? Size { get; set; }
 
         /// <summary>
         /// The type of home.
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("type")]
-        [JsonConverter(typeof(QueryBuilderParameterConverter<SourceGeneratedHomeTypeV2?>))]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("type")]
-        public QueryBuilderParameter<SourceGeneratedHomeTypeV2?>? Type
-        {
-            get => (QueryBuilderParameter<SourceGeneratedHomeTypeV2?>?)_type.Value;
-            set => _type = new() { Name = "type", Value = value };
-        }
+        public SourceGeneratedHomeTypeV2? Type { get; set; }
 
         /// <summary>
         /// The number of people living in the home
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("numberOfResidents")]
-        [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("numberOfResidents")]
-        public QueryBuilderParameter<int?>? NumberOfResidents
-        {
-            get => (QueryBuilderParameter<int?>?)_numberOfResidents.Value;
-            set => _numberOfResidents = new() { Name = "numberOfResidents", Value = value };
-        }
+        public int? NumberOfResidents { get; set; }
 
         /// <summary>
         /// The primary form of heating in the household
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("primaryHeatingSource")]
-        [JsonConverter(typeof(QueryBuilderParameterConverter<SourceGeneratedHeatingSourceV2?>))]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("primaryHeatingSource")]
-        public QueryBuilderParameter<SourceGeneratedHeatingSourceV2?>? PrimaryHeatingSource
-        {
-            get => (QueryBuilderParameter<SourceGeneratedHeatingSourceV2?>?)_primaryHeatingSource.Value;
-            set => _primaryHeatingSource = new() { Name = "primaryHeatingSource", Value = value };
-        }
+        public SourceGeneratedHeatingSourceV2? PrimaryHeatingSource { get; set; }
 
         /// <summary>
         /// Whether the home has a ventilation system
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("hasVentilationSystem")]
-        [JsonConverter(typeof(QueryBuilderParameterConverter<bool?>))]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("hasVentilationSystem")]
-        public QueryBuilderParameter<bool?>? HasVentilationSystem
-        {
-            get => (QueryBuilderParameter<bool?>?)_hasVentilationSystem.Value;
-            set => _hasVentilationSystem = new() { Name = "hasVentilationSystem", Value = value };
-        }
+        public bool? HasVentilationSystem { get; set; }
 
         /// <summary>
         /// The main fuse size
         /// </summary>
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("mainFuseSize")]
-        [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("mainFuseSize")]
-        public QueryBuilderParameter<int?>? MainFuseSize
-        {
-            get => (QueryBuilderParameter<int?>?)_mainFuseSize.Value;
-            set => _mainFuseSize = new() { Name = "mainFuseSize", Value = value };
-        }
+        public int? MainFuseSize { get; set; }
 
         IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
         {
-            if (_homeId.Name != null) yield return _homeId;
-            if (_appNickname.Name != null) yield return _appNickname;
-            if (_appAvatar.Name != null) yield return _appAvatar;
-            if (_size.Name != null) yield return _size;
-            if (_type.Name != null) yield return _type;
-            if (_numberOfResidents.Name != null) yield return _numberOfResidents;
-            if (_primaryHeatingSource.Name != null) yield return _primaryHeatingSource;
-            if (_hasVentilationSystem.Name != null) yield return _hasVentilationSystem;
-            if (_mainFuseSize.Name != null) yield return _mainFuseSize;
+            if (HomeId != null) yield return new() { Name = "homeId", Value = HomeId };
+            if (AppNickname != null) yield return new() { Name = "appNickname", Value = AppNickname };
+            if (AppAvatar != null) yield return new() { Name = "appAvatar", Value = AppAvatar };
+            if (Size != null) yield return new() { Name = "size", Value = Size };
+            if (Type != null) yield return new() { Name = "type", Value = Type };
+            if (NumberOfResidents != null) yield return new() { Name = "numberOfResidents", Value = NumberOfResidents };
+            if (PrimaryHeatingSource != null) yield return new() { Name = "primaryHeatingSource", Value = PrimaryHeatingSource };
+            if (HasVentilationSystem != null) yield return new() { Name = "hasVentilationSystem", Value = HasVentilationSystem };
+            if (MainFuseSize != null) yield return new() { Name = "mainFuseSize", Value = MainFuseSize };
         }
     }
     #endregion

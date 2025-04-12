@@ -82,6 +82,8 @@ public class GraphQlGeneratorConfiguration
 
     public GenerationOrder GenerationOrder { get; set; }
 
+    public InputObjectMode InputObjectMode { get; set; }
+
     public GraphQlGeneratorConfiguration() => Reset();
 
     public void Reset()
@@ -106,6 +108,7 @@ public class GraphQlGeneratorConfiguration
         FileScopedNamespaces = false;
         DataClassMemberNullability = DataClassMemberNullability.AlwaysNullable;
         GenerationOrder = GenerationOrder.DefinedBySchema;
+        InputObjectMode = InputObjectMode.Rich;
     }
 }
 
@@ -191,4 +194,13 @@ public enum GenerationOrder
 {
     DefinedBySchema,
     Alphabetical
+}
+
+public enum InputObjectMode
+{
+    /// <summary>
+    /// Supports GraphQL parameter references and explicit nulls
+    /// </summary>
+    Rich,
+    Poco
 }

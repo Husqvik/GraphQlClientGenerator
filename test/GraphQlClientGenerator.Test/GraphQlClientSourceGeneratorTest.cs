@@ -56,10 +56,10 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
         options.Add("build_property.GraphQlClientGenerator_DataClassMemberNullability", nameof(DataClassMemberNullability.DefinedBySchema));
         options.Add("build_property.GraphQlClientGenerator_GenerationOrder", nameof(GenerationOrder.Alphabetical));
         options.Add("build_property.GraphQlClientGenerator_EnableNullableReferences", "true");
+        options.Add("build_property.GraphQlClientGenerator_InputObjectMode", "POCO");
 
         var generatedSource = GenerateSource(options, _fileMappingRules, NullableContextOptions.Enable);
         var sourceCode = generatedSource.ToString();
-
         return Verify(sourceCode);
     }
 

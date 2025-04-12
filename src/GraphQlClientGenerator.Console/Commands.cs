@@ -60,6 +60,7 @@ internal static class Commands
                 new Option<EnumValueNamingOption>("--enumValueNaming", () => EnumValueNamingOption.CSharp, "Use \"Original\" to avoid pretty C# name conversion for maximum deserialization compatibility"),
                 new Option<DataClassMemberNullability>("--dataClassMemberNullability", () => DataClassMemberNullability.AlwaysNullable, "Specifies whether data class scalar properties generated always nullable (for better type reuse) or respect the GraphQL schema"),
                 new Option<GenerationOrder>("--generationOrder", () => GenerationOrder.DefinedBySchema, "Specifies whether order of generated C# classes/enums respect the GraphQL schema or is enforced to alphabetical for easier change tracking"),
+                new Option<InputObjectMode>("--inputObjectMode", () => InputObjectMode.Rich, "Specifies whether input objects are generated as POCOs or they have support of GraphQL parameter references"),
                 new Option<bool>("--includeDeprecatedFields", () => false, "Includes deprecated fields in generated query builders and data classes"),
                 new Option<bool>("--nullableReferences", () => false, "Enables nullable references"),
                 new Option<bool>("--fileScopedNamespaces", () => false, "Specifies whether file-scoped namespaces should be used in generated files (C# 10+)"),

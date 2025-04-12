@@ -121,6 +121,7 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
             SetConfigurationEnumValue(context, "EnumValueNaming", EnumValueNamingOption.CSharp, v => configuration.EnumValueNaming = v);
             SetConfigurationEnumValue(context, "DataClassMemberNullability", DataClassMemberNullability.AlwaysNullable, v => configuration.DataClassMemberNullability = v);
             SetConfigurationEnumValue(context, "GenerationOrder", GenerationOrder.DefinedBySchema, v => configuration.GenerationOrder = v);
+            SetConfigurationEnumValue(context, "InputObjectMode", InputObjectMode.Rich, v => configuration.InputObjectMode = v);
 
             var outputType = OutputType.SingleFile;
             SetConfigurationEnumValue(context, "OutputType", OutputType.SingleFile, v => outputType = v);

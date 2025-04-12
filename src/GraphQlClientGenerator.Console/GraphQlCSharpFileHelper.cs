@@ -60,6 +60,7 @@ internal static class GraphQlCSharpFileHelper
                 EnumValueNaming = options.EnumValueNaming,
                 DataClassMemberNullability = options.DataClassMemberNullability,
                 GenerationOrder = options.GenerationOrder,
+                InputObjectMode = options.InputObjectMode,
                 IncludeDeprecatedFields = options.IncludeDeprecatedFields,
                 EnableNullableReferences = options.NullableReferences,
                 FileScopedNamespaces = options.FileScopedNamespaces
