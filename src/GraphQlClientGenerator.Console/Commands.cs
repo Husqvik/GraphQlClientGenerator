@@ -62,7 +62,7 @@ internal static class Commands
                 new Option<GenerationOrder>("--generationOrder", () => GenerationOrder.DefinedBySchema, "Specifies whether order of generated C# classes/enums respect the GraphQL schema or is enforced to alphabetical for easier change tracking"),
                 new Option<bool>("--includeDeprecatedFields", () => false, "Includes deprecated fields in generated query builders and data classes"),
                 new Option<bool>("--nullableReferences", () => false, "Enables nullable references"),
-                new Option<bool>("--fileScopedNamespaces", () => false, "Specifies if file-scoped namespaces should be used in generated files (C# 10+)"),
+                new Option<bool>("--fileScopedNamespaces", () => false, "Specifies whether file-scoped namespaces should be used in generated files (C# 10+)"),
                 new Option<bool>("--ignoreServiceUrlCertificateErrors", () => false, "Ignores HTTPS errors when retrieving GraphQL metadata from an URL; typically when using self signed certificates"),
                 regexScalarFieldTypeMappingConfigurationOption
             };

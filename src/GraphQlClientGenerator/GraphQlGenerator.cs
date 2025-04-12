@@ -772,6 +772,14 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             writer.WriteLine("    #endif");
         }
 
+        if (!isInterfaceMember && decorateWithJsonPropertyAttribute && _configuration.CSharpVersion.SupportsSystemTextJson())
+        {
+            writer.Write(indentation);
+            writer.Write("    [System.Text.Json.Serialization.JsonPropertyName(\"");
+            writer.Write(member.Name);
+            writer.WriteLine("\")]");
+        }
+
         writer.Write(indentation);
         writer.Write("    ");
 

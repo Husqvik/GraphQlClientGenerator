@@ -402,7 +402,6 @@ public class MyCustomScalarFieldTypeMappingProvider : IScalarFieldTypeMappingPro
     {
         var unwrappedType = context.FieldType.UnwrapIfNonNull();
 
-        // DateTime and Byte
         return
             unwrappedType.Name switch
             {

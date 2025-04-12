@@ -144,4 +144,7 @@ public static class CSharpHelper
 
     internal static bool UseCollectionExpression(this CSharpVersion cSharpVersion) =>
         cSharpVersion >= CSharpVersion.CSharp12;
+
+    internal static bool SupportsSystemTextJson(this CSharpVersion cSharpVersion) =>
+        cSharpVersion >= CSharpVersion.CSharp12;
 }
