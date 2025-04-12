@@ -85,9 +85,9 @@ public class MultipleFileGenerationContext : GenerationContext
     {
     }
 
-    public override void BeforeDirectiveGeneration(string className) => InitializeNewSourceCodeFile(className);
+    public override void BeforeDirectiveGeneration(ObjectGenerationContext context) => InitializeNewSourceCodeFile(context.CSharpTypeName);
 
-    public override void AfterDirectiveGeneration(string className) => WriteNamespaceEnd();
+    public override void AfterDirectiveGeneration(ObjectGenerationContext context) => WriteNamespaceEnd();
 
     public override void AfterDirectivesGeneration()
     {

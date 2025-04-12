@@ -91,9 +91,9 @@ public abstract class GenerationContext
 
     public abstract void BeforeDirectivesGeneration();
 
-    public abstract void BeforeDirectiveGeneration(string className);
+    public abstract void BeforeDirectiveGeneration(ObjectGenerationContext context);
 
-    public abstract void AfterDirectiveGeneration(string className);
+    public abstract void AfterDirectiveGeneration(ObjectGenerationContext context);
 
     public abstract void AfterDirectivesGeneration();
 
@@ -206,7 +206,7 @@ public abstract class GenerationContext
         return fragments.Values;
     }
 
-    protected internal ScalarFieldTypeDescription GetDataPropertyType(GraphQlType ownerType, IGraphQlMember member)
+    protected internal ScalarFieldTypeDescription GetDataPropertyType(GraphQlTypeBase ownerType, IGraphQlMember member)
     {
         var fieldType = member.Type.UnwrapIfNonNull();
         var memberTypeContext =
@@ -565,7 +565,7 @@ public abstract class GenerationContext
 
 public record struct ObjectGenerationContext
 {
-    public GraphQlType GraphQlType { get; set; }
+    public GraphQlTypeBase GraphQlType { get; set; }
     public string CSharpTypeName { get; set; }
 }
 

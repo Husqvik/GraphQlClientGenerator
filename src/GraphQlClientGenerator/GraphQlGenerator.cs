@@ -1738,7 +1738,14 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
     {
         var directiveName = $"{NamingHelper.ToPascalCase(directive.Name)}Directive";
 
-        context.BeforeDirectiveGeneration(directiveName);
+        var objectGenerationContext =
+            new ObjectGenerationContext
+            {
+                GraphQlType = directive,
+                CSharpTypeName = directiveName
+            };
+
+        context.BeforeDirectiveGeneration(objectGenerationContext);
 
         var writer = context.Writer;
 
@@ -1788,7 +1795,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         writer.Write(indentation);
         writer.WriteLine("}");
 
-        context.AfterDirectiveGeneration(directiveName);
+        context.AfterDirectiveGeneration(objectGenerationContext);
     }
 
     private void WriteMethodXmlDocumentation(TextWriter writer, IReadOnlyList<QueryBuilderParameterDefinition> parameterDefinitions, int indentationSize)
@@ -1852,7 +1859,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
 
     private record struct DataPropertyContext(
         IGraphQlMember Member,
-        GraphQlType OwnerType,
+        GraphQlTypeBase OwnerType,
         string PropertyName,
         bool RequiresNew,
         bool IsDeprecated,

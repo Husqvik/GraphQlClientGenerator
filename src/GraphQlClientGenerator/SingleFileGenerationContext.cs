@@ -73,13 +73,13 @@ public class SingleFileGenerationContext(GraphQlSchema schema, TextWriter writer
         WriteLine("#region directives");
     }
 
-    public override void BeforeDirectiveGeneration(string className)
+    public override void BeforeDirectiveGeneration(ObjectGenerationContext context)
     {
         if (_directives > 0)
             Writer.WriteLine();
     }
 
-    public override void AfterDirectiveGeneration(string className) => _directives++;
+    public override void AfterDirectiveGeneration(ObjectGenerationContext context) => _directives++;
 
     public override void AfterDirectivesGeneration()
     {
