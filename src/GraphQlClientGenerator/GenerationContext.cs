@@ -129,7 +129,7 @@ public abstract class GenerationContext
 
         if (generateBackingFields)
         {
-            var useCompatibleVersion = Configuration.CSharpVersion == CSharpVersion.Compatible;
+            var useCompatibleVersion = Configuration.CSharpVersion is CSharpVersion.Compatible;
             var isFieldKeywordSupported = Configuration.CSharpVersion.IsFieldKeywordSupported();
             Writer.Write(" { get");
             Writer.Write(useCompatibleVersion ? " { return " : " => ");
@@ -334,7 +334,9 @@ public abstract class GenerationContext
             GetFullyQualifiedNetTypeName(context.Configuration, NamingHelper.ToPascalCase(context.FieldType.UnwrapIfNonNull().Name), GraphQlTypeKind.Enum));
 
     private ScalarFieldTypeDescription GetStringNetType(ScalarFieldTypeProviderContext context) =>
-        Configuration.ScalarFieldTypeMappingProvider is null ? NullableNetTypeDescription(context, "string", true) : GetCustomScalarNetType(context);
+        Configuration.ScalarFieldTypeMappingProvider is null
+            ? NullableNetTypeDescription(context, "string", true)
+            : GetCustomScalarNetType(context);
 
     private ScalarFieldTypeDescription GetBooleanNetType(ScalarFieldTypeProviderContext context) =>
         Configuration.BooleanTypeMapping switch
