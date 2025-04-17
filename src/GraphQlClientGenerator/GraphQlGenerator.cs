@@ -569,6 +569,9 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                 {
                     if (isRichMode)
                     {
+                        writer.Write(fieldTypeDescription.NetTypeName);
+                        writer.Write(' ');
+                        writer.Write(propertyGenerationContext.PropertyName);
                         writer.WriteLine();
                         writer.Write(indentation);
                         writer.WriteLine("    {");
@@ -833,20 +836,16 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         if (propertyContext.RequiresNew)
             writer.Write("new ");
 
-        writer.Write(propertyTypeName);
-        writer.Write(' ');
-
         if (requiresExplicitInterfaceImplementation)
         {
+            writer.Write(propertyTypeName);
+            writer.Write(' ');
+
             var csharpInterfaceName = context.GetFullyQualifiedNetTypeName(propertyContext.OwnerType.Name, propertyContext.OwnerType.Kind);
             writer.Write(csharpInterfaceName);
             writer.Write('.');
-        }
+            writer.Write(propertyContext.PropertyName);
 
-        writer.Write(propertyContext.PropertyName);
-
-        if (requiresExplicitInterfaceImplementation)
-        {
             var useCompatibleSyntax = _configuration.CSharpVersion is CSharpVersion.Compatible;
             writer.Write(" { get");
             writer.Write(useCompatibleSyntax ? " { " : " => ");

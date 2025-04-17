@@ -123,6 +123,10 @@ public abstract class GenerationContext
 
     public virtual void OnDataPropertyGeneration(PropertyGenerationContext context)
     {
+        Writer.Write(context.PropertyCSharpTypeName);
+        Writer.Write(' ');
+        Writer.Write(context.PropertyName);
+
         var generateBackingFields =
             Configuration.PropertyGeneration is PropertyGenerationOption.BackingField &&
             context.ObjectContext.GraphQlType.Kind is GraphQlTypeKind.Object;
