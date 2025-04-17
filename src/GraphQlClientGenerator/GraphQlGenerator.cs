@@ -420,17 +420,17 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                 interfacesToImplement.Add("IGraphQlInputObject");
 
             if (isInterface || fieldsToGenerate.Any())
-                GenerateFileMember(context, complexType, interfacesToImplement, c => GenerateBody(c, isInterface));
-
-            continue;
-
-            void GenerateBody(ObjectGenerationContext objectContext, bool isInterfaceMember)
-            {
-                if (hasInputReference)
-                    GenerateInputDataClassBody(objectContext, fieldsToGenerate.Select(f => f.Field), context);
-                else
-                    GenerateDataClassBody(objectContext, fieldsToGenerate, context, isInterfaceMember);
-            }
+                GenerateFileMember(
+                    context,
+                    complexType,
+                    interfacesToImplement,
+                    objectContext =>
+                    {
+                        if (hasInputReference)
+                            GenerateInputDataClassBody(objectContext, fieldsToGenerate.Select(f => f.Field), context);
+                        else
+                            GenerateDataClassBody(objectContext, fieldsToGenerate, context, isInterface);
+                    });
         }
 
         context.AfterDataClassesGeneration();
