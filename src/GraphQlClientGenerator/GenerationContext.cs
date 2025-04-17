@@ -130,10 +130,10 @@ public abstract class GenerationContext
         if (generateBackingFields)
         {
             var useCompatibleVersion = Configuration.CSharpVersion is CSharpVersion.Compatible;
-            var isFieldKeywordSupported = Configuration.CSharpVersion.IsFieldKeywordSupported();
+            var backingFieldName = Configuration.CSharpVersion.IsFieldKeywordSupported() ? "field" : context.PropertyBackingFieldName;
             Writer.Write(" { get");
             Writer.Write(useCompatibleVersion ? " { return " : " => ");
-            Writer.Write(isFieldKeywordSupported ? "field" : context.PropertyBackingFieldName);
+            Writer.Write(backingFieldName);
             Writer.Write(";");
 
             if (useCompatibleVersion)
@@ -142,7 +142,7 @@ public abstract class GenerationContext
             Writer.Write(context.SetterAccessibility.ToSetterAccessibilityPrefix());
             Writer.Write(" set");
             Writer.Write(useCompatibleVersion ? " { " : " => ");
-            Writer.Write(isFieldKeywordSupported ? "field" : context.PropertyBackingFieldName);
+            Writer.Write(backingFieldName);
             Writer.Write(" = value;");
 
             if (useCompatibleVersion)
