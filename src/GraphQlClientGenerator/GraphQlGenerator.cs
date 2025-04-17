@@ -603,10 +603,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                         writer.WriteLine("    }");
                     }
                     else
-                    {
                         context.OnDataPropertyGeneration(propertyGenerationContext);
-                        writer.WriteLine();
-                    }
                 },
                 context);
 

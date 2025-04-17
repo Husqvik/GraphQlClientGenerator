@@ -2528,19 +2528,16 @@ namespace SourceGeneratorTestAssembly
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("homeId")]
         public string HomeId { get; set; }
-
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("time")]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("time")]
         public string? Time { get; set; }
-
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("reading")]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("reading")]
         public int Reading { get; set; }
-
         IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
         {
             if (HomeId != null) yield return new() { Name = "homeId", Value = HomeId };
@@ -2556,19 +2553,16 @@ namespace SourceGeneratorTestAssembly
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("title")]
         public string? Title { get; set; }
-
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("message")]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("message")]
         public string Message { get; set; }
-
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("screenToOpen")]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("screenToOpen")]
         public SourceGeneratedAppScreenV2? ScreenToOpen { get; set; }
-
         IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
         {
             if (Title != null) yield return new() { Name = "title", Value = Title };
@@ -2584,13 +2578,11 @@ namespace SourceGeneratorTestAssembly
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("homeId")]
         public string HomeId { get; set; }
-
         #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
         [JsonProperty("appNickname")]
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("appNickname")]
         public string? AppNickname { get; set; }
-
         /// <summary>
         /// The chosen avatar for the home
         /// </summary>
@@ -2599,7 +2591,6 @@ namespace SourceGeneratorTestAssembly
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("appAvatar")]
         public SourceGeneratedHomeAvatarV2? AppAvatar { get; set; }
-
         /// <summary>
         /// The size of the home in square meters
         /// </summary>
@@ -2608,7 +2599,6 @@ namespace SourceGeneratorTestAssembly
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("size")]
         public int? Size { get; set; }
-
         /// <summary>
         /// The type of home.
         /// </summary>
@@ -2617,7 +2607,6 @@ namespace SourceGeneratorTestAssembly
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("type")]
         public SourceGeneratedHomeTypeV2? Type { get; set; }
-
         /// <summary>
         /// The number of people living in the home
         /// </summary>
@@ -2626,7 +2615,6 @@ namespace SourceGeneratorTestAssembly
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("numberOfResidents")]
         public int? NumberOfResidents { get; set; }
-
         /// <summary>
         /// The primary form of heating in the household
         /// </summary>
@@ -2635,7 +2623,6 @@ namespace SourceGeneratorTestAssembly
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("primaryHeatingSource")]
         public SourceGeneratedHeatingSourceV2? PrimaryHeatingSource { get; set; }
-
         /// <summary>
         /// Whether the home has a ventilation system
         /// </summary>
@@ -2644,7 +2631,6 @@ namespace SourceGeneratorTestAssembly
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("hasVentilationSystem")]
         public bool? HasVentilationSystem { get; set; }
-
         /// <summary>
         /// The main fuse size
         /// </summary>
@@ -2653,7 +2639,6 @@ namespace SourceGeneratorTestAssembly
         #endif
         [System.Text.Json.Serialization.JsonPropertyName("mainFuseSize")]
         public int? MainFuseSize { get; set; }
-
         IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
         {
             if (HomeId != null) yield return new() { Name = "homeId", Value = HomeId };
