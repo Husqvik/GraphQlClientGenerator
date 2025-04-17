@@ -67,7 +67,11 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             }
         };
 
-    public static async Task<GraphQlSchema> RetrieveSchema(HttpMethod method, string url, IEnumerable<KeyValuePair<string, string>> headers = null, HttpMessageHandler messageHandler = null)
+    public static async Task<GraphQlSchema> RetrieveSchema(
+        HttpMethod method,
+        string url,
+        IEnumerable<KeyValuePair<string, string>> headers = null,
+        HttpMessageHandler messageHandler = null)
     {
         StringContent requestContent = null;
         if (method == HttpMethod.Get)
@@ -98,21 +102,25 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
 
     public static GraphQlSchema DeserializeGraphQlSchema(string content)
     {
-        const string notGraphqlSchemaMessage = "not a GraphQL schema";
-
         try
         {
             var schema =
                 JsonConvert.DeserializeObject<GraphQlResult>(content, SerializerSettings)?.Data?.Schema
                 ?? JsonConvert.DeserializeObject<GraphQlData>(content, SerializerSettings)?.Schema;
 
-            return schema ?? throw new ArgumentException(notGraphqlSchemaMessage, nameof(content));
+            return schema ?? throw new ArgumentException(NotGraphQlSchemaMessage(content));
         }
         catch (JsonReaderException exception)
         {
-            throw new ArgumentException(notGraphqlSchemaMessage, nameof(content), exception);
+            throw new ArgumentException(NotGraphQlSchemaMessage(content), exception);
         }
     }
+
+    private static string NotGraphQlSchemaMessage(string content) =>
+        $"""
+        not a GraphQL schema:
+        {content}
+        """;
 
     public string GenerateFullClientCSharpFile(GraphQlSchema schema, Action<string> logMessage = null)
     {

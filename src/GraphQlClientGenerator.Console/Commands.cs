@@ -1,11 +1,24 @@
 ﻿using System.CommandLine;
+using System.CommandLine.Builder;
+using System.CommandLine.IO;
 using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Parsing;
 
 namespace GraphQlClientGenerator.Console;
 
 internal static class Commands
 {
-    public static readonly RootCommand GenerateCommand = SetupGenerateCommand();
+    public static readonly Parser Parser =
+        new CommandLineBuilder(SetupGenerateCommand())
+            .UseDefaults()
+            .UseExceptionHandler((exception, invocationContext) =>
+            {
+                System.Console.ForegroundColor = ConsoleColor.Red;
+                invocationContext.Console.Error.WriteLine($"An error occurred: {exception}");
+                System.Console.ResetColor();
+                invocationContext.ExitCode = 2;
+            })
+            .Build();
 
     private static RootCommand SetupGenerateCommand()
     {
@@ -71,7 +84,7 @@ internal static class Commands
         command.TreatUnmatchedTokensAsErrors = true;
         command.Name = "GraphQlClientGenerator.Console";
         command.Description = "A tool for generating C# GraphQL query builders and data classes";
-        command.Handler = CommandHandler.Create<IConsole, ProgramOptions>(GraphQlCSharpFileHelper.GenerateGraphQlClientSourceCode);
+        command.Handler = CommandHandler.Create<IConsole, ProgramOptions>(GraphQlCSharpFileHelper.GenerateClientSourceCode);
         command.AddValidator(
             option =>
                 option.ErrorMessage =

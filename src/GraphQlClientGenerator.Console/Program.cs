@@ -1,4 +1,4 @@
-﻿using System.CommandLine;
+﻿using System.CommandLine.Parsing;
 using GraphQlClientGenerator.Console;
 
-return await Commands.GenerateCommand.InvokeAsync(args);
+return await Commands.Parser.InvokeAsync(args);

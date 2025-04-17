@@ -1,25 +1,10 @@
 ﻿using System.CommandLine;
-using System.CommandLine.IO;
 
 namespace GraphQlClientGenerator.Console;
 
 internal static class GraphQlCSharpFileHelper
 {
-    public static async Task<int> GenerateGraphQlClientSourceCode(IConsole console, ProgramOptions options)
-    {
-        try
-        {
-            await GenerateClientSourceCode(console, options);
-            return 0;
-        }
-        catch (Exception exception)
-        {
-            console.Error.WriteLine($"An error occurred: {exception}");
-            return 2;
-        }
-    }
-
-    private static async Task GenerateClientSourceCode(IConsole console, ProgramOptions options)
+    public static async Task GenerateClientSourceCode(IConsole console, ProgramOptions options)
     {
         GraphQlSchema schema;
 
