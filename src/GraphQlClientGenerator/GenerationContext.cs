@@ -576,15 +576,17 @@ public record struct ObjectGenerationContext
 public record PropertyGenerationContext
 {
     public ObjectGenerationContext ObjectContext { get; }
+    public IGraphQlMember GraphQlMember { get; }
     public string PropertyName { get; }
     public string PropertyBackingFieldName { get; }
     public string PropertyCSharpTypeName { get; }
 
     public PropertyAccessibility SetterAccessibility { get; set; }
 
-    internal PropertyGenerationContext(ObjectGenerationContext objectContext, string csharpTypeName, string propertyName, string propertyBackingFieldName)
+    internal PropertyGenerationContext(ObjectGenerationContext objectContext, IGraphQlMember graphQlMember, string csharpTypeName, string propertyName, string propertyBackingFieldName)
     {
         ObjectContext = objectContext;
+        GraphQlMember = graphQlMember;
         PropertyCSharpTypeName = csharpTypeName;
         PropertyName = propertyName;
         PropertyBackingFieldName = propertyBackingFieldName;

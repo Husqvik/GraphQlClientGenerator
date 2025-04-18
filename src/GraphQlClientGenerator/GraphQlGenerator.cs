@@ -415,22 +415,12 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             /*else if (implementsUnion)
                 fieldsToGenerate.Insert(0, TypeNameField);*/
 
-            var hasInputReference = complexType.Kind is GraphQlTypeKind.InputObject && context.ReferencedObjectTypes.Contains(complexType.Name);
-            if (hasInputReference)
-                interfacesToImplement.Add("IGraphQlInputObject");
-
             if (isInterface || fieldsToGenerate.Any())
                 GenerateFileMember(
                     context,
                     complexType,
                     interfacesToImplement,
-                    objectContext =>
-                    {
-                        if (hasInputReference)
-                            GenerateInputDataClassBody(objectContext, fieldsToGenerate.Select(f => f.Field), context);
-                        else
-                            GenerateDataClassBody(objectContext, fieldsToGenerate, context, isInterface);
-                    });
+                    objectContext => GenerateDataClassBody(objectContext, fieldsToGenerate, context, isInterface));
         }
 
         context.AfterDataClassesGeneration();
@@ -514,7 +504,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         }
     }
 
-    private void GenerateInputDataClassBody(ObjectGenerationContext objectContext, IEnumerable<IGraphQlMember> members, GenerationContext context)
+    private void GenerateInputDataClassBody(ObjectGenerationContext objectContext, IList<GraphQlArgument> members, GenerationContext context)
     {
         var writer = context.Writer;
         var indentation = GetIndentation(context.IndentationSize);
@@ -743,6 +733,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         var propertyGenerationContext =
             new PropertyGenerationContext(
                 objectContext,
+                member,
                 propertyTypeName,
                 propertyContext.PropertyName,
                 GetBackingFieldName(member.Name, propertyContext.RequiresRawName));
