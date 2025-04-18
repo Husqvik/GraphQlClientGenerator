@@ -14,7 +14,7 @@ internal static class Commands
             .UseExceptionHandler((exception, invocationContext) =>
             {
                 System.Console.ForegroundColor = ConsoleColor.Red;
-                invocationContext.Console.Error.WriteLine($"An error occurred: {exception}");
+                invocationContext.Console.Error.WriteLine($"An error occurred:{Environment.NewLine}{exception}");
                 System.Console.ResetColor();
                 invocationContext.ExitCode = 2;
             })
