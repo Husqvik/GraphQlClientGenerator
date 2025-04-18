@@ -33,7 +33,7 @@ public static class KeyValueParameterParser
     {
         headers = new List<KeyValuePair<string, string>>();
 
-        foreach (var parameter in sourceParameters ?? Enumerable.Empty<string>())
+        foreach (var parameter in sourceParameters ?? [])
         {
             var parts = parameter.Split([':'], 2);
             if (parts.Length != 2)

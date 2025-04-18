@@ -67,37 +67,46 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             }
         };
 
-    public static async Task<GraphQlSchema> RetrieveSchema(
-        HttpMethod method,
-        string url,
-        IEnumerable<KeyValuePair<string, string>> headers = null,
-        HttpMessageHandler messageHandler = null)
+    private static HttpRequestMessage SetupHttpRequest(HttpMethod method, string url, string queryText, IEnumerable<KeyValuePair<string, string>> headers)
     {
-        StringContent requestContent = null;
-        if (method == HttpMethod.Get)
-            url = $"{url}?&query={IntrospectionQuery.Text}";
+        var request = new HttpRequestMessage(method, url);
+        if (request.Method == HttpMethod.Get)
+            request.RequestUri = new($"{request.RequestUri}?&query={queryText}");
         else
-            requestContent = new StringContent(JsonConvert.SerializeObject(new { query = IntrospectionQuery.Text }), Encoding.UTF8, "application/json");
-
-        using var request = new HttpRequestMessage(method, url);
-        request.Content = requestContent;
+            request.Content = new StringContent(JsonConvert.SerializeObject(new { query = queryText }), Encoding.UTF8, "application/json");
 
         if (headers is not null)
             foreach (var kvp in headers)
                 request.Headers.TryAddWithoutValidation(kvp.Key, kvp.Value);
 
-        using var httpClient = CreateHttpClient(messageHandler);
-        using var response = await httpClient.SendAsync(request);
+        return request;
+    }
 
+    private static async Task<GraphQlSchema> QuerySchemaMetadata(HttpClient httpClient, HttpRequestMessage request)
+    {
+        using var response = await httpClient.SendAsync(request);
         var content =
             response.Content is null
                 ? "(no content)"
                 : await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
-            throw new InvalidOperationException($"Status code: {(int)response.StatusCode} ({response.StatusCode}); content: {content}");
+            throw new InvalidOperationException($"Status code: {(int)response.StatusCode} ({response.StatusCode}); content:{Environment.NewLine}{content}");
 
         return DeserializeGraphQlSchema(content);
+    }
+
+    public static async Task<GraphQlSchema> RetrieveSchema(
+        HttpMethod method,
+        string url,
+        ICollection<KeyValuePair<string, string>> headers = null,
+        HttpMessageHandler messageHandler = null)
+    {
+        using var httpClient = CreateHttpClient(messageHandler);
+        var schema = await QuerySchemaMetadata(httpClient, SetupHttpRequest(method, url, GraphQlIntrospection.QuerySupportedDirectives, headers));
+        var wellKnownDirectives = schema.Directives.Any(d => d.Name is "oneOf") ? GraphQlWellKnownDirective.OneOf : GraphQlWellKnownDirective.None;
+        using var request = SetupHttpRequest(method, url, GraphQlIntrospection.QuerySchemaMetadata(wellKnownDirectives), headers);
+        return await QuerySchemaMetadata(httpClient, request);
     }
 
     public static GraphQlSchema DeserializeGraphQlSchema(string content)
