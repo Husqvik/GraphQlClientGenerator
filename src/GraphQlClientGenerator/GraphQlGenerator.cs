@@ -873,7 +873,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             writer.Write(" }");
         }
         else
-            writeBody(propertyTypeDescription with { NetTypeName = propertyTypeName }, propertyGenerationContext);
+            writeBody(propertyTypeDescription, propertyGenerationContext);
 
         writer.WriteLine();
 
