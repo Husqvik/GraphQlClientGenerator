@@ -568,7 +568,8 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                 {
                     if (isRichMode)
                     {
-                        writer.Write(fieldTypeDescription.NetTypeName);
+                        writer.Write("public ");
+                        writer.Write(propertyGenerationContext.PropertyCSharpTypeName);
                         writer.Write(' ');
                         writer.Write(propertyGenerationContext.PropertyName);
                         writer.WriteLine();
@@ -578,7 +579,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                         writer.Write("        get");
                         writer.Write(useCompatibleSyntax ? " { return " : " => ");
                         writer.Write("(");
-                        writer.Write(fieldTypeDescription.NetTypeName);
+                        writer.Write(propertyGenerationContext.PropertyCSharpTypeName);
                         writer.Write(")");
                         writer.Write(kvp.Key);
                         writer.Write(".Value;");
@@ -737,7 +738,11 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         var ownerGraphQlType = objectContext.GraphQlType;
         var member = propertyContext.Member;
         var propertyTypeDescription = context.GetDataPropertyType(propertyContext.OwnerType, member);
-        var propertyTypeName = propertyTypeDescription.NetTypeName;
+        var isOwnerInputObjectInRichMode = ownerGraphQlType.Kind is GraphQlTypeKind.InputObject && _configuration.InputObjectMode is InputObjectMode.Rich;
+        var propertyTypeName =
+            isOwnerInputObjectInRichMode
+                ? AddQuestionMarkIfNullableReferencesEnabled($"QueryBuilderParameter<{propertyTypeDescription.NetTypeName}>")
+                : propertyTypeDescription.NetTypeName;
 
         var propertyGenerationContext =
             new PropertyGenerationContext(
@@ -781,7 +786,6 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             (fieldType.Kind is GraphQlTypeKind.Interface or GraphQlTypeKind.Union ||
              fieldType.Kind is GraphQlTypeKind.List && UnwrapListItemType(fieldType, false, false, out _).UnwrapIfNonNull().Kind is GraphQlTypeKind.Interface or GraphQlTypeKind.Union);
 
-        var isOwnerInputObjectInRichMode = ownerGraphQlType.Kind is GraphQlTypeKind.InputObject && _configuration.InputObjectMode is InputObjectMode.Rich;
         var isJsonPropertyAttributeNeeded = !isInterfaceMember && decorateWithJsonPropertyAttribute;
         var isPreprocessorDirectiveDisableNewtonsoftJsonRequired = isJsonPropertyAttributeNeeded || isGraphQlInterfaceJsonConverterRequired || isOwnerInputObjectInRichMode;
         if (isPreprocessorDirectiveDisableNewtonsoftJsonRequired)
@@ -808,9 +812,8 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         {
             writer.Write(indentation);
             writer.Write("    [JsonConverter(typeof(QueryBuilderParameterConverter<");
-            writer.Write(propertyTypeName);
+            writer.Write(propertyTypeDescription.NetTypeName);
             writer.WriteLine(">))]");
-            propertyTypeName = AddQuestionMarkIfNullableReferencesEnabled($"QueryBuilderParameter<{propertyTypeName}>");
         }
 
         if (isPreprocessorDirectiveDisableNewtonsoftJsonRequired)
@@ -829,9 +832,6 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
 
         writer.Write(indentation);
         writer.Write("    ");
-
-        if (!isInterfaceMember)
-            writer.Write("public ");
 
         if (propertyContext.RequiresNew)
             writer.Write("new ");

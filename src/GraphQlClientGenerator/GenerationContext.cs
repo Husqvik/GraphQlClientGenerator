@@ -123,14 +123,15 @@ public abstract class GenerationContext
 
     public virtual void OnDataPropertyGeneration(PropertyGenerationContext context)
     {
+        var typeKind = context.ObjectContext.GraphQlType.Kind;
+        if (typeKind is not GraphQlTypeKind.Interface)
+            Writer.Write("public ");
+
         Writer.Write(context.PropertyCSharpTypeName);
         Writer.Write(' ');
         Writer.Write(context.PropertyName);
 
-        var generateBackingFields =
-            Configuration.PropertyGeneration is PropertyGenerationOption.BackingField &&
-            context.ObjectContext.GraphQlType.Kind is GraphQlTypeKind.Object;
-
+        var generateBackingFields = Configuration.PropertyGeneration is PropertyGenerationOption.BackingField && typeKind is GraphQlTypeKind.Object;
         if (generateBackingFields)
         {
             var useCompatibleVersion = Configuration.CSharpVersion is CSharpVersion.Compatible;
