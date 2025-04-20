@@ -281,7 +281,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
     [Theory]
     [InlineData(CSharpVersion.Compatible)]
     [InlineData(CSharpVersion.CSharp12)]
-    public void GenerateDataClassesWithTypeConfiguration(CSharpVersion csharpVersion)
+    public Task GenerateDataClassesWithTypeConfiguration(CSharpVersion csharpVersion)
     {
         var configuration =
             new GraphQlGeneratorConfiguration
@@ -298,9 +298,8 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
 
         var stringBuilder = new StringBuilder();
         new GraphQlGenerator(configuration).Generate(CreateGenerationContext(stringBuilder, TestSchema, GeneratedObjectType.DataClasses));
-        var expectedDataClasses = GetTestResource($"ExpectedSingleFileGenerationContext.DataClassesWithTypeConfiguration.{csharpVersion}");
         var generatedSourceCode = stringBuilder.ToString();
-        generatedSourceCode.ShouldBe(expectedDataClasses);
+        return Verify(generatedSourceCode).UseParameters(csharpVersion);
     }
 
     private class TestCustomBooleanTypeMappingProvider : IScalarFieldTypeMappingProvider
