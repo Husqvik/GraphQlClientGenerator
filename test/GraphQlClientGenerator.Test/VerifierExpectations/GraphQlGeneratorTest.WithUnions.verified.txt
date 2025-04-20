@@ -1,4 +1,4 @@
-#region GraphQL type helpers
+﻿#region GraphQL type helpers
 public static class GraphQlTypes
 {
     public const string Boolean = "Boolean";
@@ -37,6 +37,7 @@ public static class GraphQlTypes
     public const string ValueAccessor = "ValueAccessor";
     public const string WithOnlyDeprecatedFields = "WithOnlyDeprecatedFields";
     public const string WithValueAccessor = "WithValueAccessor";
+    public const string WithValueAccessorObject = "WithValueAccessorObject";
 
     public static readonly IReadOnlyDictionary<global::System.Type, string> ReverseMapping =
         new Dictionary<global::System.Type, string>
@@ -286,6 +287,36 @@ public partial class WithValueAccessorQueryBuilder : GraphQlQueryBuilder<WithVal
     public WithValueAccessorQueryBuilder ExceptNestedAccessors() => ExceptField("nestedAccessors");
 
     public WithValueAccessorQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithFragment(concreteType1QueryBuilder, new GraphQlDirective?[] { include, skip, customDirective });
+}
+
+public partial class WithValueAccessorObjectQueryBuilder : GraphQlQueryBuilder<WithValueAccessorObjectQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+    {
+        new GraphQlFieldMetadata { Name = "accessor", DefaultAlias = "Accessor", IsComplex = true, QueryBuilderType = typeof(ValueAccessorObjectQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "accessors", DefaultAlias = "Accessors", IsComplex = true, QueryBuilderType = typeof(ValueAccessorObjectQueryBuilder) },
+        new GraphQlFieldMetadata { Name = "nestedAccessors", DefaultAlias = "NestedAccessors", IsComplex = true, QueryBuilderType = typeof(ValueAccessorObjectQueryBuilder) }
+    };
+
+    public WithValueAccessorObjectQueryBuilder() => WithTypeName("TypeName");
+
+    protected override string TypeName { get; } = "WithValueAccessorObject";
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
+
+    public WithValueAccessorObjectQueryBuilder WithAccessor(ValueAccessorObjectQueryBuilder valueAccessorObjectQueryBuilder, string? alias = "Accessor", IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithObjectField("accessor", alias, valueAccessorObjectQueryBuilder, new GraphQlDirective?[] { include, skip, customDirective });
+
+    public WithValueAccessorObjectQueryBuilder ExceptAccessor() => ExceptField("accessor");
+
+    public WithValueAccessorObjectQueryBuilder WithAccessors(ValueAccessorObjectQueryBuilder valueAccessorObjectQueryBuilder, string? alias = "Accessors", IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithObjectField("accessors", alias, valueAccessorObjectQueryBuilder, new GraphQlDirective?[] { include, skip, customDirective });
+
+    public WithValueAccessorObjectQueryBuilder ExceptAccessors() => ExceptField("accessors");
+
+    public WithValueAccessorObjectQueryBuilder WithNestedAccessors(ValueAccessorObjectQueryBuilder valueAccessorObjectQueryBuilder, string? alias = "NestedAccessors", IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithObjectField("nestedAccessors", alias, valueAccessorObjectQueryBuilder, new GraphQlDirective?[] { include, skip, customDirective });
+
+    public WithValueAccessorObjectQueryBuilder ExceptNestedAccessors() => ExceptField("nestedAccessors");
+
+    public WithValueAccessorObjectQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder, IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null) => WithFragment(concreteType1QueryBuilder, new GraphQlDirective?[] { include, skip, customDirective });
 }
 
 public partial class ConcreteType1QueryBuilder : GraphQlQueryBuilder<ConcreteType1QueryBuilder>
@@ -892,8 +923,15 @@ public partial interface IWithValueAccessor
     IEnumerable<IEnumerable<IValueAccessor>>? NestedAccessors { get; set; }
 }
 
+public partial interface IWithValueAccessorObject : IWithValueAccessor
+{
+    new ValueAccessorObject? Accessor { get; set; }
+    new ICollection<ValueAccessorObject>? Accessors { get; set; }
+    new ICollection<ICollection<ValueAccessorObject>>? NestedAccessors { get; set; }
+}
+
 [GraphQlObjectType("ConcreteType1")]
-public partial class ConcreteType1 : IUnionType, IBaseType, INamedType, IOtherWithName, IWithValueAccessor, IWithOnlyDeprecatedFields
+public partial class ConcreteType1 : IUnionType, IBaseType, INamedType, IOtherWithName, IWithValueAccessorObject, IWithValueAccessor, IWithOnlyDeprecatedFields
 {
     public string? TypeName { get; set; }
     public string? Name { get; set; }

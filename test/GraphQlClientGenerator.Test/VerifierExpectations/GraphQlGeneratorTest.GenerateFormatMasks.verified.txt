@@ -1,4 +1,4 @@
-#region GraphQL type helpers
+﻿#region GraphQL type helpers
 public static class GraphQlTypes
 {
     public const string Boolean = "Boolean";

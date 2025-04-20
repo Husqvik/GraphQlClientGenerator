@@ -312,7 +312,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
     }
 
     [Fact]
-    public void GenerateFormatMasks()
+    public Task GenerateFormatMasks()
     {
         var configuration =
             new GraphQlGeneratorConfiguration
@@ -326,9 +326,8 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         var schema = DeserializeTestSchema("TestSchema3");
         generator.Generate(CreateGenerationContext(stringBuilder, schema));
 
-        var expectedDataClasses = GetTestResource("ExpectedSingleFileGenerationContext.FormatMasks");
         var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
-        generatedSourceCode.ShouldBe(expectedDataClasses);
+        return Verify(generatedSourceCode);
     }
 
     private class TestFormatMaskScalarFieldTypeMappingProvider : IScalarFieldTypeMappingProvider
@@ -402,7 +401,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
     }
 
     [Fact]
-    public void WithUnions()
+    public Task WithUnions()
     {
         var configuration =
             new GraphQlGeneratorConfiguration
@@ -423,13 +422,12 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
 
         generator.Generate(generationContext);
 
-        var expectedOutput = GetTestResource("ExpectedSingleFileGenerationContext.Unions");
-        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
-        generatedSourceCode.ShouldBe(expectedOutput);
-
         logMessages.Count.ShouldBe(2);
         logMessages[0].ShouldBe("WARNING: duplicate \"skip\" directive definition");
         logMessages[1].ShouldBe("WARNING: duplicate union \"UnionType\" possible type \"ConcreteType3\"");
+
+        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+        return Verify(generatedSourceCode);
     }
 
     [Fact]
