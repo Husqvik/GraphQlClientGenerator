@@ -1,4 +1,4 @@
-#region GraphQL type helpers
+﻿#region GraphQL type helpers
 public static class GraphQlTypes
 {
     public const string Boolean = "Boolean";
@@ -48,6 +48,14 @@ public static class GraphQlTypes
 #endregion
 
 #region enums
+/// <summary>
+/// Home
+/// aavatar
+/// types
+/// </summary>
+[Description(@"Home
+aavatar
+types")]
 public enum Avatar
 {
     [EnumMember(Value = "floorhouse1")] Floorhouse1,
@@ -56,7 +64,9 @@ public enum Avatar
     [EnumMember(Value = "castle")] Castle,
     [EnumMember(Value = "apartment")] Apartment,
     [EnumMember(Value = "cottage")] Cottage,
-    [EnumMember(Value = "rowhouse")] Rowhouse
+    [Obsolete(@"use 'rowhouse' instead")]
+    ROWHOUSE,
+    rowhouse
 }
 
 public enum PriceLevel
@@ -74,29 +84,60 @@ public enum Resolution
 #endregion
 
 #region data classes
-public partial class Query
+public class Query
 {
+    /// <summary>
+    /// Information
+    /// about
+    /// user
+    /// </summary>
+    [Description(@"Information
+about
+user")]
     public Me Me { get; set; }
 }
 
-public partial class Me
+/// <summary>
+/// Information
+/// about
+/// user
+/// </summary>
+[Description(@"Information
+about
+user")]
+public class Me
 {
     public Guid? Id { get; set; }
+    /// <summary>
+    /// customer's first name
+    /// </summary>
+    [Description(@"customer's first name")]
     public string FirstName { get; set; }
+    /// <summary>
+    /// customer's last name
+    /// </summary>
+    [Description(@"customer's last name")]
     public string LastName { get; set; }
+    /// <summary>
+    /// customer's full name
+    /// </summary>
+    [Description(@"customer's full name")]
+    [Obsolete(@"use 'firstName' and 'lastName' fields; escaping test: ""\{}")]
     public string FullName { get; set; }
     public string Ssn { get; set; }
     public string Email { get; set; }
     public string Language { get; set; }
+    [Obsolete]
     public string Tone { get; set; }
-    public ICollection<Avatar> Avatars { get; set; }
     public Home Home { get; set; }
     public ICollection<Home> Homes { get; set; }
     public Feed Feed { get; set; }
     public ICollection<object> EnergyStatements { get; set; }
+    [Obsolete(@"invalid circular reference")]
+    public Me NestedMe { get; set; }
 }
 
-public partial class Home
+public class Home
 {
     public Guid? Id { get; set; }
     public Avatar? Avatar { get; set; }
@@ -106,9 +147,6 @@ public partial class Home
     public Consumption Consumption { get; set; }
     public PreLiveComparison PreLiveComparison { get; set; }
     public ICollection<Comparison> Comparisons { get; set; }
-    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("comparison_current_month")]
-    #endif
     public Comparison ComparisonCurrentMonth { get; set; }
     public object Profile { get; set; }
     public object ProfileQuestions { get; set; }
@@ -118,10 +156,10 @@ public partial class Home
     public ICollection<Disaggregation> Disaggregation { get; set; }
     public ICollection<Device> Devices { get; set; }
     public Weather Weather { get; set; }
-    public VacationMode AwayMode { get; set; }
+    public AwayMode AwayMode { get; set; }
 }
 
-public partial class Subscription
+public class Subscription
 {
     public Guid? Id { get; set; }
     public DateTimeOffset? ValidFrom { get; set; }
@@ -132,14 +170,14 @@ public partial class Subscription
     public PriceRating PriceRating { get; set; }
 }
 
-public partial class PriceRating
+public class PriceRating
 {
     public decimal? MinPrice { get; set; }
     public decimal? MaxPrice { get; set; }
     public ICollection<PriceRatingEntry> Entries { get; set; }
 }
 
-public partial class PriceRatingEntry
+public class PriceRatingEntry
 {
     public string Time { get; set; }
     public decimal? Price { get; set; }
@@ -147,7 +185,7 @@ public partial class PriceRatingEntry
     public decimal? Difference { get; set; }
 }
 
-public partial class ConsumptionMonth
+public class ConsumptionMonth
 {
     public int? Year { get; set; }
     public int? Month { get; set; }
@@ -158,7 +196,7 @@ public partial class ConsumptionMonth
     public decimal? CostEstimate { get; set; }
 }
 
-public partial class Consumption
+public class Consumption
 {
     public object AnnualValues { get; set; }
     public object MonthlyValues { get; set; }
@@ -173,7 +211,7 @@ public partial class Consumption
     public string TimeZone { get; set; }
 }
 
-public partial class PreLiveComparison
+public class PreLiveComparison
 {
     public string HomeId { get; set; }
     public bool? BasedOnActuals { get; set; }
@@ -181,7 +219,7 @@ public partial class PreLiveComparison
     public ICollection<Comparison> PreviousYearMonths { get; set; }
 }
 
-public partial class Comparison
+public class Comparison
 {
     public int? Year { get; set; }
     public int? Month { get; set; }
@@ -193,20 +231,20 @@ public partial class Comparison
     public ComparisonData Efficient { get; set; }
 }
 
-public partial class ComparisonData
+public class ComparisonData
 {
     public decimal? Cost { get; set; }
     public decimal? Consumption { get; set; }
 }
 
-public partial class SignupStatus
+public class SignupStatus
 {
     public ProcessStep FeedStep { get; set; }
     public ProcessStep AvatarStep { get; set; }
     public ICollection<ProcessStep> Steps { get; set; }
 }
 
-public partial class ProcessStep
+public class ProcessStep
 {
     public DateTimeOffset? Timestamp { get; set; }
     public bool? IsComplete { get; set; }
@@ -214,7 +252,7 @@ public partial class ProcessStep
     public string Description { get; set; }
 }
 
-public partial class Disaggregation
+public class Disaggregation
 {
     public int? Year { get; set; }
     public int? Month { get; set; }
@@ -231,7 +269,7 @@ public partial class Disaggregation
     public bool? IsValid { get; set; }
 }
 
-public partial class Device
+public class Device
 {
     public string DeviceId { get; set; }
     public string Type { get; set; }
@@ -245,7 +283,7 @@ public partial class Device
     public object Properties { get; set; }
 }
 
-public partial class Weather
+public class Weather
 {
     public decimal? Temperature { get; set; }
     public DateTimeOffset? Timestamp { get; set; }
@@ -253,26 +291,26 @@ public partial class Weather
     public string Type { get; set; }
 }
 
-public partial class VacationMode
+public class AwayMode
 {
     public bool? IsSupported { get; set; }
     public AwayModeSettings Settings { get; set; }
 }
 
-public partial class AwayModeSettings
+public class AwayModeSettings
 {
     public DateTimeOffset? From { get; set; }
     public DateTimeOffset? To { get; set; }
 }
 
-public partial class Feed
+public class Feed
 {
     public int? NumberOfItems { get; set; }
     public ICollection<FeedItem> Items { get; set; }
     public ICollection<PushNotification> PushNotifications { get; set; }
 }
 
-public partial class FeedItem
+public class FeedItem
 {
     public int? Id { get; set; }
     public string MessageTypeId { get; set; }
@@ -282,7 +320,7 @@ public partial class FeedItem
     public DateTimeOffset? ModifiedAt { get; set; }
 }
 
-public partial class PushNotification
+public class PushNotification
 {
     public int? Id { get; set; }
     public string Link { get; set; }
