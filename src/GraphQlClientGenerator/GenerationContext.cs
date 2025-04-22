@@ -153,13 +153,13 @@ public abstract class GenerationContext
             if (useCompatibleVersion)
                 Writer.Write(" }");
 
-            Writer.Write(" }");
+            Writer.WriteLine(" }");
         }
         else
         {
             Writer.Write(" { get; ");
             Writer.Write(context.SetterAccessibility.ToSetterAccessibilityPrefix());
-            Writer.Write("set; }");
+            Writer.WriteLine("set; }");
         }
     }
 

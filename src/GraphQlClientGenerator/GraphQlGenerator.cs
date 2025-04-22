@@ -607,6 +607,8 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                     }
                     else
                         context.OnDataPropertyGeneration(propertyGenerationContext);
+
+                    writer.WriteLine();
                 },
                 context);
 
@@ -870,12 +872,10 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             if (useCompatibleSyntax)
                 writer.Write(" }");
 
-            writer.Write(" }");
+            writer.WriteLine(" }");
         }
         else
             writeBody(propertyTypeDescription, propertyGenerationContext);
-
-        writer.WriteLine();
 
         context.AfterDataPropertyGeneration(propertyGenerationContext);
     }
