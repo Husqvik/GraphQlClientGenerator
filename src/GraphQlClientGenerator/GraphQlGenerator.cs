@@ -455,7 +455,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
             ? $"_{graphQlFieldName}"
             : $"_{NamingHelper.LowerFirst(NamingHelper.ToPascalCase(graphQlFieldName))}";
 
-    private void GenerateDataClassBody(ObjectGenerationContext objectContext, IReadOnlyCollection<FieldGenerationInfo> fieldsToGenerate, GenerationContext context, bool isInterfaceMember)
+    private void GenerateDataClassBody(ObjectGenerationContext objectContext, IReadOnlyList<FieldGenerationInfo> fieldsToGenerate, GenerationContext context, bool isInterfaceMember)
     {
         var type = objectContext.GraphQlType;
         var writer = context.Writer;

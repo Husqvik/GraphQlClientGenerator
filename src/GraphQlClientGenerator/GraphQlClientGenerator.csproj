@@ -9,8 +9,8 @@
     <Title>GraphQL C# Client Generator</Title>
     <PackageTags>GraphQL Client Generator</PackageTags>
     <PackageReleaseNotes>
-      <![CDATA[
-      new generation option: InputObjectMode
+      <![CDATA[new generation option: InputObjectMode
+include "isOneOf" field in metadata if directive supported
       ]]>
     </PackageReleaseNotes>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
