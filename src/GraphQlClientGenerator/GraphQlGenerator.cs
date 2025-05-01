@@ -100,12 +100,18 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         HttpMethod method,
         string url,
         ICollection<KeyValuePair<string, string>> headers = null,
-        HttpMessageHandler messageHandler = null)
+        HttpMessageHandler messageHandler = null,
+        GraphQlWellKnownDirective? wellKnownDirectives = null)
     {
         using var httpClient = CreateHttpClient(messageHandler);
-        var schema = await QuerySchemaMetadata(httpClient, SetupHttpRequest(method, url, GraphQlIntrospection.QuerySupportedDirectives, headers));
-        var wellKnownDirectives = schema.Directives.Any(d => d.Name is "oneOf") ? GraphQlWellKnownDirective.OneOf : GraphQlWellKnownDirective.None;
-        using var request = SetupHttpRequest(method, url, GraphQlIntrospection.QuerySchemaMetadata(wellKnownDirectives), headers);
+
+        if (wellKnownDirectives is null)
+        {
+            var schema = await QuerySchemaMetadata(httpClient, SetupHttpRequest(method, url, GraphQlIntrospection.QuerySupportedDirectives, headers));
+            wellKnownDirectives = schema.Directives.Any(d => d.Name is "oneOf") ? GraphQlWellKnownDirective.OneOf : GraphQlWellKnownDirective.None;
+        }
+
+        using var request = SetupHttpRequest(method, url, GraphQlIntrospection.QuerySchemaMetadata(wellKnownDirectives.Value), headers);
         return await QuerySchemaMetadata(httpClient, request);
     }
 

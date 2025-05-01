@@ -41,12 +41,12 @@ var generatedClasses = generator.GenerateFullClientCSharpFile(schema);
 or using full blown setup:
 
 ```csharp
+var configuration = new GraphQlGeneratorConfiguration { TargetNamespace = "MyGqlApiClient", ... };
+var generator = new GraphQlGenerator(configuration);
 var schema = await GraphQlGenerator.RetrieveSchema(url);
 var builder = new StringBuilder();
 using var writer = new StringWriter(builder);
 var generationContext = new SingleFileGenerationContext(schema, writer) { LogMessage = Console.WriteLine };
-var configuration = new GraphQlGeneratorConfiguration { TargetNamespace = "MyGqlApiClient", ... };
-var generator = new GraphQlGenerator(configuration);
 generator.Generate(generationContext);
 var csharpCode = builder.ToString();
 ```

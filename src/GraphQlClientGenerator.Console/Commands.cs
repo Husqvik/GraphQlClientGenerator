@@ -76,7 +76,7 @@ internal static class Commands
                 new Option<InputObjectMode>("--inputObjectMode", () => InputObjectMode.Rich, "Specifies whether input objects are generated as POCOs or they have support of GraphQL parameter references and explicit null values"),
                 new Option<bool>("--includeDeprecatedFields", () => false, "Includes deprecated fields in generated query builders and data classes"),
                 new Option<bool>("--nullableReferences", () => false, "Enables nullable references"),
-                new Option<bool>("--fileScopedNamespaces", () => false, "Specifies whether file-scoped namespaces should be used in generated files (C# 10+)"),
+                new Option<bool>("--fileScopedNamespaces", () => false, "Specifies whether file-scoped namespaces should be used in generated files (C# 10 or later)"),
                 new Option<bool>("--ignoreServiceUrlCertificateErrors", () => false, "Ignores HTTPS errors when retrieving GraphQL metadata from an URL; typically when using self signed certificates"),
                 regexScalarFieldTypeMappingConfigurationOption
             };

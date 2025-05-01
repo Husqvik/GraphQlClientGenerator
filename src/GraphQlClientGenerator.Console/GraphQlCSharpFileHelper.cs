@@ -23,7 +23,7 @@ internal static class GraphQlCSharpFileHelper
             if (options.IgnoreServiceUrlCertificateErrors)
                 httpClientHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
 
-            schema = await GraphQlGenerator.RetrieveSchema(new HttpMethod(options.HttpMethod), options.ServiceUrl, headers, httpClientHandler);
+            schema = await GraphQlGenerator.RetrieveSchema(new HttpMethod(options.HttpMethod), options.ServiceUrl, headers, httpClientHandler, GraphQlWellKnownDirective.None);
             console.WriteLine($"GraphQL Schema retrieved from {options.ServiceUrl}. ");
         }
             

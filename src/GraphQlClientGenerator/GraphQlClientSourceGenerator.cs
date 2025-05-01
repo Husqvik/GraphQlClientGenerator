@@ -195,7 +195,11 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
                 if (ignoreServiceUrlCertificateErrors)
                     httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
 
-                var graphQlSchema = GraphQlGenerator.RetrieveSchema(new HttpMethod(httpMethod), serviceUrl, headers, httpClientHandler).GetAwaiter().GetResult();
+                var graphQlSchema =
+                    GraphQlGenerator.RetrieveSchema(new HttpMethod(httpMethod), serviceUrl, headers, httpClientHandler, GraphQlWellKnownDirective.None)
+                        .GetAwaiter()
+                        .GetResult();
+
                 graphQlSchemas.Add((FileNameGraphQlClientSource, graphQlSchema));
                 context.ReportDiagnostic(Diagnostic.Create(DescriptorInfo, Location.None, $"GraphQl schema fetched successfully from {serviceUrl}"));
             }
