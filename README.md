@@ -33,7 +33,7 @@ Code
 -------------
 Code example for class generation:
 ```csharp
-var schema = await GraphQlGenerator.RetrieveSchema(url);
+var schema = await GraphQlGenerator.RetrieveSchema("https://my-graphql-api/gql");
 var generator = new GraphQlGenerator();
 var generatedClasses = generator.GenerateFullClientCSharpFile(schema);
 ```
@@ -41,9 +41,9 @@ var generatedClasses = generator.GenerateFullClientCSharpFile(schema);
 or using full blown setup:
 
 ```csharp
+var schema = await GraphQlGenerator.RetrieveSchema("https://my-graphql-api/gql");
 var configuration = new GraphQlGeneratorConfiguration { TargetNamespace = "MyGqlApiClient", ... };
 var generator = new GraphQlGenerator(configuration);
-var schema = await GraphQlGenerator.RetrieveSchema(url);
 var builder = new StringBuilder();
 using var writer = new StringWriter(builder);
 var generationContext = new SingleFileGenerationContext(schema, writer) { LogMessage = Console.WriteLine };
@@ -56,7 +56,7 @@ C# 9 source generator
 C# 9 introduced source generators that can be attached to compilation process. Generated classes will be automatically included in project.
 
 Project file example:
-```xml
+```msbuild
 <PropertyGroup>
   <OutputType>Exe</OutputType>
   <TargetFramework>net9.0</TargetFramework>
