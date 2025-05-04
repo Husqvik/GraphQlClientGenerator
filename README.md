@@ -56,7 +56,7 @@ C# 9 source generator
 C# 9 introduced source generators that can be attached to compilation process. Generated classes will be automatically included in project.
 
 Project file example:
-```msbuild
+```xml
 <PropertyGroup>
   <OutputType>Exe</OutputType>
   <TargetFramework>net9.0</TargetFramework>
