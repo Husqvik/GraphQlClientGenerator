@@ -87,10 +87,10 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
 
             var configuration = new GraphQlGeneratorConfiguration { TargetNamespace = @namespace };
 
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("ClassPrefix"), out var classPrefix);
+            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(nameof(configuration.ClassPrefix)), out var classPrefix);
             configuration.ClassPrefix = classPrefix;
 
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("ClassSuffix"), out var classSuffix);
+            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(nameof(configuration.ClassSuffix)), out var classSuffix);
             configuration.ClassSuffix = classSuffix;
 
             if (compilation.LanguageVersion >= LanguageVersion.CSharp12)
@@ -98,10 +98,10 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
             else if (compilation.LanguageVersion >= LanguageVersion.CSharp6)
                 configuration.CSharpVersion = CSharpVersion.CSharp6;
 
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("IncludeDeprecatedFields"), out var includeDeprecatedFieldsRaw);
+            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(nameof(configuration.IncludeDeprecatedFields)), out var includeDeprecatedFieldsRaw);
             configuration.IncludeDeprecatedFields = Boolean.TryParse(includeDeprecatedFieldsRaw, out var includeDeprecatedFields) && includeDeprecatedFields;
 
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("EnableNullableReferences"), out var enableNullableReferencesRaw);
+            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(nameof(configuration.EnableNullableReferences)), out var enableNullableReferencesRaw);
             configuration.EnableNullableReferences = Boolean.TryParse(enableNullableReferencesRaw, out var enableNullableReferences) && enableNullableReferences;
 
             if (configuration.EnableNullableReferences && compilation.Options.NullableContextOptions is NullableContextOptions.Disable)
@@ -113,18 +113,18 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
             if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("HttpMethod"), out var httpMethod))
                 httpMethod = "POST";
 
-            SetConfigurationEnumValue(context, "CodeDocumentationType", CodeDocumentationType.XmlSummary, v => configuration.CodeDocumentationType = v);
-            SetConfigurationEnumValue(context, "FloatTypeMapping", FloatTypeMapping.Decimal, v => configuration.FloatTypeMapping = v);
-            SetConfigurationEnumValue(context, "BooleanTypeMapping", BooleanTypeMapping.Boolean, v => configuration.BooleanTypeMapping = v);
-            SetConfigurationEnumValue(context, "IdTypeMapping", IdTypeMapping.Guid, v => configuration.IdTypeMapping = v);
+            SetConfigurationEnumValue(context, nameof(CodeDocumentationType), CodeDocumentationType.XmlSummary, v => configuration.CodeDocumentationType = v);
+            SetConfigurationEnumValue(context, nameof(FloatTypeMapping), FloatTypeMapping.Decimal, v => configuration.FloatTypeMapping = v);
+            SetConfigurationEnumValue(context, nameof(BooleanTypeMapping), BooleanTypeMapping.Boolean, v => configuration.BooleanTypeMapping = v);
+            SetConfigurationEnumValue(context, nameof(IdTypeMapping), IdTypeMapping.Guid, v => configuration.IdTypeMapping = v);
             SetConfigurationEnumValue(context, "JsonPropertyGeneration", JsonPropertyGenerationOption.CaseInsensitive, v => configuration.JsonPropertyGeneration = v);
             SetConfigurationEnumValue(context, "EnumValueNaming", EnumValueNamingOption.CSharp, v => configuration.EnumValueNaming = v);
-            SetConfigurationEnumValue(context, "DataClassMemberNullability", DataClassMemberNullability.AlwaysNullable, v => configuration.DataClassMemberNullability = v);
-            SetConfigurationEnumValue(context, "GenerationOrder", GenerationOrder.DefinedBySchema, v => configuration.GenerationOrder = v);
-            SetConfigurationEnumValue(context, "InputObjectMode", InputObjectMode.Rich, v => configuration.InputObjectMode = v);
+            SetConfigurationEnumValue(context, nameof(DataClassMemberNullability), DataClassMemberNullability.AlwaysNullable, v => configuration.DataClassMemberNullability = v);
+            SetConfigurationEnumValue(context, nameof(GenerationOrder), GenerationOrder.DefinedBySchema, v => configuration.GenerationOrder = v);
+            SetConfigurationEnumValue(context, nameof(InputObjectMode), InputObjectMode.Rich, v => configuration.InputObjectMode = v);
 
             var outputType = OutputType.SingleFile;
-            SetConfigurationEnumValue(context, "OutputType", OutputType.SingleFile, v => outputType = v);
+            SetConfigurationEnumValue(context, nameof(OutputType), OutputType.SingleFile, v => outputType = v);
 
             context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("CustomClassMapping"), out var customClassMappingRaw);
             if (!KeyValueParameterParser.TryGetCustomClassMapping(
@@ -204,14 +204,14 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
                 context.ReportDiagnostic(Diagnostic.Create(DescriptorInfo, Location.None, $"GraphQl schema fetched successfully from {serviceUrl}"));
             }
 
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("FileScopedNamespaces"), out var fileScopedNamespacesRaw);
+            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(nameof(configuration.FileScopedNamespaces)), out var fileScopedNamespacesRaw);
             configuration.FileScopedNamespaces = !String.IsNullOrWhiteSpace(fileScopedNamespacesRaw) && Convert.ToBoolean(fileScopedNamespacesRaw);
 
             var generator = new GraphQlGenerator(configuration);
 
             foreach (var (targetFileName, schema) in graphQlSchemas)
             {
-                if (outputType == OutputType.SingleFile)
+                if (outputType is OutputType.SingleFile)
                 {
                     var builder = new StringBuilder();
                     using (var writer = new StringWriter(builder))
