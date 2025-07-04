@@ -82,9 +82,9 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         return request;
     }
 
-    private static async Task<GraphQlSchema> QuerySchemaMetadata(HttpClient httpClient, HttpRequestMessage request)
+    private static async Task<GraphQlSchema> QuerySchemaMetadata(HttpClient httpClient, HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        using var response = await httpClient.SendAsync(request);
+        using var response = await httpClient.SendAsync(request, cancellationToken);
         var content =
             response.Content is null
                 ? "(no content)"
@@ -101,18 +101,19 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         string url,
         ICollection<KeyValuePair<string, string>> headers = null,
         HttpMessageHandler messageHandler = null,
-        GraphQlWellKnownDirective? wellKnownDirectives = null)
+        GraphQlWellKnownDirective? wellKnownDirectives = null,
+        CancellationToken cancellationToken = default)
     {
         using var httpClient = CreateHttpClient(messageHandler);
 
         if (wellKnownDirectives is null)
         {
-            var schema = await QuerySchemaMetadata(httpClient, SetupHttpRequest(method, url, GraphQlIntrospection.QuerySupportedDirectives, headers));
+            var schema = await QuerySchemaMetadata(httpClient, SetupHttpRequest(method, url, GraphQlIntrospection.QuerySupportedDirectives, headers), cancellationToken);
             wellKnownDirectives = schema.Directives.Any(d => d.Name is "oneOf") ? GraphQlWellKnownDirective.OneOf : GraphQlWellKnownDirective.None;
         }
 
         using var request = SetupHttpRequest(method, url, GraphQlIntrospection.QuerySchemaMetadata(wellKnownDirectives.Value), headers);
-        return await QuerySchemaMetadata(httpClient, request);
+        return await QuerySchemaMetadata(httpClient, request, cancellationToken);
     }
 
     public static GraphQlSchema DeserializeGraphQlSchema(string content)

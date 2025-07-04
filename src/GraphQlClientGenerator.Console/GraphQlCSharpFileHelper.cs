@@ -4,14 +4,16 @@ namespace GraphQlClientGenerator.Console;
 
 internal static class GraphQlCSharpFileHelper
 {
-    public static async Task GenerateClientSourceCode(IConsole console, ProgramOptions options)
+    public static async Task GenerateClientSourceCode(CommandLineConfiguration commandLineConfiguration, ProgramOptions options, CancellationToken cancellationToken)
     {
+        var output = commandLineConfiguration.Output;
+
         GraphQlSchema schema;
 
         if (String.IsNullOrWhiteSpace(options.ServiceUrl))
         {
-            var schemaJson = await File.ReadAllTextAsync(options.SchemaFileName);
-            console.WriteLine($"GraphQL schema file {options.SchemaFileName} loaded ({schemaJson.Length:N0} B). ");
+            var schemaJson = await File.ReadAllTextAsync(options.SchemaFileName, cancellationToken);
+            await output.WriteLineAsync($"GraphQL schema file {options.SchemaFileName} loaded ({schemaJson.Length:N0} B). ");
             schema = GraphQlGenerator.DeserializeGraphQlSchema(schemaJson);
         }
         else
@@ -23,8 +25,16 @@ internal static class GraphQlCSharpFileHelper
             if (options.IgnoreServiceUrlCertificateErrors)
                 httpClientHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
 
-            schema = await GraphQlGenerator.RetrieveSchema(new HttpMethod(options.HttpMethod), options.ServiceUrl, headers, httpClientHandler, GraphQlWellKnownDirective.None);
-            console.WriteLine($"GraphQL Schema retrieved from {options.ServiceUrl}. ");
+            schema =
+                await GraphQlGenerator.RetrieveSchema(
+                    new HttpMethod(options.HttpMethod),
+                    options.ServiceUrl,
+                    headers,
+                    httpClientHandler,
+                    GraphQlWellKnownDirective.None,
+                    cancellationToken);
+
+            await output.WriteLineAsync($"GraphQL Schema retrieved from {options.ServiceUrl}. ");
         }
             
         var generatorConfiguration =
@@ -61,17 +71,17 @@ internal static class GraphQlCSharpFileHelper
         {
             generatorConfiguration.ScalarFieldTypeMappingProvider =
                 new RegexScalarFieldTypeMappingProvider(
-                    RegexScalarFieldTypeMappingProvider.ParseRulesFromJson(await File.ReadAllTextAsync(options.RegexScalarFieldTypeMappingConfigurationFile)));
+                    RegexScalarFieldTypeMappingProvider.ParseRulesFromJson(await File.ReadAllTextAsync(options.RegexScalarFieldTypeMappingConfigurationFile, cancellationToken)));
 
-            console.WriteLine($"Scalar field type mapping configuration file {options.RegexScalarFieldTypeMappingConfigurationFile} loaded. ");
+            await output.WriteLineAsync($"Scalar field type mapping configuration file {options.RegexScalarFieldTypeMappingConfigurationFile} loaded. ");
         }
 
         var generator = new GraphQlGenerator(generatorConfiguration);
 
         if (options.OutputType is OutputType.SingleFile)
         {
-            await File.WriteAllTextAsync(options.OutputPath, generator.GenerateFullClientCSharpFile(schema, console.WriteLine));
-            console.WriteLine($"File {options.OutputPath} generated successfully ({new FileInfo(options.OutputPath).Length:N0} B). ");
+            await File.WriteAllTextAsync(options.OutputPath, generator.GenerateFullClientCSharpFile(schema, output.WriteLine), cancellationToken);
+            await output.WriteLineAsync($"File {options.OutputPath} generated successfully ({new FileInfo(options.OutputPath).Length:N0} B). ");
         }
         else
         {
@@ -84,7 +94,7 @@ internal static class GraphQlCSharpFileHelper
             var multipleFileGenerationContext =
                 new MultipleFileGenerationContext(schema, codeFileEmitter, projectFileInfo?.Name)
                 {
-                    LogMessage = console.WriteLine
+                    LogMessage = output.WriteLine
                 };
 
             generator.Generate(multipleFileGenerationContext);
