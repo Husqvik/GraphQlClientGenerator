@@ -1,5 +1,4 @@
 ﻿using System.CommandLine;
-using System.CommandLine.Completions;
 using System.CommandLine.NamingConventionBinder;
 using System.CommandLine.Parsing;
 
@@ -17,8 +16,7 @@ internal static class Commands
         var regexScalarFieldTypeMappingConfigurationOption =
             new Option<string>("--regexScalarFieldTypeMappingConfigurationFile")
             {
-                Description = $"File name specifying rules for \"{nameof(RegexScalarFieldTypeMappingProvider)}\"",
-                CompletionSources = { _ => [new CompletionItem("RegexScalarFieldTypeMappingProvider.gql.config.json")] }
+                Description = $"File name specifying rules for \"{nameof(RegexScalarFieldTypeMappingProvider)}\""
             };
 
         var command =
@@ -49,7 +47,10 @@ internal static class Commands
                         Description = "Format: {Header}:{Value}; allows to enter custom headers required to fetch GraphQL metadata",
                         Validators =
                         {
-                            r => r.AddErrorIfTrue(!KeyValueParameterParser.TryGetCustomHeaders(r.Tokens.Select(t => t.Value), out _, out var errorMessage), errorMessage)
+                            r => r.AddErrorIfSpecified(
+                                !KeyValueParameterParser.TryGetCustomHeaders(r.Tokens.Select(t => t.Value), out _, out var errorMessage)
+                                    ? errorMessage
+                                    : null)
                         }
                     },
                     new Option<string>("--classPrefix")
@@ -59,6 +60,17 @@ internal static class Commands
                     new Option<string>("--classSuffix")
                     {
                         Description = "Class suffix, for instance for version control; value \"V2\" extends class name to \"TypeNameV2\""
+                    },
+                    new Option<string[]>("--classMapping")
+                    {
+                        Description = "Format: {GraphQlTypeName}:{C#ClassName}; allows to define custom class names for specific GraphQL types",
+                        Validators =
+                        {
+                            r => r.AddErrorIfSpecified(
+                                !KeyValueParameterParser.TryGetCustomClassMapping(r.Tokens.Select(t => t.Value), out _, out var errorMessage)
+                                    ? errorMessage
+                                    : null)
+                        }
                     },
                     new Option<CSharpVersion>("--csharpVersion")
                     {
@@ -84,14 +96,6 @@ internal static class Commands
                     {
                         Description = "Mark classes as \"partial\"",
                         DefaultValueFactory = _ => false
-                    },
-                    new Option<string[]>("--classMapping")
-                    {
-                        Description = "Format: {GraphQlTypeName}:{C#ClassName}; allows to define custom class names for specific GraphQL types",
-                        Validators =
-                        {
-                            r => r.AddErrorIfTrue(!KeyValueParameterParser.TryGetCustomClassMapping(r.Tokens.Select(t => t.Value), out _, out var errorMessage), errorMessage)
-                        }
                     },
                     new Option<BooleanTypeMapping>("--booleanTypeMapping")
                     {
@@ -163,13 +167,13 @@ internal static class Commands
                 Validators =
                 {
                     r =>
-                        r.AddErrorIfTrue(
-                            r.GetResult(serviceUrlOption) is not null && r.GetResult(schemaFileOption) is not null,
-                            "\"serviceUrl\" and \"schemaFileName\" parameters are mutually exclusive. "),
-                    r =>
-                        r.AddErrorIfTrue(
-                            r.GetResult(serviceUrlOption) is null && r.GetResult(schemaFileOption) is null,
-                            "Either \"serviceUrl\" or \"schemaFileName\" parameter must be specified. "),
+                        r.AddErrorIfSpecified(
+                            (ServiceUrl: r.GetResult(serviceUrlOption), SchemaFile: r.GetResult(schemaFileOption)) switch
+                            {
+                                { ServiceUrl: not null, SchemaFile: not null } => "\"serviceUrl\" and \"schemaFileName\" parameters are mutually exclusive. ",
+                                { ServiceUrl: null, SchemaFile: null } => "Either \"serviceUrl\" or \"schemaFileName\" parameter must be specified. ",
+                                _ => null
+                            }),
                     r =>
                     {
                         var regexScalarFieldTypeMappingConfigurationFileName = r.GetValue(regexScalarFieldTypeMappingConfigurationOption);
@@ -199,9 +203,9 @@ internal static class Commands
         return command;
     }
 
-    private static void AddErrorIfTrue(this SymbolResult result, bool predicate, string errorMessage)
+    private static void AddErrorIfSpecified(this SymbolResult result, string errorMessage)
     {
-        if (predicate)
+        if (!String.IsNullOrEmpty(errorMessage))
             result.AddError(errorMessage);
     }
 }
