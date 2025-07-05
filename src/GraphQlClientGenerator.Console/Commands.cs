@@ -1,6 +1,7 @@
 ﻿using System.CommandLine;
 using System.CommandLine.Completions;
 using System.CommandLine.NamingConventionBinder;
+using System.CommandLine.Parsing;
 
 namespace GraphQlClientGenerator.Console;
 
@@ -20,7 +21,7 @@ internal static class Commands
                 CompletionSources = { _ => [new CompletionItem("RegexScalarFieldTypeMappingProvider.gql.config.json")] }
             };
 
-        return
+        var command =
             new RootCommand("A tool for generating C# GraphQL query builders and data classes")
             {
                 TreatUnmatchedTokensAsErrors = true,
@@ -48,11 +49,7 @@ internal static class Commands
                         Description = "Format: {Header}:{Value}; allows to enter custom headers required to fetch GraphQL metadata",
                         Validators =
                         {
-                            result =>
-                            {
-                                if (!KeyValueParameterParser.TryGetCustomHeaders(result.Tokens.Select(t => t.Value), out _, out var errorMessage))
-                                    result.AddError(errorMessage);
-                            }
+                            r => r.AddErrorIfTrue(!KeyValueParameterParser.TryGetCustomHeaders(r.Tokens.Select(t => t.Value), out _, out var errorMessage), errorMessage)
                         }
                     },
                     new Option<string>("--classPrefix")
@@ -93,11 +90,7 @@ internal static class Commands
                         Description = "Format: {GraphQlTypeName}:{C#ClassName}; allows to define custom class names for specific GraphQL types",
                         Validators =
                         {
-                            result =>
-                            {
-                                if (!KeyValueParameterParser.TryGetCustomClassMapping(result.Tokens.Select(t => t.Value), out _, out var errorMessage))
-                                    result.AddError(errorMessage);
-                            }
+                            r => r.AddErrorIfTrue(!KeyValueParameterParser.TryGetCustomClassMapping(r.Tokens.Select(t => t.Value), out _, out var errorMessage), errorMessage)
                         }
                     },
                     new Option<BooleanTypeMapping>("--booleanTypeMapping")
@@ -169,20 +162,18 @@ internal static class Commands
                 },
                 Validators =
                 {
-                    result =>
+                    r =>
+                        r.AddErrorIfTrue(
+                            r.GetResult(serviceUrlOption) is not null && r.GetResult(schemaFileOption) is not null,
+                            "\"serviceUrl\" and \"schemaFileName\" parameters are mutually exclusive. "),
+                    r =>
+                        r.AddErrorIfTrue(
+                            r.GetResult(serviceUrlOption) is null && r.GetResult(schemaFileOption) is null,
+                            "Either \"serviceUrl\" or \"schemaFileName\" parameter must be specified. "),
+                    r =>
                     {
-                        if (result.GetResult(serviceUrlOption) is not null && result.GetResult(schemaFileOption) is not null)
-                            result.AddError("\"serviceUrl\" and \"schemaFileName\" parameters are mutually exclusive. ");
-                    },
-                    result =>
-                    {
-                        if (result.GetResult(serviceUrlOption) is null && result.GetResult(schemaFileOption) is null)
-                            result.AddError("Either \"serviceUrl\" or \"schemaFileName\" parameter must be specified. ");
-                    },
-                    result =>
-                    {
-                        var regexScalarFieldTypeMappingConfigurationFileName = result.GetValue(regexScalarFieldTypeMappingConfigurationOption);
-                        if (regexScalarFieldTypeMappingConfigurationFileName is null)
+                        var regexScalarFieldTypeMappingConfigurationFileName = r.GetValue(regexScalarFieldTypeMappingConfigurationOption);
+                        if (String.IsNullOrEmpty(regexScalarFieldTypeMappingConfigurationFileName))
                             return;
 
                         try
@@ -191,16 +182,26 @@ internal static class Commands
                         }
                         catch (Exception exception)
                         {
-                            result.AddError(exception.Message);
+                            r.AddError(exception.Message);
                         }
                     }
-                },
-                Action =
-                    CommandHandler.Create(async (ParseResult result, ProgramOptions options, CancellationToken cancellationToken) =>
-                    {
-                        await GraphQlCSharpFileHelper.GenerateClientSourceCode(result.Configuration, options, cancellationToken);
-                        return 0;
-                    })
+                }
             };
+
+        command.SetAction(async (result, cancellationToken) =>
+        {
+            var bindingContext = CommandHandler.Create<ProgramOptions>(delegate { }).GetBindingContext(result);
+            var options = (ProgramOptions)new ModelBinder<ProgramOptions>().CreateInstance(bindingContext);
+            await GraphQlCSharpFileHelper.GenerateClientSourceCode(result.Configuration, options, cancellationToken);
+            return 0;
+        });
+
+        return command;
+    }
+
+    private static void AddErrorIfTrue(this SymbolResult result, bool predicate, string errorMessage)
+    {
+        if (predicate)
+            result.AddError(errorMessage);
     }
 }
