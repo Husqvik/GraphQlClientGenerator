@@ -31,7 +31,7 @@ public static class KeyValueParameterParser
 
     private static bool TryGetColonSplitKeyValuePairs(IEnumerable<string> sourceParameters, out ICollection<KeyValuePair<string, string>> keyValuePairs)
     {
-        keyValuePairs = new List<KeyValuePair<string, string>>();
+        keyValuePairs = [];
 
         foreach (var parameter in sourceParameters ?? [])
         {

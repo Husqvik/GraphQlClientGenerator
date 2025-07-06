@@ -40,18 +40,12 @@ internal static class Commands
                     new Option<string>("--httpMethod")
                     {
                         Description = "GraphQL schema metadata retrieval HTTP method",
-                        DefaultValueFactory = _ => "POST",
+                        DefaultValueFactory = _ => HttpMethod.Post.Method
                     },
                     new Option<string[]>("--header")
                     {
                         Description = "Format: {Header}:{Value}; allows to enter custom headers required to fetch GraphQL metadata",
-                        Validators =
-                        {
-                            r => r.AddErrorIfSpecified(
-                                !KeyValueParameterParser.TryGetCustomHeaders(r.Tokens.Select(t => t.Value), out _, out var errorMessage)
-                                    ? errorMessage
-                                    : null)
-                        }
+                        Validators = { result => result.AddKeyValueErrorIfFound(KeyValueParameterParser.TryGetCustomHeaders) }
                     },
                     new Option<string>("--classPrefix")
                     {
@@ -64,13 +58,7 @@ internal static class Commands
                     new Option<string[]>("--classMapping")
                     {
                         Description = "Format: {GraphQlTypeName}:{C#ClassName}; allows to define custom class names for specific GraphQL types",
-                        Validators =
-                        {
-                            r => r.AddErrorIfSpecified(
-                                !KeyValueParameterParser.TryGetCustomClassMapping(r.Tokens.Select(t => t.Value), out _, out var errorMessage)
-                                    ? errorMessage
-                                    : null)
-                        }
+                        Validators = { result => result.AddKeyValueErrorIfFound(KeyValueParameterParser.TryGetCustomClassMapping) }
                     },
                     new Option<CSharpVersion>("--csharpVersion")
                     {
@@ -166,17 +154,22 @@ internal static class Commands
                 },
                 Validators =
                 {
-                    r =>
-                        r.AddErrorIfSpecified(
-                            (ServiceUrl: r.GetResult(serviceUrlOption), SchemaFile: r.GetResult(schemaFileOption)) switch
+                    result =>
+                    {
+                        var errorMessage =
+                            (ServiceUrl: result.GetResult(serviceUrlOption), SchemaFile: result.GetResult(schemaFileOption)) switch
                             {
                                 { ServiceUrl: not null, SchemaFile: not null } => "\"serviceUrl\" and \"schemaFileName\" parameters are mutually exclusive. ",
                                 { ServiceUrl: null, SchemaFile: null } => "Either \"serviceUrl\" or \"schemaFileName\" parameter must be specified. ",
                                 _ => null
-                            }),
-                    r =>
+                            };
+
+                        if (errorMessage is not null)
+                            result.AddError(errorMessage);
+                    },
+                    result =>
                     {
-                        var regexScalarFieldTypeMappingConfigurationFileName = r.GetValue(regexScalarFieldTypeMappingConfigurationOption);
+                        var regexScalarFieldTypeMappingConfigurationFileName = result.GetValue(regexScalarFieldTypeMappingConfigurationOption);
                         if (String.IsNullOrEmpty(regexScalarFieldTypeMappingConfigurationFileName))
                             return;
 
@@ -186,7 +179,7 @@ internal static class Commands
                         }
                         catch (Exception exception)
                         {
-                            r.AddError(exception.Message);
+                            result.AddError(exception.Message);
                         }
                     }
                 }
@@ -203,9 +196,11 @@ internal static class Commands
         return command;
     }
 
-    private static void AddErrorIfSpecified(this SymbolResult result, string errorMessage)
+    private static void AddKeyValueErrorIfFound(this OptionResult result, TryGetKeyValuePairs tryGetKeyValuePairs)
     {
-        if (!String.IsNullOrEmpty(errorMessage))
+        if (!tryGetKeyValuePairs(result.Tokens.Select(t => t.Value), out _, out var errorMessage))
             result.AddError(errorMessage);
     }
+
+    private delegate bool TryGetKeyValuePairs(IEnumerable<string> sourceParameters, out ICollection<KeyValuePair<string, string>> headers, out string errorMessage);
 }
