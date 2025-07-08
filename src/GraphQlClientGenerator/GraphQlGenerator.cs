@@ -116,19 +116,19 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         return await QuerySchemaMetadata(httpClient, request, cancellationToken);
     }
 
-    public static GraphQlSchema DeserializeGraphQlSchema(string content)
+    public static GraphQlSchema DeserializeGraphQlSchema(string contentJson)
     {
         try
         {
             var schema =
-                JsonConvert.DeserializeObject<GraphQlResult>(content, SerializerSettings)?.Data?.Schema
-                ?? JsonConvert.DeserializeObject<GraphQlData>(content, SerializerSettings)?.Schema;
+                JsonConvert.DeserializeObject<GraphQlResult>(contentJson, SerializerSettings)?.Data?.Schema
+                ?? JsonConvert.DeserializeObject<GraphQlData>(contentJson, SerializerSettings)?.Schema;
 
-            return schema ?? throw new ArgumentException(NotGraphQlSchemaMessage(content));
+            return schema ?? throw new ArgumentException(NotGraphQlSchemaMessage(contentJson));
         }
         catch (JsonReaderException exception)
         {
-            throw new ArgumentException(NotGraphQlSchemaMessage(content), exception);
+            throw new ArgumentException(NotGraphQlSchemaMessage(contentJson), exception);
         }
     }
 

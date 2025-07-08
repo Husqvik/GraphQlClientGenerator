@@ -202,5 +202,5 @@ internal static class Commands
             result.AddError(errorMessage);
     }
 
-    private delegate bool TryGetKeyValuePairs(IEnumerable<string> sourceParameters, out ICollection<KeyValuePair<string, string>> headers, out string errorMessage);
+    private delegate bool TryGetKeyValuePairs(IEnumerable<string> sources, out ICollection<KeyValuePair<string, string>> keyValuePairs, out string errorMessage);
 }

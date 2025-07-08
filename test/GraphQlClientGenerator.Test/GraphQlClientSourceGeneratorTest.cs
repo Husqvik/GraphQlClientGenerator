@@ -121,7 +121,11 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
             additionalFiles.Add(additionalFile);
 
         var sourceGenerator = new GraphQlClientSourceGenerator();
-        var driver = CSharpGeneratorDriver.Create([sourceGenerator], additionalFiles, optionsProvider: compilerAnalyzerConfigOptionsProvider);
+        var driver =
+            CSharpGeneratorDriver.Create(sourceGenerator)
+                .WithUpdatedAnalyzerConfigOptions(compilerAnalyzerConfigOptionsProvider)
+                .AddAdditionalTexts([.. additionalFiles]);
+
         var csharpDriver = driver.RunGenerators(compilation);
         var runResult = csharpDriver.GetRunResult();
         runResult.Results.Length.ShouldBe(1);

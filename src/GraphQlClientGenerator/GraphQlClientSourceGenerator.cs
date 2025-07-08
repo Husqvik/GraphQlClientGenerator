@@ -1,13 +1,14 @@
-﻿using System.Text;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Text;
 
 namespace GraphQlClientGenerator;
 
 [Generator]
-public class GraphQlClientSourceGenerator : ISourceGenerator
+public class GraphQlClientSourceGenerator : IIncrementalGenerator
 {
     private const string ApplicationCode = "GRAPHQLGEN";
     private const string FileNameGraphQlClientSource = "GraphQlClient.cs";
@@ -16,231 +17,302 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
 
     private static readonly DiagnosticDescriptor DescriptorParameterError = CreateDiagnosticDescriptor(DiagnosticSeverity.Error, 1000);
     private static readonly DiagnosticDescriptor DescriptorGenerationError = CreateDiagnosticDescriptor(DiagnosticSeverity.Error, 1001);
+    private static readonly DiagnosticDescriptor DescriptorWarning = CreateDiagnosticDescriptor(DiagnosticSeverity.Warning, 2000);
     private static readonly DiagnosticDescriptor DescriptorInfo = CreateDiagnosticDescriptor(DiagnosticSeverity.Info, 3000);
 
-    public void Initialize(GeneratorInitializationContext context)
+    public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        var globalOptionsProvider = context.AnalyzerConfigOptionsProvider.Select((op, _) => op.GlobalOptions);
+        var schemaFilesProvider =
+            context.AdditionalTextsProvider
+                .Where(at => at.Path.EndsWith(".gql.schema.json", StringComparison.OrdinalIgnoreCase))
+                .Collect();
+
+        var regexConfigFileProvider =
+            context.AdditionalTextsProvider
+                .Where(at => Path.GetFileName(at.Path).Equals(FileNameRegexScalarFieldTypeMappingProviderConfiguration, StringComparison.OrdinalIgnoreCase))
+                .Collect();
+
+        var sourceState =
+            globalOptionsProvider
+                .Combine(schemaFilesProvider)
+                .Combine(regexConfigFileProvider)
+                .Combine(context.CompilationProvider)
+                .Select((data, _) =>
+                {
+                    var (((options, schemaFiles), regexScalarFieldTypeMappingProviderFiles), compilation) = data;
+                    var diagnostics = new List<Diagnostic>();
+                    var setup = ResolveGenerationSetup(options, schemaFiles, diagnostics.Add);
+                    var configuration = ResolveGeneratorConfiguration(options, compilation, regexScalarFieldTypeMappingProviderFiles.FirstOrDefault(), diagnostics.Add);
+                    return (setup, configuration, diagnostics);
+                });
+
+        context.RegisterSourceOutput(
+            sourceState,
+            (sourceProductionContext, state) =>
+            {
+                try
+                {
+                    var (setup, configuration, diagnostics) = state;
+
+                    foreach (var diagnostic in diagnostics)
+                        sourceProductionContext.ReportDiagnostic(diagnostic);
+
+                    if (setup is null || configuration is null)
+                        return;
+
+                    ExecuteGeneration(setup, configuration, sourceProductionContext.AddSource, sourceProductionContext.ReportDiagnostic);
+                }
+                catch (Exception exception)
+                {
+                    sourceProductionContext.ReportDiagnostic(Diagnostic.Create(DescriptorGenerationError, Location.None, exception.ToString()));
+                }
+            });
     }
 
-    public void Execute(GeneratorExecutionContext context)
+    private static GenerationSetup ResolveGenerationSetup(AnalyzerConfigOptions globalOptions, IReadOnlyCollection<AdditionalText> graphQlSchemaFiles, Action<Diagnostic> reportDiagnostic)
     {
-        if (context.Compilation is not CSharpCompilation compilation)
+        globalOptions.TryGetValue(BuildPropertyKey("ServiceUrl"), out var serviceUrl);
+        var isServiceUrlMissing = String.IsNullOrWhiteSpace(serviceUrl);
+
+        var isSchemaFileSpecified = graphQlSchemaFiles.Count > 0;
+        if (isServiceUrlMissing && !isSchemaFileSpecified)
         {
-            context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, $"incompatible language: {context.Compilation.Language}"));
-            return;
+            reportDiagnostic(
+                Diagnostic.Create(
+                    DescriptorInfo,
+                    Location.None,
+                    "Neither \"GraphQlClientGenerator_ServiceUrl\" parameter nor GraphQL JSON schema additional file specified; terminating. "));
+
+            return null;
         }
 
-        try
+        if (!isServiceUrlMissing && isSchemaFileSpecified)
         {
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("ServiceUrl"), out var serviceUrl);
-            var isServiceUrlMissing = String.IsNullOrWhiteSpace(serviceUrl);
-            var graphQlSchemaFiles = context.AdditionalFiles.Where(f => Path.GetFileName(f.Path).EndsWith(".gql.schema.json", StringComparison.OrdinalIgnoreCase)).ToList();
-            var regexScalarFieldTypeMappingProviderConfigurationJson =
-                context.AdditionalFiles
-                    .SingleOrDefault(f => String.Equals(Path.GetFileName(f.Path), FileNameRegexScalarFieldTypeMappingProviderConfiguration, StringComparison.OrdinalIgnoreCase))
-                    ?.GetText()
-                    ?.ToString();
+            reportDiagnostic(
+                Diagnostic.Create(
+                    DescriptorParameterError,
+                    Location.None,
+                    "\"GraphQlClientGenerator_ServiceUrl\" parameter and GraphQL JSON schema additional file are mutually exclusive. "));
 
-            var regexScalarFieldTypeMappingProviderRules =
-                regexScalarFieldTypeMappingProviderConfigurationJson is not null
-                    ? RegexScalarFieldTypeMappingProvider.ParseRulesFromJson(regexScalarFieldTypeMappingProviderConfigurationJson)
-                    : null;
+            return null;
+        }
 
-            var isSchemaFileSpecified = graphQlSchemaFiles.Any();
-            if (isServiceUrlMissing && !isSchemaFileSpecified)
+        if (!globalOptions.TryGetValue(BuildPropertyKey("HttpMethod"), out var httpMethod))
+            httpMethod = HttpMethod.Post.Method;
+
+        globalOptions.TryGetValue(BuildPropertyKey("Headers"), out var headersRaw);
+        if (!KeyValueParameterParser.TryGetCustomHeaders(
+                headersRaw?.Split(['|'], StringSplitOptions.RemoveEmptyEntries),
+                out var headers,
+                out var headerParsingErrorMessage))
+        {
+            reportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, headerParsingErrorMessage));
+            return null;
+        }
+
+        var outputType = OutputType.SingleFile;
+        SetConfigurationEnumValue(globalOptions, nameof(OutputType), OutputType.SingleFile, v => outputType = v);
+
+        var ignoreServiceUrlCertificateErrors =
+            globalOptions.TryGetValue(BuildPropertyKey("IgnoreServiceUrlCertificateErrors"), out var ignoreServiceUrlCertificateErrorsRaw) &&
+            !String.IsNullOrWhiteSpace(ignoreServiceUrlCertificateErrorsRaw) && Convert.ToBoolean(ignoreServiceUrlCertificateErrorsRaw);
+
+        return
+            new GenerationSetup
             {
-                context.ReportDiagnostic(
-                    Diagnostic.Create(
-                        DescriptorInfo,
-                        Location.None,
-                        "Neither \"GraphQlClientGenerator_ServiceUrl\" parameter nor GraphQL JSON schema additional file specified; terminating. "));
+                HttpMethod = httpMethod,
+                OutputType = outputType,
+                ServiceUrl = serviceUrl,
+                HttpHeaders = headers,
+                IgnoreServiceUrlCertificateErrors = ignoreServiceUrlCertificateErrors,
+                SchemaFiles = graphQlSchemaFiles
+            };
+    }
 
-                return;
+    private static GraphQlGeneratorConfiguration ResolveGeneratorConfiguration(
+        AnalyzerConfigOptions globalOptions,
+        Compilation compilation,
+        AdditionalText regexScalarFieldTypeMappingProviderConfigurationFile,
+        Action<Diagnostic> reportDiagnostic)
+    {
+        if (compilation is not CSharpCompilation cSharpCompilation)
+        {
+            reportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, $"incompatible language: {compilation.Language}"));
+            return null;
+        }
+
+        globalOptions.TryGetValue(BuildPropertyKey("Namespace"), out var @namespace);
+        if (String.IsNullOrWhiteSpace(@namespace))
+        {
+            var root = (CompilationUnitSyntax)cSharpCompilation.SyntaxTrees.FirstOrDefault()?.GetRoot();
+            var namespaceIdentifier = (IdentifierNameSyntax)root?.Members.OfType<NamespaceDeclarationSyntax>().FirstOrDefault()?.Name;
+            if (namespaceIdentifier is null)
+            {
+                reportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, "\"GraphQlClientGenerator_Namespace\" required"));
+                return null;
             }
 
-            if (!isServiceUrlMissing && isSchemaFileSpecified)
-            {
-                context.ReportDiagnostic(
-                    Diagnostic.Create(
-                        DescriptorParameterError,
-                        Location.None,
-                        "\"GraphQlClientGenerator_ServiceUrl\" parameter and GraphQL JSON schema additional file are mutually exclusive. "));
+            @namespace = namespaceIdentifier.Identifier.ValueText;
 
-                return;
+            reportDiagnostic(Diagnostic.Create(DescriptorInfo, Location.None, $"\"GraphQlClientGenerator_Namespace\" not specified; using \"{@namespace}\""));
+        }
+
+        var configuration = new GraphQlGeneratorConfiguration { TargetNamespace = @namespace };
+
+        globalOptions.TryGetValue(BuildPropertyKey(nameof(configuration.ClassPrefix)), out var classPrefix);
+        configuration.ClassPrefix = classPrefix;
+
+        globalOptions.TryGetValue(BuildPropertyKey(nameof(configuration.ClassSuffix)), out var classSuffix);
+        configuration.ClassSuffix = classSuffix;
+
+        if (cSharpCompilation.LanguageVersion >= LanguageVersion.CSharp12)
+            configuration.CSharpVersion = CSharpVersion.CSharp12;
+        else if (cSharpCompilation.LanguageVersion >= LanguageVersion.CSharp6)
+            configuration.CSharpVersion = CSharpVersion.CSharp6;
+
+        globalOptions.TryGetValue(BuildPropertyKey(nameof(configuration.IncludeDeprecatedFields)), out var includeDeprecatedFieldsRaw);
+        configuration.IncludeDeprecatedFields = Boolean.TryParse(includeDeprecatedFieldsRaw, out var includeDeprecatedFields) && includeDeprecatedFields;
+
+        globalOptions.TryGetValue(BuildPropertyKey(nameof(configuration.EnableNullableReferences)), out var enableNullableReferencesRaw);
+        configuration.EnableNullableReferences = Boolean.TryParse(enableNullableReferencesRaw, out var enableNullableReferences) && enableNullableReferences;
+
+        if (configuration.EnableNullableReferences && cSharpCompilation.Options.NullableContextOptions is NullableContextOptions.Disable)
+        {
+            reportDiagnostic(Diagnostic.Create(DescriptorInfo, Location.None, "compilation nullable references disabled"));
+            configuration.EnableNullableReferences = false;
+        }
+
+        SetConfigurationEnumValue(globalOptions, nameof(CodeDocumentationType), CodeDocumentationType.XmlSummary, v => configuration.CodeDocumentationType = v);
+        SetConfigurationEnumValue(globalOptions, nameof(FloatTypeMapping), FloatTypeMapping.Decimal, v => configuration.FloatTypeMapping = v);
+        SetConfigurationEnumValue(globalOptions, nameof(BooleanTypeMapping), BooleanTypeMapping.Boolean, v => configuration.BooleanTypeMapping = v);
+        SetConfigurationEnumValue(globalOptions, nameof(IdTypeMapping), IdTypeMapping.Guid, v => configuration.IdTypeMapping = v);
+        SetConfigurationEnumValue(globalOptions, "JsonPropertyGeneration", JsonPropertyGenerationOption.CaseInsensitive, v => configuration.JsonPropertyGeneration = v);
+        SetConfigurationEnumValue(globalOptions, "EnumValueNaming", EnumValueNamingOption.CSharp, v => configuration.EnumValueNaming = v);
+        SetConfigurationEnumValue(globalOptions, nameof(DataClassMemberNullability), DataClassMemberNullability.AlwaysNullable, v => configuration.DataClassMemberNullability = v);
+        SetConfigurationEnumValue(globalOptions, nameof(GenerationOrder), GenerationOrder.DefinedBySchema, v => configuration.GenerationOrder = v);
+        SetConfigurationEnumValue(globalOptions, nameof(InputObjectMode), InputObjectMode.Rich, v => configuration.InputObjectMode = v);
+
+        globalOptions.TryGetValue(BuildPropertyKey("CustomClassMapping"), out var customClassMappingRaw);
+        if (!KeyValueParameterParser.TryGetCustomClassMapping(
+                customClassMappingRaw?.Split(['|', ';', ' '], StringSplitOptions.RemoveEmptyEntries),
+                out var customMapping,
+                out var customMappingParsingErrorMessage))
+        {
+            reportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, customMappingParsingErrorMessage));
+            return null;
+        }
+
+        foreach (var kvp in customMapping)
+            configuration.CustomClassNameMapping.Add(kvp);
+
+        var regexScalarFieldTypeMappingProviderConfigurationJson =
+            regexScalarFieldTypeMappingProviderConfigurationFile
+                ?.GetText()
+                ?.ToString();
+
+        var regexScalarFieldTypeMappingProviderRules =
+            regexScalarFieldTypeMappingProviderConfigurationJson is not null
+                ? RegexScalarFieldTypeMappingProvider.ParseRulesFromJson(regexScalarFieldTypeMappingProviderConfigurationJson)
+                : null;
+
+        if (globalOptions.TryGetValue(BuildPropertyKey("ScalarFieldTypeMappingProvider"), out var scalarFieldTypeMappingProviderName))
+        {
+            if (regexScalarFieldTypeMappingProviderRules is not null)
+            {
+                reportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, "\"GraphQlClientGenerator_ScalarFieldTypeMappingProvider\" and RegexScalarFieldTypeMappingProviderConfiguration are mutually exclusive"));
+                return null;
             }
 
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("Namespace"), out var @namespace);
-            if (String.IsNullOrWhiteSpace(@namespace))
+            if (String.IsNullOrWhiteSpace(scalarFieldTypeMappingProviderName))
             {
-                var root = (CompilationUnitSyntax)compilation.SyntaxTrees.FirstOrDefault()?.GetRoot();
-                var namespaceIdentifier = (IdentifierNameSyntax)root?.Members.OfType<NamespaceDeclarationSyntax>().FirstOrDefault()?.Name;
-                if (namespaceIdentifier is null)
+                reportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, "\"GraphQlClientGenerator_ScalarFieldTypeMappingProvider\" value missing"));
+                return null;
+            }
+
+            var scalarFieldTypeMappingProviderType = Type.GetType(scalarFieldTypeMappingProviderName);
+            if (scalarFieldTypeMappingProviderType is null)
+            {
+                reportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, $"ScalarFieldTypeMappingProvider \"{scalarFieldTypeMappingProviderName}\" not found"));
+                return null;
+            }
+
+            var scalarFieldTypeMappingProvider = (IScalarFieldTypeMappingProvider)Activator.CreateInstance(scalarFieldTypeMappingProviderType);
+            configuration.ScalarFieldTypeMappingProvider = scalarFieldTypeMappingProvider;
+        }
+        else if (regexScalarFieldTypeMappingProviderRules?.Count > 0)
+            configuration.ScalarFieldTypeMappingProvider = new RegexScalarFieldTypeMappingProvider(regexScalarFieldTypeMappingProviderRules);
+
+        globalOptions.TryGetValue(BuildPropertyKey(nameof(configuration.FileScopedNamespaces)), out var fileScopedNamespacesRaw);
+        configuration.FileScopedNamespaces = !String.IsNullOrWhiteSpace(fileScopedNamespacesRaw) && Convert.ToBoolean(fileScopedNamespacesRaw);
+
+        return configuration;
+    }
+
+    private static void ExecuteGeneration(GenerationSetup setup, GraphQlGeneratorConfiguration configuration, AddSourceDelegate addSource, Action<Diagnostic> reportDiagnostic)
+    {
+        var graphQlSchemas = new List<(string TargetFileName, GraphQlSchema Schema)>();
+        if (setup.SchemaFiles.Count == 0)
+        {
+            using var httpClientHandler = GraphQlGenerator.CreateDefaultHttpClientHandler();
+
+            if (setup.IgnoreServiceUrlCertificateErrors)
+                httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
+
+            var graphQlSchema =
+                GraphQlGenerator.RetrieveSchema(new HttpMethod(setup.HttpMethod), setup.ServiceUrl, setup.HttpHeaders, httpClientHandler, GraphQlWellKnownDirective.None)
+                    .GetAwaiter()
+                    .GetResult();
+
+            graphQlSchemas.Add((FileNameGraphQlClientSource, graphQlSchema));
+            reportDiagnostic(Diagnostic.Create(DescriptorInfo, Location.None, $"GraphQl schema fetched successfully from {setup.ServiceUrl}"));
+        }
+        else
+        {
+            foreach (var schemaFile in setup.SchemaFiles)
+            {
+                var schemaJsom = schemaFile.GetText()?.ToString();
+                if (String.IsNullOrEmpty(schemaJsom))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, "\"GraphQlClientGenerator_Namespace\" required"));
-                    return;
+                    reportDiagnostic(Diagnostic.Create(DescriptorWarning, Location.None, $"Schema file {schemaFile.Path} is empty; ignored. "));
+                    continue;
                 }
 
-                @namespace = namespaceIdentifier.Identifier.ValueText;
-
-                context.ReportDiagnostic(Diagnostic.Create(DescriptorInfo, Location.None, $"\"GraphQlClientGenerator_Namespace\" not specified; using \"{@namespace}\""));
+                var targetFileName = $"{Path.GetFileNameWithoutExtension(schemaFile.Path)}.cs";
+                graphQlSchemas.Add((targetFileName, GraphQlGenerator.DeserializeGraphQlSchema(schemaJsom)));
             }
+        }
 
-            var configuration = new GraphQlGeneratorConfiguration { TargetNamespace = @namespace };
+        var generator = new GraphQlGenerator(configuration);
 
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(nameof(configuration.ClassPrefix)), out var classPrefix);
-            configuration.ClassPrefix = classPrefix;
-
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(nameof(configuration.ClassSuffix)), out var classSuffix);
-            configuration.ClassSuffix = classSuffix;
-
-            if (compilation.LanguageVersion >= LanguageVersion.CSharp12)
-                configuration.CSharpVersion = CSharpVersion.CSharp12;
-            else if (compilation.LanguageVersion >= LanguageVersion.CSharp6)
-                configuration.CSharpVersion = CSharpVersion.CSharp6;
-
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(nameof(configuration.IncludeDeprecatedFields)), out var includeDeprecatedFieldsRaw);
-            configuration.IncludeDeprecatedFields = Boolean.TryParse(includeDeprecatedFieldsRaw, out var includeDeprecatedFields) && includeDeprecatedFields;
-
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(nameof(configuration.EnableNullableReferences)), out var enableNullableReferencesRaw);
-            configuration.EnableNullableReferences = Boolean.TryParse(enableNullableReferencesRaw, out var enableNullableReferences) && enableNullableReferences;
-
-            if (configuration.EnableNullableReferences && compilation.Options.NullableContextOptions is NullableContextOptions.Disable)
+        foreach (var (targetFileName, schema) in graphQlSchemas)
+        {
+            if (setup.OutputType is OutputType.SingleFile)
             {
-                context.ReportDiagnostic(Diagnostic.Create(DescriptorInfo, Location.None, "compilation nullable references disabled"));
-                configuration.EnableNullableReferences = false;
-            }
+                var builder = new StringBuilder();
+                using (var writer = new StringWriter(builder))
+                    generator.WriteFullClientCSharpFile(schema, writer);
 
-            if (!context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("HttpMethod"), out var httpMethod))
-                httpMethod = "POST";
-
-            SetConfigurationEnumValue(context, nameof(CodeDocumentationType), CodeDocumentationType.XmlSummary, v => configuration.CodeDocumentationType = v);
-            SetConfigurationEnumValue(context, nameof(FloatTypeMapping), FloatTypeMapping.Decimal, v => configuration.FloatTypeMapping = v);
-            SetConfigurationEnumValue(context, nameof(BooleanTypeMapping), BooleanTypeMapping.Boolean, v => configuration.BooleanTypeMapping = v);
-            SetConfigurationEnumValue(context, nameof(IdTypeMapping), IdTypeMapping.Guid, v => configuration.IdTypeMapping = v);
-            SetConfigurationEnumValue(context, "JsonPropertyGeneration", JsonPropertyGenerationOption.CaseInsensitive, v => configuration.JsonPropertyGeneration = v);
-            SetConfigurationEnumValue(context, "EnumValueNaming", EnumValueNamingOption.CSharp, v => configuration.EnumValueNaming = v);
-            SetConfigurationEnumValue(context, nameof(DataClassMemberNullability), DataClassMemberNullability.AlwaysNullable, v => configuration.DataClassMemberNullability = v);
-            SetConfigurationEnumValue(context, nameof(GenerationOrder), GenerationOrder.DefinedBySchema, v => configuration.GenerationOrder = v);
-            SetConfigurationEnumValue(context, nameof(InputObjectMode), InputObjectMode.Rich, v => configuration.InputObjectMode = v);
-
-            var outputType = OutputType.SingleFile;
-            SetConfigurationEnumValue(context, nameof(OutputType), OutputType.SingleFile, v => outputType = v);
-
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("CustomClassMapping"), out var customClassMappingRaw);
-            if (!KeyValueParameterParser.TryGetCustomClassMapping(
-                    customClassMappingRaw?.Split(['|', ';', ' '], StringSplitOptions.RemoveEmptyEntries),
-                    out var customMapping,
-                    out var customMappingParsingErrorMessage))
-            {
-                context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, customMappingParsingErrorMessage));
-                return;
-            }
-
-            foreach (var kvp in customMapping)
-                configuration.CustomClassNameMapping.Add(kvp);
-
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("Headers"), out var headersRaw);
-            if (!KeyValueParameterParser.TryGetCustomHeaders(
-                    headersRaw?.Split(['|'], StringSplitOptions.RemoveEmptyEntries),
-                    out var headers,
-                    out var headerParsingErrorMessage))
-            {
-                context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, headerParsingErrorMessage));
-                return;
-            }
-
-            if (context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("ScalarFieldTypeMappingProvider"), out var scalarFieldTypeMappingProviderName))
-            {
-                if (regexScalarFieldTypeMappingProviderRules is not null)
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, "\"GraphQlClientGenerator_ScalarFieldTypeMappingProvider\" and RegexScalarFieldTypeMappingProviderConfiguration are mutually exclusive"));
-                    return;
-                }
-
-                if (String.IsNullOrWhiteSpace(scalarFieldTypeMappingProviderName))
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, "\"GraphQlClientGenerator_ScalarFieldTypeMappingProvider\" value missing"));
-                    return;
-                }
-
-                var scalarFieldTypeMappingProviderType = Type.GetType(scalarFieldTypeMappingProviderName);
-                if (scalarFieldTypeMappingProviderType is null)
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(DescriptorParameterError, Location.None, $"ScalarFieldTypeMappingProvider \"{scalarFieldTypeMappingProviderName}\" not found"));
-                    return;
-                }
-
-                var scalarFieldTypeMappingProvider = (IScalarFieldTypeMappingProvider)Activator.CreateInstance(scalarFieldTypeMappingProviderType);
-                configuration.ScalarFieldTypeMappingProvider = scalarFieldTypeMappingProvider;
-            }
-            else if (regexScalarFieldTypeMappingProviderRules?.Count > 0)
-                configuration.ScalarFieldTypeMappingProvider = new RegexScalarFieldTypeMappingProvider(regexScalarFieldTypeMappingProviderRules);
-
-            var graphQlSchemas = new List<(string TargetFileName, GraphQlSchema Schema)>();
-            if (isSchemaFileSpecified)
-            {
-                foreach (var schemaFile in graphQlSchemaFiles)
-                {
-                    var targetFileName = $"{Path.GetFileNameWithoutExtension(schemaFile.Path)}.cs";
-                    graphQlSchemas.Add((targetFileName, GraphQlGenerator.DeserializeGraphQlSchema(schemaFile.GetText().ToString())));
-                }
+                addSource(targetFileName, SourceText.From(builder.ToString(), Encoding.UTF8));
             }
             else
             {
-                using var httpClientHandler = GraphQlGenerator.CreateDefaultHttpClientHandler();
-                var ignoreServiceUrlCertificateErrors =
-                    context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey("IgnoreServiceUrlCertificateErrors"), out var ignoreServiceUrlCertificateErrorsRaw) &&
-                    !String.IsNullOrWhiteSpace(ignoreServiceUrlCertificateErrorsRaw) && Convert.ToBoolean(ignoreServiceUrlCertificateErrorsRaw);
-
-                if (ignoreServiceUrlCertificateErrors)
-                    httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
-
-                var graphQlSchema =
-                    GraphQlGenerator.RetrieveSchema(new HttpMethod(httpMethod), serviceUrl, headers, httpClientHandler, GraphQlWellKnownDirective.None)
-                        .GetAwaiter()
-                        .GetResult();
-
-                graphQlSchemas.Add((FileNameGraphQlClientSource, graphQlSchema));
-                context.ReportDiagnostic(Diagnostic.Create(DescriptorInfo, Location.None, $"GraphQl schema fetched successfully from {serviceUrl}"));
+                var multipleFileGenerationContext = new MultipleFileGenerationContext(schema, new SourceGeneratorFileEmitter(addSource));
+                generator.Generate(multipleFileGenerationContext);
             }
-
-            context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(nameof(configuration.FileScopedNamespaces)), out var fileScopedNamespacesRaw);
-            configuration.FileScopedNamespaces = !String.IsNullOrWhiteSpace(fileScopedNamespacesRaw) && Convert.ToBoolean(fileScopedNamespacesRaw);
-
-            var generator = new GraphQlGenerator(configuration);
-
-            foreach (var (targetFileName, schema) in graphQlSchemas)
-            {
-                if (outputType is OutputType.SingleFile)
-                {
-                    var builder = new StringBuilder();
-                    using (var writer = new StringWriter(builder))
-                        generator.WriteFullClientCSharpFile(schema, writer);
-
-                    context.AddSource(targetFileName, SourceText.From(builder.ToString(), Encoding.UTF8));
-                }
-                else
-                {
-                    var multipleFileGenerationContext = new MultipleFileGenerationContext(schema, new SourceGeneratorFileEmitter(context));
-                    generator.Generate(multipleFileGenerationContext);
-                }
-            }
-
-            context.ReportDiagnostic(Diagnostic.Create(DescriptorInfo, Location.None, "GraphQlClientGenerator task completed successfully. "));
         }
-        catch (Exception exception)
-        {
-            context.ReportDiagnostic(Diagnostic.Create(DescriptorGenerationError, Location.None, exception.Message));
-        }
+
+        reportDiagnostic(Diagnostic.Create(DescriptorInfo, Location.None, "GraphQlClientGenerator task completed successfully. "));
     }
 
     private static void SetConfigurationEnumValue<TEnum>(
-        GeneratorExecutionContext context,
+        AnalyzerConfigOptions globalOptions,
         string parameterName,
         TEnum defaultValue,
         Action<TEnum> valueSetter) where TEnum : Enum
     {
-        context.AnalyzerConfigOptions.GlobalOptions.TryGetValue(BuildPropertyKey(parameterName), out var enumStringValue);
+        globalOptions.TryGetValue(BuildPropertyKey(parameterName), out var enumStringValue);
+
         var value =
             String.IsNullOrWhiteSpace(enumStringValue)
                 ? defaultValue
@@ -259,10 +331,24 @@ public class GraphQlClientSourceGenerator : ISourceGenerator
             "GraphQlClientGenerator",
             severity,
             true);
+
+    private class GenerationSetup
+    {
+        public OutputType OutputType { get; set; }
+        public string ServiceUrl { get; set; }
+        public string HttpMethod { get; set; }
+        public bool IgnoreServiceUrlCertificateErrors { get; set; }
+        public ICollection<KeyValuePair<string, string>> HttpHeaders { get; set; }
+        public IReadOnlyCollection<AdditionalText> SchemaFiles { get; set; }
+    }
 }
 
-public class SourceGeneratorFileEmitter(GeneratorExecutionContext sourceGeneratorContext) : ICodeFileEmitter
+public delegate void AddSourceDelegate(string hintName, SourceText sourceText);
+
+public class SourceGeneratorFileEmitter(AddSourceDelegate addSource) : ICodeFileEmitter
 {
+    private readonly AddSourceDelegate _addSource = addSource ?? throw new ArgumentNullException(nameof(addSource));
+
     public CodeFile CreateFile(string fileName) => new(fileName, new MemoryStream());
 
     public CodeFileInfo CollectFileInfo(CodeFile codeFile)
@@ -271,7 +357,7 @@ public class SourceGeneratorFileEmitter(GeneratorExecutionContext sourceGenerato
             throw new ArgumentException($"File was not created by {nameof(SourceGeneratorFileEmitter)}.", nameof(codeFile));
 
         codeFile.Writer.Flush();
-        sourceGeneratorContext.AddSource(codeFile.FileName, SourceText.From(Encoding.UTF8.GetString(memoryStream.ToArray()), Encoding.UTF8));
+        _addSource(codeFile.FileName, SourceText.From(Encoding.UTF8.GetString(memoryStream.ToArray()), Encoding.UTF8));
         var fileSize = (int)codeFile.Stream.Length;
         codeFile.Dispose();
         return new CodeFileInfo { FileName = codeFile.FileName, Length = fileSize };
