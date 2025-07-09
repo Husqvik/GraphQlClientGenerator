@@ -98,8 +98,10 @@ public class GraphQlClientSourceGenerator : IIncrementalGenerator
             return null;
         }
 
-        if (!globalOptions.TryGetValue(BuildPropertyKey("HttpMethod"), out var httpMethod))
-            httpMethod = HttpMethod.Post.Method;
+        var httpMethod =
+            globalOptions.TryGetValue(BuildPropertyKey("HttpMethod"), out var httpMethodRaw)
+                ? new HttpMethod(httpMethodRaw)
+                : HttpMethod.Post;
 
         globalOptions.TryGetValue(BuildPropertyKey("Headers"), out var headersRaw);
         if (!KeyValueParameterParser.TryGetCustomHeaders(
@@ -260,12 +262,12 @@ public class GraphQlClientSourceGenerator : IIncrementalGenerator
                 httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
 
             var graphQlSchema =
-                GraphQlGenerator.RetrieveSchema(new HttpMethod(setup.HttpMethod), setup.ServiceUrl, setup.HttpHeaders, httpClientHandler, GraphQlWellKnownDirective.None)
+                GraphQlGenerator.RetrieveSchema(setup.HttpMethod, setup.ServiceUrl, setup.HttpHeaders, httpClientHandler, GraphQlWellKnownDirective.None)
                     .GetAwaiter()
                     .GetResult();
 
             graphQlSchemas.Add((FileNameGraphQlClientSource, graphQlSchema));
-            reportDiagnostic(Diagnostic.Create(DescriptorInfo, Location.None, $"GraphQl schema fetched successfully from {setup.ServiceUrl}"));
+            reportDiagnostic(Diagnostic.Create(DescriptorInfo, Location.None, $"GraphQl schema fetched successfully using HTTP {setup.HttpMethod} {setup.ServiceUrl}. "));
         }
         else
         {
@@ -336,7 +338,7 @@ public class GraphQlClientSourceGenerator : IIncrementalGenerator
     {
         public OutputType OutputType { get; set; }
         public string ServiceUrl { get; set; }
-        public string HttpMethod { get; set; }
+        public HttpMethod HttpMethod { get; set; }
         public bool IgnoreServiceUrlCertificateErrors { get; set; }
         public ICollection<KeyValuePair<string, string>> HttpHeaders { get; set; }
         public IReadOnlyCollection<AdditionalText> SchemaFiles { get; set; }
