@@ -6,9 +6,7 @@ namespace GraphQlClientGenerator.Console;
 
 internal static class Commands
 {
-    public static readonly RootCommand GenerateCommand = SetupRootCommand();
-
-    private static RootCommand SetupRootCommand()
+    public static RootCommand GenerateCommand()
     {
         var serviceUrlOption = new Option<string>("--serviceUrl", "-u") { Description = "GraphQL service URL used for retrieving schema metadata" };
         var schemaFileOption = new Option<string>("--schemaFileName", "-s") { Description = "Path to schema metadata file in JSON format" };
