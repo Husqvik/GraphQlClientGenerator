@@ -27,5 +27,6 @@ public static class Extensions
             _ => throw new NotSupportedException()
         };
 
-    internal static string EscapeXmlElementText(this string text) => text?.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
+    internal static string EscapeXmlElementText(this string text) =>
+        text?.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
 }

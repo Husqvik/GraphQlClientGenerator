@@ -20,7 +20,7 @@ internal static class CompilationHelper
                 {{sourceCode}}
                 }
                 """,
-                CSharpParseOptions.Default.WithLanguageVersion(Enum.GetValues(typeof(LanguageVersion)).Cast<LanguageVersion>().Max()));
+                CSharpParseOptions.Default.WithLanguageVersion(Enum.GetValues<LanguageVersion>().Max()));
 
         var compilationOptions =
             new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: nullableContextOptions)
