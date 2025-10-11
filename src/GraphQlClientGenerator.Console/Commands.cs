@@ -187,7 +187,7 @@ internal static class Commands
         {
             var bindingContext = CommandHandler.Create<ProgramOptions>(delegate { }).GetBindingContext(result);
             var options = (ProgramOptions)new ModelBinder<ProgramOptions>().CreateInstance(bindingContext);
-            await GraphQlCSharpFileHelper.GenerateClientSourceCode(result.Configuration, options, cancellationToken);
+            await GraphQlCSharpFileHelper.GenerateClientSourceCode(result.InvocationConfiguration, options, cancellationToken);
             return 0;
         });
 

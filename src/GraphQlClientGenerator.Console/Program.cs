@@ -1,15 +1,15 @@
-﻿using GraphQlClientGenerator.Console;
-using System.CommandLine;
+﻿using System.CommandLine;
+using GraphQlClientGenerator.Console;
 
-var generateCommand = new CommandLineConfiguration(Commands.GenerateCommand());
+var invocationConfiguration = new InvocationConfiguration();
 var cancellationTokenSource = new CancellationTokenSource();
 
 Console.CancelKeyPress +=
     (_, args) =>
     {
-        generateCommand.Output.WriteLine("Control + C pressed");
+        invocationConfiguration.Output.WriteLine("Control + C pressed");
         cancellationTokenSource.Cancel();
         args.Cancel = true;
     };
 
-return await generateCommand.InvokeAsync(args, cancellationTokenSource.Token);
+return await Commands.GenerateCommand().Parse(args).InvokeAsync(invocationConfiguration, cancellationTokenSource.Token);

@@ -4,9 +4,9 @@ namespace GraphQlClientGenerator.Console;
 
 internal static class GraphQlCSharpFileHelper
 {
-    public static async Task GenerateClientSourceCode(CommandLineConfiguration commandLineConfiguration, ProgramOptions options, CancellationToken cancellationToken)
+    public static async Task GenerateClientSourceCode(InvocationConfiguration invocationConfiguration, ProgramOptions options, CancellationToken cancellationToken)
     {
-        var output = commandLineConfiguration.Output;
+        var output = invocationConfiguration.Output;
 
         GraphQlSchema schema;
 

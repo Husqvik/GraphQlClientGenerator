@@ -20,6 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.CommandLine" Version="2.0.0-*" />
     <PackageReference Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-*" />
     <ProjectReference Include="..\GraphQlClientGenerator\GraphQlClientGenerator.csproj">
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
