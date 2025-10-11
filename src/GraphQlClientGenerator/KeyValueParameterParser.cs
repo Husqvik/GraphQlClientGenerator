@@ -2,7 +2,7 @@
 
 public static class KeyValueParameterParser
 {
-    public static bool TryGetCustomClassMapping(IEnumerable<string> sourceParameters, out ICollection<KeyValuePair<string, string>> customMapping, out string errorMessage)
+    public static bool TryGetCustomClassMapping(IEnumerable<string> sourceParameters, out List<KeyValuePair<string, string>> customMapping, out string errorMessage)
     {
         errorMessage =
             TryGetColonSplitKeyValuePairs(sourceParameters, out customMapping)
@@ -19,7 +19,7 @@ public static class KeyValueParameterParser
         return errorMessage is null;
     }
 
-    public static bool TryGetCustomHeaders(IEnumerable<string> sourceParameters, out ICollection<KeyValuePair<string, string>> headers, out string errorMessage)
+    public static bool TryGetCustomHeaders(IEnumerable<string> sourceParameters, out List<KeyValuePair<string, string>> headers, out string errorMessage)
     {
         errorMessage =
             TryGetColonSplitKeyValuePairs(sourceParameters, out headers)
@@ -29,7 +29,7 @@ public static class KeyValueParameterParser
         return errorMessage is null;
     }
 
-    private static bool TryGetColonSplitKeyValuePairs(IEnumerable<string> sourceParameters, out ICollection<KeyValuePair<string, string>> keyValuePairs)
+    private static bool TryGetColonSplitKeyValuePairs(IEnumerable<string> sourceParameters, out List<KeyValuePair<string, string>> keyValuePairs)
     {
         keyValuePairs = [];
 

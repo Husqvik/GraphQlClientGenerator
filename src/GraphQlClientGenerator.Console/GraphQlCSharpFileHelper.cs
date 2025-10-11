@@ -37,46 +37,7 @@ internal static class GraphQlCSharpFileHelper
             await output.WriteLineAsync($"GraphQL Schema retrieved from {options.ServiceUrl}. ");
         }
 
-        var generatorConfiguration =
-            new GraphQlGeneratorConfiguration
-            {
-                TargetNamespace = options.Namespace,
-                CSharpVersion = options.CSharpVersion,
-                ClassPrefix = options.ClassPrefix,
-                ClassSuffix = options.ClassSuffix,
-                CodeDocumentationType = options.CodeDocumentationType,
-                GeneratePartialClasses = options.PartialClasses,
-                MemberAccessibility = options.MemberAccessibility,
-                IdTypeMapping = options.IdTypeMapping,
-                FloatTypeMapping = options.FloatTypeMapping,
-                IntegerTypeMapping = options.IntegerTypeMapping,
-                BooleanTypeMapping = options.BooleanTypeMapping,
-                JsonPropertyGeneration = options.JsonPropertyAttribute,
-                EnumValueNaming = options.EnumValueNaming,
-                DataClassMemberNullability = options.DataClassMemberNullability,
-                GenerationOrder = options.GenerationOrder,
-                InputObjectMode = options.InputObjectMode,
-                IncludeDeprecatedFields = options.IncludeDeprecatedFields,
-                EnableNullableReferences = options.NullableReferences,
-                FileScopedNamespaces = options.FileScopedNamespaces
-            };
-
-        if (!KeyValueParameterParser.TryGetCustomClassMapping(options.ClassMapping, out var customMapping, out var customMappingParsingErrorMessage))
-            throw new InvalidOperationException(customMappingParsingErrorMessage);
-
-        foreach (var kvp in customMapping)
-            generatorConfiguration.CustomClassNameMapping.Add(kvp);
-
-        if (!String.IsNullOrEmpty(options.RegexScalarFieldTypeMappingConfigurationFile))
-        {
-            generatorConfiguration.ScalarFieldTypeMappingProvider =
-                new RegexScalarFieldTypeMappingProvider(
-                    RegexScalarFieldTypeMappingProvider.ParseRulesFromJson(await File.ReadAllTextAsync(options.RegexScalarFieldTypeMappingConfigurationFile, cancellationToken)));
-
-            await output.WriteLineAsync($"Scalar field type mapping configuration file {options.RegexScalarFieldTypeMappingConfigurationFile} loaded. ");
-        }
-
-        var generator = new GraphQlGenerator(generatorConfiguration);
+        var generator = new GraphQlGenerator(options.GeneratorConfiguration);
 
         if (options.OutputType is OutputType.SingleFile)
         {

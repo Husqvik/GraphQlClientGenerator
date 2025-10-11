@@ -220,34 +220,53 @@ internal static class Commands
                 new ProgramOptions
                 {
                     OutputPath = result.GetValue(outputPathOption),
-                    Namespace = result.GetValue(namespaceOption),
-                    FileScopedNamespaces = result.GetValue(fileScopeNamespaceOption),
                     IgnoreServiceUrlCertificateErrors = result.GetValue(ignoreServiceUrlCertificateErrorOption),
                     ServiceUrl = result.GetValue(serviceUrlOption),
                     SchemaFile = result.GetValue(schemaFileOption),
                     HttpMethod = result.GetValue(httpMethodOption),
                     Header = result.GetValue(headerOption),
-                    ClassPrefix = result.GetValue(classPrefixOption),
-                    ClassSuffix = result.GetValue(classSuffixOption),
-                    CSharpVersion = result.GetValue(csharpVersionOption),
-                    CodeDocumentationType = result.GetValue(codeDocumentationOption),
-                    MemberAccessibility = result.GetValue(memberAccessibilityOption),
                     OutputType = result.GetValue(outputTypeOption),
-                    PartialClasses = result.GetValue(partialClassesOption),
-                    ClassMapping = result.GetValue(classMappingOption),
-                    RegexScalarFieldTypeMappingConfigurationFile = result.GetValue(regexScalarFieldTypeMappingConfigurationOption),
-                    IdTypeMapping = result.GetValue(idTypeMappingOption),
-                    FloatTypeMapping = result.GetValue(floatTypeMappingOption),
-                    IntegerTypeMapping = result.GetValue(integerTypeMappingOption),
-                    BooleanTypeMapping = result.GetValue(booleanTypeMappingOption),
-                    JsonPropertyAttribute = result.GetValue(jsonPropertyAttributeOption),
-                    EnumValueNaming = result.GetValue(enumValueMappingOption),
-                    DataClassMemberNullability = result.GetValue(dataClassMemberNullabilityOption),
-                    GenerationOrder = result.GetValue(generationOrderOption),
-                    InputObjectMode = result.GetValue(inputObjectModeOption),
-                    IncludeDeprecatedFields = result.GetValue(includeDeprecatedFieldOption),
-                    NullableReferences = result.GetValue(nullableReferenceOption)
+                    GeneratorConfiguration =
+                        new()
+                        {
+                            CSharpVersion = result.GetValue(csharpVersionOption),
+                            ClassPrefix = result.GetValue(classPrefixOption),
+                            ClassSuffix = result.GetValue(classSuffixOption),
+                            TargetNamespace = result.GetValue(namespaceOption),
+                            CodeDocumentationType = result.GetValue(codeDocumentationOption),
+                            IncludeDeprecatedFields = result.GetValue(includeDeprecatedFieldOption),
+                            EnableNullableReferences = result.GetValue(nullableReferenceOption),
+                            GeneratePartialClasses = result.GetValue(partialClassesOption),
+                            IntegerTypeMapping = result.GetValue(integerTypeMappingOption),
+                            FloatTypeMapping = result.GetValue(floatTypeMappingOption),
+                            BooleanTypeMapping = result.GetValue(booleanTypeMappingOption),
+                            IdTypeMapping = result.GetValue(idTypeMappingOption),
+                            JsonPropertyGeneration = result.GetValue(jsonPropertyAttributeOption),
+                            EnumValueNaming = result.GetValue(enumValueMappingOption),
+                            MemberAccessibility = result.GetValue(memberAccessibilityOption),
+                            ScalarFieldTypeMappingProvider = null,
+                            FileScopedNamespaces = result.GetValue(fileScopeNamespaceOption),
+                            DataClassMemberNullability = result.GetValue(dataClassMemberNullabilityOption),
+                            GenerationOrder = result.GetValue(generationOrderOption),
+                            InputObjectMode = result.GetValue(inputObjectModeOption)
+                        }
                 };
+
+            if (!KeyValueParameterParser.TryGetCustomClassMapping(result.GetValue(classMappingOption), out var customMapping, out var customMappingParsingErrorMessage))
+                throw new InvalidOperationException(customMappingParsingErrorMessage);
+
+            customMapping.ForEach(options.GeneratorConfiguration.CustomClassNameMapping.Add);
+
+            var regexScalarFieldTypeMappingConfigurationFile = result.GetValue(regexScalarFieldTypeMappingConfigurationOption);
+
+            if (!String.IsNullOrEmpty(regexScalarFieldTypeMappingConfigurationFile))
+            {
+                options.GeneratorConfiguration.ScalarFieldTypeMappingProvider =
+                    new RegexScalarFieldTypeMappingProvider(
+                        RegexScalarFieldTypeMappingProvider.ParseRulesFromJson(await File.ReadAllTextAsync(regexScalarFieldTypeMappingConfigurationFile, cancellationToken)));
+
+                await result.InvocationConfiguration.Output.WriteLineAsync($"Scalar field type mapping configuration file {regexScalarFieldTypeMappingConfigurationFile} loaded. ");
+            }
 
             await GraphQlCSharpFileHelper.GenerateClientSourceCode(result.InvocationConfiguration, options, cancellationToken);
             return 0;
@@ -262,5 +281,5 @@ internal static class Commands
             result.AddError(errorMessage);
     }
 
-    private delegate bool TryGetKeyValuePairs(IEnumerable<string> sources, out ICollection<KeyValuePair<string, string>> keyValuePairs, out string errorMessage);
+    private delegate bool TryGetKeyValuePairs(IEnumerable<string> sources, out List<KeyValuePair<string, string>> keyValuePairs, out string errorMessage);
 }
