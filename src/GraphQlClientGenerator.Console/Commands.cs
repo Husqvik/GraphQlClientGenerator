@@ -216,6 +216,19 @@ internal static class Commands
 
         command.SetAction(async (result, cancellationToken) =>
         {
+            var regexScalarFieldTypeMappingConfigurationFile = result.GetValue(regexScalarFieldTypeMappingConfigurationOption);
+
+            RegexScalarFieldTypeMappingProvider scalarFieldTypeMappingProvider = null;
+
+            if (!String.IsNullOrEmpty(regexScalarFieldTypeMappingConfigurationFile))
+            {
+                scalarFieldTypeMappingProvider =
+                    new RegexScalarFieldTypeMappingProvider(
+                        RegexScalarFieldTypeMappingProvider.ParseRulesFromJson(await File.ReadAllTextAsync(regexScalarFieldTypeMappingConfigurationFile, cancellationToken)));
+
+                await result.InvocationConfiguration.Output.WriteLineAsync($"Scalar field type mapping configuration file {regexScalarFieldTypeMappingConfigurationFile} loaded. ");
+            }
+
             var options =
                 new ProgramOptions
                 {
@@ -244,11 +257,11 @@ internal static class Commands
                             JsonPropertyGeneration = result.GetValue(jsonPropertyAttributeOption),
                             EnumValueNaming = result.GetValue(enumValueMappingOption),
                             MemberAccessibility = result.GetValue(memberAccessibilityOption),
-                            ScalarFieldTypeMappingProvider = null,
                             FileScopedNamespaces = result.GetValue(fileScopeNamespaceOption),
                             DataClassMemberNullability = result.GetValue(dataClassMemberNullabilityOption),
                             GenerationOrder = result.GetValue(generationOrderOption),
-                            InputObjectMode = result.GetValue(inputObjectModeOption)
+                            InputObjectMode = result.GetValue(inputObjectModeOption),
+                            ScalarFieldTypeMappingProvider = scalarFieldTypeMappingProvider
                         }
                 };
 
@@ -256,17 +269,6 @@ internal static class Commands
                 throw new InvalidOperationException(customMappingParsingErrorMessage);
 
             customMapping.ForEach(options.GeneratorConfiguration.CustomClassNameMapping.Add);
-
-            var regexScalarFieldTypeMappingConfigurationFile = result.GetValue(regexScalarFieldTypeMappingConfigurationOption);
-
-            if (!String.IsNullOrEmpty(regexScalarFieldTypeMappingConfigurationFile))
-            {
-                options.GeneratorConfiguration.ScalarFieldTypeMappingProvider =
-                    new RegexScalarFieldTypeMappingProvider(
-                        RegexScalarFieldTypeMappingProvider.ParseRulesFromJson(await File.ReadAllTextAsync(regexScalarFieldTypeMappingConfigurationFile, cancellationToken)));
-
-                await result.InvocationConfiguration.Output.WriteLineAsync($"Scalar field type mapping configuration file {regexScalarFieldTypeMappingConfigurationFile} loaded. ");
-            }
 
             await GraphQlCSharpFileHelper.GenerateClientSourceCode(result.InvocationConfiguration, options, cancellationToken);
             return 0;
