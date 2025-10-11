@@ -12,8 +12,8 @@ internal static class GraphQlCSharpFileHelper
 
         if (String.IsNullOrWhiteSpace(options.ServiceUrl))
         {
-            var schemaJson = await File.ReadAllTextAsync(options.SchemaFileName, cancellationToken);
-            await output.WriteLineAsync($"GraphQL schema file {options.SchemaFileName} loaded ({schemaJson.Length:N0} B). ");
+            var schemaJson = await File.ReadAllTextAsync(options.SchemaFile.FullName, cancellationToken);
+            await output.WriteLineAsync($"GraphQL schema file {options.SchemaFile.FullName} loaded ({schemaJson.Length:N0} B). ");
             schema = GraphQlGenerator.DeserializeGraphQlSchema(schemaJson);
         }
         else
@@ -36,7 +36,7 @@ internal static class GraphQlCSharpFileHelper
 
             await output.WriteLineAsync($"GraphQL Schema retrieved from {options.ServiceUrl}. ");
         }
-            
+
         var generatorConfiguration =
             new GraphQlGeneratorConfiguration
             {

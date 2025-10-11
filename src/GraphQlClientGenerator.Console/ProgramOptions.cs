@@ -2,32 +2,32 @@
 
 public class ProgramOptions
 {
-    public string OutputPath { get; set; }
-    public string Namespace { get; set; }
-    public bool FileScopedNamespaces { get; set; }
-    public bool IgnoreServiceUrlCertificateErrors { get; set; }
-    public string ServiceUrl { get; set; }
-    public string SchemaFileName { get; set; }
-    public string HttpMethod { get; set; }
-    public ICollection<string> Header { get; set; }
-    public string ClassPrefix { get; set; }
-    public string ClassSuffix { get; set; }
-    public CSharpVersion CSharpVersion { get; set; }
-    public CodeDocumentationType CodeDocumentationType { get; set; }
-    public MemberAccessibility MemberAccessibility { get; set; }
-    public OutputType OutputType { get; set; }
-    public bool PartialClasses { get; set; }
-    public ICollection<string> ClassMapping { get; set; }
-    public string RegexScalarFieldTypeMappingConfigurationFile { get; set; }
-    public IdTypeMapping IdTypeMapping { get; set; }
-    public FloatTypeMapping FloatTypeMapping { get; set; }
-    public IntegerTypeMapping IntegerTypeMapping { get; set; }
-    public BooleanTypeMapping BooleanTypeMapping { get; set; }
-    public JsonPropertyGenerationOption JsonPropertyAttribute { get; set; }
-    public EnumValueNamingOption EnumValueNaming { get; set; }
-    public DataClassMemberNullability DataClassMemberNullability { get; set; }
-    public GenerationOrder GenerationOrder { get; set; }
-    public InputObjectMode InputObjectMode { get; set; }
-    public bool IncludeDeprecatedFields { get; set; }
-    public bool NullableReferences { get; set; }
+    public required string OutputPath { get; init; }
+    public required string Namespace { get; init; }
+    public required bool FileScopedNamespaces { get; init; }
+    public required bool IgnoreServiceUrlCertificateErrors { get; init; }
+    public required string ServiceUrl { get; init; }
+    public required FileInfo SchemaFile { get; init; }
+    public required string HttpMethod { get; init; }
+    public required ICollection<string> Header { get; init; }
+    public required string ClassPrefix { get; init; }
+    public required string ClassSuffix { get; init; }
+    public required CSharpVersion CSharpVersion { get; init; }
+    public required CodeDocumentationType CodeDocumentationType { get; init; }
+    public required MemberAccessibility MemberAccessibility { get; init; }
+    public required OutputType OutputType { get; init; }
+    public required bool PartialClasses { get; init; }
+    public required ICollection<string> ClassMapping { get; init; }
+    public required string RegexScalarFieldTypeMappingConfigurationFile { get; init; }
+    public required IdTypeMapping IdTypeMapping { get; init; }
+    public required FloatTypeMapping FloatTypeMapping { get; init; }
+    public required IntegerTypeMapping IntegerTypeMapping { get; init; }
+    public required BooleanTypeMapping BooleanTypeMapping { get; init; }
+    public required JsonPropertyGenerationOption JsonPropertyAttribute { get; init; }
+    public required EnumValueNamingOption EnumValueNaming { get; init; }
+    public required DataClassMemberNullability DataClassMemberNullability { get; init; }
+    public required GenerationOrder GenerationOrder { get; init; }
+    public required InputObjectMode InputObjectMode { get; init; }
+    public required bool IncludeDeprecatedFields { get; init; }
+    public required bool NullableReferences { get; init; }
 }
