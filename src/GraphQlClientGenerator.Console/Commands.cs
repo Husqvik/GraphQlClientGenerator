@@ -23,19 +23,8 @@ internal static class Commands
                 Required = true
             };
 
-        var namespaceOption =
-            new Option<string>("--namespace", "-n")
-            {
-                Description = "Root namespace all classes and other members are generated into",
-                Required = true
-            };
-
-        var httpMethodOption =
-            new Option<string>("--httpMethod")
-            {
-                Description = "GraphQL schema metadata retrieval HTTP method",
-                DefaultValueFactory = _ => HttpMethod.Post.Method
-            };
+        var namespaceOption = new Option<string>("--namespace", "-n") { Description = "Root namespace all classes and other members are generated into", Required = true };
+        var httpMethodOption = new Option<string>("--httpMethod") { Description = "GraphQL schema metadata retrieval HTTP method", DefaultValueFactory = _ => HttpMethod.Post.Method };
 
         var headerOption =
             new Option<string[]>("--header")
@@ -54,12 +43,7 @@ internal static class Commands
                 Validators = { result => result.AddKeyValueErrorIfFound(KeyValueParameterParser.TryGetCustomClassMapping) }
             };
 
-        var csharpVersionOption =
-            new Option<CSharpVersion>("--csharpVersion")
-            {
-                Description = "C# version compatibility",
-                DefaultValueFactory = _ => CSharpVersion.Compatible
-            };
+        var csharpVersionOption = new Option<CSharpVersion>("--csharpVersion") { Description = "C# version compatibility", DefaultValueFactory = _ => CSharpVersion.Compatible };
 
         var codeDocumentationOption =
             new Option<CodeDocumentationType>("--codeDocumentationType")
@@ -75,13 +59,7 @@ internal static class Commands
                 DefaultValueFactory = _ => MemberAccessibility.Public
             };
 
-        var outputTypeOption =
-            new Option<OutputType>("--outputType")
-            {
-                Description = "Specifies generated classes organization",
-                DefaultValueFactory = _ => OutputType.SingleFile
-            };
-
+        var outputTypeOption = new Option<OutputType>("--outputType") { Description = "Specifies generated classes organization", DefaultValueFactory = _ => OutputType.SingleFile };
         var partialClassesOption = new Option<bool>("--partialClasses") { Description = "Mark classes as \"partial\"", DefaultValueFactory = _ => false };
 
         var booleanTypeMappingOption =
@@ -247,11 +225,7 @@ internal static class Commands
             if (!String.IsNullOrEmpty(regexScalarFieldTypeMappingConfigurationFile))
             {
                 var configurationJson = await File.ReadAllTextAsync(regexScalarFieldTypeMappingConfigurationFile, cancellationToken);
-
-                scalarFieldTypeMappingProvider =
-                    new RegexScalarFieldTypeMappingProvider(
-                        RegexScalarFieldTypeMappingProvider.ParseRulesFromJson(configurationJson));
-
+                scalarFieldTypeMappingProvider = new RegexScalarFieldTypeMappingProvider(RegexScalarFieldTypeMappingProvider.ParseRulesFromJson(configurationJson));
                 await result.InvocationConfiguration.Output.WriteLineAsync($"Scalar field type mapping configuration file {regexScalarFieldTypeMappingConfigurationFile} loaded. ");
             }
 
