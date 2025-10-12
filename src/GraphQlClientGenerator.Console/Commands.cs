@@ -60,7 +60,7 @@ internal static class Commands
                 Description = "C# version compatibility",
                 DefaultValueFactory = _ => CSharpVersion.Compatible
             };
-        
+
         var codeDocumentationOption =
             new Option<CodeDocumentationType>("--codeDocumentationType")
             {
@@ -246,9 +246,11 @@ internal static class Commands
 
             if (!String.IsNullOrEmpty(regexScalarFieldTypeMappingConfigurationFile))
             {
+                var configurationJson = await File.ReadAllTextAsync(regexScalarFieldTypeMappingConfigurationFile, cancellationToken);
+
                 scalarFieldTypeMappingProvider =
                     new RegexScalarFieldTypeMappingProvider(
-                        RegexScalarFieldTypeMappingProvider.ParseRulesFromJson(await File.ReadAllTextAsync(regexScalarFieldTypeMappingConfigurationFile, cancellationToken)));
+                        RegexScalarFieldTypeMappingProvider.ParseRulesFromJson(configurationJson));
 
                 await result.InvocationConfiguration.Output.WriteLineAsync($"Scalar field type mapping configuration file {regexScalarFieldTypeMappingConfigurationFile} loaded. ");
             }

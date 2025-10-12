@@ -7,36 +7,7 @@ internal static class GraphQlCSharpFileHelper
     public static async Task GenerateClientSourceCode(InvocationConfiguration invocationConfiguration, ProgramOptions options, CancellationToken cancellationToken)
     {
         var output = invocationConfiguration.Output;
-
-        GraphQlSchema schema;
-
-        if (String.IsNullOrWhiteSpace(options.ServiceUrl))
-        {
-            var schemaJson = await File.ReadAllTextAsync(options.SchemaFile.FullName, cancellationToken);
-            await output.WriteLineAsync($"GraphQL schema file {options.SchemaFile.FullName} loaded ({schemaJson.Length:N0} B). ");
-            schema = GraphQlGenerator.DeserializeGraphQlSchema(schemaJson);
-        }
-        else
-        {
-            if (!KeyValueParameterParser.TryGetCustomHeaders(options.Header, out var headers, out var headerParsingErrorMessage))
-                throw new InvalidOperationException(headerParsingErrorMessage);
-
-            using var httpClientHandler = GraphQlGenerator.CreateDefaultHttpClientHandler();
-            if (options.IgnoreServiceUrlCertificateErrors)
-                httpClientHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
-
-            schema =
-                await GraphQlGenerator.RetrieveSchema(
-                    new HttpMethod(options.HttpMethod),
-                    options.ServiceUrl,
-                    headers,
-                    httpClientHandler,
-                    GraphQlWellKnownDirective.None,
-                    cancellationToken);
-
-            await output.WriteLineAsync($"GraphQL Schema retrieved from {options.ServiceUrl}. ");
-        }
-
+        var schema = await GetGraphQlSchema(invocationConfiguration, options, cancellationToken);
         var generator = new GraphQlGenerator(options.GeneratorConfiguration);
 
         if (options.OutputType is OutputType.SingleFile)
@@ -52,13 +23,38 @@ internal static class GraphQlCSharpFileHelper
                     : null;
 
             var codeFileEmitter = new FileSystemEmitter(projectFileInfo?.DirectoryName ?? options.OutputPath);
-            var multipleFileGenerationContext =
-                new MultipleFileGenerationContext(schema, codeFileEmitter, projectFileInfo?.Name)
-                {
-                    LogMessage = output.WriteLine
-                };
-
+            var multipleFileGenerationContext = new MultipleFileGenerationContext(schema, codeFileEmitter, projectFileInfo?.Name) { LogMessage = output.WriteLine };
             generator.Generate(multipleFileGenerationContext);
         }
+    }
+
+    private static async Task<GraphQlSchema> GetGraphQlSchema(InvocationConfiguration invocationConfiguration, ProgramOptions options, CancellationToken cancellationToken)
+    {
+        if (String.IsNullOrWhiteSpace(options.ServiceUrl))
+        {
+            var schemaJson = await File.ReadAllTextAsync(options.SchemaFile.FullName, cancellationToken);
+            await invocationConfiguration.Output.WriteLineAsync($"GraphQL schema file {options.SchemaFile.FullName} loaded ({schemaJson.Length:N0} B). ");
+            return GraphQlGenerator.DeserializeGraphQlSchema(schemaJson);
+        }
+
+        if (!KeyValueParameterParser.TryGetCustomHeaders(options.Header, out var headers, out var headerParsingErrorMessage))
+            throw new InvalidOperationException(headerParsingErrorMessage);
+
+        using var httpClientHandler = GraphQlGenerator.CreateDefaultHttpClientHandler();
+
+        if (options.IgnoreServiceUrlCertificateErrors)
+            httpClientHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+
+        var schema =
+            await GraphQlGenerator.RetrieveSchema(
+                new HttpMethod(options.HttpMethod),
+                options.ServiceUrl,
+                headers,
+                httpClientHandler,
+                GraphQlWellKnownDirective.None,
+                cancellationToken);
+
+        await invocationConfiguration.Output.WriteLineAsync($"GraphQL Schema retrieved from {options.ServiceUrl}. ");
+        return schema;
     }
 }
