@@ -54,10 +54,34 @@ internal static class Commands
                 Validators = { result => result.AddKeyValueErrorIfFound(KeyValueParameterParser.TryGetCustomClassMapping) }
             };
 
-        var csharpVersionOption = new Option<CSharpVersion>("--csharpVersion") { Description = "C# version compatibility", DefaultValueFactory = _ => CSharpVersion.Compatible };
-        var codeDocumentationOption = new Option<CodeDocumentationType>("--codeDocumentationType") { Description = "Specifies code documentation generation option", DefaultValueFactory = _ => CodeDocumentationType.Disabled };
-        var memberAccessibilityOption = new Option<MemberAccessibility>("--memberAccessibility") { Description = "Class and interface access level", DefaultValueFactory = _ => MemberAccessibility.Public };
-        var outputTypeOption = new Option<OutputType>("--outputType") { Description = "Specifies generated classes organization", DefaultValueFactory = _ => OutputType.SingleFile };
+        var csharpVersionOption =
+            new Option<CSharpVersion>("--csharpVersion")
+            {
+                Description = "C# version compatibility",
+                DefaultValueFactory = _ => CSharpVersion.Compatible
+            };
+        
+        var codeDocumentationOption =
+            new Option<CodeDocumentationType>("--codeDocumentationType")
+            {
+                Description = "Specifies code documentation generation option",
+                DefaultValueFactory = _ => CodeDocumentationType.Disabled
+            };
+
+        var memberAccessibilityOption =
+            new Option<MemberAccessibility>("--memberAccessibility")
+            {
+                Description = "Class and interface access level",
+                DefaultValueFactory = _ => MemberAccessibility.Public
+            };
+
+        var outputTypeOption =
+            new Option<OutputType>("--outputType")
+            {
+                Description = "Specifies generated classes organization",
+                DefaultValueFactory = _ => OutputType.SingleFile
+            };
+
         var partialClassesOption = new Option<bool>("--partialClasses") { Description = "Mark classes as \"partial\"", DefaultValueFactory = _ => false };
 
         var booleanTypeMappingOption =
