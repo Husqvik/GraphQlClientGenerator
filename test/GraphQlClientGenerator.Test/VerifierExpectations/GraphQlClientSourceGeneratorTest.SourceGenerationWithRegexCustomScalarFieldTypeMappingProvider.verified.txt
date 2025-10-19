@@ -23,6 +23,7 @@ namespace SourceGeneratorTestAssembly
         public string Name { get; set; }
         public string DefaultAlias { get; set; }
         public bool IsComplex { get; set; }
+        public bool IsDeprecated { get; set; }
         public bool RequiresParameters { get; set; }
         public global::System.Type QueryBuilderType { get; set; }
     }
@@ -1302,8 +1303,8 @@ namespace SourceGeneratorTestAssembly
             new() { Name = "unitPriceVAT" },
             new() { Name = "consumption" },
             new() { Name = "consumptionUnit" },
-            new() { Name = "totalCost" },
-            new() { Name = "unitCost" },
+            new() { Name = "totalCost", IsDeprecated = true },
+            new() { Name = "unitCost", IsDeprecated = true },
             new() { Name = "cost" },
             new() { Name = "currency" }
         };
@@ -1575,7 +1576,7 @@ namespace SourceGeneratorTestAssembly
             new() { Name = "count" },
             new() { Name = "currency" },
             new() { Name = "totalCost" },
-            new() { Name = "energyCost" },
+            new() { Name = "energyCost", IsDeprecated = true },
             new() { Name = "totalConsumption" },
             new() { Name = "filtered" }
         };
@@ -2004,7 +2005,7 @@ namespace SourceGeneratorTestAssembly
         private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
         {
             new() { Name = "unimplementedField" },
-            new() { Name = "unimplementedDeprecatedField" },
+            new() { Name = "unimplementedDeprecatedField", IsDeprecated = true },
             new() { Name = "endCursor" },
             new() { Name = "hasNextPage" },
             new() { Name = "hasPreviousPage" },
@@ -2322,7 +2323,7 @@ namespace SourceGeneratorTestAssembly
             new() { Name = "validFrom" },
             new() { Name = "validTo" },
             new() { Name = "status" },
-            new() { Name = "statusReason" },
+            new() { Name = "statusReason", IsDeprecated = true },
             new() { Name = "priceInfo", IsComplex = true, QueryBuilderType = typeof(SourceGeneratedPriceInfoQueryBuilderV2) }
         };
 

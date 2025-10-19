@@ -628,7 +628,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         {
             writer.Write(indentation);
             writer.Write("        if (");
-            
+
             if (isRichMode)
             {
                 writer.Write(kvp.Key);
@@ -977,6 +977,9 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                     writer.Write(csharpPropertyName);
                     writer.Write('"');
                 }
+
+                if (field.IsDeprecated)
+                    writer.Write(", IsDeprecated = true");
 
                 var requiresParameters = ResolveParameterDefinitions(context, graphQlType, field.Args).Any(a => !a.IsNullable);
                 if (requiresParameters)
@@ -1838,7 +1841,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         {
             writer.Write(indentation);
             writer.WriteLine("/// <summary>");
-            
+
             foreach (var line in description.Split('\n').Select(l => l.Trim().EscapeXmlElementText()))
             {
                 writer.Write(indentation);

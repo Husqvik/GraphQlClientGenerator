@@ -70,7 +70,7 @@ public class GraphQlClientSourceGeneratorTest : IDisposable
         result.GeneratedSources.Length.ShouldBe(70);
         var fileSizes = result.GeneratedSources.Where(s => s.HintName != "BaseClasses.cs").Select(s => s.SourceText.ToString().ReplaceLineEndings().Length).ToArray();
         fileSizes.ShouldBe(
-            [3581, 745, 579, 792, 1405, 486, 621, 927, 696, 714, 1446, 2852, 10599, 3375, 4497, 1378, 3800, 3519, 3620, 2620, 2506, 5561, 4038, 1597, 2476, 4563, 4342, 1627, 2455, 4140, 3537, 1616, 1155, 4009, 1792, 1579, 1839, 8725, 2071, 6394, 2207, 709, 1699, 5619, 2092, 3257, 983, 2955, 2361, 1660, 2155, 1139, 3571, 704, 969, 1134, 4025, 2771, 833, 1130, 3716, 2281, 831, 770, 1458, 1007, 877, 780, 8460]);
+            [3581, 745, 579, 792, 1405, 486, 621, 927, 696, 714, 1446, 2852, 10599, 3375, 4497, 1378, 3800, 3540, 3620, 2620, 2506, 5561, 4059, 1597, 2476, 4584, 4384, 1627, 2455, 4140, 3537, 1616, 1155, 4009, 1792, 1579, 1839, 8725, 2071, 6394, 2207, 709, 1699, 5619, 2092, 3257, 983, 2955, 2361, 1660, 2155, 1139, 3571, 704, 969, 1134, 4025, 2771, 833, 1130, 3716, 2281, 831, 770, 1458, 1007, 877, 780, 8460]);
     }
 
     private static Dictionary<string, string> SetupGeneratorOptions(OutputType outputType, bool useFileScopedNamespaces, string scalarFieldTypeMappingProviderTypeName)

@@ -3,6 +3,7 @@
     public string Name { get; set; }
     public string DefaultAlias { get; set; }
     public bool IsComplex { get; set; }
+    public bool IsDeprecated { get; set; }
     public bool RequiresParameters { get; set; }
     public global::System.Type QueryBuilderType { get; set; }
 }
