@@ -9,8 +9,9 @@
     <Title>GraphQL C# Client Generator</Title>
     <PackageTags>GraphQL Client Generator</PackageTags>
     <PackageReleaseNotes>
-      <![CDATA[new generation option: InputObjectMode
-include "isOneOf" field in metadata if directive supported
+      <![CDATA[include "IsDeprecated" into GraphQlFieldMetadata
+include GraphQl.NET default scalars into default scalar field type mapping provider
+improve generation customizations
       ]]>
     </PackageReleaseNotes>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
