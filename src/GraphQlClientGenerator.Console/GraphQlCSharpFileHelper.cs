@@ -34,19 +34,19 @@ internal static class GraphQlCSharpFileHelper
         {
             var schemaJson = await File.ReadAllTextAsync(options.SchemaFile.FullName, cancellationToken);
             await invocationConfiguration.Output.WriteLineAsync($"GraphQL schema file {options.SchemaFile.FullName} loaded ({schemaJson.Length:N0} B). ");
-            return GraphQlGenerator.DeserializeGraphQlSchema(schemaJson);
+            return GraphQlHttpUtilities.DeserializeGraphQlSchema(schemaJson);
         }
 
         if (!KeyValueParameterParser.TryGetCustomHeaders(options.Header, out var headers, out var headerParsingErrorMessage))
             throw new InvalidOperationException(headerParsingErrorMessage);
 
-        using var httpClientHandler = GraphQlGenerator.CreateDefaultHttpClientHandler();
+        using var httpClientHandler = GraphQlHttpUtilities.CreateDefaultHttpClientHandler();
 
         if (options.IgnoreServiceUrlCertificateErrors)
             httpClientHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
 
         var schema =
-            await GraphQlGenerator.RetrieveSchema(
+            await GraphQlHttpUtilities.RetrieveSchema(
                 new HttpMethod(options.HttpMethod),
                 options.ServiceUrl,
                 headers,

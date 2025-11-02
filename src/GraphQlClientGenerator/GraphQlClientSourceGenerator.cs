@@ -256,13 +256,13 @@ public class GraphQlClientSourceGenerator : IIncrementalGenerator
         var graphQlSchemas = new List<(string TargetFileName, GraphQlSchema Schema)>();
         if (setup.SchemaFiles.Count == 0)
         {
-            using var httpClientHandler = GraphQlGenerator.CreateDefaultHttpClientHandler();
+            using var httpClientHandler = GraphQlHttpUtilities.CreateDefaultHttpClientHandler();
 
             if (setup.IgnoreServiceUrlCertificateErrors)
                 httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
 
             var graphQlSchema =
-                GraphQlGenerator.RetrieveSchema(setup.HttpMethod, setup.ServiceUrl, setup.HttpHeaders, httpClientHandler, GraphQlWellKnownDirective.None)
+                GraphQlHttpUtilities.RetrieveSchema(setup.HttpMethod, setup.ServiceUrl, setup.HttpHeaders, httpClientHandler, GraphQlWellKnownDirective.None)
                     .GetAwaiter()
                     .GetResult();
 
@@ -281,7 +281,7 @@ public class GraphQlClientSourceGenerator : IIncrementalGenerator
                 }
 
                 var targetFileName = $"{Path.GetFileNameWithoutExtension(schemaFile.Path)}.cs";
-                graphQlSchemas.Add((targetFileName, GraphQlGenerator.DeserializeGraphQlSchema(schemaJsom)));
+                graphQlSchemas.Add((targetFileName, GraphQlHttpUtilities.DeserializeGraphQlSchema(schemaJsom)));
             }
         }
 

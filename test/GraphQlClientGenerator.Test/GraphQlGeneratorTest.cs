@@ -13,7 +13,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
     private static readonly GraphQlSchema TestSchema = DeserializeTestSchema("TestSchema");
 
     private static GraphQlSchema DeserializeTestSchema(string resourceName) =>
-        GraphQlGenerator.DeserializeGraphQlSchema(GetTestResource($"TestSchemas.{resourceName}"));
+        GraphQlHttpUtilities.DeserializeGraphQlSchema(GetTestResource($"TestSchemas.{resourceName}"));
 
     private static TestSingleFileGenerationContext CreateGenerationContext(
         StringBuilder builder,
@@ -245,7 +245,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
                 TargetNamespace = "GraphQlGenerator.Test",
                 CodeDocumentationType = CodeDocumentationType.XmlSummary | CodeDocumentationType.DescriptionAttribute
             };
-            
+
         var generator = new GraphQlGenerator(configuration);
         var generatedSourceCode = generator.GenerateFullClientCSharpFile(TestSchema);
         return Verify(generatedSourceCode);
@@ -359,7 +359,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
                 ClassSuffix = "V1",
                 MemberAccessibility = MemberAccessibility.Internal
             };
-            
+
         var schema = DeserializeTestSchema("TestSchema2");
 
         var stringBuilder = new StringBuilder();
@@ -408,7 +408,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
                 EnumValueNaming = EnumValueNamingOption.Original,
                 ScalarFieldTypeMappingProvider = TestFormatMaskScalarFieldTypeMappingProvider.Instance
             };
-            
+
         var schema = DeserializeTestSchema("TestSchemaWithUnions");
 
         var stringBuilder = new StringBuilder();
@@ -447,11 +447,11 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
                         new GraphQlFieldMetadata { Name = "testField" },
                         new GraphQlFieldMetadata { Name = "objectParameter" }
                     };
-            
+
                 protected override string TypeName { get; } = "Test";
-            
+
                 public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
-            
+
             	public TestQueryBuilder WithTestField(
                     QueryBuilderParameter<short?> valueInt16 = null,
                     QueryBuilderParameter<ushort?> valueUInt16 = null,
@@ -471,58 +471,58 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
             		var args = new List<QueryBuilderArgumentInfo>();
             		if (valueInt16 != null)
             			args.Add(new QueryBuilderArgumentInfo { ArgumentName = "valueInt16", ArgumentValue = valueInt16 });
-            
+
             		if (valueUInt16 != null)
             			args.Add(new QueryBuilderArgumentInfo { ArgumentName = "valueUInt16", ArgumentValue = valueUInt16 });
-            
+
             		if (valueByte != null)
             			args.Add(new QueryBuilderArgumentInfo { ArgumentName = "valueByte", ArgumentValue = valueByte });
-            
+
             		if (valueInt32 != null)
             			args.Add(new QueryBuilderArgumentInfo { ArgumentName = "valueInt32", ArgumentValue = valueInt32 });
-            
+
             		if (valueUInt32 != null)
             			args.Add(new QueryBuilderArgumentInfo { ArgumentName = "valueUInt32", ArgumentValue = valueUInt32 });
-            
+
             		if (valueInt64 != null)
             			args.Add(new QueryBuilderArgumentInfo { ArgumentName = "valueInt64", ArgumentValue = valueInt64 });
-            
+
             		if (valueUInt64 != null)
             			args.Add(new QueryBuilderArgumentInfo { ArgumentName = "valueUInt64", ArgumentValue = valueUInt64 });
-            
+
             		if (valueSingle != null)
             			args.Add(new QueryBuilderArgumentInfo { ArgumentName = "valueSingle", ArgumentValue = valueSingle });
-            
+
             		if (valueDouble != null)
             			args.Add(new QueryBuilderArgumentInfo { ArgumentName = "valueDouble", ArgumentValue = valueDouble });
-            
+
             		if (valueDecimal != null)
             			args.Add(new QueryBuilderArgumentInfo { ArgumentName = "valueDecimal", ArgumentValue = valueDecimal });
-            
+
             		if (valueDateTime != null)
             			args.Add(new QueryBuilderArgumentInfo { ArgumentName = "valueDateTime", ArgumentValue = valueDateTime, FormatMask = "yy-MM-dd HH:mmZ" });
-            
+
             		if (valueDateTimeOffset != null)
             			args.Add(new QueryBuilderArgumentInfo { ArgumentName = "valueDateTimeOffset", ArgumentValue = valueDateTimeOffset });
-            
+
             		if (valueGuid != null)
             			args.Add(new QueryBuilderArgumentInfo { ArgumentName = "valueGuid", ArgumentValue = valueGuid });
-            
+
             		if (valueString != null)
             			args.Add(new QueryBuilderArgumentInfo { ArgumentName = "valueString", ArgumentValue = valueString });
-            
+
             		return WithScalarField("testField", null, null, args);
             	}
-            
+
                 public TestQueryBuilder WithObjectParameterField(QueryBuilderParameter<object> objectParameter = null)
             	{
             		var args = new List<QueryBuilderArgumentInfo>();
             		if (objectParameter != null)
             			args.Add(new QueryBuilderArgumentInfo { ArgumentName = "objectParameter", ArgumentValue = objectParameter });
-            
+
                     return WithScalarField("objectParameter", "fieldAlias", new GraphQlDirective[] { new IncludeDirective(new GraphQlQueryParameter<bool>("direct", "Boolean", true)), new SkipDirective((QueryBuilderParameter<bool>)false) }, args);
                 }
-            
+
                 public TestQueryBuilder WithTestFragment(MeQueryBuilder queryBuilder) => WithFragment(queryBuilder, null);
             }
             """);
@@ -733,27 +733,27 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
                     {
                         new GraphQlFieldMetadata { Name = "testAction" }
                     };
-            
+
                 protected override string TypeName { get; } = "TestMutation";
-            
+
                 public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get; } = AllFieldMetadata;
-            
+
                 public TestMutationBuilder(string operationName = null) : base("mutation", operationName)
                 {
                 }
-            
+
                 public TestMutationBuilder WithParameter<T>(GraphQlQueryParameter<T> parameter) => WithParameterInternal(parameter);
-            
+
             	public TestMutationBuilder WithTestAction(QueryBuilderParameter<TestInput> input = null)
             	{
             		var args = new List<QueryBuilderArgumentInfo>();
             		if (input != null)
             			args.Add(new QueryBuilderArgumentInfo { ArgumentName = "objectParameter", ArgumentValue = input });
-            
+
                     return WithScalarField("testAction", null, null, args);
                 }
             }
-            
+
             public partial class TestInput : IGraphQlInputObject
             {
             	private InputPropertyInfo _inputObject1;
@@ -761,42 +761,42 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
                 private InputPropertyInfo _testProperty;
                 private InputPropertyInfo _testNullValueProperty;
                 private InputPropertyInfo _timestampProperty;
-        
+
             	[JsonConverter(typeof(QueryBuilderParameterConverter<TestInput>))]
             	public QueryBuilderParameter<TestInput> InputObject1
             	{
             		get => (QueryBuilderParameter<TestInput>)_inputObject1.Value;
             		set => _inputObject1 = new InputPropertyInfo { Name = "inputObject1", Value = value };
             	}
-        
+
             	[JsonConverter(typeof(QueryBuilderParameterConverter<TestInput>))]
             	public QueryBuilderParameter<TestInput> InputObject2
             	{
             		get => (QueryBuilderParameter<TestInput>)_inputObject2.Value;
             		set => _inputObject2 = new InputPropertyInfo { Name = "inputObject2", Value = value };
             	}
-        
+
                 [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
             	public QueryBuilderParameter<string> TestProperty
             	{
             		get => (QueryBuilderParameter<string>)_testProperty.Value;
             		set => _testProperty = new InputPropertyInfo { Name = "testProperty", Value = value };
             	}
-        
+
                 [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
             	public QueryBuilderParameter<string> TestNullValueProperty
             	{
             		get => (QueryBuilderParameter<string>)_testNullValueProperty.Value;
             		set => _testNullValueProperty = new InputPropertyInfo { Name = "testNullValueProperty", Value = value };
             	}
-        
+
                 [JsonConverter(typeof(QueryBuilderParameterConverter<DateTimeOffset?>))]
             	public QueryBuilderParameter<DateTimeOffset?> Timestamp
             	{
             		get => (QueryBuilderParameter<DateTimeOffset?>)_timestampProperty.Value;
             		set => _timestampProperty = new InputPropertyInfo { Name = "timestamp", Value = value, FormatMask = "yy-MM-dd HH:mm zzz" };
             	}
-        
+
             	IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
             	{
             		if (_inputObject1.Name != null) yield return _inputObject1;
@@ -897,7 +897,7 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
     public Task WithNestedListsOfComplexObjects()
     {
         var configuration = new GraphQlGeneratorConfiguration();
-            
+
         var schema = DeserializeTestSchema("TestSchemaWithNestedListsOfComplexObjects");
 
         var stringBuilder = new StringBuilder();
