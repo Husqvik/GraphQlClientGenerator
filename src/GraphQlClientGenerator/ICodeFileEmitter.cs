@@ -23,7 +23,7 @@ public class CodeFile : IDisposable
 
     public CodeFile(string fileName, Stream stream)
     {
-        _stream = stream ?? throw new ArgumentNullException();
+        _stream = stream ?? throw new ArgumentNullException(nameof(stream));
         _writer = new StreamWriter(_stream, Encoding.UTF8);
         FileName = fileName;
     }

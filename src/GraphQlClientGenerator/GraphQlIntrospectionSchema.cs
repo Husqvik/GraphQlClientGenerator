@@ -69,7 +69,7 @@ public class GraphQlField : GraphQlEnumValue, IGraphQlMember
 }
 
 [DebuggerDisplay($"{nameof(GraphQlArgument)} ({nameof(Name)}={{{nameof(Name)},nq}}; {nameof(Description)}={{{nameof(Description)},nq}})")]
-public class GraphQlArgument : GraphQlValueBase, IGraphQlMember
+public class GraphQlArgument : GraphQlEnumValue, IGraphQlMember
 {
     public GraphQlFieldType Type { get; set; }
     public object DefaultValue { get; set; }

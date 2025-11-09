@@ -264,7 +264,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                 context,
                 inputObjectType,
                 [InputObjectInterfaceTypeName],
-                c => GenerateInputDataClassBody(c, inputObjectType.InputFields, context));
+                c => GenerateInputDataClassBody(c, inputObjectType.InputFields.Where(context.FilterIfDeprecated), context));
 
         context.AfterInputClassesGeneration();
     }
@@ -425,7 +425,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         }
     }
 
-    private void GenerateInputDataClassBody(ObjectGenerationContext objectContext, IList<GraphQlArgument> members, GenerationContext context)
+    private void GenerateInputDataClassBody(ObjectGenerationContext objectContext, IEnumerable<GraphQlArgument> members, GenerationContext context)
     {
         var writer = context.Writer;
         var indentation = GetIndentation(context.IndentationSize);
@@ -452,8 +452,8 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
                     OwnerType = objectContext.GraphQlType,
                     PropertyName = propertyName,
                     RequiresNew = false,
-                    IsDeprecated = false,
-                    DeprecationReason = null,
+                    IsDeprecated = member.IsDeprecated,
+                    DeprecationReason = member.DeprecationReason,
                     DecorateWithJsonPropertyAttribute = true,
                     RequiresRawName = false
                 });
@@ -1260,7 +1260,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
 
         var parameterDefinitions = new List<QueryBuilderParameterDefinition>();
         var collidingNames = new Dictionary<string, int>();
-        foreach (var argument in graphQlArguments.Where(a => IsCompatibleArgument(a.Type)))
+        foreach (var argument in graphQlArguments.Where(a => context.FilterIfDeprecated(a) && IsCompatibleArgument(a.Type)))
         {
             var netParameterName = CSharpHelper.EnsureCSharpQuoting(NamingHelper.LowerFirst(NamingHelper.ToPascalCase(argument.Name)));
             collidingNames[netParameterName] = collidingNames.TryGetValue(netParameterName, out var extendingIndex) ? extendingIndex + 1 : 1;

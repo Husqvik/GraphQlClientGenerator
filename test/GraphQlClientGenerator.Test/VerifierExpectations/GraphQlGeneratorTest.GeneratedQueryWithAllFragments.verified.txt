@@ -1,0 +1,1618 @@
+﻿#region GraphQL type helpers
+public static class GraphQlTypes
+{
+    public const string Boolean = "Boolean";
+    public const string DateTimeOffset = "DateTimeOffset";
+    public const string Dynamic = "Dynamic";
+    public const string Float = "Float";
+    public const string Id = "ID";
+    public const string String = "String";
+
+    public const string UnderscoreNamedEnum = "underscore_named_enum";
+
+    public const string Attribute = "Attribute";
+    public const string CollisionData = "CollisionData";
+    public const string ConcreteType1 = "ConcreteType1";
+    public const string ConcreteType2 = "ConcreteType2";
+    public const string ConcreteType3 = "ConcreteType3";
+    public const string ConcreteType4 = "ConcreteType4";
+    public const string Message = "Message";
+    public const string Mutation = "Mutation";
+    public const string Query = "Query";
+    public const string SimpleObjectType = "SimpleObjectType";
+    public const string Type = "Type";
+    public const string TypeWithOnlyDeprecatedFields = "TypeWithOnlyDeprecatedFields";
+    public const string UnderscoreNamedClass = "underscore_named_class";
+    public const string ValueAccessorObject = "ValueAccessorObject";
+
+    public const string Collision = "Collision";
+    public const string InputType = "InputType";
+    public const string UnderscoreNamedInput = "underscore_named_input";
+
+    public const string UnionType = "UnionType";
+
+    public const string BaseType = "BaseType";
+    public const string NamedType = "NamedType";
+    public const string OtherWithName = "OtherWithName";
+    public const string ValueAccessor = "ValueAccessor";
+    public const string WithOnlyDeprecatedFields = "WithOnlyDeprecatedFields";
+    public const string WithValueAccessor = "WithValueAccessor";
+    public const string WithValueAccessorObject = "WithValueAccessorObject";
+
+    public static readonly IReadOnlyDictionary<global::System.Type, string> ReverseMapping =
+        new Dictionary<global::System.Type, string>
+        {
+            { typeof(string), "String" },
+            { typeof(Guid), "ID" },
+            { typeof(DateTimeOffset), "DateTimeOffset" },
+            { typeof(Collision4), "Collision" },
+            { typeof(InputType), "InputType" },
+            { typeof(UnderscoreNamedInput), "underscore_named_input" }
+        };
+}
+#endregion
+
+#region enums
+public enum UnderscoreNamedEnum
+{
+    [EnumMember(Value = "an_enum_value_1")] AnEnumValue1,
+    [EnumMember(Value = "an_enum_value_2")] AnEnumValue2
+}
+#endregion
+
+#region directives
+public class IncludeDirective : GraphQlDirective
+{
+    public IncludeDirective(QueryBuilderParameter<bool> @if) : base("include")
+    {
+        AddArgument("if", @if);
+    }
+}
+
+public class SkipDirective : GraphQlDirective
+{
+    public SkipDirective(QueryBuilderParameter<bool> @if) : base("skip")
+    {
+        AddArgument("if", @if);
+    }
+}
+
+public class CustomDirectiveDirective : GraphQlDirective
+{
+    public CustomDirectiveDirective(QueryBuilderParameter<bool?> directiveParameter = null) : base("custom_directive")
+    {
+        AddArgument("directive_parameter", directiveParameter);
+    }
+}
+#endregion
+
+#region builder classes
+public partial class TypeQueryBuilder : GraphQlQueryBuilder<TypeQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "id" }
+        };
+
+    protected override string TypeName { get { return "Type"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public TypeQueryBuilder WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("id", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public TypeQueryBuilder ExceptId()
+    {
+        return ExceptField("id");
+    }
+}
+
+public partial class SimpleObjectTypeQueryBuilder : GraphQlQueryBuilder<SimpleObjectTypeQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "id" },
+            new GraphQlFieldMetadata { Name = "stringValueNullable" },
+            new GraphQlFieldMetadata { Name = "stringValue" },
+            new GraphQlFieldMetadata { Name = "stringArrayValue", IsComplex = true },
+            new GraphQlFieldMetadata { Name = "nestedList", IsComplex = true, QueryBuilderType = typeof(SimpleObjectTypeQueryBuilder) }
+        };
+
+    protected override string TypeName { get { return "SimpleObjectType"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public SimpleObjectTypeQueryBuilder WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("id", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public SimpleObjectTypeQueryBuilder ExceptId()
+    {
+        return ExceptField("id");
+    }
+
+    public SimpleObjectTypeQueryBuilder WithStringValueNullable(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("stringValueNullable", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public SimpleObjectTypeQueryBuilder ExceptStringValueNullable()
+    {
+        return ExceptField("stringValueNullable");
+    }
+
+    public SimpleObjectTypeQueryBuilder WithStringValue(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("stringValue", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public SimpleObjectTypeQueryBuilder ExceptStringValue()
+    {
+        return ExceptField("stringValue");
+    }
+
+    public SimpleObjectTypeQueryBuilder WithStringArrayValue(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("stringArrayValue", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public SimpleObjectTypeQueryBuilder ExceptStringArrayValue()
+    {
+        return ExceptField("stringArrayValue");
+    }
+
+    public SimpleObjectTypeQueryBuilder WithNestedList(SimpleObjectTypeQueryBuilder simpleObjectTypeQueryBuilder, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithObjectField("nestedList", alias, simpleObjectTypeQueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public SimpleObjectTypeQueryBuilder ExceptNestedList()
+    {
+        return ExceptField("nestedList");
+    }
+}
+
+public partial class TypeWithOnlyDeprecatedFieldsQueryBuilder : GraphQlQueryBuilder<TypeWithOnlyDeprecatedFieldsQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "id", IsDeprecated = true }
+        };
+
+    protected override string TypeName { get { return "TypeWithOnlyDeprecatedFields"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    [Obsolete(@"Use 'SimpleObjectType' instead")]
+    public TypeWithOnlyDeprecatedFieldsQueryBuilder WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("id", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public TypeWithOnlyDeprecatedFieldsQueryBuilder ExceptId()
+    {
+        return ExceptField("id");
+    }
+}
+
+public partial class UnionTypeQueryBuilder : GraphQlQueryBuilder<UnionTypeQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata = new GraphQlFieldMetadata[0];
+
+    public UnionTypeQueryBuilder()
+    {
+        WithTypeName();
+    }
+
+    protected override string TypeName { get { return "UnionType"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public UnionTypeQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithFragment(concreteType1QueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public UnionTypeQueryBuilder WithConcreteType2Fragment(ConcreteType2QueryBuilder concreteType2QueryBuilder, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithFragment(concreteType2QueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public UnionTypeQueryBuilder WithConcreteType3Fragment(ConcreteType3QueryBuilder concreteType3QueryBuilder, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithFragment(concreteType3QueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public UnionTypeQueryBuilder WithConcreteType4Fragment(ConcreteType4QueryBuilder concreteType4QueryBuilder, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithFragment(concreteType4QueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+}
+
+public partial class NamedTypeQueryBuilder : GraphQlQueryBuilder<NamedTypeQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "name" }
+        };
+
+    public NamedTypeQueryBuilder()
+    {
+        WithTypeName();
+    }
+
+    protected override string TypeName { get { return "NamedType"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public NamedTypeQueryBuilder WithName(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("name", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public NamedTypeQueryBuilder ExceptName()
+    {
+        return ExceptField("name");
+    }
+
+    public NamedTypeQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithFragment(concreteType1QueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public NamedTypeQueryBuilder WithConcreteType2Fragment(ConcreteType2QueryBuilder concreteType2QueryBuilder, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithFragment(concreteType2QueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public NamedTypeQueryBuilder WithConcreteType3Fragment(ConcreteType3QueryBuilder concreteType3QueryBuilder, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithFragment(concreteType3QueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+}
+
+public partial class WithOnlyDeprecatedFieldsQueryBuilder : GraphQlQueryBuilder<WithOnlyDeprecatedFieldsQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "deprecated_field", IsDeprecated = true }
+        };
+
+    public WithOnlyDeprecatedFieldsQueryBuilder()
+    {
+        WithTypeName();
+    }
+
+    protected override string TypeName { get { return "WithOnlyDeprecatedFields"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    [Obsolete(@"do not use")]
+    public WithOnlyDeprecatedFieldsQueryBuilder WithDeprecatedField(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("deprecated_field", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public WithOnlyDeprecatedFieldsQueryBuilder ExceptDeprecatedField()
+    {
+        return ExceptField("deprecated_field");
+    }
+
+    public WithOnlyDeprecatedFieldsQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithFragment(concreteType1QueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+}
+
+public partial class OtherWithNameQueryBuilder : GraphQlQueryBuilder<OtherWithNameQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "name" }
+        };
+
+    public OtherWithNameQueryBuilder()
+    {
+        WithTypeName();
+    }
+
+    protected override string TypeName { get { return "OtherWithName"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public OtherWithNameQueryBuilder WithName(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("name", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public OtherWithNameQueryBuilder ExceptName()
+    {
+        return ExceptField("name");
+    }
+
+    public OtherWithNameQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithFragment(concreteType1QueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+}
+
+public partial class BaseTypeQueryBuilder : GraphQlQueryBuilder<BaseTypeQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "name" }
+        };
+
+    public BaseTypeQueryBuilder()
+    {
+        WithTypeName();
+    }
+
+    protected override string TypeName { get { return "BaseType"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public BaseTypeQueryBuilder WithName(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("name", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public BaseTypeQueryBuilder ExceptName()
+    {
+        return ExceptField("name");
+    }
+
+    public BaseTypeQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithFragment(concreteType1QueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+}
+
+public partial class ValueAccessorQueryBuilder : GraphQlQueryBuilder<ValueAccessorQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "value" }
+        };
+
+    public ValueAccessorQueryBuilder()
+    {
+        WithTypeName();
+    }
+
+    protected override string TypeName { get { return "ValueAccessor"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public ValueAccessorQueryBuilder WithValue(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("value", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public ValueAccessorQueryBuilder ExceptValue()
+    {
+        return ExceptField("value");
+    }
+
+    public ValueAccessorQueryBuilder WithValueAccessorObjectFragment(ValueAccessorObjectQueryBuilder valueAccessorObjectQueryBuilder, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithFragment(valueAccessorObjectQueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+}
+
+public partial class ValueAccessorObjectQueryBuilder : GraphQlQueryBuilder<ValueAccessorObjectQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "value" }
+        };
+
+    protected override string TypeName { get { return "ValueAccessorObject"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public ValueAccessorObjectQueryBuilder WithValue(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("value", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public ValueAccessorObjectQueryBuilder ExceptValue()
+    {
+        return ExceptField("value");
+    }
+}
+
+public partial class WithValueAccessorQueryBuilder : GraphQlQueryBuilder<WithValueAccessorQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "accessor", IsComplex = true, QueryBuilderType = typeof(ValueAccessorQueryBuilder) },
+            new GraphQlFieldMetadata { Name = "accessors", IsComplex = true, QueryBuilderType = typeof(ValueAccessorQueryBuilder) },
+            new GraphQlFieldMetadata { Name = "nestedAccessors", IsComplex = true, QueryBuilderType = typeof(ValueAccessorQueryBuilder) }
+        };
+
+    public WithValueAccessorQueryBuilder()
+    {
+        WithTypeName();
+    }
+
+    protected override string TypeName { get { return "WithValueAccessor"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public WithValueAccessorQueryBuilder WithAccessor(ValueAccessorQueryBuilder valueAccessorQueryBuilder, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithObjectField("accessor", alias, valueAccessorQueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public WithValueAccessorQueryBuilder ExceptAccessor()
+    {
+        return ExceptField("accessor");
+    }
+
+    public WithValueAccessorQueryBuilder WithAccessors(ValueAccessorQueryBuilder valueAccessorQueryBuilder, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithObjectField("accessors", alias, valueAccessorQueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public WithValueAccessorQueryBuilder ExceptAccessors()
+    {
+        return ExceptField("accessors");
+    }
+
+    public WithValueAccessorQueryBuilder WithNestedAccessors(ValueAccessorQueryBuilder valueAccessorQueryBuilder, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithObjectField("nestedAccessors", alias, valueAccessorQueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public WithValueAccessorQueryBuilder ExceptNestedAccessors()
+    {
+        return ExceptField("nestedAccessors");
+    }
+
+    public WithValueAccessorQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithFragment(concreteType1QueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+}
+
+public partial class WithValueAccessorObjectQueryBuilder : GraphQlQueryBuilder<WithValueAccessorObjectQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "accessor", IsComplex = true, QueryBuilderType = typeof(ValueAccessorObjectQueryBuilder) },
+            new GraphQlFieldMetadata { Name = "accessors", IsComplex = true, QueryBuilderType = typeof(ValueAccessorObjectQueryBuilder) },
+            new GraphQlFieldMetadata { Name = "nestedAccessors", IsComplex = true, QueryBuilderType = typeof(ValueAccessorObjectQueryBuilder) }
+        };
+
+    public WithValueAccessorObjectQueryBuilder()
+    {
+        WithTypeName();
+    }
+
+    protected override string TypeName { get { return "WithValueAccessorObject"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public WithValueAccessorObjectQueryBuilder WithAccessor(ValueAccessorObjectQueryBuilder valueAccessorObjectQueryBuilder, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithObjectField("accessor", alias, valueAccessorObjectQueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public WithValueAccessorObjectQueryBuilder ExceptAccessor()
+    {
+        return ExceptField("accessor");
+    }
+
+    public WithValueAccessorObjectQueryBuilder WithAccessors(ValueAccessorObjectQueryBuilder valueAccessorObjectQueryBuilder, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithObjectField("accessors", alias, valueAccessorObjectQueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public WithValueAccessorObjectQueryBuilder ExceptAccessors()
+    {
+        return ExceptField("accessors");
+    }
+
+    public WithValueAccessorObjectQueryBuilder WithNestedAccessors(ValueAccessorObjectQueryBuilder valueAccessorObjectQueryBuilder, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithObjectField("nestedAccessors", alias, valueAccessorObjectQueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public WithValueAccessorObjectQueryBuilder ExceptNestedAccessors()
+    {
+        return ExceptField("nestedAccessors");
+    }
+
+    public WithValueAccessorObjectQueryBuilder WithConcreteType1Fragment(ConcreteType1QueryBuilder concreteType1QueryBuilder, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithFragment(concreteType1QueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+}
+
+public partial class ConcreteType1QueryBuilder : GraphQlQueryBuilder<ConcreteType1QueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "TypeName" },
+            new GraphQlFieldMetadata { Name = "name" },
+            new GraphQlFieldMetadata { Name = "concreteType1Field" },
+            new GraphQlFieldMetadata { Name = "value" },
+            new GraphQlFieldMetadata { Name = "deprecated_field" },
+            new GraphQlFieldMetadata { Name = "accessor", IsComplex = true, QueryBuilderType = typeof(ValueAccessorObjectQueryBuilder) },
+            new GraphQlFieldMetadata { Name = "accessors", IsComplex = true, QueryBuilderType = typeof(ValueAccessorObjectQueryBuilder) },
+            new GraphQlFieldMetadata { Name = "nestedAccessors", IsComplex = true, QueryBuilderType = typeof(ValueAccessorObjectQueryBuilder) }
+        };
+
+    protected override string TypeName { get { return "ConcreteType1"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public ConcreteType1QueryBuilder WithTypeName(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("TypeName", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public ConcreteType1QueryBuilder ExceptTypeName()
+    {
+        return ExceptField("TypeName");
+    }
+
+    public ConcreteType1QueryBuilder WithName(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("name", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public ConcreteType1QueryBuilder ExceptName()
+    {
+        return ExceptField("name");
+    }
+
+    public ConcreteType1QueryBuilder WithConcreteType1Field(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("concreteType1Field", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public ConcreteType1QueryBuilder ExceptConcreteType1Field()
+    {
+        return ExceptField("concreteType1Field");
+    }
+
+    public ConcreteType1QueryBuilder WithValue(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("value", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public ConcreteType1QueryBuilder ExceptValue()
+    {
+        return ExceptField("value");
+    }
+
+    public ConcreteType1QueryBuilder WithDeprecatedField(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("deprecated_field", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public ConcreteType1QueryBuilder ExceptDeprecatedField()
+    {
+        return ExceptField("deprecated_field");
+    }
+
+    public ConcreteType1QueryBuilder WithAccessor(ValueAccessorObjectQueryBuilder valueAccessorObjectQueryBuilder, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithObjectField("accessor", alias, valueAccessorObjectQueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public ConcreteType1QueryBuilder ExceptAccessor()
+    {
+        return ExceptField("accessor");
+    }
+
+    public ConcreteType1QueryBuilder WithAccessors(ValueAccessorObjectQueryBuilder valueAccessorObjectQueryBuilder, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithObjectField("accessors", alias, valueAccessorObjectQueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public ConcreteType1QueryBuilder ExceptAccessors()
+    {
+        return ExceptField("accessors");
+    }
+
+    public ConcreteType1QueryBuilder WithNestedAccessors(ValueAccessorObjectQueryBuilder valueAccessorObjectQueryBuilder, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithObjectField("nestedAccessors", alias, valueAccessorObjectQueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public ConcreteType1QueryBuilder ExceptNestedAccessors()
+    {
+        return ExceptField("nestedAccessors");
+    }
+}
+
+public partial class ConcreteType2QueryBuilder : GraphQlQueryBuilder<ConcreteType2QueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "name" },
+            new GraphQlFieldMetadata { Name = "concreteType2Field" },
+            new GraphQlFieldMetadata { Name = "value" }
+        };
+
+    protected override string TypeName { get { return "ConcreteType2"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public ConcreteType2QueryBuilder WithName(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("name", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public ConcreteType2QueryBuilder ExceptName()
+    {
+        return ExceptField("name");
+    }
+
+    public ConcreteType2QueryBuilder WithConcreteType2Field(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("concreteType2Field", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public ConcreteType2QueryBuilder ExceptConcreteType2Field()
+    {
+        return ExceptField("concreteType2Field");
+    }
+
+    public ConcreteType2QueryBuilder WithValue(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("value", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public ConcreteType2QueryBuilder ExceptValue()
+    {
+        return ExceptField("value");
+    }
+}
+
+public partial class ConcreteType3QueryBuilder : GraphQlQueryBuilder<ConcreteType3QueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "name" },
+            new GraphQlFieldMetadata { Name = "concreteType3Field" },
+            new GraphQlFieldMetadata { Name = "VALUE" },
+            new GraphQlFieldMetadata { Name = "function", RequiresParameters = true }
+        };
+
+    protected override string TypeName { get { return "ConcreteType3"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public ConcreteType3QueryBuilder WithName(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("name", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public ConcreteType3QueryBuilder ExceptName()
+    {
+        return ExceptField("name");
+    }
+
+    public ConcreteType3QueryBuilder WithConcreteType3Field(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("concreteType3Field", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public ConcreteType3QueryBuilder ExceptConcreteType3Field()
+    {
+        return ExceptField("concreteType3Field");
+    }
+
+    public ConcreteType3QueryBuilder WithValue(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("VALUE", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public ConcreteType3QueryBuilder ExceptValue()
+    {
+        return ExceptField("VALUE");
+    }
+
+    public ConcreteType3QueryBuilder WithFunction(QueryBuilderParameter<string> value, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        var args = new List<QueryBuilderArgumentInfo>();
+        args.Add(new QueryBuilderArgumentInfo { ArgumentName = "value", ArgumentValue = value} );
+        return WithScalarField("function", alias, new GraphQlDirective[] { include, skip, customDirective }, args);
+    }
+
+    public ConcreteType3QueryBuilder ExceptFunction()
+    {
+        return ExceptField("function");
+    }
+}
+
+public partial class ConcreteType4QueryBuilder : GraphQlQueryBuilder<ConcreteType4QueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "concreteType4Field" }
+        };
+
+    protected override string TypeName { get { return "ConcreteType4"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public ConcreteType4QueryBuilder WithConcreteType4Field(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("concreteType4Field", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public ConcreteType4QueryBuilder ExceptConcreteType4Field()
+    {
+        return ExceptField("concreteType4Field");
+    }
+}
+
+public partial class QueryQueryBuilder : GraphQlQueryBuilder<QueryQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "scalarValue" },
+            new GraphQlFieldMetadata { Name = "simpleObject", IsComplex = true, QueryBuilderType = typeof(SimpleObjectTypeQueryBuilder) },
+            new GraphQlFieldMetadata { Name = "objectWithOnlyDeprecatedFields", IsComplex = true, QueryBuilderType = typeof(TypeWithOnlyDeprecatedFieldsQueryBuilder) },
+            new GraphQlFieldMetadata { Name = "union", IsComplex = true, QueryBuilderType = typeof(UnionTypeQueryBuilder) },
+            new GraphQlFieldMetadata { Name = "interface", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(NamedTypeQueryBuilder) },
+            new GraphQlFieldMetadata { Name = "interfaces", RequiresParameters = true, IsComplex = true, QueryBuilderType = typeof(NamedTypeQueryBuilder) },
+            new GraphQlFieldMetadata { Name = "underscore_named_field", IsComplex = true, QueryBuilderType = typeof(UnderscoreNamedClassQueryBuilder) },
+            new GraphQlFieldMetadata { Name = "nestedLists", IsComplex = true },
+            new GraphQlFieldMetadata { Name = "_" },
+            new GraphQlFieldMetadata { Name = "COLLISIONS" },
+            new GraphQlFieldMetadata { Name = "collisions" }
+        };
+
+    protected override string TypeName { get { return "Query"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public QueryQueryBuilder(string operationName = null) : base("query", operationName)
+    {
+    }
+
+    public QueryQueryBuilder WithParameter<T>(GraphQlQueryParameter<T> parameter)
+    {
+        return WithParameterInternal(parameter);
+    }
+
+    public QueryQueryBuilder WithScalarValue(QueryBuilderParameter<DateTimeOffset?> timestamp = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        var args = new List<QueryBuilderArgumentInfo>();
+        if (timestamp != null)
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "timestamp", ArgumentValue = timestamp} );
+
+        return WithScalarField("scalarValue", alias, new GraphQlDirective[] { include, skip, customDirective }, args);
+    }
+
+    public QueryQueryBuilder ExceptScalarValue()
+    {
+        return ExceptField("scalarValue");
+    }
+
+    public QueryQueryBuilder WithSimpleObject(SimpleObjectTypeQueryBuilder simpleObjectTypeQueryBuilder, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithObjectField("simpleObject", alias, simpleObjectTypeQueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public QueryQueryBuilder ExceptSimpleObject()
+    {
+        return ExceptField("simpleObject");
+    }
+
+    public QueryQueryBuilder WithObjectWithOnlyDeprecatedFields(TypeWithOnlyDeprecatedFieldsQueryBuilder typeWithOnlyDeprecatedFieldsQueryBuilder, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithObjectField("objectWithOnlyDeprecatedFields", alias, typeWithOnlyDeprecatedFieldsQueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public QueryQueryBuilder ExceptObjectWithOnlyDeprecatedFields()
+    {
+        return ExceptField("objectWithOnlyDeprecatedFields");
+    }
+
+    public QueryQueryBuilder WithUnion(UnionTypeQueryBuilder unionTypeQueryBuilder, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithObjectField("union", alias, unionTypeQueryBuilder, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public QueryQueryBuilder ExceptUnion()
+    {
+        return ExceptField("union");
+    }
+
+    public QueryQueryBuilder WithInterface(NamedTypeQueryBuilder namedTypeQueryBuilder, QueryBuilderParameter<Guid> parameter, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        var args = new List<QueryBuilderArgumentInfo>();
+        args.Add(new QueryBuilderArgumentInfo { ArgumentName = "parameter", ArgumentValue = parameter} );
+        return WithObjectField("interface", alias, namedTypeQueryBuilder, new GraphQlDirective[] { include, skip, customDirective }, args);
+    }
+
+    public QueryQueryBuilder ExceptInterface()
+    {
+        return ExceptField("interface");
+    }
+
+    public QueryQueryBuilder WithInterfaces(NamedTypeQueryBuilder namedTypeQueryBuilder, QueryBuilderParameter<Guid> parameter, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        var args = new List<QueryBuilderArgumentInfo>();
+        args.Add(new QueryBuilderArgumentInfo { ArgumentName = "parameter", ArgumentValue = parameter} );
+        return WithObjectField("interfaces", alias, namedTypeQueryBuilder, new GraphQlDirective[] { include, skip, customDirective }, args);
+    }
+
+    public QueryQueryBuilder ExceptInterfaces()
+    {
+        return ExceptField("interfaces");
+    }
+
+    public QueryQueryBuilder WithUnderscoreNamedField(UnderscoreNamedClassQueryBuilder underscoreNamedClassQueryBuilder, QueryBuilderParameter<UnderscoreNamedInput> underscoreNamedParameter = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        var args = new List<QueryBuilderArgumentInfo>();
+        if (underscoreNamedParameter != null)
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "underscore_named_parameter", ArgumentValue = underscoreNamedParameter} );
+
+        return WithObjectField("underscore_named_field", alias, underscoreNamedClassQueryBuilder, new GraphQlDirective[] { include, skip, customDirective }, args);
+    }
+
+    public QueryQueryBuilder ExceptUnderscoreNamedField()
+    {
+        return ExceptField("underscore_named_field");
+    }
+
+    public QueryQueryBuilder WithNestedLists(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("nestedLists", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public QueryQueryBuilder ExceptNestedLists()
+    {
+        return ExceptField("nestedLists");
+    }
+
+    public QueryQueryBuilder With_(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("_", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public QueryQueryBuilder Except_()
+    {
+        return ExceptField("_");
+    }
+
+    public QueryQueryBuilder WithCOLLISIONS(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("COLLISIONS", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public QueryQueryBuilder ExceptCOLLISIONS()
+    {
+        return ExceptField("COLLISIONS");
+    }
+
+    public QueryQueryBuilder Withcollisions(QueryBuilderParameter<IEnumerable<string>> args = null, QueryBuilderParameter<IEnumerable<string>> inputArgs = null, QueryBuilderParameter<IEnumerable<string>> inputArgs1 = null, QueryBuilderParameter<bool?> skip = null, QueryBuilderParameter<bool?> skipDirective = null, QueryBuilderParameter<bool?> skipDirectiveValue = null, QueryBuilderParameter<bool?> include = null, QueryBuilderParameter<bool?> includeDirective = null, QueryBuilderParameter<bool?> includeDirectiveValue = null, string alias = null, IncludeDirective includeDirectiveValue1 = null, SkipDirective skipDirectiveValue1 = null, CustomDirectiveDirective customDirective = null)
+    {
+        var inputArgs2 = new List<QueryBuilderArgumentInfo>();
+        if (args != null)
+            inputArgs2.Add(new QueryBuilderArgumentInfo { ArgumentName = "args", ArgumentValue = args} );
+
+        if (inputArgs != null)
+            inputArgs2.Add(new QueryBuilderArgumentInfo { ArgumentName = "inputArgs", ArgumentValue = inputArgs} );
+
+        if (inputArgs1 != null)
+            inputArgs2.Add(new QueryBuilderArgumentInfo { ArgumentName = "inputArgs1", ArgumentValue = inputArgs1} );
+
+        if (skip != null)
+            inputArgs2.Add(new QueryBuilderArgumentInfo { ArgumentName = "skip", ArgumentValue = skip} );
+
+        if (skipDirective != null)
+            inputArgs2.Add(new QueryBuilderArgumentInfo { ArgumentName = "skipDirective", ArgumentValue = skipDirective} );
+
+        if (skipDirectiveValue != null)
+            inputArgs2.Add(new QueryBuilderArgumentInfo { ArgumentName = "skipDirectiveValue", ArgumentValue = skipDirectiveValue} );
+
+        if (include != null)
+            inputArgs2.Add(new QueryBuilderArgumentInfo { ArgumentName = "include", ArgumentValue = include} );
+
+        if (includeDirective != null)
+            inputArgs2.Add(new QueryBuilderArgumentInfo { ArgumentName = "includeDirective", ArgumentValue = includeDirective} );
+
+        if (includeDirectiveValue != null)
+            inputArgs2.Add(new QueryBuilderArgumentInfo { ArgumentName = "includeDirectiveValue", ArgumentValue = includeDirectiveValue} );
+
+        return WithScalarField("collisions", alias, new GraphQlDirective[] { includeDirectiveValue1, skipDirectiveValue1, customDirective }, inputArgs2);
+    }
+
+    public QueryQueryBuilder Exceptcollisions()
+    {
+        return ExceptField("collisions");
+    }
+}
+
+public partial class UnderscoreNamedClassQueryBuilder : GraphQlQueryBuilder<UnderscoreNamedClassQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "underscore_named_field_enum" },
+            new GraphQlFieldMetadata { Name = "underscore_named_field_enum_collection", IsComplex = true }
+        };
+
+    protected override string TypeName { get { return "underscore_named_class"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public UnderscoreNamedClassQueryBuilder WithUnderscoreNamedFieldEnum(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("underscore_named_field_enum", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public UnderscoreNamedClassQueryBuilder ExceptUnderscoreNamedFieldEnum()
+    {
+        return ExceptField("underscore_named_field_enum");
+    }
+
+    public UnderscoreNamedClassQueryBuilder WithUnderscoreNamedFieldEnumCollection(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("underscore_named_field_enum_collection", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public UnderscoreNamedClassQueryBuilder ExceptUnderscoreNamedFieldEnumCollection()
+    {
+        return ExceptField("underscore_named_field_enum_collection");
+    }
+}
+
+public partial class CollisionDataQueryBuilder : GraphQlQueryBuilder<CollisionDataQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "collisionData" }
+        };
+
+    protected override string TypeName { get { return "CollisionData"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public CollisionDataQueryBuilder WithCollisionData(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("collisionData", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public CollisionDataQueryBuilder ExceptCollisionData()
+    {
+        return ExceptField("collisionData");
+    }
+}
+
+public partial class MessageQueryBuilder : GraphQlQueryBuilder<MessageQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "id" },
+            new GraphQlFieldMetadata { Name = "text_value" }
+        };
+
+    protected override string TypeName { get { return "Message"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public MessageQueryBuilder WithId(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("id", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public MessageQueryBuilder ExceptId()
+    {
+        return ExceptField("id");
+    }
+
+    public MessageQueryBuilder WithTextValue(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("text_value", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public MessageQueryBuilder ExceptTextValue()
+    {
+        return ExceptField("text_value");
+    }
+}
+
+public partial class MutationQueryBuilder : GraphQlQueryBuilder<MutationQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "createMessage", IsComplex = true, QueryBuilderType = typeof(MessageQueryBuilder) },
+            new GraphQlFieldMetadata { Name = "passDynamic" },
+            new GraphQlFieldMetadata { Name = "collide", IsComplex = true, QueryBuilderType = typeof(CollisionDataQueryBuilder) }
+        };
+
+    protected override string TypeName { get { return "Mutation"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public MutationQueryBuilder(string operationName = null) : base("mutation", operationName)
+    {
+    }
+
+    public MutationQueryBuilder WithParameter<T>(GraphQlQueryParameter<T> parameter)
+    {
+        return WithParameterInternal(parameter);
+    }
+
+    public MutationQueryBuilder WithCreateMessage(MessageQueryBuilder messageQueryBuilder, QueryBuilderParameter<InputType> inputMessage = null, QueryBuilderParameter<InputType> inputMessage2 = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        var args = new List<QueryBuilderArgumentInfo>();
+        if (inputMessage != null)
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "input_message", ArgumentValue = inputMessage} );
+
+        if (inputMessage2 != null)
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "inputMessage", ArgumentValue = inputMessage2} );
+
+        return WithObjectField("createMessage", alias, messageQueryBuilder, new GraphQlDirective[] { include, skip, customDirective }, args);
+    }
+
+    public MutationQueryBuilder ExceptCreateMessage()
+    {
+        return ExceptField("createMessage");
+    }
+
+    public MutationQueryBuilder WithPassDynamic(QueryBuilderParameter<object> @object = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        var args = new List<QueryBuilderArgumentInfo>();
+        if (@object != null)
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "object", ArgumentValue = @object} );
+
+        return WithScalarField("passDynamic", alias, new GraphQlDirective[] { include, skip, customDirective }, args);
+    }
+
+    public MutationQueryBuilder ExceptPassDynamic()
+    {
+        return ExceptField("passDynamic");
+    }
+
+    public MutationQueryBuilder WithCollide(CollisionDataQueryBuilder collisionDataQueryBuilder, QueryBuilderParameter<Collision4> collision = null, string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        var args = new List<QueryBuilderArgumentInfo>();
+        if (collision != null)
+            args.Add(new QueryBuilderArgumentInfo { ArgumentName = "collision", ArgumentValue = collision} );
+
+        return WithObjectField("collide", alias, collisionDataQueryBuilder, new GraphQlDirective[] { include, skip, customDirective }, args);
+    }
+
+    public MutationQueryBuilder ExceptCollide()
+    {
+        return ExceptField("collide");
+    }
+}
+
+public partial class AttributeQueryBuilder : GraphQlQueryBuilder<AttributeQueryBuilder>
+{
+    private static readonly GraphQlFieldMetadata[] AllFieldMetadata =
+        new []
+        {
+            new GraphQlFieldMetadata { Name = "Value" }
+        };
+
+    protected override string TypeName { get { return "Attribute"; } } 
+
+    public override IReadOnlyList<GraphQlFieldMetadata> AllFields { get { return AllFieldMetadata; } } 
+
+    public AttributeQueryBuilder WithValue(string alias = null, IncludeDirective include = null, SkipDirective skip = null, CustomDirectiveDirective customDirective = null)
+    {
+        return WithScalarField("Value", alias, new GraphQlDirective[] { include, skip, customDirective });
+    }
+
+    public AttributeQueryBuilder ExceptValue()
+    {
+        return ExceptField("Value");
+    }
+}
+#endregion
+
+#region input classes
+public partial class UnderscoreNamedInput : IGraphQlInputObject
+{
+    private InputPropertyInfo _underscoreNamedFieldEnum;
+    private InputPropertyInfo _underscoreNamedFieldEnumCollection;
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("underscore_named_field_enum")]
+    [JsonConverter(typeof(QueryBuilderParameterConverter<UnderscoreNamedEnum?>))]
+    #endif
+    public QueryBuilderParameter<UnderscoreNamedEnum?> UnderscoreNamedFieldEnum
+    {
+        get { return (QueryBuilderParameter<UnderscoreNamedEnum?>)_underscoreNamedFieldEnum.Value; }
+        set { _underscoreNamedFieldEnum = new InputPropertyInfo { Name = "underscore_named_field_enum", Value = value }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("underscore_named_field_enum_collection")]
+    [JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<UnderscoreNamedEnum>>))]
+    #endif
+    public QueryBuilderParameter<ICollection<UnderscoreNamedEnum>> UnderscoreNamedFieldEnumCollection
+    {
+        get { return (QueryBuilderParameter<ICollection<UnderscoreNamedEnum>>)_underscoreNamedFieldEnumCollection.Value; }
+        set { _underscoreNamedFieldEnumCollection = new InputPropertyInfo { Name = "underscore_named_field_enum_collection", Value = value }; }
+    }
+
+    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
+    {
+        if (_underscoreNamedFieldEnum.Name != null) yield return _underscoreNamedFieldEnum;
+        if (_underscoreNamedFieldEnumCollection.Name != null) yield return _underscoreNamedFieldEnumCollection;
+    }
+}
+
+public partial class InputType : IGraphQlInputObject
+{
+    private InputPropertyInfo _textValue;
+    private InputPropertyInfo _enumValue;
+    private InputPropertyInfo _enumValue2;
+    private InputPropertyInfo _textValue2;
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("text_value")]
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    #endif
+    public QueryBuilderParameter<string> TextValue
+    {
+        get { return (QueryBuilderParameter<string>)_textValue.Value; }
+        set { _textValue = new InputPropertyInfo { Name = "text_value", Value = value }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("enum_value")]
+    [JsonConverter(typeof(QueryBuilderParameterConverter<UnderscoreNamedEnum?>))]
+    #endif
+    public QueryBuilderParameter<UnderscoreNamedEnum?> EnumValue
+    {
+        get { return (QueryBuilderParameter<UnderscoreNamedEnum?>)_enumValue.Value; }
+        set { _enumValue = new InputPropertyInfo { Name = "enum_value", Value = value }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("enumValue")]
+    [JsonConverter(typeof(QueryBuilderParameterConverter<UnderscoreNamedEnum?>))]
+    #endif
+    public QueryBuilderParameter<UnderscoreNamedEnum?> EnumValue2
+    {
+        get { return (QueryBuilderParameter<UnderscoreNamedEnum?>)_enumValue2.Value; }
+        set { _enumValue2 = new InputPropertyInfo { Name = "enumValue", Value = value }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("textValue")]
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    #endif
+    public QueryBuilderParameter<string> TextValue2
+    {
+        get { return (QueryBuilderParameter<string>)_textValue2.Value; }
+        set { _textValue2 = new InputPropertyInfo { Name = "textValue", Value = value }; }
+    }
+
+    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
+    {
+        if (_textValue.Name != null) yield return _textValue;
+        if (_enumValue.Name != null) yield return _enumValue;
+        if (_enumValue2.Name != null) yield return _enumValue2;
+        if (_textValue2.Name != null) yield return _textValue2;
+    }
+}
+
+public partial class Collision4 : IGraphQlInputObject
+{
+    private InputPropertyInfo _collision;
+    private InputPropertyInfo _collision2;
+    private InputPropertyInfo _collisionInput;
+    private InputPropertyInfo _collisionInputObject;
+    private InputPropertyInfo _collisionDataRecord;
+    private InputPropertyInfo _collisionRecord;
+    private InputPropertyInfo _collision3;
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("collision")]
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    #endif
+    public QueryBuilderParameter<string> Collision
+    {
+        get { return (QueryBuilderParameter<string>)_collision.Value; }
+        set { _collision = new InputPropertyInfo { Name = "collision", Value = value }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("collision2")]
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    #endif
+    public QueryBuilderParameter<string> Collision2
+    {
+        get { return (QueryBuilderParameter<string>)_collision2.Value; }
+        set { _collision2 = new InputPropertyInfo { Name = "collision2", Value = value }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("collisionInput")]
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    #endif
+    public QueryBuilderParameter<string> CollisionInput
+    {
+        get { return (QueryBuilderParameter<string>)_collisionInput.Value; }
+        set { _collisionInput = new InputPropertyInfo { Name = "collisionInput", Value = value }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("collisionInputObject")]
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    #endif
+    public QueryBuilderParameter<string> CollisionInputObject
+    {
+        get { return (QueryBuilderParameter<string>)_collisionInputObject.Value; }
+        set { _collisionInputObject = new InputPropertyInfo { Name = "collisionInputObject", Value = value }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("collisionDataRecord")]
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    #endif
+    public QueryBuilderParameter<string> CollisionDataRecord
+    {
+        get { return (QueryBuilderParameter<string>)_collisionDataRecord.Value; }
+        set { _collisionDataRecord = new InputPropertyInfo { Name = "collisionDataRecord", Value = value }; }
+    }
+
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("collisionRecord")]
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    #endif
+    public QueryBuilderParameter<string> CollisionRecord
+    {
+        get { return (QueryBuilderParameter<string>)_collisionRecord.Value; }
+        set { _collisionRecord = new InputPropertyInfo { Name = "collisionRecord", Value = value }; }
+    }
+
+    [Obsolete(@"input field deprecation test")]
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("collision3")]
+    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    #endif
+    public QueryBuilderParameter<string> Collision3
+    {
+        get { return (QueryBuilderParameter<string>)_collision3.Value; }
+        set { _collision3 = new InputPropertyInfo { Name = "collision3", Value = value }; }
+    }
+
+    IEnumerable<InputPropertyInfo> IGraphQlInputObject.GetPropertyValues()
+    {
+        if (_collision.Name != null) yield return _collision;
+        if (_collision2.Name != null) yield return _collision2;
+        if (_collisionInput.Name != null) yield return _collisionInput;
+        if (_collisionInputObject.Name != null) yield return _collisionInputObject;
+        if (_collisionDataRecord.Name != null) yield return _collisionDataRecord;
+        if (_collisionRecord.Name != null) yield return _collisionRecord;
+        if (_collision3.Name != null) yield return _collision3;
+    }
+}
+#endregion
+
+#region data classes
+public partial class Type
+{
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("id")]
+    #endif
+    public object Id { get; set; }
+}
+
+public partial class SimpleObjectType
+{
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("id")]
+    #endif
+    public Guid? Id { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("stringValueNullable")]
+    #endif
+    public string StringValueNullable { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("stringValue")]
+    #endif
+    public string StringValue { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("stringArrayValue")]
+    #endif
+    public ICollection<string> StringArrayValue { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("nestedList")]
+    #endif
+    public ICollection<SimpleObjectType> NestedList { get; set; }
+}
+
+public partial class TypeWithOnlyDeprecatedFields
+{
+    [Obsolete(@"Use 'SimpleObjectType' instead")]
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("id")]
+    #endif
+    public Guid? Id { get; set; }
+}
+
+public partial interface IUnionType
+{
+}
+
+public partial interface INamedType
+{
+    string Name { get; set; }
+}
+
+public partial interface IWithOnlyDeprecatedFields
+{
+    [Obsolete(@"do not use")]
+    string DeprecatedField { get; set; }
+}
+
+public partial interface IOtherWithName
+{
+    string Name { get; set; }
+}
+
+public partial interface IBaseType : INamedType, IOtherWithName
+{
+}
+
+public partial interface IValueAccessor
+{
+    string Value { get; set; }
+}
+
+[GraphQlObjectType("ValueAccessorObject")]
+public partial class ValueAccessorObject : IValueAccessor
+{
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("value")]
+    #endif
+    public string Value { get; set; }
+}
+
+public partial interface IWithValueAccessor
+{
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
+    #endif
+    IValueAccessor Accessor { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
+    #endif
+    IEnumerable<IValueAccessor> Accessors { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
+    #endif
+    IEnumerable<IEnumerable<IValueAccessor>> NestedAccessors { get; set; }
+}
+
+public partial interface IWithValueAccessorObject : IWithValueAccessor
+{
+    new ValueAccessorObject Accessor { get; set; }
+    new ICollection<ValueAccessorObject> Accessors { get; set; }
+    new ICollection<ICollection<ValueAccessorObject>> NestedAccessors { get; set; }
+}
+
+[GraphQlObjectType("ConcreteType1")]
+public partial class ConcreteType1 : IUnionType, IBaseType, INamedType, IOtherWithName, IWithValueAccessorObject, IWithValueAccessor, IWithOnlyDeprecatedFields
+{
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("TypeName")]
+    #endif
+    public string TypeName { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("name")]
+    #endif
+    public string Name { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("concreteType1Field")]
+    #endif
+    public string ConcreteType1Field { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("value")]
+    #endif
+    public string Value { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("deprecated_field")]
+    #endif
+    public string DeprecatedField { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("accessor")]
+    #endif
+    public ValueAccessorObject Accessor { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("accessors")]
+    #endif
+    public ICollection<ValueAccessorObject> Accessors { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("nestedAccessors")]
+    #endif
+    public ICollection<ICollection<ValueAccessorObject>> NestedAccessors { get; set; }
+    IValueAccessor IWithValueAccessor.Accessor { get { return Accessor; } set { throw new NotSupportedException("Use \"ConcreteType1.Accessor\" property setter"); } }
+    IEnumerable<IValueAccessor> IWithValueAccessor.Accessors { get { return Accessors; } set { throw new NotSupportedException("Use \"ConcreteType1.Accessors\" property setter"); } }
+    IEnumerable<IEnumerable<IValueAccessor>> IWithValueAccessor.NestedAccessors { get { return NestedAccessors; } set { throw new NotSupportedException("Use \"ConcreteType1.NestedAccessors\" property setter"); } }
+}
+
+[GraphQlObjectType("ConcreteType2")]
+public partial class ConcreteType2 : IUnionType, INamedType
+{
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("name")]
+    #endif
+    public string Name { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("concreteType2Field")]
+    #endif
+    public string ConcreteType2Field { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("value")]
+    #endif
+    public string Value { get; set; }
+}
+
+[GraphQlObjectType("ConcreteType3")]
+public partial class ConcreteType3 : IUnionType, INamedType
+{
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("name")]
+    #endif
+    public string Name { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("concreteType3Field")]
+    #endif
+    public string ConcreteType3Field { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("VALUE")]
+    #endif
+    public string Value { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("function")]
+    #endif
+    public string Function { get; set; }
+}
+
+[GraphQlObjectType("ConcreteType4")]
+public partial class ConcreteType4 : IUnionType
+{
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("concreteType4Field")]
+    #endif
+    public string ConcreteType4Field { get; set; }
+}
+
+public partial class Query
+{
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("scalarValue")]
+    #endif
+    public DateTimeOffset? ScalarValue { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("simpleObject")]
+    #endif
+    public SimpleObjectType SimpleObject { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("objectWithOnlyDeprecatedFields")]
+    #endif
+    public TypeWithOnlyDeprecatedFields ObjectWithOnlyDeprecatedFields { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("union")]
+    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
+    #endif
+    public ICollection<IUnionType> Union { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("interface")]
+    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
+    #endif
+    public INamedType Interface { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("interfaces")]
+    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
+    #endif
+    public ICollection<INamedType> Interfaces { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("underscore_named_field")]
+    #endif
+    public UnderscoreNamedClass UnderscoreNamedField { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("nestedLists")]
+    #endif
+    public ICollection<ICollection<ICollection<decimal>>> NestedLists { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("_")]
+    #endif
+    public string _ { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("COLLISIONS")]
+    #endif
+    public string COLLISIONS { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("collisions")]
+    #endif
+    public string collisions { get; set; }
+}
+
+public partial class UnderscoreNamedClass
+{
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("underscore_named_field_enum")]
+    #endif
+    public UnderscoreNamedEnum? UnderscoreNamedFieldEnum { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("underscore_named_field_enum_collection")]
+    #endif
+    public ICollection<UnderscoreNamedEnum> UnderscoreNamedFieldEnumCollection { get; set; }
+}
+
+public partial class CollisionDataRecord
+{
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("collisionData")]
+    #endif
+    public string CollisionData { get; set; }
+}
+
+public partial class Message
+{
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("id")]
+    #endif
+    public Guid? Id { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("text_value")]
+    #endif
+    public string TextValue { get; set; }
+}
+
+public partial class Mutation
+{
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("createMessage")]
+    #endif
+    public Message CreateMessage { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("passDynamic")]
+    #endif
+    public string PassDynamic { get; set; }
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("collide")]
+    #endif
+    public CollisionDataRecord Collide { get; set; }
+}
+
+public partial class Attribute
+{
+    #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
+    [JsonProperty("Value")]
+    #endif
+    public string Value { get; set; }
+}
+#endregion

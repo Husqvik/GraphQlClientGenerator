@@ -45,7 +45,7 @@ public static class GraphQlTypes
             { typeof(string), "String" },
             { typeof(Guid), "ID" },
             { typeof(DateTimeOffset), "DateTimeOffset" },
-            { typeof(Collision3), "Collision" },
+            { typeof(Collision4), "Collision" },
             { typeof(InputType), "InputType" },
             { typeof(UnderscoreNamedInput), "underscore_named_input" }
         };
@@ -672,7 +672,7 @@ public partial class MutationQueryBuilder : GraphQlQueryBuilder<MutationQueryBui
 
     public MutationQueryBuilder ExceptPassDynamic() => ExceptField("passDynamic");
 
-    public MutationQueryBuilder WithCollide(CollisionDataQueryBuilder collisionDataQueryBuilder, QueryBuilderParameter<Collision3?>? collision = null, string? alias = "Collide", IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null)
+    public MutationQueryBuilder WithCollide(CollisionDataQueryBuilder collisionDataQueryBuilder, QueryBuilderParameter<Collision4?>? collision = null, string? alias = "Collide", IncludeDirective? include = null, SkipDirective? skip = null, CustomDirectiveDirective? customDirective = null)
     {
         var args = new List<QueryBuilderArgumentInfo>();
         if (collision != null)
@@ -784,7 +784,7 @@ public partial class InputType : IGraphQlInputObject
     }
 }
 
-public partial class Collision3 : IGraphQlInputObject
+public partial class Collision4 : IGraphQlInputObject
 {
     private InputPropertyInfo _collision;
     private InputPropertyInfo _collision2;

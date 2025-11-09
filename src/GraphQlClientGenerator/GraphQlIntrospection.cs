@@ -11,9 +11,9 @@ public static class GraphQlIntrospection
             }
           }
         }
-        """; 
+        """;
 
-        public static string QuerySchemaMetadata(GraphQlWellKnownDirective directive) =>
+    public static string QuerySchemaMetadata(GraphQlWellKnownDirective directive) =>
         $$"""
         query FullIntrospection {
           __schema {
@@ -27,13 +27,13 @@ public static class GraphQlIntrospection
               name
               description
               locations
-              args {
+              args(includeDeprecated: true) {
                 ...InputValue
               }
             }
           }
         }
-        
+
         fragment FullType on __Type {
           kind
           name
@@ -41,7 +41,7 @@ public static class GraphQlIntrospection
           fields(includeDeprecated: true) {
             name
             description
-            args {
+            args(includeDeprecated: true) {
               ...InputValue
             }
             type {
@@ -50,7 +50,7 @@ public static class GraphQlIntrospection
             isDeprecated
             deprecationReason
           }
-          inputFields {
+          inputFields(includeDeprecated: true) {
             ...InputValue
           }
           interfaces {
@@ -66,14 +66,16 @@ public static class GraphQlIntrospection
             ...TypeRef
           }{{(directive.HasFlag(GraphQlWellKnownDirective.OneOf) ? $"{Environment.NewLine}isOneOf" : null)}}
         }
-        
+
         fragment InputValue on __InputValue {
           name
           description
+          isDeprecated
+          deprecationReason
           type { ...TypeRef }
           defaultValue
         }
-        
+
         fragment TypeRef on __Type {
           kind
           name

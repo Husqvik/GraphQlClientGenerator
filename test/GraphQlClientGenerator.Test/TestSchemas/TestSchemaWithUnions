@@ -1548,6 +1548,18 @@
                 "ofType": null
               },
               "defaultValue": null
+            },
+            {
+              "name": "collision3",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "input field deprecation test",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
             }
           ],
           "interfaces": null,

@@ -621,9 +621,9 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
     }
 
     [Fact]
-    public void GeneratedQueryWithAllFragments()
+    public Task GeneratedQueryWithAllFragments()
     {
-        var configuration = new GraphQlGeneratorConfiguration { JsonPropertyGeneration = JsonPropertyGenerationOption.Always };
+        var configuration = new GraphQlGeneratorConfiguration { JsonPropertyGeneration = JsonPropertyGenerationOption.Always, IncludeDeprecatedFields = true };
 
         var schema = DeserializeTestSchema("TestSchemaWithUnions");
         var stringBuilder = new StringBuilder();
@@ -642,7 +642,10 @@ public class GraphQlGeneratorTest(ITestOutputHelper outputHelper)
         formattingType.ShouldNotBeNull();
 
         var query = BuildQuery(rootQueryBuilderInstance);
-        query.ShouldBe("query{scalarValue,simpleObject{id,stringValueNullable,stringValue,stringArrayValue,nestedList{id,stringValueNullable,stringValue,stringArrayValue}},union{__typename,...on ConcreteType1{TypeName,name,concreteType1Field,value,deprecated_field,accessor{value},accessors{value},nestedAccessors{value}},...on ConcreteType2{name,concreteType2Field,value},...on ConcreteType3{name,concreteType3Field,VALUE},...on ConcreteType4{concreteType4Field}},underscore_named_field{underscore_named_field_enum,underscore_named_field_enum_collection},nestedLists,_,COLLISIONS,collisions}");
+        query.ShouldBe("query{scalarValue,simpleObject{id,stringValueNullable,stringValue,stringArrayValue,nestedList{id,stringValueNullable,stringValue,stringArrayValue}},objectWithOnlyDeprecatedFields{id},union{__typename,...on ConcreteType1{TypeName,name,concreteType1Field,value,deprecated_field,accessor{value},accessors{value},nestedAccessors{value}},...on ConcreteType2{name,concreteType2Field,value},...on ConcreteType3{name,concreteType3Field,VALUE},...on ConcreteType4{concreteType4Field}},underscore_named_field{underscore_named_field_enum,underscore_named_field_enum_collection},nestedLists,_,COLLISIONS,collisions}");
+
+        var generatedSourceCode = StripBaseClasses(stringBuilder.ToString());
+        return Verify(generatedSourceCode);
     }
 
     [Fact]
