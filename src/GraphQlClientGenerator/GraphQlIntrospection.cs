@@ -2,18 +2,22 @@
 
 public static class GraphQlIntrospection
 {
-    public const string QuerySupportedDirectives =
+    public const string QuerySupportedFieldArgs =
         """
-        query DirectiveIntrospection {
-          __schema {
-            directives {
+        {
+          typeMetadata: __type(name: "__Type") {
+            fields {
               name
+              args {
+                name
+                type { kind name }
+              }
             }
           }
         }
         """;
 
-    public static string QuerySchemaMetadata(GraphQlWellKnownDirective directive) =>
+    public static string QuerySchemaMetadata(bool hasOneOfSupport, bool hasDeprecatedInputFieldSupport) =>
         $$"""
         query FullIntrospection {
           __schema {
@@ -27,7 +31,7 @@ public static class GraphQlIntrospection
               name
               description
               locations
-              args(includeDeprecated: true) {
+              args {
                 ...InputValue
               }
             }
@@ -41,7 +45,7 @@ public static class GraphQlIntrospection
           fields(includeDeprecated: true) {
             name
             description
-            args(includeDeprecated: true) {
+            args{{InsertIfTrue(hasDeprecatedInputFieldSupport, "(includeDeprecated: true)")}} {
               ...InputValue
             }
             type {
@@ -50,7 +54,7 @@ public static class GraphQlIntrospection
             isDeprecated
             deprecationReason
           }
-          inputFields(includeDeprecated: true) {
+          inputFields{{InsertIfTrue(hasDeprecatedInputFieldSupport, "(includeDeprecated: true)")}} {
             ...InputValue
           }
           interfaces {
@@ -64,16 +68,14 @@ public static class GraphQlIntrospection
           }
           possibleTypes {
             ...TypeRef
-          }{{(directive.HasFlag(GraphQlWellKnownDirective.OneOf) ? $"{Environment.NewLine}isOneOf" : null)}}
+          }{{InsertIfTrue(hasOneOfSupport, $"{Environment.NewLine}isOneOf")}}
         }
 
         fragment InputValue on __InputValue {
           name
           description
-          isDeprecated
-          deprecationReason
           type { ...TypeRef }
-          defaultValue
+          defaultValue{{InsertIfTrue(hasDeprecatedInputFieldSupport, $"{Environment.NewLine}isDeprecated{Environment.NewLine}deprecationReason")}}
         }
 
         fragment TypeRef on __Type {
@@ -105,11 +107,6 @@ public static class GraphQlIntrospection
           }
         }
         """;
-}
 
-[Flags]
-public enum GraphQlWellKnownDirective
-{
-    None = 0,
-    OneOf = 1
+    private static string InsertIfTrue(bool use, string text) => use ? text : null;
 }

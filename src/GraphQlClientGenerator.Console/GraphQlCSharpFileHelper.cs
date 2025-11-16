@@ -51,7 +51,6 @@ internal static class GraphQlCSharpFileHelper
                 options.ServiceUrl,
                 headers,
                 httpClientHandler,
-                GraphQlWellKnownDirective.None,
                 cancellationToken);
 
         await invocationConfiguration.Output.WriteLineAsync($"GraphQL Schema retrieved from {options.ServiceUrl}. ");

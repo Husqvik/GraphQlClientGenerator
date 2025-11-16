@@ -44,7 +44,7 @@ public static class GraphQlHttpUtilities
         return request;
     }
 
-    private static async Task<GraphQlSchema> QuerySchemaMetadata(HttpClient httpClient, HttpRequestMessage request, CancellationToken cancellationToken)
+    private static async Task<string> QuerySchemaMetadata(HttpClient httpClient, HttpRequestMessage request, CancellationToken cancellationToken)
     {
         using var response = await httpClient.SendAsync(request, cancellationToken);
         var content =
@@ -55,7 +55,7 @@ public static class GraphQlHttpUtilities
         if (!response.IsSuccessStatusCode)
             throw new InvalidOperationException($"Status code: {(int)response.StatusCode} ({response.StatusCode}); content:{Environment.NewLine}{content}");
 
-        return DeserializeGraphQlSchema(content);
+        return content;
     }
 
     public static async Task<GraphQlSchema> RetrieveSchema(
@@ -63,19 +63,16 @@ public static class GraphQlHttpUtilities
         string url,
         ICollection<KeyValuePair<string, string>> headers = null,
         HttpMessageHandler messageHandler = null,
-        GraphQlWellKnownDirective? wellKnownDirectives = null,
         CancellationToken cancellationToken = default)
     {
         using var httpClient = CreateHttpClient(messageHandler);
 
-        if (wellKnownDirectives is null)
-        {
-            var schema = await QuerySchemaMetadata(httpClient, SetupHttpRequest(method, url, GraphQlIntrospection.QuerySupportedDirectives, headers), cancellationToken);
-            wellKnownDirectives = schema.Directives.Any(d => d.Name is "oneOf") ? GraphQlWellKnownDirective.OneOf : GraphQlWellKnownDirective.None;
-        }
+        var typeMetadataJson = await QuerySchemaMetadata(httpClient, SetupHttpRequest(method, url, GraphQlIntrospection.QuerySupportedFieldArgs, headers), cancellationToken);
+        var typeMetadata = JsonConvert.DeserializeObject<GraphQlResult<GraphQlTypeMetadata>>(typeMetadataJson).Data?.TypeMetadata;
+        var queryParameters = GetMetadataQueryParameters(typeMetadata);
 
-        using var request = SetupHttpRequest(method, url, GraphQlIntrospection.QuerySchemaMetadata(wellKnownDirectives.Value), headers);
-        return await QuerySchemaMetadata(httpClient, request, cancellationToken);
+        using var request = SetupHttpRequest(method, url, GraphQlIntrospection.QuerySchemaMetadata(queryParameters.HasOneOfSupport, queryParameters.HasDeprecatedInputFieldSupport), headers);
+        return DeserializeGraphQlSchema(await QuerySchemaMetadata(httpClient, request, cancellationToken));
     }
 
     public static GraphQlSchema DeserializeGraphQlSchema(string contentJson)
@@ -83,7 +80,7 @@ public static class GraphQlHttpUtilities
         try
         {
             var schema =
-                JsonConvert.DeserializeObject<GraphQlResult>(contentJson, SerializerSettings)?.Data?.Schema
+                JsonConvert.DeserializeObject<GraphQlResult<GraphQlData>>(contentJson, SerializerSettings)?.Data?.Schema
                 ?? JsonConvert.DeserializeObject<GraphQlData>(contentJson, SerializerSettings)?.Schema;
 
             return schema ?? throw new ArgumentException(NotGraphQlSchemaMessage(contentJson));
@@ -99,4 +96,26 @@ public static class GraphQlHttpUtilities
          not a GraphQL schema:
          {content}
          """;
+
+    private static MetadataQueryParameters GetMetadataQueryParameters(GraphQlType typeMetadata) =>
+        new()
+        {
+            HasOneOfSupport = typeMetadata?.Fields.Any(f => f.Name is "isOneOf") ?? false,
+            HasDeprecatedInputFieldSupport =
+                typeMetadata?.Fields
+                    .Where(f => f.Name is "inputFields")
+                    .Any(f => f.Args?.Any(a => a.Name is "includeDeprecated") ?? false)
+                ?? false
+        };
+
+    private class GraphQlTypeMetadata
+    {
+        public GraphQlType TypeMetadata { get; set; }
+    }
+
+    private struct MetadataQueryParameters
+    {
+        public bool HasOneOfSupport { get; set; }
+        public bool HasDeprecatedInputFieldSupport { get; set; }
+    }
 }

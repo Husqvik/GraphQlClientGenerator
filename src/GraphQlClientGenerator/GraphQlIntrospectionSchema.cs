@@ -4,9 +4,25 @@ using Newtonsoft.Json;
 
 namespace GraphQlClientGenerator;
 
-public class GraphQlResult
+public class GraphQlResult<TData>
 {
-    public GraphQlData Data { get; set; }
+    public TData Data { get; set; }
+    public ICollection<GraphQlQueryError> Errors { get; set; }
+}
+
+public class GraphQlQueryError
+{
+    public string Message { get; set; }
+    public ICollection<GraphQlErrorLocation> Locations { get; set; }
+
+    [JsonExtensionData]
+    public IDictionary<string, object> Extensions { get; } = new Dictionary<string, object>(StringComparer.Ordinal);
+}
+
+public class GraphQlErrorLocation
+{
+    public int Line { get; set; }
+    public int Column { get; set; }
 }
 
 public class GraphQlData

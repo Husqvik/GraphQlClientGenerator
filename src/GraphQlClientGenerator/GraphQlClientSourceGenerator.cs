@@ -262,7 +262,7 @@ public class GraphQlClientSourceGenerator : IIncrementalGenerator
                 httpClientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
 
             var graphQlSchema =
-                GraphQlHttpUtilities.RetrieveSchema(setup.HttpMethod, setup.ServiceUrl, setup.HttpHeaders, httpClientHandler, GraphQlWellKnownDirective.None)
+                GraphQlHttpUtilities.RetrieveSchema(setup.HttpMethod, setup.ServiceUrl, setup.HttpHeaders, httpClientHandler)
                     .GetAwaiter()
                     .GetResult();
 
