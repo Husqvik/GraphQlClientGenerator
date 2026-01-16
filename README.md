@@ -33,7 +33,7 @@ Code
 -------------
 Code example for class generation:
 ```csharp
-var schema = await GraphQlGenerator.RetrieveSchema("https://my-graphql-api/gql");
+var schema = await GraphQlHttpUtilities.RetrieveSchema("https://my-graphql-api/gql");
 var generator = new GraphQlGenerator();
 var generatedClasses = generator.GenerateFullClientCSharpFile(schema);
 ```
@@ -41,7 +41,7 @@ var generatedClasses = generator.GenerateFullClientCSharpFile(schema);
 or using full blown setup:
 
 ```csharp
-var schema = await GraphQlGenerator.RetrieveSchema("https://my-graphql-api/gql");
+var schema = await GraphQlHttpUtilities.RetrieveSchema("https://my-graphql-api/gql");
 var configuration = new GraphQlGeneratorConfiguration { TargetNamespace = "MyGqlApiClient", ... };
 var generator = new GraphQlGenerator(configuration);
 var builder = new StringBuilder();

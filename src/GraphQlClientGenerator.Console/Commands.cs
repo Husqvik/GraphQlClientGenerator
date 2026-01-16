@@ -220,7 +220,7 @@ internal static class Commands
         {
             var regexScalarFieldTypeMappingConfigurationFile = result.GetValue(regexScalarFieldTypeMappingConfigurationOption);
 
-            RegexScalarFieldTypeMappingProvider scalarFieldTypeMappingProvider = null;
+            IScalarFieldTypeMappingProvider scalarFieldTypeMappingProvider = DefaultScalarFieldTypeMappingProvider.Instance;
 
             if (!String.IsNullOrEmpty(regexScalarFieldTypeMappingConfigurationFile))
             {
