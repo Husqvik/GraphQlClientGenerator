@@ -221,5 +221,9 @@ public enum GraphQlDirectiveLocation
     /// <summary>
     /// Location adjacent to an input field definition.
     /// </summary>
-    [EnumMember(Value = "INPUT_FIELD_DEFINITION")] InputFieldDefinition
+    [EnumMember(Value = "INPUT_FIELD_DEFINITION")] InputFieldDefinition,
+    /// <summary>
+    /// Location adjacent to a directive definition.
+    /// </summary>
+    [EnumMember(Value = "DIRECTIVE_DEFINITION")] DirectiveDefinition
 }
