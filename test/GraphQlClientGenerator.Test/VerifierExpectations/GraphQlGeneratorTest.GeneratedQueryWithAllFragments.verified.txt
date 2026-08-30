@@ -1146,8 +1146,8 @@ public partial class UnderscoreNamedInput : IGraphQlInputObject
     private InputPropertyInfo _underscoreNamedFieldEnumCollection;
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("underscore_named_field_enum")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<UnderscoreNamedEnum?>))]
+    [global::Newtonsoft.Json.JsonProperty("underscore_named_field_enum")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<UnderscoreNamedEnum?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("underscore_named_field_enum")]
@@ -1160,8 +1160,8 @@ public partial class UnderscoreNamedInput : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("underscore_named_field_enum_collection")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<UnderscoreNamedEnum>>))]
+    [global::Newtonsoft.Json.JsonProperty("underscore_named_field_enum_collection")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<UnderscoreNamedEnum>>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("underscore_named_field_enum_collection")]
@@ -1188,8 +1188,8 @@ public partial class InputType : IGraphQlInputObject
     private InputPropertyInfo _textValue2;
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("text_value")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    [global::Newtonsoft.Json.JsonProperty("text_value")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("text_value")]
@@ -1202,8 +1202,8 @@ public partial class InputType : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("enum_value")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<UnderscoreNamedEnum?>))]
+    [global::Newtonsoft.Json.JsonProperty("enum_value")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<UnderscoreNamedEnum?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("enum_value")]
@@ -1216,8 +1216,8 @@ public partial class InputType : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("enumValue")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<UnderscoreNamedEnum?>))]
+    [global::Newtonsoft.Json.JsonProperty("enumValue")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<UnderscoreNamedEnum?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("enumValue")]
@@ -1230,8 +1230,8 @@ public partial class InputType : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("textValue")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    [global::Newtonsoft.Json.JsonProperty("textValue")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("textValue")]
@@ -1263,8 +1263,8 @@ public partial class Collision4 : IGraphQlInputObject
     private InputPropertyInfo _collision3;
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("collision")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    [global::Newtonsoft.Json.JsonProperty("collision")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("collision")]
@@ -1277,8 +1277,8 @@ public partial class Collision4 : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("collision2")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    [global::Newtonsoft.Json.JsonProperty("collision2")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("collision2")]
@@ -1291,8 +1291,8 @@ public partial class Collision4 : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("collisionInput")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    [global::Newtonsoft.Json.JsonProperty("collisionInput")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("collisionInput")]
@@ -1305,8 +1305,8 @@ public partial class Collision4 : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("collisionInputObject")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    [global::Newtonsoft.Json.JsonProperty("collisionInputObject")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("collisionInputObject")]
@@ -1319,8 +1319,8 @@ public partial class Collision4 : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("collisionDataRecord")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    [global::Newtonsoft.Json.JsonProperty("collisionDataRecord")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("collisionDataRecord")]
@@ -1333,8 +1333,8 @@ public partial class Collision4 : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("collisionRecord")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    [global::Newtonsoft.Json.JsonProperty("collisionRecord")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("collisionRecord")]
@@ -1348,8 +1348,8 @@ public partial class Collision4 : IGraphQlInputObject
 
     [Obsolete(@"input field deprecation test")]
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("collision3")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    [global::Newtonsoft.Json.JsonProperty("collision3")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("collision3")]
@@ -1378,7 +1378,7 @@ public partial class Collision4 : IGraphQlInputObject
 public partial class Type
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("id")]
+    [global::Newtonsoft.Json.JsonProperty("id")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("id")]
@@ -1389,35 +1389,35 @@ public partial class Type
 public partial class SimpleObjectType
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("id")]
+    [global::Newtonsoft.Json.JsonProperty("id")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("id")]
     #endif
     public Guid? Id { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("stringValueNullable")]
+    [global::Newtonsoft.Json.JsonProperty("stringValueNullable")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("stringValueNullable")]
     #endif
     public string StringValueNullable { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("stringValue")]
+    [global::Newtonsoft.Json.JsonProperty("stringValue")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("stringValue")]
     #endif
     public string StringValue { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("stringArrayValue")]
+    [global::Newtonsoft.Json.JsonProperty("stringArrayValue")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("stringArrayValue")]
     #endif
     public ICollection<string> StringArrayValue { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("nestedList")]
+    [global::Newtonsoft.Json.JsonProperty("nestedList")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("nestedList")]
@@ -1429,7 +1429,7 @@ public partial class TypeWithOnlyDeprecatedFields
 {
     [Obsolete(@"Use 'SimpleObjectType' instead")]
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("id")]
+    [global::Newtonsoft.Json.JsonProperty("id")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("id")]
@@ -1488,7 +1488,7 @@ public partial interface IValueAccessor
 public partial class ValueAccessorObject : IValueAccessor
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("value")]
+    [global::Newtonsoft.Json.JsonProperty("value")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("value")]
@@ -1502,15 +1502,15 @@ public partial class ValueAccessorObject : IValueAccessor
 public partial interface IWithValueAccessor
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
     #endif
     IValueAccessor Accessor { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
     #endif
     IEnumerable<IValueAccessor> Accessors { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
     #endif
     IEnumerable<IEnumerable<IValueAccessor>> NestedAccessors { get; set; }
 }
@@ -1529,56 +1529,56 @@ public partial interface IWithValueAccessorObject : IWithValueAccessor
 public partial class ConcreteType1 : IUnionType, IBaseType, INamedType, IOtherWithName, IWithValueAccessorObject, IWithValueAccessor, IWithOnlyDeprecatedFields
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("TypeName")]
+    [global::Newtonsoft.Json.JsonProperty("TypeName")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("TypeName")]
     #endif
     public string TypeName { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("name")]
+    [global::Newtonsoft.Json.JsonProperty("name")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("name")]
     #endif
     public string Name { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("concreteType1Field")]
+    [global::Newtonsoft.Json.JsonProperty("concreteType1Field")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("concreteType1Field")]
     #endif
     public string ConcreteType1Field { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("value")]
+    [global::Newtonsoft.Json.JsonProperty("value")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("value")]
     #endif
     public string Value { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("deprecated_field")]
+    [global::Newtonsoft.Json.JsonProperty("deprecated_field")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("deprecated_field")]
     #endif
     public string DeprecatedField { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("accessor")]
+    [global::Newtonsoft.Json.JsonProperty("accessor")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("accessor")]
     #endif
     public ValueAccessorObject Accessor { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("accessors")]
+    [global::Newtonsoft.Json.JsonProperty("accessors")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("accessors")]
     #endif
     public ICollection<ValueAccessorObject> Accessors { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("nestedAccessors")]
+    [global::Newtonsoft.Json.JsonProperty("nestedAccessors")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("nestedAccessors")]
@@ -1593,21 +1593,21 @@ public partial class ConcreteType1 : IUnionType, IBaseType, INamedType, IOtherWi
 public partial class ConcreteType2 : IUnionType, INamedType
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("name")]
+    [global::Newtonsoft.Json.JsonProperty("name")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("name")]
     #endif
     public string Name { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("concreteType2Field")]
+    [global::Newtonsoft.Json.JsonProperty("concreteType2Field")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("concreteType2Field")]
     #endif
     public string ConcreteType2Field { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("value")]
+    [global::Newtonsoft.Json.JsonProperty("value")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("value")]
@@ -1619,28 +1619,28 @@ public partial class ConcreteType2 : IUnionType, INamedType
 public partial class ConcreteType3 : IUnionType, INamedType
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("name")]
+    [global::Newtonsoft.Json.JsonProperty("name")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("name")]
     #endif
     public string Name { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("concreteType3Field")]
+    [global::Newtonsoft.Json.JsonProperty("concreteType3Field")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("concreteType3Field")]
     #endif
     public string ConcreteType3Field { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("VALUE")]
+    [global::Newtonsoft.Json.JsonProperty("VALUE")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("VALUE")]
     #endif
     public string Value { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("function")]
+    [global::Newtonsoft.Json.JsonProperty("function")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("function")]
@@ -1652,7 +1652,7 @@ public partial class ConcreteType3 : IUnionType, INamedType
 public partial class ConcreteType4 : IUnionType
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("concreteType4Field")]
+    [global::Newtonsoft.Json.JsonProperty("concreteType4Field")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("concreteType4Field")]
@@ -1663,80 +1663,80 @@ public partial class ConcreteType4 : IUnionType
 public partial class Query
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("scalarValue")]
+    [global::Newtonsoft.Json.JsonProperty("scalarValue")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("scalarValue")]
     #endif
     public DateTimeOffset? ScalarValue { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("simpleObject")]
+    [global::Newtonsoft.Json.JsonProperty("simpleObject")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("simpleObject")]
     #endif
     public SimpleObjectType SimpleObject { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("objectWithOnlyDeprecatedFields")]
+    [global::Newtonsoft.Json.JsonProperty("objectWithOnlyDeprecatedFields")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("objectWithOnlyDeprecatedFields")]
     #endif
     public TypeWithOnlyDeprecatedFields ObjectWithOnlyDeprecatedFields { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("union")]
-    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
+    [global::Newtonsoft.Json.JsonProperty("union")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("union")]
     #endif
     public ICollection<IUnionType> Union { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("interface")]
-    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
+    [global::Newtonsoft.Json.JsonProperty("interface")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("interface")]
     #endif
     public INamedType Interface { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("interfaces")]
-    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
+    [global::Newtonsoft.Json.JsonProperty("interfaces")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(GraphQlInterfaceJsonConverter))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("interfaces")]
     #endif
     public ICollection<INamedType> Interfaces { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("underscore_named_field")]
+    [global::Newtonsoft.Json.JsonProperty("underscore_named_field")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("underscore_named_field")]
     #endif
     public UnderscoreNamedClass UnderscoreNamedField { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("nestedLists")]
+    [global::Newtonsoft.Json.JsonProperty("nestedLists")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("nestedLists")]
     #endif
     public ICollection<ICollection<ICollection<decimal>>> NestedLists { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("_")]
+    [global::Newtonsoft.Json.JsonProperty("_")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("_")]
     #endif
     public string _ { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("COLLISIONS")]
+    [global::Newtonsoft.Json.JsonProperty("COLLISIONS")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("COLLISIONS")]
     #endif
     public string COLLISIONS { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("collisions")]
+    [global::Newtonsoft.Json.JsonProperty("collisions")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("collisions")]
@@ -1747,14 +1747,14 @@ public partial class Query
 public partial class UnderscoreNamedClass
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("underscore_named_field_enum")]
+    [global::Newtonsoft.Json.JsonProperty("underscore_named_field_enum")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("underscore_named_field_enum")]
     #endif
     public UnderscoreNamedEnum? UnderscoreNamedFieldEnum { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("underscore_named_field_enum_collection")]
+    [global::Newtonsoft.Json.JsonProperty("underscore_named_field_enum_collection")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("underscore_named_field_enum_collection")]
@@ -1765,7 +1765,7 @@ public partial class UnderscoreNamedClass
 public partial class CollisionDataRecord
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("collisionData")]
+    [global::Newtonsoft.Json.JsonProperty("collisionData")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("collisionData")]
@@ -1776,14 +1776,14 @@ public partial class CollisionDataRecord
 public partial class Message
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("id")]
+    [global::Newtonsoft.Json.JsonProperty("id")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("id")]
     #endif
     public Guid? Id { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("text_value")]
+    [global::Newtonsoft.Json.JsonProperty("text_value")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("text_value")]
@@ -1794,21 +1794,21 @@ public partial class Message
 public partial class Mutation
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("createMessage")]
+    [global::Newtonsoft.Json.JsonProperty("createMessage")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("createMessage")]
     #endif
     public Message CreateMessage { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("passDynamic")]
+    [global::Newtonsoft.Json.JsonProperty("passDynamic")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("passDynamic")]
     #endif
     public string PassDynamic { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("collide")]
+    [global::Newtonsoft.Json.JsonProperty("collide")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("collide")]
@@ -1819,7 +1819,7 @@ public partial class Mutation
 public partial class Attribute
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("Value")]
+    [global::Newtonsoft.Json.JsonProperty("Value")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("Value")]

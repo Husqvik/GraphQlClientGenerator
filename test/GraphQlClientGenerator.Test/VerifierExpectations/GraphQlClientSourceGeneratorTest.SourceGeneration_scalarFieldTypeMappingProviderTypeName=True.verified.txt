@@ -10,10 +10,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
-#if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-#endif
 
 namespace SourceGeneratorTestAssembly;
 
@@ -50,11 +46,11 @@ public class GraphQlObjectTypeAttribute : global::System.Attribute
 #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
 public class QueryBuilderParameterConverter<T> : global::Newtonsoft.Json.JsonConverter
 {
-    public override object ReadJson(JsonReader reader, global::System.Type objectType, object existingValue, JsonSerializer serializer)
+    public override object ReadJson(global::Newtonsoft.Json.JsonReader reader, global::System.Type objectType, object existingValue, global::Newtonsoft.Json.JsonSerializer serializer)
     {
         switch (reader.TokenType)
         {
-            case JsonToken.Null:
+            case global::Newtonsoft.Json.JsonToken.Null:
                 return null;
 
             default:
@@ -62,7 +58,7 @@ public class QueryBuilderParameterConverter<T> : global::Newtonsoft.Json.JsonCon
         }
     }
 
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    public override void WriteJson(global::Newtonsoft.Json.JsonWriter writer, object value, global::Newtonsoft.Json.JsonSerializer serializer)
     {
         if (value == null)
             writer.WriteNull();
@@ -79,29 +75,29 @@ public class GraphQlInterfaceJsonConverter : global::Newtonsoft.Json.JsonConvert
 
     public override bool CanConvert(global::System.Type objectType) => objectType.IsInterface || objectType.IsArray;
 
-    public override object ReadJson(JsonReader reader, global::System.Type objectType, object existingValue, JsonSerializer serializer)
+    public override object ReadJson(global::Newtonsoft.Json.JsonReader reader, global::System.Type objectType, object existingValue, global::Newtonsoft.Json.JsonSerializer serializer)
     {
-        while (reader.TokenType == JsonToken.Comment)
+        while (reader.TokenType == global::Newtonsoft.Json.JsonToken.Comment)
             reader.Read();
 
         switch (reader.TokenType)
         {
-            case JsonToken.Null:
+            case global::Newtonsoft.Json.JsonToken.Null:
                 return null;
 
-            case JsonToken.StartObject:
-                var jObject = JObject.Load(reader);
-                if (!jObject.TryGetValue(FieldNameType, out var token) || token.Type != JTokenType.String)
+            case global::Newtonsoft.Json.JsonToken.StartObject:
+                var jObject = global::Newtonsoft.Json.Linq.JObject.Load(reader);
+                if (!jObject.TryGetValue(FieldNameType, out var token) || token.Type != global::Newtonsoft.Json.Linq.JTokenType.String)
                     throw CreateJsonReaderException(reader, $"\"{GetType().FullName}\" requires JSON object to contain \"{FieldNameType}\" field with type name");
 
-                var typeName = token.Value<string>();
+                var typeName = (string)token;
                 if (!GraphQlObjectTypeAttribute.InterfaceTypeMapping.TryGetValue(typeName, out var type))
                     throw CreateJsonReaderException(reader, $"type \"{typeName}\" not found");
 
                 using (reader = CloneReader(jObject, reader))
                     return serializer.Deserialize(reader, type);
 
-            case JsonToken.StartArray:
+            case global::Newtonsoft.Json.JsonToken.StartArray:
                 var elementType = GetElementType(objectType);
                 if (elementType == null)
                     throw CreateJsonReaderException(reader, $"array element type could not be resolved for type \"{objectType.FullName}\"");
@@ -113,9 +109,9 @@ public class GraphQlInterfaceJsonConverter : global::Newtonsoft.Json.JsonConvert
         }
     }
 
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => serializer.Serialize(writer, value);
+    public override void WriteJson(global::Newtonsoft.Json.JsonWriter writer, object value, global::Newtonsoft.Json.JsonSerializer serializer) => serializer.Serialize(writer, value);
 
-    private static JsonReader CloneReader(JToken jToken, JsonReader reader)
+    private static global::Newtonsoft.Json.JsonReader CloneReader(global::Newtonsoft.Json.Linq.JToken jToken, global::Newtonsoft.Json.JsonReader reader)
     {
         var jObjectReader = jToken.CreateReader();
         jObjectReader.Culture = reader.Culture;
@@ -128,21 +124,21 @@ public class GraphQlInterfaceJsonConverter : global::Newtonsoft.Json.JsonConvert
         return jObjectReader;
     }
 
-    private static JsonReaderException CreateJsonReaderException(JsonReader reader, string message)
+    private static global::Newtonsoft.Json.JsonReaderException CreateJsonReaderException(global::Newtonsoft.Json.JsonReader reader, string message)
     {
-        if (reader is IJsonLineInfo lineInfo && lineInfo.HasLineInfo())
-            return new JsonReaderException(message, reader.Path, lineInfo.LineNumber, lineInfo.LinePosition, null);
+        if (reader is global::Newtonsoft.Json.IJsonLineInfo lineInfo && lineInfo.HasLineInfo())
+            return new global::Newtonsoft.Json.JsonReaderException(message, reader.Path, lineInfo.LineNumber, lineInfo.LinePosition, null);
 
-        return new JsonReaderException(message);
+        return new global::Newtonsoft.Json.JsonReaderException(message);
     }
 
     private static global::System.Type GetElementType(global::System.Type arrayOrGenericContainer) =>
         arrayOrGenericContainer.IsArray ? arrayOrGenericContainer.GetElementType() : arrayOrGenericContainer.GenericTypeArguments.FirstOrDefault();
 
-    private IList ReadArray(JsonReader reader, global::System.Type targetType, global::System.Type elementType, JsonSerializer serializer)
+    private IList ReadArray(global::Newtonsoft.Json.JsonReader reader, global::System.Type targetType, global::System.Type elementType, global::Newtonsoft.Json.JsonSerializer serializer)
     {
         var list = CreateCompatibleList(targetType, elementType);
-        while (reader.Read() && reader.TokenType != JsonToken.EndArray)
+        while (reader.Read() && reader.TokenType != global::Newtonsoft.Json.JsonToken.EndArray)
             list.Add(ReadJson(reader, elementType, null, serializer));
 
         if (!targetType.IsArray)
@@ -482,21 +478,21 @@ public class DefaultGraphQlArgumentBuilder : IGraphQlArgumentBuilder
     public bool TryBuild(GraphQlArgumentBuilderContext context, out string graphQlString)
     {
 #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        if (context.Value is JValue jValue)
+        if (context.Value is global::Newtonsoft.Json.Linq.JValue jValue)
         {
             switch (jValue.Type)
             {
-                case JTokenType.Null:
+                case global::Newtonsoft.Json.Linq.JTokenType.Null:
                     graphQlString = "null";
                     return true;
 
-                case JTokenType.Integer:
-                case JTokenType.Float:
-                case JTokenType.Boolean:
+                case global::Newtonsoft.Json.Linq.JTokenType.Integer:
+                case global::Newtonsoft.Json.Linq.JTokenType.Float:
+                case global::Newtonsoft.Json.Linq.JTokenType.Boolean:
                     graphQlString = GraphQlQueryHelper.BuildArgumentValue(jValue.Value, null, context.Options, context.Level);
                     return true;
 
-                case JTokenType.String:
+                case global::Newtonsoft.Json.Linq.JTokenType.String:
                     graphQlString = $"\"{GraphQlQueryHelper.EscapeGraphQlStringValue((string)jValue.Value)}\"";
                     return true;
 
@@ -506,13 +502,13 @@ public class DefaultGraphQlArgumentBuilder : IGraphQlArgumentBuilder
             }
         }
 
-        if (context.Value is JProperty jProperty)
+        if (context.Value is global::Newtonsoft.Json.Linq.JProperty jProperty)
         {
             graphQlString = BuildJsonPropertyArgument(jProperty.Name, jProperty.Value, context);
             return true;
         }
 
-        if (context.Value is JObject jObject)
+        if (context.Value is global::Newtonsoft.Json.Linq.JObject jObject)
         {
             graphQlString = GraphQlQueryHelper.BuildEnumerableArgument(jObject, null, context.Options, context.Level + 1, '{', '}');
             return true;
@@ -2693,8 +2689,8 @@ public partial class SourceGeneratedMeterReadingInputV2 : IGraphQlInputObject
     private InputPropertyInfo _reading;
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("homeId")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    [global::Newtonsoft.Json.JsonProperty("homeId")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("homeId")]
@@ -2707,8 +2703,8 @@ public partial class SourceGeneratedMeterReadingInputV2 : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("time")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    [global::Newtonsoft.Json.JsonProperty("time")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("time")]
@@ -2721,8 +2717,8 @@ public partial class SourceGeneratedMeterReadingInputV2 : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("reading")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    [global::Newtonsoft.Json.JsonProperty("reading")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("reading")]
@@ -2755,8 +2751,8 @@ public partial class SourceGeneratedUpdateHomeInputV2 : IGraphQlInputObject
     private InputPropertyInfo _mainFuseSize;
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("homeId")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    [global::Newtonsoft.Json.JsonProperty("homeId")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("homeId")]
@@ -2769,8 +2765,8 @@ public partial class SourceGeneratedUpdateHomeInputV2 : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("appNickname")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    [global::Newtonsoft.Json.JsonProperty("appNickname")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("appNickname")]
@@ -2786,8 +2782,8 @@ public partial class SourceGeneratedUpdateHomeInputV2 : IGraphQlInputObject
     /// The chosen avatar for the home
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("appAvatar")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<SourceGeneratedHomeAvatarV2?>))]
+    [global::Newtonsoft.Json.JsonProperty("appAvatar")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<SourceGeneratedHomeAvatarV2?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("appAvatar")]
@@ -2803,8 +2799,8 @@ public partial class SourceGeneratedUpdateHomeInputV2 : IGraphQlInputObject
     /// The size of the home in square meters
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("size")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    [global::Newtonsoft.Json.JsonProperty("size")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("size")]
@@ -2820,8 +2816,8 @@ public partial class SourceGeneratedUpdateHomeInputV2 : IGraphQlInputObject
     /// The type of home.
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("type")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<SourceGeneratedHomeTypeV2?>))]
+    [global::Newtonsoft.Json.JsonProperty("type")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<SourceGeneratedHomeTypeV2?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("type")]
@@ -2837,8 +2833,8 @@ public partial class SourceGeneratedUpdateHomeInputV2 : IGraphQlInputObject
     /// The number of people living in the home
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("numberOfResidents")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    [global::Newtonsoft.Json.JsonProperty("numberOfResidents")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("numberOfResidents")]
@@ -2854,8 +2850,8 @@ public partial class SourceGeneratedUpdateHomeInputV2 : IGraphQlInputObject
     /// The primary form of heating in the household
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("primaryHeatingSource")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<SourceGeneratedHeatingSourceV2?>))]
+    [global::Newtonsoft.Json.JsonProperty("primaryHeatingSource")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<SourceGeneratedHeatingSourceV2?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("primaryHeatingSource")]
@@ -2871,8 +2867,8 @@ public partial class SourceGeneratedUpdateHomeInputV2 : IGraphQlInputObject
     /// Whether the home has a ventilation system
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("hasVentilationSystem")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<bool?>))]
+    [global::Newtonsoft.Json.JsonProperty("hasVentilationSystem")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<bool?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("hasVentilationSystem")]
@@ -2888,8 +2884,8 @@ public partial class SourceGeneratedUpdateHomeInputV2 : IGraphQlInputObject
     /// The main fuse size
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("mainFuseSize")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    [global::Newtonsoft.Json.JsonProperty("mainFuseSize")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("mainFuseSize")]
@@ -2922,8 +2918,8 @@ public partial class SourceGeneratedPushNotificationInputV2 : IGraphQlInputObjec
     private InputPropertyInfo _screenToOpen;
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("title")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    [global::Newtonsoft.Json.JsonProperty("title")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("title")]
@@ -2936,8 +2932,8 @@ public partial class SourceGeneratedPushNotificationInputV2 : IGraphQlInputObjec
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("message")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    [global::Newtonsoft.Json.JsonProperty("message")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("message")]
@@ -2950,8 +2946,8 @@ public partial class SourceGeneratedPushNotificationInputV2 : IGraphQlInputObjec
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("screenToOpen")]
-    [JsonConverter(typeof(QueryBuilderParameterConverter<SourceGeneratedAppScreenV2?>))]
+    [global::Newtonsoft.Json.JsonProperty("screenToOpen")]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<SourceGeneratedAppScreenV2?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("screenToOpen")]
@@ -2979,7 +2975,7 @@ public partial class SourceGeneratedTibberV2
     /// This contains data about the logged-in user
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("viewer")]
+    [global::Newtonsoft.Json.JsonProperty("viewer")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("viewer")]
@@ -2990,14 +2986,14 @@ public partial class SourceGeneratedTibberV2
 public partial class SourceGeneratedViewerV2
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("login")]
+    [global::Newtonsoft.Json.JsonProperty("login")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("login")]
     #endif
     public string Login { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("name")]
+    [global::Newtonsoft.Json.JsonProperty("name")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("name")]
@@ -3007,7 +3003,7 @@ public partial class SourceGeneratedViewerV2
     /// The type of account for the logged-in user.
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("accountType")]
+    [global::Newtonsoft.Json.JsonProperty("accountType")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("accountType")]
@@ -3017,7 +3013,7 @@ public partial class SourceGeneratedViewerV2
     /// All homes visible to the logged-in user
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("homes")]
+    [global::Newtonsoft.Json.JsonProperty("homes")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("homes")]
@@ -3027,7 +3023,7 @@ public partial class SourceGeneratedViewerV2
     /// Single home by its ID
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("home")]
+    [global::Newtonsoft.Json.JsonProperty("home")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("home")]
@@ -3038,7 +3034,7 @@ public partial class SourceGeneratedViewerV2
 public partial class SourceGeneratedHomeV2
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("id")]
+    [global::Newtonsoft.Json.JsonProperty("id")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("id")]
@@ -3048,7 +3044,7 @@ public partial class SourceGeneratedHomeV2
     /// The time zone the home resides in
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("timeZone")]
+    [global::Newtonsoft.Json.JsonProperty("timeZone")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("timeZone")]
@@ -3058,7 +3054,7 @@ public partial class SourceGeneratedHomeV2
     /// The nickname given to the home by the user
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("appNickname")]
+    [global::Newtonsoft.Json.JsonProperty("appNickname")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("appNickname")]
@@ -3068,7 +3064,7 @@ public partial class SourceGeneratedHomeV2
     /// The chosen avatar for the home
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("appAvatar")]
+    [global::Newtonsoft.Json.JsonProperty("appAvatar")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("appAvatar")]
@@ -3078,7 +3074,7 @@ public partial class SourceGeneratedHomeV2
     /// The size of the home in square meters
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("size")]
+    [global::Newtonsoft.Json.JsonProperty("size")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("size")]
@@ -3088,7 +3084,7 @@ public partial class SourceGeneratedHomeV2
     /// The type of home.
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("type")]
+    [global::Newtonsoft.Json.JsonProperty("type")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("type")]
@@ -3098,7 +3094,7 @@ public partial class SourceGeneratedHomeV2
     /// The number of people living in the home
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("numberOfResidents")]
+    [global::Newtonsoft.Json.JsonProperty("numberOfResidents")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("numberOfResidents")]
@@ -3108,7 +3104,7 @@ public partial class SourceGeneratedHomeV2
     /// The primary form of heating in the household
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("primaryHeatingSource")]
+    [global::Newtonsoft.Json.JsonProperty("primaryHeatingSource")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("primaryHeatingSource")]
@@ -3118,7 +3114,7 @@ public partial class SourceGeneratedHomeV2
     /// Whether the home has a ventilation system
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("hasVentilationSystem")]
+    [global::Newtonsoft.Json.JsonProperty("hasVentilationSystem")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("hasVentilationSystem")]
@@ -3128,14 +3124,14 @@ public partial class SourceGeneratedHomeV2
     /// The main fuse size
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("mainFuseSize")]
+    [global::Newtonsoft.Json.JsonProperty("mainFuseSize")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("mainFuseSize")]
     #endif
     public int? MainFuseSize { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("address")]
+    [global::Newtonsoft.Json.JsonProperty("address")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("address")]
@@ -3145,14 +3141,14 @@ public partial class SourceGeneratedHomeV2
     /// The registered owner of the house
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("owner")]
+    [global::Newtonsoft.Json.JsonProperty("owner")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("owner")]
     #endif
     public SourceGeneratedLegalEntityV2 Owner { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("meteringPointData")]
+    [global::Newtonsoft.Json.JsonProperty("meteringPointData")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("meteringPointData")]
@@ -3162,7 +3158,7 @@ public partial class SourceGeneratedHomeV2
     /// The current/latest subscription related to the home
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("currentSubscription")]
+    [global::Newtonsoft.Json.JsonProperty("currentSubscription")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("currentSubscription")]
@@ -3172,7 +3168,7 @@ public partial class SourceGeneratedHomeV2
     /// All historic subscriptions related to the home
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("subscriptions")]
+    [global::Newtonsoft.Json.JsonProperty("subscriptions")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("subscriptions")]
@@ -3182,21 +3178,21 @@ public partial class SourceGeneratedHomeV2
     /// Consumption connection
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("consumption")]
+    [global::Newtonsoft.Json.JsonProperty("consumption")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("consumption")]
     #endif
     public SourceGeneratedHomeConsumptionConnectionV2 Consumption { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("production")]
+    [global::Newtonsoft.Json.JsonProperty("production")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("production")]
     #endif
     public SourceGeneratedHomeProductionConnectionV2 Production { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("features")]
+    [global::Newtonsoft.Json.JsonProperty("features")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("features")]
@@ -3210,56 +3206,56 @@ public partial class SourceGeneratedHomeV2
 public partial class SourceGeneratedAddressV2
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("address1")]
+    [global::Newtonsoft.Json.JsonProperty("address1")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("address1")]
     #endif
     public string Address1 { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("address2")]
+    [global::Newtonsoft.Json.JsonProperty("address2")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("address2")]
     #endif
     public string Address2 { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("address3")]
+    [global::Newtonsoft.Json.JsonProperty("address3")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("address3")]
     #endif
     public string Address3 { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("city")]
+    [global::Newtonsoft.Json.JsonProperty("city")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("city")]
     #endif
     public string City { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("postalCode")]
+    [global::Newtonsoft.Json.JsonProperty("postalCode")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("postalCode")]
     #endif
     public string PostalCode { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("country")]
+    [global::Newtonsoft.Json.JsonProperty("country")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("country")]
     #endif
     public string Country { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("latitude")]
+    [global::Newtonsoft.Json.JsonProperty("latitude")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("latitude")]
     #endif
     public string Latitude { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("longitude")]
+    [global::Newtonsoft.Json.JsonProperty("longitude")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("longitude")]
@@ -3270,7 +3266,7 @@ public partial class SourceGeneratedAddressV2
 public partial class SourceGeneratedLegalEntityV2
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("id")]
+    [global::Newtonsoft.Json.JsonProperty("id")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("id")]
@@ -3280,7 +3276,7 @@ public partial class SourceGeneratedLegalEntityV2
     /// First/Christian name of the entity
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("firstName")]
+    [global::Newtonsoft.Json.JsonProperty("firstName")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("firstName")]
@@ -3290,7 +3286,7 @@ public partial class SourceGeneratedLegalEntityV2
     /// 'true' if the entity is a company
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("isCompany")]
+    [global::Newtonsoft.Json.JsonProperty("isCompany")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("isCompany")]
@@ -3300,7 +3296,7 @@ public partial class SourceGeneratedLegalEntityV2
     /// Full name of the entity
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("name")]
+    [global::Newtonsoft.Json.JsonProperty("name")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("name")]
@@ -3310,7 +3306,7 @@ public partial class SourceGeneratedLegalEntityV2
     /// Middle name of the entity
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("middleName")]
+    [global::Newtonsoft.Json.JsonProperty("middleName")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("middleName")]
@@ -3320,7 +3316,7 @@ public partial class SourceGeneratedLegalEntityV2
     /// Last name of the entity
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("lastName")]
+    [global::Newtonsoft.Json.JsonProperty("lastName")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("lastName")]
@@ -3330,7 +3326,7 @@ public partial class SourceGeneratedLegalEntityV2
     /// Organization number - only populated if entity is a company (isCompany=true)
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("organizationNo")]
+    [global::Newtonsoft.Json.JsonProperty("organizationNo")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("organizationNo")]
@@ -3340,7 +3336,7 @@ public partial class SourceGeneratedLegalEntityV2
     /// The primary language of the entity
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("language")]
+    [global::Newtonsoft.Json.JsonProperty("language")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("language")]
@@ -3350,7 +3346,7 @@ public partial class SourceGeneratedLegalEntityV2
     /// Contact information of the entity
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("contactInfo")]
+    [global::Newtonsoft.Json.JsonProperty("contactInfo")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("contactInfo")]
@@ -3360,7 +3356,7 @@ public partial class SourceGeneratedLegalEntityV2
     /// Address information for the entity
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("address")]
+    [global::Newtonsoft.Json.JsonProperty("address")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("address")]
@@ -3374,7 +3370,7 @@ public partial class SourceGeneratedContactInfoV2
     /// The email of the corresponding entity
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("email")]
+    [global::Newtonsoft.Json.JsonProperty("email")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("email")]
@@ -3384,7 +3380,7 @@ public partial class SourceGeneratedContactInfoV2
     /// The mobile phone no of the corresponding entity
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("mobile")]
+    [global::Newtonsoft.Json.JsonProperty("mobile")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("mobile")]
@@ -3398,7 +3394,7 @@ public partial class SourceGeneratedMeteringPointDataV2
     /// The metering point ID of the home
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("consumptionEan")]
+    [global::Newtonsoft.Json.JsonProperty("consumptionEan")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("consumptionEan")]
@@ -3408,7 +3404,7 @@ public partial class SourceGeneratedMeteringPointDataV2
     /// The grid provider of the home
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("gridCompany")]
+    [global::Newtonsoft.Json.JsonProperty("gridCompany")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("gridCompany")]
@@ -3418,7 +3414,7 @@ public partial class SourceGeneratedMeteringPointDataV2
     /// The grid area the home/metering point belongs to
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("gridAreaCode")]
+    [global::Newtonsoft.Json.JsonProperty("gridAreaCode")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("gridAreaCode")]
@@ -3428,7 +3424,7 @@ public partial class SourceGeneratedMeteringPointDataV2
     /// The price area the home/metering point belongs to
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("priceAreaCode")]
+    [global::Newtonsoft.Json.JsonProperty("priceAreaCode")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("priceAreaCode")]
@@ -3438,7 +3434,7 @@ public partial class SourceGeneratedMeteringPointDataV2
     /// The metering point ID of the production
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("productionEan")]
+    [global::Newtonsoft.Json.JsonProperty("productionEan")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("productionEan")]
@@ -3448,7 +3444,7 @@ public partial class SourceGeneratedMeteringPointDataV2
     /// The eltax type of the home (only relevant for Swedish homes)
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("energyTaxType")]
+    [global::Newtonsoft.Json.JsonProperty("energyTaxType")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("energyTaxType")]
@@ -3458,7 +3454,7 @@ public partial class SourceGeneratedMeteringPointDataV2
     /// The VAT type of the home (only relevant for Norwegian homes)
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("vatType")]
+    [global::Newtonsoft.Json.JsonProperty("vatType")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("vatType")]
@@ -3468,7 +3464,7 @@ public partial class SourceGeneratedMeteringPointDataV2
     /// The estimated annual consumption as reported by grid company
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("estimatedAnnualConsumption")]
+    [global::Newtonsoft.Json.JsonProperty("estimatedAnnualConsumption")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("estimatedAnnualConsumption")]
@@ -3479,7 +3475,7 @@ public partial class SourceGeneratedMeteringPointDataV2
 public partial class SourceGeneratedSubscriptionV2
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("id")]
+    [global::Newtonsoft.Json.JsonProperty("id")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("id")]
@@ -3489,7 +3485,7 @@ public partial class SourceGeneratedSubscriptionV2
     /// The owner of the subscription
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("subscriber")]
+    [global::Newtonsoft.Json.JsonProperty("subscriber")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("subscriber")]
@@ -3499,7 +3495,7 @@ public partial class SourceGeneratedSubscriptionV2
     /// The time the subscription started
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("validFrom")]
+    [global::Newtonsoft.Json.JsonProperty("validFrom")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("validFrom")]
@@ -3509,7 +3505,7 @@ public partial class SourceGeneratedSubscriptionV2
     /// The time the subscription ended
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("validTo")]
+    [global::Newtonsoft.Json.JsonProperty("validTo")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("validTo")]
@@ -3519,7 +3515,7 @@ public partial class SourceGeneratedSubscriptionV2
     /// The current status of the subscription
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("status")]
+    [global::Newtonsoft.Json.JsonProperty("status")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("status")]
@@ -3527,7 +3523,7 @@ public partial class SourceGeneratedSubscriptionV2
     public string Status { get; set; }
     [Obsolete(@"no longer available.")]
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("statusReason")]
+    [global::Newtonsoft.Json.JsonProperty("statusReason")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("statusReason")]
@@ -3537,7 +3533,7 @@ public partial class SourceGeneratedSubscriptionV2
     /// Price information related to the subscription
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("priceInfo")]
+    [global::Newtonsoft.Json.JsonProperty("priceInfo")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("priceInfo")]
@@ -3551,7 +3547,7 @@ public partial class SourceGeneratedPriceInfoV2
     /// The energy price right now
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("current")]
+    [global::Newtonsoft.Json.JsonProperty("current")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("current")]
@@ -3561,7 +3557,7 @@ public partial class SourceGeneratedPriceInfoV2
     /// The hourly prices of the current day
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("today")]
+    [global::Newtonsoft.Json.JsonProperty("today")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("today")]
@@ -3571,7 +3567,7 @@ public partial class SourceGeneratedPriceInfoV2
     /// The hourly prices of the upcoming day
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("tomorrow")]
+    [global::Newtonsoft.Json.JsonProperty("tomorrow")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("tomorrow")]
@@ -3581,7 +3577,7 @@ public partial class SourceGeneratedPriceInfoV2
     /// Range of prices relative to before/after arguments
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("range")]
+    [global::Newtonsoft.Json.JsonProperty("range")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("range")]
@@ -3595,7 +3591,7 @@ public partial class SourceGeneratedPriceV2
     /// The total price (energy + taxes)
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("total")]
+    [global::Newtonsoft.Json.JsonProperty("total")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("total")]
@@ -3605,7 +3601,7 @@ public partial class SourceGeneratedPriceV2
     /// The energy part of the price
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("energy")]
+    [global::Newtonsoft.Json.JsonProperty("energy")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("energy")]
@@ -3615,7 +3611,7 @@ public partial class SourceGeneratedPriceV2
     /// The tax part of the price (guarantee of origin certificate, energy tax (Sweden only) and VAT)
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("tax")]
+    [global::Newtonsoft.Json.JsonProperty("tax")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("tax")]
@@ -3625,7 +3621,7 @@ public partial class SourceGeneratedPriceV2
     /// The start time of the price
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("startsAt")]
+    [global::Newtonsoft.Json.JsonProperty("startsAt")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("startsAt")]
@@ -3635,7 +3631,7 @@ public partial class SourceGeneratedPriceV2
     /// The price currency
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("currency")]
+    [global::Newtonsoft.Json.JsonProperty("currency")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("currency")]
@@ -3645,7 +3641,7 @@ public partial class SourceGeneratedPriceV2
     /// The price level compared to recent price values
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("level")]
+    [global::Newtonsoft.Json.JsonProperty("level")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("level")]
@@ -3656,21 +3652,21 @@ public partial class SourceGeneratedPriceV2
 public partial class SourceGeneratedSubscriptionPriceConnectionV2
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("pageInfo")]
+    [global::Newtonsoft.Json.JsonProperty("pageInfo")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("pageInfo")]
     #endif
     public SourceGeneratedSubscriptionPriceConnectionPageInfoV2 PageInfo { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("edges")]
+    [global::Newtonsoft.Json.JsonProperty("edges")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("edges")]
     #endif
     public ICollection<SourceGeneratedSubscriptionPriceEdgeV2> Edges { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("nodes")]
+    [global::Newtonsoft.Json.JsonProperty("nodes")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("nodes")]
@@ -3682,91 +3678,91 @@ public partial class SourceGeneratedSubscriptionPriceConnectionV2
 public partial class SourceGeneratedSubscriptionPriceConnectionPageInfoV2 : ISourceGeneratedPageInfoV2
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("endCursor")]
+    [global::Newtonsoft.Json.JsonProperty("endCursor")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("endCursor")]
     #endif
     public string EndCursor { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("hasNextPage")]
+    [global::Newtonsoft.Json.JsonProperty("hasNextPage")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("hasNextPage")]
     #endif
     public bool? HasNextPage { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("hasPreviousPage")]
+    [global::Newtonsoft.Json.JsonProperty("hasPreviousPage")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("hasPreviousPage")]
     #endif
     public bool? HasPreviousPage { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("startCursor")]
+    [global::Newtonsoft.Json.JsonProperty("startCursor")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("startCursor")]
     #endif
     public string StartCursor { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("resolution")]
+    [global::Newtonsoft.Json.JsonProperty("resolution")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("resolution")]
     #endif
     public string Resolution { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("currency")]
+    [global::Newtonsoft.Json.JsonProperty("currency")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("currency")]
     #endif
     public string Currency { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("count")]
+    [global::Newtonsoft.Json.JsonProperty("count")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("count")]
     #endif
     public int? Count { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("precision")]
+    [global::Newtonsoft.Json.JsonProperty("precision")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("precision")]
     #endif
     public string Precision { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("minEnergy")]
+    [global::Newtonsoft.Json.JsonProperty("minEnergy")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("minEnergy")]
     #endif
     public double? MinEnergy { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("minTotal")]
+    [global::Newtonsoft.Json.JsonProperty("minTotal")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("minTotal")]
     #endif
     public double? MinTotal { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("maxEnergy")]
+    [global::Newtonsoft.Json.JsonProperty("maxEnergy")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("maxEnergy")]
     #endif
     public double? MaxEnergy { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("maxTotal")]
+    [global::Newtonsoft.Json.JsonProperty("maxTotal")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("maxTotal")]
     #endif
     public double? MaxTotal { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("unimplementedField")]
+    [global::Newtonsoft.Json.JsonProperty("unimplementedField")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("unimplementedField")]
@@ -3774,7 +3770,7 @@ public partial class SourceGeneratedSubscriptionPriceConnectionPageInfoV2 : ISou
     public string UnimplementedField { get; set; }
     [Obsolete(@"should not be generated")]
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("unimplementedDeprecatedField")]
+    [global::Newtonsoft.Json.JsonProperty("unimplementedDeprecatedField")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("unimplementedDeprecatedField")]
@@ -3802,7 +3798,7 @@ public partial class SourceGeneratedSubscriptionPriceEdgeV2
     /// The global ID of the element
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("cursor")]
+    [global::Newtonsoft.Json.JsonProperty("cursor")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("cursor")]
@@ -3812,7 +3808,7 @@ public partial class SourceGeneratedSubscriptionPriceEdgeV2
     /// A single price node
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("node")]
+    [global::Newtonsoft.Json.JsonProperty("node")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("node")]
@@ -3823,21 +3819,21 @@ public partial class SourceGeneratedSubscriptionPriceEdgeV2
 public partial class SourceGeneratedHomeConsumptionConnectionV2
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("pageInfo")]
+    [global::Newtonsoft.Json.JsonProperty("pageInfo")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("pageInfo")]
     #endif
     public SourceGeneratedHomeConsumptionPageInfoV2 PageInfo { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("nodes")]
+    [global::Newtonsoft.Json.JsonProperty("nodes")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("nodes")]
     #endif
     public ICollection<SourceGeneratedConsumptionEntryV2> Nodes { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("edges")]
+    [global::Newtonsoft.Json.JsonProperty("edges")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("edges")]
@@ -3852,7 +3848,7 @@ public partial class SourceGeneratedHomeConsumptionPageInfoV2 : ISourceGenerated
     /// The global ID of the last element in the list
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("endCursor")]
+    [global::Newtonsoft.Json.JsonProperty("endCursor")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("endCursor")]
@@ -3862,7 +3858,7 @@ public partial class SourceGeneratedHomeConsumptionPageInfoV2 : ISourceGenerated
     /// True if further pages are available
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("hasNextPage")]
+    [global::Newtonsoft.Json.JsonProperty("hasNextPage")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("hasNextPage")]
@@ -3872,7 +3868,7 @@ public partial class SourceGeneratedHomeConsumptionPageInfoV2 : ISourceGenerated
     /// True if previous pages are available
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("hasPreviousPage")]
+    [global::Newtonsoft.Json.JsonProperty("hasPreviousPage")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("hasPreviousPage")]
@@ -3882,7 +3878,7 @@ public partial class SourceGeneratedHomeConsumptionPageInfoV2 : ISourceGenerated
     /// The global ID of the first element in the list
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("startCursor")]
+    [global::Newtonsoft.Json.JsonProperty("startCursor")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("startCursor")]
@@ -3892,7 +3888,7 @@ public partial class SourceGeneratedHomeConsumptionPageInfoV2 : ISourceGenerated
     /// The number of elements in the list
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("count")]
+    [global::Newtonsoft.Json.JsonProperty("count")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("count")]
@@ -3902,7 +3898,7 @@ public partial class SourceGeneratedHomeConsumptionPageInfoV2 : ISourceGenerated
     /// The currency of the page
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("currency")]
+    [global::Newtonsoft.Json.JsonProperty("currency")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("currency")]
@@ -3912,7 +3908,7 @@ public partial class SourceGeneratedHomeConsumptionPageInfoV2 : ISourceGenerated
     /// Page total cost
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("totalCost")]
+    [global::Newtonsoft.Json.JsonProperty("totalCost")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("totalCost")]
@@ -3923,7 +3919,7 @@ public partial class SourceGeneratedHomeConsumptionPageInfoV2 : ISourceGenerated
     /// </summary>
     [Obsolete(@"redundant")]
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("energyCost")]
+    [global::Newtonsoft.Json.JsonProperty("energyCost")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("energyCost")]
@@ -3933,7 +3929,7 @@ public partial class SourceGeneratedHomeConsumptionPageInfoV2 : ISourceGenerated
     /// Total consumption for page
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("totalConsumption")]
+    [global::Newtonsoft.Json.JsonProperty("totalConsumption")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("totalConsumption")]
@@ -3943,14 +3939,14 @@ public partial class SourceGeneratedHomeConsumptionPageInfoV2 : ISourceGenerated
     /// Number of entries that have been filtered from result set due to empty nodes
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("filtered")]
+    [global::Newtonsoft.Json.JsonProperty("filtered")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("filtered")]
     #endif
     public int? Filtered { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("unimplementedField")]
+    [global::Newtonsoft.Json.JsonProperty("unimplementedField")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("unimplementedField")]
@@ -3958,7 +3954,7 @@ public partial class SourceGeneratedHomeConsumptionPageInfoV2 : ISourceGenerated
     public string UnimplementedField { get; set; }
     [Obsolete(@"should not be generated")]
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("unimplementedDeprecatedField")]
+    [global::Newtonsoft.Json.JsonProperty("unimplementedDeprecatedField")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("unimplementedDeprecatedField")]
@@ -3969,28 +3965,28 @@ public partial class SourceGeneratedHomeConsumptionPageInfoV2 : ISourceGenerated
 public partial class SourceGeneratedConsumptionEntryV2
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("from")]
+    [global::Newtonsoft.Json.JsonProperty("from")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("from")]
     #endif
     public DateTimeOffset? From { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("to")]
+    [global::Newtonsoft.Json.JsonProperty("to")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("to")]
     #endif
     public DateTimeOffset? To { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("unitPrice")]
+    [global::Newtonsoft.Json.JsonProperty("unitPrice")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("unitPrice")]
     #endif
     public double? UnitPrice { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("unitPriceVAT")]
+    [global::Newtonsoft.Json.JsonProperty("unitPriceVAT")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("unitPriceVAT")]
@@ -4000,14 +3996,14 @@ public partial class SourceGeneratedConsumptionEntryV2
     /// kWh consumed
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("consumption")]
+    [global::Newtonsoft.Json.JsonProperty("consumption")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("consumption")]
     #endif
     public double? Consumption { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("consumptionUnit")]
+    [global::Newtonsoft.Json.JsonProperty("consumptionUnit")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("consumptionUnit")]
@@ -4018,7 +4014,7 @@ public partial class SourceGeneratedConsumptionEntryV2
     /// </summary>
     [Obsolete(@"use cost instead.")]
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("totalCost")]
+    [global::Newtonsoft.Json.JsonProperty("totalCost")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("totalCost")]
@@ -4026,14 +4022,14 @@ public partial class SourceGeneratedConsumptionEntryV2
     public double? TotalCost { get; set; }
     [Obsolete(@"use cost instead")]
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("unitCost")]
+    [global::Newtonsoft.Json.JsonProperty("unitCost")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("unitCost")]
     #endif
     public double? UnitCost { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("cost")]
+    [global::Newtonsoft.Json.JsonProperty("cost")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("cost")]
@@ -4043,7 +4039,7 @@ public partial class SourceGeneratedConsumptionEntryV2
     /// The cost currency
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("currency")]
+    [global::Newtonsoft.Json.JsonProperty("currency")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("currency")]
@@ -4054,14 +4050,14 @@ public partial class SourceGeneratedConsumptionEntryV2
 public partial class SourceGeneratedHomeConsumptionEdgeV2
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("cursor")]
+    [global::Newtonsoft.Json.JsonProperty("cursor")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("cursor")]
     #endif
     public string Cursor { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("node")]
+    [global::Newtonsoft.Json.JsonProperty("node")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("node")]
@@ -4072,21 +4068,21 @@ public partial class SourceGeneratedHomeConsumptionEdgeV2
 public partial class SourceGeneratedHomeProductionConnectionV2
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("pageInfo")]
+    [global::Newtonsoft.Json.JsonProperty("pageInfo")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("pageInfo")]
     #endif
     public SourceGeneratedHomeProductionPageInfoV2 PageInfo { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("nodes")]
+    [global::Newtonsoft.Json.JsonProperty("nodes")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("nodes")]
     #endif
     public ICollection<SourceGeneratedProductionEntryV2> Nodes { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("edges")]
+    [global::Newtonsoft.Json.JsonProperty("edges")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("edges")]
@@ -4101,7 +4097,7 @@ public partial class SourceGeneratedHomeProductionPageInfoV2 : ISourceGeneratedP
     /// The global ID of the last element in the list
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("endCursor")]
+    [global::Newtonsoft.Json.JsonProperty("endCursor")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("endCursor")]
@@ -4111,7 +4107,7 @@ public partial class SourceGeneratedHomeProductionPageInfoV2 : ISourceGeneratedP
     /// True if further pages are available
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("hasNextPage")]
+    [global::Newtonsoft.Json.JsonProperty("hasNextPage")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("hasNextPage")]
@@ -4121,7 +4117,7 @@ public partial class SourceGeneratedHomeProductionPageInfoV2 : ISourceGeneratedP
     /// True if previous pages are available
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("hasPreviousPage")]
+    [global::Newtonsoft.Json.JsonProperty("hasPreviousPage")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("hasPreviousPage")]
@@ -4131,7 +4127,7 @@ public partial class SourceGeneratedHomeProductionPageInfoV2 : ISourceGeneratedP
     /// The global ID of the first element in the list
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("startCursor")]
+    [global::Newtonsoft.Json.JsonProperty("startCursor")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("startCursor")]
@@ -4141,7 +4137,7 @@ public partial class SourceGeneratedHomeProductionPageInfoV2 : ISourceGeneratedP
     /// The number of elements in the list
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("count")]
+    [global::Newtonsoft.Json.JsonProperty("count")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("count")]
@@ -4151,7 +4147,7 @@ public partial class SourceGeneratedHomeProductionPageInfoV2 : ISourceGeneratedP
     /// The currency of the page
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("currency")]
+    [global::Newtonsoft.Json.JsonProperty("currency")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("currency")]
@@ -4161,7 +4157,7 @@ public partial class SourceGeneratedHomeProductionPageInfoV2 : ISourceGeneratedP
     /// Page total profit
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("totalProfit")]
+    [global::Newtonsoft.Json.JsonProperty("totalProfit")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("totalProfit")]
@@ -4171,7 +4167,7 @@ public partial class SourceGeneratedHomeProductionPageInfoV2 : ISourceGeneratedP
     /// Page total production
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("totalProduction")]
+    [global::Newtonsoft.Json.JsonProperty("totalProduction")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("totalProduction")]
@@ -4181,14 +4177,14 @@ public partial class SourceGeneratedHomeProductionPageInfoV2 : ISourceGeneratedP
     /// Number of entries that have been filtered from result set due to empty nodes
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("filtered")]
+    [global::Newtonsoft.Json.JsonProperty("filtered")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("filtered")]
     #endif
     public int? Filtered { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("unimplementedField")]
+    [global::Newtonsoft.Json.JsonProperty("unimplementedField")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("unimplementedField")]
@@ -4196,7 +4192,7 @@ public partial class SourceGeneratedHomeProductionPageInfoV2 : ISourceGeneratedP
     public string UnimplementedField { get; set; }
     [Obsolete(@"should not be generated")]
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("unimplementedDeprecatedField")]
+    [global::Newtonsoft.Json.JsonProperty("unimplementedDeprecatedField")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("unimplementedDeprecatedField")]
@@ -4207,28 +4203,28 @@ public partial class SourceGeneratedHomeProductionPageInfoV2 : ISourceGeneratedP
 public partial class SourceGeneratedProductionEntryV2
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("from")]
+    [global::Newtonsoft.Json.JsonProperty("from")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("from")]
     #endif
     public DateTimeOffset? From { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("to")]
+    [global::Newtonsoft.Json.JsonProperty("to")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("to")]
     #endif
     public DateTimeOffset? To { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("unitPrice")]
+    [global::Newtonsoft.Json.JsonProperty("unitPrice")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("unitPrice")]
     #endif
     public double? UnitPrice { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("unitPriceVAT")]
+    [global::Newtonsoft.Json.JsonProperty("unitPriceVAT")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("unitPriceVAT")]
@@ -4238,14 +4234,14 @@ public partial class SourceGeneratedProductionEntryV2
     /// kWh consumed
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("production")]
+    [global::Newtonsoft.Json.JsonProperty("production")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("production")]
     #endif
     public double? Production { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("productionUnit")]
+    [global::Newtonsoft.Json.JsonProperty("productionUnit")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("productionUnit")]
@@ -4255,7 +4251,7 @@ public partial class SourceGeneratedProductionEntryV2
     /// Total profit of the production
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("profit")]
+    [global::Newtonsoft.Json.JsonProperty("profit")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("profit")]
@@ -4265,7 +4261,7 @@ public partial class SourceGeneratedProductionEntryV2
     /// The cost currency
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("currency")]
+    [global::Newtonsoft.Json.JsonProperty("currency")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("currency")]
@@ -4276,14 +4272,14 @@ public partial class SourceGeneratedProductionEntryV2
 public partial class SourceGeneratedHomeProductionEdgeV2
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("cursor")]
+    [global::Newtonsoft.Json.JsonProperty("cursor")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("cursor")]
     #endif
     public string Cursor { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("node")]
+    [global::Newtonsoft.Json.JsonProperty("node")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("node")]
@@ -4297,7 +4293,7 @@ public partial class SourceGeneratedHomeFeaturesV2
     /// 'true' if Tibber Pulse or Watty device is paired at home
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("realTimeConsumptionEnabled")]
+    [global::Newtonsoft.Json.JsonProperty("realTimeConsumptionEnabled")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("realTimeConsumptionEnabled")]
@@ -4311,7 +4307,7 @@ public partial class SourceGeneratedTibberMutationV2
     /// Send meter reading for home (only available for Norwegian users)
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("sendMeterReading")]
+    [global::Newtonsoft.Json.JsonProperty("sendMeterReading")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("sendMeterReading")]
@@ -4321,7 +4317,7 @@ public partial class SourceGeneratedTibberMutationV2
     /// Update home information
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("updateHome")]
+    [global::Newtonsoft.Json.JsonProperty("updateHome")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("updateHome")]
@@ -4331,7 +4327,7 @@ public partial class SourceGeneratedTibberMutationV2
     /// Send notification to Tibber app on registered devices
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("sendPushNotification")]
+    [global::Newtonsoft.Json.JsonProperty("sendPushNotification")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("sendPushNotification")]
@@ -4342,21 +4338,21 @@ public partial class SourceGeneratedTibberMutationV2
 public partial class SourceGeneratedMeterReadingResponseV2
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("homeId")]
+    [global::Newtonsoft.Json.JsonProperty("homeId")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("homeId")]
     #endif
     public string HomeId { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("time")]
+    [global::Newtonsoft.Json.JsonProperty("time")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("time")]
     #endif
     public string Time { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("reading")]
+    [global::Newtonsoft.Json.JsonProperty("reading")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("reading")]
@@ -4367,14 +4363,14 @@ public partial class SourceGeneratedMeterReadingResponseV2
 public partial class SourceGeneratedPushNotificationResponseV2
 {
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("successful")]
+    [global::Newtonsoft.Json.JsonProperty("successful")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("successful")]
     #endif
     public bool? Successful { get; set; }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("pushedToNumberOfDevices")]
+    [global::Newtonsoft.Json.JsonProperty("pushedToNumberOfDevices")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("pushedToNumberOfDevices")]
@@ -4388,7 +4384,7 @@ public partial class SourceGeneratedRootSubscriptionV2
     /// Subscribe to real-time measurement stream from Pulse or Watty device
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("liveMeasurement")]
+    [global::Newtonsoft.Json.JsonProperty("liveMeasurement")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("liveMeasurement")]
@@ -4402,7 +4398,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// Timestamp when usage occured
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("timestamp")]
+    [global::Newtonsoft.Json.JsonProperty("timestamp")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("timestamp")]
@@ -4412,7 +4408,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// Consumption at the moment (Watt)
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("power")]
+    [global::Newtonsoft.Json.JsonProperty("power")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("power")]
@@ -4422,7 +4418,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// Last meter active import register state (kWh)
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("lastMeterConsumption")]
+    [global::Newtonsoft.Json.JsonProperty("lastMeterConsumption")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("lastMeterConsumption")]
@@ -4432,7 +4428,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// kWh consumed since midnight
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("accumulatedConsumption")]
+    [global::Newtonsoft.Json.JsonProperty("accumulatedConsumption")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("accumulatedConsumption")]
@@ -4442,7 +4438,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// net kWh produced since midnight
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("accumulatedProduction")]
+    [global::Newtonsoft.Json.JsonProperty("accumulatedProduction")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("accumulatedProduction")]
@@ -4452,7 +4448,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// Accumulated cost since midnight; requires active Tibber power deal
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("accumulatedCost")]
+    [global::Newtonsoft.Json.JsonProperty("accumulatedCost")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("accumulatedCost")]
@@ -4462,7 +4458,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// Accumulated reward since midnight; requires active Tibber power deal
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("accumulatedReward")]
+    [global::Newtonsoft.Json.JsonProperty("accumulatedReward")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("accumulatedReward")]
@@ -4472,7 +4468,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// Currency of displayed cost; requires active Tibber power deal
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("currency")]
+    [global::Newtonsoft.Json.JsonProperty("currency")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("currency")]
@@ -4482,7 +4478,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// Min consumption since midnight (Watt)
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("minPower")]
+    [global::Newtonsoft.Json.JsonProperty("minPower")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("minPower")]
@@ -4492,7 +4488,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// Average consumption since midnight (Watt)
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("averagePower")]
+    [global::Newtonsoft.Json.JsonProperty("averagePower")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("averagePower")]
@@ -4502,7 +4498,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// Peak consumption since midnight  (Watt)
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("maxPower")]
+    [global::Newtonsoft.Json.JsonProperty("maxPower")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("maxPower")]
@@ -4512,7 +4508,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// Net production at the moment (Watt)
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("powerProduction")]
+    [global::Newtonsoft.Json.JsonProperty("powerProduction")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("powerProduction")]
@@ -4522,7 +4518,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// Min net production since midnight (Watt)
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("minPowerProduction")]
+    [global::Newtonsoft.Json.JsonProperty("minPowerProduction")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("minPowerProduction")]
@@ -4532,7 +4528,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// Max net production since midnight (Watt)
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("maxPowerProduction")]
+    [global::Newtonsoft.Json.JsonProperty("maxPowerProduction")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("maxPowerProduction")]
@@ -4542,7 +4538,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// Last meter active export register state (kWh)
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("lastMeterProduction")]
+    [global::Newtonsoft.Json.JsonProperty("lastMeterProduction")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("lastMeterProduction")]
@@ -4552,7 +4548,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// Voltage on phase 1; on Kaifa and Aidon meters the value is not part of every HAN data frame therefore the value is null at timestamps with second value other than 0, 10, 20, 30, 40, 50. There can be other deviations based on concrete meter firmware.
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("voltagePhase1")]
+    [global::Newtonsoft.Json.JsonProperty("voltagePhase1")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("voltagePhase1")]
@@ -4562,7 +4558,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// Voltage on phase 2; on Kaifa and Aidon meters the value is not part of every HAN data frame therefore the value is null at timestamps with second value other than 0, 10, 20, 30, 40, 50. There can be other deviations based on concrete meter firmware. Value is always null for single phase meters.
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("voltagePhase2")]
+    [global::Newtonsoft.Json.JsonProperty("voltagePhase2")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("voltagePhase2")]
@@ -4572,7 +4568,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// Voltage on phase 3; on Kaifa and Aidon meters the value is not part of every HAN data frame therefore the value is null at timestamps with second value other than 0, 10, 20, 30, 40, 50. There can be other deviations based on concrete meter firmware. Value is always null for single phase meters.
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("voltagePhase3")]
+    [global::Newtonsoft.Json.JsonProperty("voltagePhase3")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("voltagePhase3")]
@@ -4582,7 +4578,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// Current on phase 1; on Kaifa and Aidon meters the value is not part of every HAN data frame therefore the value is null at timestamps with second value other than 0, 10, 20, 30, 40, 50. There can be other deviations based on concrete meter firmware.
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("currentPhase1")]
+    [global::Newtonsoft.Json.JsonProperty("currentPhase1")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("currentPhase1")]
@@ -4592,7 +4588,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// Current on phase 2; on Kaifa and Aidon meters the value is not part of every HAN data frame therefore the value is null at timestamps with second value other than 0, 10, 20, 30, 40, 50. There can be other deviations based on concrete meter firmware. Value is always null for single phase meters.
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("currentPhase2")]
+    [global::Newtonsoft.Json.JsonProperty("currentPhase2")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("currentPhase2")]
@@ -4602,7 +4598,7 @@ public partial class SourceGeneratedLiveMeasurementV2
     /// Current on phase 3; on Kaifa and Aidon meters the value is not part of every HAN data frame therefore the value is null at timestamps with second value other than 0, 10, 20, 30, 40, 50. There can be other deviations based on concrete meter firmware. Value is always null for single phase meters.
     /// </summary>
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("currentPhase3")]
+    [global::Newtonsoft.Json.JsonProperty("currentPhase3")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("currentPhase3")]

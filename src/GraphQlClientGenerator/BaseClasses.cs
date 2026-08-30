@@ -30,11 +30,11 @@ public class GraphQlObjectTypeAttribute : global::System.Attribute
 #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
 public class QueryBuilderParameterConverter<T> : global::Newtonsoft.Json.JsonConverter
 {
-    public override object ReadJson(JsonReader reader, global::System.Type objectType, object existingValue, JsonSerializer serializer)
+    public override object ReadJson(global::Newtonsoft.Json.JsonReader reader, global::System.Type objectType, object existingValue, global::Newtonsoft.Json.JsonSerializer serializer)
     {
         switch (reader.TokenType)
         {
-            case JsonToken.Null:
+            case global::Newtonsoft.Json.JsonToken.Null:
                 return null;
 
             default:
@@ -42,7 +42,7 @@ public class QueryBuilderParameterConverter<T> : global::Newtonsoft.Json.JsonCon
         }
     }
 
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    public override void WriteJson(global::Newtonsoft.Json.JsonWriter writer, object value, global::Newtonsoft.Json.JsonSerializer serializer)
     {
         if (value == null)
             writer.WriteNull();
@@ -59,29 +59,29 @@ public class GraphQlInterfaceJsonConverter : global::Newtonsoft.Json.JsonConvert
 
     public override bool CanConvert(global::System.Type objectType) => objectType.IsInterface || objectType.IsArray;
 
-    public override object ReadJson(JsonReader reader, global::System.Type objectType, object existingValue, JsonSerializer serializer)
+    public override object ReadJson(global::Newtonsoft.Json.JsonReader reader, global::System.Type objectType, object existingValue, global::Newtonsoft.Json.JsonSerializer serializer)
     {
-        while (reader.TokenType == JsonToken.Comment)
+        while (reader.TokenType == global::Newtonsoft.Json.JsonToken.Comment)
             reader.Read();
 
         switch (reader.TokenType)
         {
-            case JsonToken.Null:
+            case global::Newtonsoft.Json.JsonToken.Null:
                 return null;
 
-            case JsonToken.StartObject:
-                var jObject = JObject.Load(reader);
-                if (!jObject.TryGetValue(FieldNameType, out var token) || token.Type != JTokenType.String)
+            case global::Newtonsoft.Json.JsonToken.StartObject:
+                var jObject = global::Newtonsoft.Json.Linq.JObject.Load(reader);
+                if (!jObject.TryGetValue(FieldNameType, out var token) || token.Type != global::Newtonsoft.Json.Linq.JTokenType.String)
                     throw CreateJsonReaderException(reader, $"\"{GetType().FullName}\" requires JSON object to contain \"{FieldNameType}\" field with type name");
 
-                var typeName = token.Value<string>();
+                var typeName = (string)token;
                 if (!GraphQlObjectTypeAttribute.InterfaceTypeMapping.TryGetValue(typeName, out var type))
                     throw CreateJsonReaderException(reader, $"type \"{typeName}\" not found");
 
                 using (reader = CloneReader(jObject, reader))
                     return serializer.Deserialize(reader, type);
 
-            case JsonToken.StartArray:
+            case global::Newtonsoft.Json.JsonToken.StartArray:
                 var elementType = GetElementType(objectType);
                 if (elementType == null)
                     throw CreateJsonReaderException(reader, $"array element type could not be resolved for type \"{objectType.FullName}\"");
@@ -93,9 +93,9 @@ public class GraphQlInterfaceJsonConverter : global::Newtonsoft.Json.JsonConvert
         }
     }
 
-    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => serializer.Serialize(writer, value);
+    public override void WriteJson(global::Newtonsoft.Json.JsonWriter writer, object value, global::Newtonsoft.Json.JsonSerializer serializer) => serializer.Serialize(writer, value);
 
-    private static JsonReader CloneReader(JToken jToken, JsonReader reader)
+    private static global::Newtonsoft.Json.JsonReader CloneReader(global::Newtonsoft.Json.Linq.JToken jToken, global::Newtonsoft.Json.JsonReader reader)
     {
         var jObjectReader = jToken.CreateReader();
         jObjectReader.Culture = reader.Culture;
@@ -108,21 +108,21 @@ public class GraphQlInterfaceJsonConverter : global::Newtonsoft.Json.JsonConvert
         return jObjectReader;
     }
 
-    private static JsonReaderException CreateJsonReaderException(JsonReader reader, string message)
+    private static global::Newtonsoft.Json.JsonReaderException CreateJsonReaderException(global::Newtonsoft.Json.JsonReader reader, string message)
     {
-        if (reader is IJsonLineInfo lineInfo && lineInfo.HasLineInfo())
-            return new JsonReaderException(message, reader.Path, lineInfo.LineNumber, lineInfo.LinePosition, null);
+        if (reader is global::Newtonsoft.Json.IJsonLineInfo lineInfo && lineInfo.HasLineInfo())
+            return new global::Newtonsoft.Json.JsonReaderException(message, reader.Path, lineInfo.LineNumber, lineInfo.LinePosition, null);
 
-        return new JsonReaderException(message);
+        return new global::Newtonsoft.Json.JsonReaderException(message);
     }
 
     private static global::System.Type GetElementType(global::System.Type arrayOrGenericContainer) =>
         arrayOrGenericContainer.IsArray ? arrayOrGenericContainer.GetElementType() : arrayOrGenericContainer.GenericTypeArguments.FirstOrDefault();
 
-    private IList ReadArray(JsonReader reader, global::System.Type targetType, global::System.Type elementType, JsonSerializer serializer)
+    private IList ReadArray(global::Newtonsoft.Json.JsonReader reader, global::System.Type targetType, global::System.Type elementType, global::Newtonsoft.Json.JsonSerializer serializer)
     {
         var list = CreateCompatibleList(targetType, elementType);
-        while (reader.Read() && reader.TokenType != JsonToken.EndArray)
+        while (reader.Read() && reader.TokenType != global::Newtonsoft.Json.JsonToken.EndArray)
             list.Add(ReadJson(reader, elementType, null, serializer));
 
         if (!targetType.IsArray)
@@ -462,21 +462,21 @@ public class DefaultGraphQlArgumentBuilder : IGraphQlArgumentBuilder
     public bool TryBuild(GraphQlArgumentBuilderContext context, out string graphQlString)
     {
 #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-        if (context.Value is JValue jValue)
+        if (context.Value is global::Newtonsoft.Json.Linq.JValue jValue)
         {
             switch (jValue.Type)
             {
-                case JTokenType.Null:
+                case global::Newtonsoft.Json.Linq.JTokenType.Null:
                     graphQlString = "null";
                     return true;
 
-                case JTokenType.Integer:
-                case JTokenType.Float:
-                case JTokenType.Boolean:
+                case global::Newtonsoft.Json.Linq.JTokenType.Integer:
+                case global::Newtonsoft.Json.Linq.JTokenType.Float:
+                case global::Newtonsoft.Json.Linq.JTokenType.Boolean:
                     graphQlString = GraphQlQueryHelper.BuildArgumentValue(jValue.Value, null, context.Options, context.Level);
                     return true;
 
-                case JTokenType.String:
+                case global::Newtonsoft.Json.Linq.JTokenType.String:
                     graphQlString = $"\"{GraphQlQueryHelper.EscapeGraphQlStringValue((string)jValue.Value)}\"";
                     return true;
 
@@ -486,13 +486,13 @@ public class DefaultGraphQlArgumentBuilder : IGraphQlArgumentBuilder
             }
         }
 
-        if (context.Value is JProperty jProperty)
+        if (context.Value is global::Newtonsoft.Json.Linq.JProperty jProperty)
         {
             graphQlString = BuildJsonPropertyArgument(jProperty.Name, jProperty.Value, context);
             return true;
         }
 
-        if (context.Value is JObject jObject)
+        if (context.Value is global::Newtonsoft.Json.Linq.JObject jObject)
         {
             graphQlString = GraphQlQueryHelper.BuildEnumerableArgument(jObject, null, context.Options, context.Level + 1, '{', '}');
             return true;

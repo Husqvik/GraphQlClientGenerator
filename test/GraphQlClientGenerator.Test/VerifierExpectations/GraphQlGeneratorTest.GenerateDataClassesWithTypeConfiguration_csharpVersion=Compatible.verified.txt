@@ -150,7 +150,7 @@ public class Home
     public PreLiveComparison PreLiveComparison { get { return _preLiveComparison; } set { _preLiveComparison = value; } }
     public ICollection<Comparison> Comparisons { get { return _comparisons; } set { _comparisons = value; } }
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonProperty("comparison_current_month")]
+    [global::Newtonsoft.Json.JsonProperty("comparison_current_month")]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonPropertyName("comparison_current_month")]

@@ -14,7 +14,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
     public const string PreprocessorDirectiveDisableSystemTextJson = "GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON";
 
     public const string RequiredNamespaces =
-        $"""
+        """
         using System;
         using System.Collections;
         using System.Collections.Generic;
@@ -25,10 +25,6 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         using System.Runtime.Serialization;
         using System.Text;
         using System.Text.RegularExpressions;
-        #if !{PreprocessorDirectiveDisableNewtonsoftJson}
-        using Newtonsoft.Json;
-        using Newtonsoft.Json.Linq;
-        #endif
 
         """;
 
@@ -724,7 +720,7 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         if (isJsonPropertyAttributeNeeded)
         {
             writer.Write(indentation);
-            writer.Write("    [JsonProperty(\"");
+            writer.Write("    [global::Newtonsoft.Json.JsonProperty(\"");
             writer.Write(member.Name);
             writer.WriteLine("\")]");
         }
@@ -732,12 +728,12 @@ public class GraphQlGenerator(GraphQlGeneratorConfiguration configuration = null
         if (isGraphQlInterfaceJsonConverterRequired)
         {
             writer.Write(indentation);
-            writer.WriteLine("    [JsonConverter(typeof(GraphQlInterfaceJsonConverter))]");
+            writer.WriteLine("    [global::Newtonsoft.Json.JsonConverter(typeof(GraphQlInterfaceJsonConverter))]");
         }
         else if (isOwnerInputObjectInRichMode)
         {
             writer.Write(indentation);
-            writer.Write("    [JsonConverter(typeof(QueryBuilderParameterConverter<");
+            writer.Write("    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<");
             writer.Write(propertyTypeDescription.NetTypeName);
             writer.WriteLine(">))]");
         }

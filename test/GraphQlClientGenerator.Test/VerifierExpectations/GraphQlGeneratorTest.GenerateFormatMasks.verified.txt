@@ -2447,7 +2447,7 @@ public partial class MeterReadingInput : IGraphQlInputObject
     private InputPropertyInfo _reading;
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<Guid?>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<Guid?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<Guid?>))]
@@ -2459,7 +2459,7 @@ public partial class MeterReadingInput : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<string>))]
@@ -2471,7 +2471,7 @@ public partial class MeterReadingInput : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<int?>))]
@@ -2503,7 +2503,7 @@ public partial class UpdateHomeInput : IGraphQlInputObject
     private InputPropertyInfo _mainFuseSize;
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<Guid?>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<Guid?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<Guid?>))]
@@ -2515,7 +2515,7 @@ public partial class UpdateHomeInput : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<string>))]
@@ -2527,7 +2527,7 @@ public partial class UpdateHomeInput : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<HomeAvatar?>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<HomeAvatar?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<HomeAvatar?>))]
@@ -2539,7 +2539,7 @@ public partial class UpdateHomeInput : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<int?>))]
@@ -2551,7 +2551,7 @@ public partial class UpdateHomeInput : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<HomeType?>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<HomeType?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<HomeType?>))]
@@ -2563,7 +2563,7 @@ public partial class UpdateHomeInput : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<int?>))]
@@ -2575,7 +2575,7 @@ public partial class UpdateHomeInput : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<HeatingSource?>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<HeatingSource?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<HeatingSource?>))]
@@ -2587,7 +2587,7 @@ public partial class UpdateHomeInput : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<bool?>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<bool?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<bool?>))]
@@ -2599,7 +2599,7 @@ public partial class UpdateHomeInput : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<int?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<int?>))]
@@ -2631,7 +2631,7 @@ public partial class PushNotificationInput : IGraphQlInputObject
     private InputPropertyInfo _screenToOpen;
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<string>))]
@@ -2643,7 +2643,7 @@ public partial class PushNotificationInput : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<string>))]
@@ -2655,7 +2655,7 @@ public partial class PushNotificationInput : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<AppScreen?>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<AppScreen?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<AppScreen?>))]

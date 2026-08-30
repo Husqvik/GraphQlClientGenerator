@@ -24,15 +24,12 @@ public class MultipleFileGenerationContext : GenerationContext
         """;
 
     private const string RequiredNamespaces =
-        $"""
+        """
         using System;
         using System.Collections.Generic;
         using System.ComponentModel;
         using System.Globalization;
         using System.Runtime.Serialization;
-        #if !{GraphQlGenerator.PreprocessorDirectiveDisableNewtonsoftJson}
-        using Newtonsoft.Json;
-        #endif
 
         """;
 

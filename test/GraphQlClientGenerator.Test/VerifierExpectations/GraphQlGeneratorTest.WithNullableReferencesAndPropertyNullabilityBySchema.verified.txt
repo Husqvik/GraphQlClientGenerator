@@ -2937,7 +2937,7 @@ public partial class HomeProfileQuestionAnswer : IGraphQlInputObject
     private InputPropertyInfo _value;
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string?>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<string?>))]
@@ -2949,7 +2949,7 @@ public partial class HomeProfileQuestionAnswer : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<object?>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<object?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<object?>))]
@@ -2973,7 +2973,7 @@ public partial class AppStateMutation : IGraphQlInputObject
     private InputPropertyInfo _frontScreens;
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<AppStateJourneyMutation?>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<AppStateJourneyMutation?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<AppStateJourneyMutation?>))]
@@ -2985,7 +2985,7 @@ public partial class AppStateMutation : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<AppStateFronScreenMutation?>?>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<AppStateFronScreenMutation?>?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<ICollection<AppStateFronScreenMutation?>?>))]
@@ -3008,7 +3008,7 @@ public partial class AppStateJourneyMutation : IGraphQlInputObject
     private InputPropertyInfo _hasVisitedPairDevices;
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<bool?>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<bool?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<bool?>))]
@@ -3032,7 +3032,7 @@ public partial class AppStateFronScreenMutation : IGraphQlInputObject
     private InputPropertyInfo _bubblesSortOrder;
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<string?>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<string?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<string?>))]
@@ -3044,7 +3044,7 @@ public partial class AppStateFronScreenMutation : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<string?>?>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<string?>?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<ICollection<string?>?>))]
@@ -3056,7 +3056,7 @@ public partial class AppStateFronScreenMutation : IGraphQlInputObject
     }
 
     #if !GRAPHQL_GENERATOR_DISABLE_NEWTONSOFT_JSON
-    [JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<string?>?>))]
+    [global::Newtonsoft.Json.JsonConverter(typeof(QueryBuilderParameterConverter<ICollection<string?>?>))]
     #endif
     #if !GRAPHQL_GENERATOR_DISABLE_SYSTEM_TEXT_JSON
     [System.Text.Json.Serialization.JsonConverter(typeof(QueryBuilderParameterSystemTextJsonConverter<ICollection<string?>?>))]

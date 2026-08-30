@@ -14,6 +14,7 @@ internal static class CompilationHelper
             SyntaxFactory.ParseSyntaxTree(
                 $$"""
                 {{GraphQlGenerator.RequiredNamespaces}}
+                using Newtonsoft.Json;
 
                 namespace {{assemblyName}}
                 {
