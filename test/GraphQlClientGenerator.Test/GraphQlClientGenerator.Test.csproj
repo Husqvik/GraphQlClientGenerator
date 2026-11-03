@@ -5,6 +5,8 @@
     <OutputType>Exe</OutputType>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
+	<Verify_SponsorshipExemption>OpenSource</Verify_SponsorshipExemption>
+	<Verify_SponsorshipExemptionUntil>2027-11</Verify_SponsorshipExemptionUntil>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,7 +17,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.*" />
     <PackageReference Include="Shouldly" Version="4.*" />
-    <PackageReference Include="Verify.XunitV3" Version="31.*" />
+    <PackageReference Include="Verify.XunitV3" Version="33.*" />
     <PackageReference Include="xunit.v3" Version="4.*" />
     <PackageReference Include="xunit.runner.visualstudio" Version="4.*">
       <PrivateAssets>all</PrivateAssets>
