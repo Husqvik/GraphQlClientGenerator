@@ -20,7 +20,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.CommandLine" Version="2.*" />
+    <PackageReference Include="System.CommandLine" Version="3.*" />
     <ProjectReference Include="..\GraphQlClientGenerator\GraphQlClientGenerator.csproj">
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
       <IncludeAssets>all</IncludeAssets>
